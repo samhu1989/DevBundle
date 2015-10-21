@@ -106,6 +106,7 @@ public:
 
   /// open mesh
   virtual bool open_mesh(const char* _filename, OpenMesh::IO::Options _opt);
+  virtual bool save_mesh(const char* _filename, OpenMesh::IO::Options _opt);
   
   /// load texture
   virtual bool open_texture( const char *_filename );

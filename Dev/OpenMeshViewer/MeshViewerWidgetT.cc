@@ -145,11 +145,11 @@ MeshViewerWidgetT<M>::open_mesh(const char* _filename, IO::Options _opt)
     
     for (size_t count=0; vIt!=vEnd; ++vIt, ++count)
     {
-      bbMin.minimize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
-      bbMax.maximize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
+        bbMin.minimize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
+        bbMax.maximize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
     }
-    
-    
+
+    std::clog<<"Bounding Box("<<bbMin<<")-("<<bbMax<<")"<<std::endl;
     // set center and radius
     set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
     
@@ -160,7 +160,7 @@ MeshViewerWidgetT<M>::open_mesh(const char* _filename, IO::Options _opt)
     std::clog << mesh_.n_vertices() << " vertices, "
 	      << mesh_.n_edges()    << " edge, "
 	      << mesh_.n_faces()    << " faces\n";
-    
+
     // base point for displaying face normals
     {
       OpenMesh::Utils::Timer t;
@@ -205,7 +205,27 @@ MeshViewerWidgetT<M>::open_mesh(const char* _filename, IO::Options _opt)
   return false;
 }
 
+template <typename M>
+bool
+MeshViewerWidgetT<M>::save_mesh(const char* _filename, IO::Options _opt)
+{
+  // load mesh
+  // calculate normals
+  // set scene center and radius
 
+  mesh_.request_face_normals();
+  mesh_.request_face_colors();
+  mesh_.request_vertex_normals();
+  mesh_.request_vertex_colors();
+  mesh_.request_vertex_texcoords2D();
+
+  std::cout << "Saving to file '" << _filename << "'\n";
+  if ( IO::write_mesh(mesh_, _filename, _opt, 16 ) )
+  {
+      return true;
+  }
+  return false;
+}
 //-----------------------------------------------------------------------------
 
 template <typename M>

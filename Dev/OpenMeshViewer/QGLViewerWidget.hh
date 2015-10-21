@@ -112,6 +112,7 @@ public:
   { return draw_mode_ ? draw_mode_names_[draw_mode_-1] : nomode_; }
 
   float radius() const { return radius_; }
+
   const OpenMesh::Vec3f& center() const { return center_; }
 
   const GLdouble* modelview_matrix() const  { return modelview_matrix_;  }
@@ -134,7 +135,7 @@ protected:
   void setDefaultMaterial(void);
   void setDefaultLight(void);
 
-private slots:  
+public slots:
 
   // popup menu clicked
   void slotDrawMode(QAction *_mode);  

@@ -148,6 +148,12 @@ void create_menu(QMainWindow &w)
     QObject::connect(openAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_open_mesh_file()));
     fileMenu->addAction(openAct);
 
+    QAction* saveAct = new QAction(w.tr("&Save mesh..."), &w);
+    saveAct->setShortcut(w.tr("Ctrl+S"));
+    saveAct->setStatusTip(w.tr("Save a mesh file"));
+    QObject::connect(saveAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_save_mesh_file()));
+    fileMenu->addAction(saveAct);
+
     QAction* texAct = new QAction(w.tr("Open &texture..."), &w);
     texAct->setShortcut(w.tr("Ctrl+T"));
     texAct->setStatusTip(w.tr("Open a texture file"));

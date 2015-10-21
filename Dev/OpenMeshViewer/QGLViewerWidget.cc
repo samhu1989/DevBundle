@@ -129,7 +129,7 @@ QGLViewerWidget::init(void)
 
   // init draw modes
   n_draw_modes_ = 0;
-  //draw_mode_ = 3;
+  //draw_mode_ = 4;
   QAction *a;
   a = add_draw_mode("Wireframe");
   a->setShortcut(QKeySequence(Key_W));
@@ -154,10 +154,10 @@ QGLViewerWidget::~QGLViewerWidget()
 void 
 QGLViewerWidget::setDefaultMaterial(void)
 {
-  GLfloat mat_a[] = {0.1, 0.1, 0.1, 1.0};
-  GLfloat mat_d[] = {0.7, 0.7, 0.5, 1.0};
-  GLfloat mat_s[] = {1.0, 1.0, 1.0, 1.0};
-  GLfloat shine[] = {120.0};
+  GLfloat mat_a[] = {0.110000, 0.060000, 0.090000, 1.0};
+  GLfloat mat_d[] = {0.430000, 0.470000, 0.540000, 1.0};
+  GLfloat mat_s[] = {0.330000, 0.330000, 0.520000, 1.0};
+  GLfloat shine[] = {22.0};
   
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_a);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_d);
@@ -202,7 +202,7 @@ void
 QGLViewerWidget::initializeGL()
 {  
   // OpenGL state
-  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glClearColor(0.7, 0.7, 0.7, 0.0);
   glDisable( GL_DITHER );
   glEnable( GL_DEPTH_TEST );
 

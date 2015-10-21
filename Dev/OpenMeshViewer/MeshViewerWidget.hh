@@ -102,6 +102,22 @@ public:
         t.stop();
         std::cout << "Loaded mesh in ~" << t.as_string() << std::endl;
     }
+
+    void save_mesh_gui(QString fname)
+    {
+        OpenMesh::Utils::Timer t;
+        t.start();
+        if ( fname.isEmpty() || !save_mesh( fname.toStdString().c_str(), _options) )
+        {
+            QString msg = "Cannot save mesh to file:\n '";
+            msg += fname;
+            msg += "'";
+            QMessageBox::critical( NULL, windowTitle(), msg);
+        }
+        t.stop();
+        std::cout << "Saved mesh to ~" << t.as_string() << std::endl;
+    }
+
     void open_texture_gui(QString fname)
     {
         if ( fname.isEmpty() || !open_texture( fname.toStdString().c_str() ) )
@@ -124,9 +140,22 @@ public slots:
             tr("OBJ Files (*.obj);;"
             "OFF Files (*.off);;"
             "STL Files (*.stl);;"
+            "PLY Files (*.ply);;"
             "All Files (*)"));
         if (!fileName.isEmpty())
             open_mesh_gui(fileName);
+    }
+    void query_save_mesh_file() {
+        QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save mesh file"),
+            tr("../../Dev_Data/"),
+            tr("OBJ Files (*.obj);;"
+            "OFF Files (*.off);;"
+            "STL Files (*.stl);;"
+            "PLY Files (*.ply);;"
+            "All Files (*)"));
+        if (!fileName.isEmpty())
+            save_mesh_gui(fileName);
     }
     void query_open_texture_file() {
         QString fileName = QFileDialog::getOpenFileName(this,
