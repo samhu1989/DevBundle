@@ -445,59 +445,61 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
       break;
 
     case Key_H:
-      std::cout << "Keys:\n";
-      std::cout << "  Print\tMake snapshot\n";
-      std::cout << "  C\tenable/disable back face culling\n";
-      std::cout << "  F\tenable/disable fog\n";
-      std::cout << "  I\tDisplay information\n";
-      std::cout << "  N\tenable/disable display of vertex normals\n";
-      std::cout << "  Shift N\tenable/disable display of face normals\n";
-      std::cout << "  Shift P\tperformance check\n";
+      std::cerr << "Keys:\n";
+      std::cerr << "  Print\tMake snapshot\n";
+      std::cerr << "  Shift C\tenable/disable back face culling\n";
+      std::cerr << "  F\tenable/disable fog\n";
+      std::cerr << "  I\tDisplay information\n";
+      std::cerr << "  N\tenable/disable display of vertex normals\n";
+      std::cerr << "  Shift N\tenable/disable display of face normals\n";
+      std::cerr << "  Shift P\tperformance check\n";
       break;
 
     case Key_C:
-      if ( glIsEnabled( GL_CULL_FACE ) )
+      if (_event->modifiers() & ShiftModifier)
       {
-	glDisable( GL_CULL_FACE );
-	std::cout << "Back face culling: disabled\n";
+          if ( glIsEnabled( GL_CULL_FACE ) )
+          {
+              glDisable( GL_CULL_FACE );
+              std::cerr << "Culling: disabled\n";
+          }
+          else
+          {
+              glEnable( GL_CULL_FACE );
+              std::cerr << "Culling: enabled\n";
+          }
+          updateGL();
       }
-      else
-      {
-	glEnable( GL_CULL_FACE );
-	std::cout << "Back face culling: enabled\n";
-      }
-      updateGL();
       break;
 
     case Key_F:
       if ( glIsEnabled( GL_FOG ) )
       {
-	glDisable( GL_FOG );
-	std::cout << "Fog: disabled\n";
+          glDisable( GL_FOG );
+          std::cerr << "Fog: disabled\n";
       }
       else
       {
-	glEnable( GL_FOG );
-	std::cout << "Fog: enabled\n";
+          glEnable( GL_FOG );
+          std::cerr << "Fog: enabled\n";
       }
       updateGL();
       break;
 
     case Key_I:
-      std::cout << "Scene radius: " << radius_ << std::endl;
-      std::cout << "Scene center: " << center_ << std::endl;
+      std::cerr << "Scene radius: " << radius_ << std::endl;
+      std::cerr << "Scene center: " << center_ << std::endl;
       break;
 
     case Key_P:
       if (_event->modifiers() & ShiftModifier)
       {
-        double fps = performance();      
-        std::cout << "fps: " 
-                  << std::setiosflags (std::ios_base::fixed)
-                  << fps << std::endl;
+          double fps = performance();
+          std::cerr << "fps: "
+                    << std::setiosflags (std::ios_base::fixed)
+                    << fps << std::endl;
       }
     break;
-    
     case Key_Q:
     case Key_Escape:
       qApp->quit();      
