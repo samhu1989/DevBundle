@@ -92,7 +92,8 @@ public:
       show_vnormals_(false),
       show_fnormals_(false)
   {
-    add_draw_mode("Points");
+    QAction* a = add_draw_mode("Points");
+    slotDrawMode(a);
     add_draw_mode("Hidden-Line");
 #if defined(OM_USE_OSG) && OM_USE_OSG
     add_draw_mode("OpenSG Indices");

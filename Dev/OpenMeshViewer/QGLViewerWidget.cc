@@ -736,12 +736,9 @@ QGLViewerWidget::del_draw_mode(const std::string& _s)
 void
 QGLViewerWidget::slotDrawMode(QAction* _mode)
 {
-  // save draw mode
-  draw_mode_ = _mode->data().toInt();
+  if( !_mode->isChecked() ) _mode->setChecked(true);//use as normal function
+  draw_mode_ = _mode->data().toInt();//use as slot
   updateGL();
-
-  // check selected draw mode
-  //popup_menu_->setItemChecked(draw_mode_, true);
 }
 
 
