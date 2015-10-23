@@ -23,6 +23,7 @@ unix {
     INSTALLS += target
 }
 
+DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshCore
@@ -39,7 +40,7 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../.
 LIBS += -lopenblas
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlud
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu
 
 INCLUDEPATH += $$PWD/../../../3rdParty/SuperLU/include
 DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include

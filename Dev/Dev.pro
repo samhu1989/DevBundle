@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     OpenMeshViewer \
-    Registration
+    Registration \
+    Visualization

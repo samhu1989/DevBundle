@@ -90,12 +90,6 @@ namespace Registration {
     protected:
         virtual void stepM();
         virtual bool isEnd();
-        virtual void updateCenter();
-        virtual void updateRotation();
-        virtual void updateScale();
-        virtual void updateTranslation();
-        virtual void updateVar();
-        virtual void updateY();
     protected:
         float dividebyNp_;      // sum of probability
         arma::fmat A_;
