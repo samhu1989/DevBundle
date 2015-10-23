@@ -57,7 +57,6 @@
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QFileDialog>
-#include <unistd.h>
 #ifdef ARCH_DARWIN
 #include <glut.h>
 #else

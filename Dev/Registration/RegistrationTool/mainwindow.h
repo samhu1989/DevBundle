@@ -1,8 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include <QApplication>
 #include <QMainWindow>
-
+#include <QMessageBox>
+#include <QMenuBar>
+#include <QGLWidget>
 namespace Ui {
 class MainWindow;
 }

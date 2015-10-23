@@ -21,11 +21,9 @@ HEADERS  +=
 
 FORMS    +=
 
-win32:CONFIG(release, debug|release): LIBS += -lfreeglut
-else:win32:CONFIG(debug, debug|release): LIBS += -lfreeglut
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../VisualizationCore/release/ -lVisualizationCore
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../VisualizationCore/debug/ -lVisualizationCore
+win32:CONFIG(release, debug|release): LIBS += -L$$DESTDIR/ -lVisualizationCore
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$DESTDIR/ -lVisualizationCore
 
 INCLUDEPATH += $$PWD/../VisualizationCore
 DEPENDPATH += $$PWD/../VisualizationCore
@@ -38,3 +36,6 @@ DEPENDPATH += $$PWD/../../../3rdParty/OpenMesh/include
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshTools.dll
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshToolsd.dll
+
+win32:CONFIG(release, debug|release): LIBS += -lfreeglut
+else:win32:CONFIG(debug, debug|release): LIBS += -lfreeglut

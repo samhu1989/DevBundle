@@ -11,6 +11,7 @@ TEMPLATE = lib
 
 DEFINES += VISUALIZATIONCORE_LIBRARY
 DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
+
 SOURCES += visualizationcore.cpp \
     MeshViewerWidgetT.cc \
     QGLViewerWidget.cc

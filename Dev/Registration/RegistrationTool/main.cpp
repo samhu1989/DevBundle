@@ -1,6 +1,9 @@
 #include <unistd.h>
 #include <iostream>
+#include <QApplication>
 #include "mainwindow.h"
+#include <MeshViewerWidget.hh>
+
 int print_usage(int argc, char *argv[] )
 {
     std::cerr << "Usage:"<<std::endl
@@ -14,13 +17,22 @@ int print_usage(int argc, char *argv[] )
    return 0;
 }
 
+
 int uiMain(int argc, char *argv[])
 {
     QApplication::setColorSpec( QApplication::CustomColor );
     QApplication app(argc,argv);
-    QMainWindow mainWin;
+
+    if ( !QGLFormat::hasOpenGL() ) {
+      QString msg = "System has no OpenGL support!";
+      QMessageBox::critical( 0, QString("OpenGL"), msg + QString(argv[1]) );
+      return -1;
+    }
+
+    MainWindow mainWin;
     mainWin.resize(640,480);
     mainWin.show();
+
     return app.exec();
 }
 

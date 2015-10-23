@@ -63,26 +63,23 @@
 
 //== CLASS DEFINITION =========================================================
 
-using namespace OpenMesh;  
-using namespace OpenMesh::Attributes;
-
-struct MyTraits : public OpenMesh::DefaultTraits
+struct Traits : public OpenMesh::DefaultTraits
 {
   HalfedgeAttributes(OpenMesh::Attributes::PrevHalfedge);
 };
 
-typedef OpenMesh::TriMesh_ArrayKernelT<MyTraits>  MyMesh;
+typedef OpenMesh::TriMesh_ArrayKernelT<Traits>  DefaultMesh;
 
 
 
 //== CLASS DEFINITION =========================================================
 
-class VISUALIZATIONCORESHARED_EXPORT MeshViewerWidget : public MeshViewerWidgetT<MyMesh>
+class VISUALIZATIONCORESHARED_EXPORT MeshViewerWidget : public MeshViewerWidgetT<DefaultMesh>
 {
     Q_OBJECT
 public:
     /// default constructor
-    MeshViewerWidget(QWidget* parent=0) : MeshViewerWidgetT<MyMesh>(parent)
+    MeshViewerWidget(QWidget* parent=0) : MeshViewerWidgetT<DefaultMesh>(parent)
     {}
     OpenMesh::IO::Options& options() { return _options; }
     const OpenMesh::IO::Options& options() const { return _options; }
