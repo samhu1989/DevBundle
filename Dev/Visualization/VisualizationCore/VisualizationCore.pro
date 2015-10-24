@@ -8,19 +8,27 @@ QT       += widgets opengl
 
 TARGET = VisualizationCore
 TEMPLATE = lib
+CONFIG += c++11
 
 DEFINES += VISUALIZATIONCORE_LIBRARY
 DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
 SOURCES += visualizationcore.cpp \
-    MeshViewerWidgetT.cc \
-    QGLViewerWidget.cc
+    QGLViewerWidget.cpp \
+    MeshColor.cpp
 
 HEADERS += visualizationcore.h\
         visualizationcore_global.h \
-    MeshViewerWidget.hh \
-    MeshViewerWidgetT.hh \
-    QGLViewerWidget.hh
+    MeshPairViewerWidgetT.h \
+    MeshViewerWidgetT.h \
+    MeshViewerWidget.h \
+    QGLViewerWidget.h \
+    MeshViewerWidgetT.hpp \
+    MeshPairViewerWidgetT.hpp \
+    MeshPairViewerWidget.h \
+    MeshType.h \
+    MeshColor.h \
+    MeshColor.hpp
 
 unix {
     target.path = /usr/lib

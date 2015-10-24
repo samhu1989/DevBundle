@@ -14,8 +14,8 @@ CONFIG += c++11
 DEFINES += OM_STATIC_BUILD
 DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
-SOURCES +=\
-    meshviewer.cc
+SOURCES += \
+    meshviewer.cpp
 
 HEADERS  +=
 

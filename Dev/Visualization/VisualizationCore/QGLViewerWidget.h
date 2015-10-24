@@ -47,161 +47,162 @@
 \*===========================================================================*/
 
 
-#ifndef OPENMESHAPPS_MESHVIEWERWIDGETT_HH
-#define OPENMESHAPPS_MESHVIEWERWIDGETT_HH
+#ifndef QGLVIEWERWIDGET_H
+#define QGLVIEWERWIDGET_H
 
 
 //== INCLUDES =================================================================
 
+#include "visualizationcore_global.h"
+#include <OpenMesh/Core/Geometry/VectorT.hh>
+#include <QGLWidget>
 #include <string>
-#include <OpenMesh/Core/IO/MeshIO.hh>
-#include <OpenMesh/Core/IO/Options.hh>
-#include <OpenMesh/Core/Utils/GenProg.hh>
-#include <OpenMesh/Core/Utils/color_cast.hh>
-#include <OpenMesh/Core/Mesh/Attributes.hh>
-#include <OpenMesh/Tools/Utils/StripifierT.hh>
-#include <OpenMesh/Tools/Utils/Timer.hh>
-#include "QGLViewerWidget.hh"
+#include <vector>
+#include <map>
 
 
-//== FORWARDS =================================================================
+//== FORWARD DECLARATIONS =====================================================
 
-class QImage;
-
+class QMenu;
+class QActionGroup;
+class QAction;
 
 //== CLASS DEFINITION =========================================================
 
-	      
-template <typename M>
-class MeshViewerWidgetT : public QGLViewerWidget
+  
+class VISUALIZATIONCORESHARED_EXPORT QGLViewerWidget : public QGLWidget
 {
-public:
 
-  typedef M                             Mesh;
-  typedef OpenMesh::StripifierT<Mesh>   MyStripifier;
-public:
-
-  /// default constructor
-  MeshViewerWidgetT(QWidget* _parent=0)
-    : QGLViewerWidget(_parent),
-      f_strips_(false), 
-      tex_id_(0),
-      tex_mode_(GL_MODULATE),
-      strips_(mesh_),
-      use_color_(true),
-      show_vnormals_(false),
-      show_fnormals_(false)
-  {
-    QAction* a = add_draw_mode("Points");
-    slotDrawMode(a);
-    add_draw_mode("Hidden-Line");
-#if defined(OM_USE_OSG) && OM_USE_OSG
-    add_draw_mode("OpenSG Indices");
-#endif
-  }
-  
-  /// destructor
-  ~MeshViewerWidgetT() {}
+  Q_OBJECT
   
 public:
+  typedef QGLWidget Super;
+   
+  // Default constructor.
+  QGLViewerWidget( QWidget* _parent=0 );
 
-  /// open mesh
-  virtual bool open_mesh(const char* _filename, OpenMesh::IO::Options _opt);
-  virtual bool save_mesh(const char* _filename, OpenMesh::IO::Options _opt);
-  
-  /// load texture
-  virtual bool open_texture( const char *_filename );
-  bool set_texture( QImage& _texsrc );
- 
-  void enable_strips();
-  void disable_strips();  
-  
+  // 
+  QGLViewerWidget( QGLFormat& _fmt, QWidget* _parent=0 );
 
-  Mesh& mesh() { return mesh_; }
-  const Mesh& mesh() const { return mesh_; }
-  
+  // Destructor.
+  virtual ~QGLViewerWidget();
+
+private:
+
+  void init(void);
+
+public:
+
+  /* Sets the center and size of the whole scene. 
+     The _center is used as fixpoint for rotations and for adjusting
+     the camera/viewer (see view_all()). */
+  void set_scene_pos( const OpenMesh::Vec3f& _center, float _radius );  
+
+  /* view the whole scene: the eye point is moved far enough from the
+     center so that the whole scene is visible. */
+  void view_all();
+
+  /// add draw mode to popup menu, and return the QAction created
+  QAction *add_draw_mode(const std::string& _s);
+
+  /// delete draw mode from popup menu
+  void del_draw_mode(const std::string& _s);
+
+  const std::string& current_draw_mode() const 
+  { return draw_mode_ ? draw_mode_names_[draw_mode_-1] : nomode_; }
+
+  float radius() const { return radius_; }
+
+  const OpenMesh::Vec3f& center() const { return center_; }
+
+  const GLdouble* modelview_matrix() const  { return modelview_matrix_;  }
+  const GLdouble* projection_matrix() const { return projection_matrix_; }
+
+  float fovy() const { return 45.0f; }
+
+  QAction* findAction(const char *name);
+  void addAction(QAction* action, const char* name);
+  void removeAction(const char* name);
+  void removeAction(QAction* action);
+
 protected:
-  
-  /// inherited drawing method
+
+  // draw the scene: will be called by the paintGL() method.
   virtual void draw_scene(const std::string& _draw_mode);
+
+  double performance(void);
   
-protected:
+  void setDefaultMaterial(void);
+  void setDefaultLight(void);
+
+public slots:
+
+  // popup menu clicked
+  void slotDrawMode(QAction *_mode);  
+  void slotSnapshot( void );
+
   
-  /// draw the mesh
-  virtual void draw_openmesh(const std::string& _drawmode);
+private: // inherited
 
+  // initialize OpenGL states (triggered by Qt)
+  void initializeGL();
 
-  void glVertex( const typename Mesh::VertexHandle _vh )
-  { glVertex3fv( &mesh_.point( _vh )[0] ); }
+  // draw the scene (triggered by Qt)
+  void paintGL();
 
-  void glVertex( const typename Mesh::Point& _p )
-  { glVertex3fv( &_p[0] ); }
-  
-  void glNormal( const typename Mesh::VertexHandle _vh )
-  { glNormal3fv( &mesh_.normal( _vh )[0] ); }
-
-  void glTexCoord( const typename Mesh::VertexHandle _vh )
-  { glTexCoord2fv( &mesh_.texcoord(_vh)[0] ); }
-  
-  void glColor( const typename Mesh::VertexHandle _vh )
-  { glColor3ubv( &mesh_.color(_vh)[0] ); }
-  
-  // face properties
-
-  void glNormal( const typename Mesh::FaceHandle _fh )
-  { glNormal3fv( &mesh_.normal( _fh )[0] ); }
-
-  void glColor( const typename Mesh::FaceHandle _fh )
-  { glColor3ubv( &mesh_.color(_fh)[0] ); }
-
-  void glMaterial( const typename Mesh::FaceHandle _fh, 
-		   int _f=GL_FRONT_AND_BACK, int _m=GL_DIFFUSE )
-  { 
-    OpenMesh::Vec3f c=OpenMesh::color_cast<OpenMesh::Vec3f>(mesh_.color(_fh));
-    OpenMesh::Vec4f m( c[0], c[1], c[2], 1.0f );
-
-    glMaterialfv(_f, _m, &m[0]); 
-  }
-
-
-protected: // Strip support
-  
-  void compute_strips(void)
-  {
-    if (f_strips_)
-    {
-      strips_.clear();
-      strips_.stripify();
-    }
-  }    
-
-protected: // inherited
-   
-  virtual void keyPressEvent( QKeyEvent* _event);
+  // handle resize events (triggered by Qt)
+  void resizeGL( int w, int h );
 
 protected:
    
-  bool                   f_strips_; // enable/disable strip usage
-  GLuint                 tex_id_;
-  GLint                  tex_mode_;
-  OpenMesh::IO::Options  opt_; // mesh file contained texcoords?
-  
-  Mesh                   mesh_;
-  MyStripifier           strips_;
-  bool                   use_color_;
-  bool                   show_vnormals_;
-  bool                   show_fnormals_;
-  float                  normal_scale_;
-  OpenMesh::FPropHandleT< typename Mesh::Point > fp_normal_base_;
+  // Qt mouse events
+  virtual void mousePressEvent( QMouseEvent* );
+  virtual void mouseReleaseEvent( QMouseEvent* );
+  virtual void mouseMoveEvent( QMouseEvent* );
+  virtual void wheelEvent( QWheelEvent* );
+  virtual void keyPressEvent( QKeyEvent* );
+
+private:
+   
+  // updates projection matrix
+  void update_projection_matrix();
+
+  // translate the scene and update modelview matrix
+  void translate(const OpenMesh::Vec3f& _trans);
+
+  // rotate the scene (around its center) and update modelview matrix
+  void rotate(const OpenMesh::Vec3f& _axis, float _angle);
+
+  OpenMesh::Vec3f  center_;
+  float            radius_;
+	      
+  GLdouble    projection_matrix_[16],
+              modelview_matrix_[16];
+
+
+  // popup menu for draw mode selection
+  QMenu*               popup_menu_;
+  QActionGroup*        draw_modes_group_;
+  typedef std::map<QString,QAction*> ActionMap;
+  ActionMap            names_to_actions;
+  unsigned int              draw_mode_;
+  unsigned int              n_draw_modes_;
+  std::vector<std::string>  draw_mode_names_;
+  static std::string        nomode_;
+
+
+
+  // virtual trackball: map 2D screen point to unit sphere
+  bool map_to_sphere(const QPoint& _point, OpenMesh::Vec3f& _result);
+
+  QPoint           last_point_2D_;
+  OpenMesh::Vec3f  last_point_3D_;
+  bool             last_point_ok_;
+
 };
 
 
 //=============================================================================
-#if defined(OM_INCLUDE_TEMPLATES) && !defined(OPENMESHAPPS_MESHVIEWERWIDGET_CC)
-#  define OPENMESH_MESHVIEWERWIDGET_TEMPLATES
-#  include "MeshViewerWidgetT.cc"
-#endif
-//=============================================================================
-#endif // OPENMESHAPPS_MESHVIEWERWIDGETT_HH defined
+#endif // QGLVIEWERWIDGET_H
 //=============================================================================
 

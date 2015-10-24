@@ -46,10 +46,11 @@
  *                                                                           *
 \*===========================================================================*/
 
-#ifndef OPENMESHAPPS_VIEWERWIDGET_HH
-#define OPENMESHAPPS_VIEWERWIDGET_HH
+#ifndef MESHVIEWERWIDGET_H
+#define MESHVIEWERWIDGET_H
 
 //== INCLUDES =================================================================
+#include <iostream>
 #include <visualizationcore_global.h>
 #include <QWidget>
 #include <QString>
@@ -57,18 +58,13 @@
 #include <QFileDialog>
 #include <OpenMesh/Tools/Utils/getopt.h>
 #include <OpenMesh/Tools/Utils/Timer.hh>
-#include "MeshViewerWidgetT.hh"
-#include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
+#include "MeshViewerWidgetT.h"
+#include "MeshType.h"
 
 
 //== CLASS DEFINITION =========================================================
 
-struct Traits : public OpenMesh::DefaultTraits
-{
-  HalfedgeAttributes(OpenMesh::Attributes::PrevHalfedge);
-};
 
-typedef OpenMesh::TriMesh_ArrayKernelT<Traits>  DefaultMesh;
 
 
 

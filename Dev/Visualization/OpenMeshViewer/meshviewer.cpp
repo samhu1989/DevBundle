@@ -62,9 +62,9 @@
 #else
 #include <GL/glut.h>
 #endif
-
-#include "MeshViewerWidget.hh"
-
+#include "MeshColor.h"
+#include "MeshViewerWidget.h"
+#include <iomanip>
 
 void create_menu(QMainWindow &w);
 void usage_and_exit(int xcode);
@@ -132,6 +132,17 @@ int main(int argc, char **argv)
   {
       w.open_texture_gui(argv[optind]);
   }
+
+  ColorArray::RGB64 rgb64;
+  rgb64.rgba.r0 = 0;
+  rgb64.rgba.g0 = 0;
+  rgb64.rgba.b0 = 0;
+  rgb64.rgba.a0 = 255;
+  rgb64.rgba.r1 = 0;
+  rgb64.rgba.g1 = 0;
+  rgb64.rgba.b1 = 0;
+  rgb64.rgba.a1 = 255;
+  std::cerr<<std::hex<<rgb64.color<<std::endl;
 
   return app.exec();
 }

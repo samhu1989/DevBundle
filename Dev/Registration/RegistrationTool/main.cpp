@@ -2,7 +2,7 @@
 #include <iostream>
 #include <QApplication>
 #include "mainwindow.h"
-#include <MeshViewerWidget.hh>
+#include <MeshViewerWidget.h>
 
 int print_usage(int argc, char *argv[] )
 {

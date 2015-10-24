@@ -70,7 +70,7 @@
 #include <QDateTime>
 #include <QMouseEvent>
 // --------------------
-#include "QGLViewerWidget.hh"
+#include "QGLViewerWidget.h"
 #include <OpenMesh/Tools/Utils/Timer.hh>
 
 #if !defined(M_PI)

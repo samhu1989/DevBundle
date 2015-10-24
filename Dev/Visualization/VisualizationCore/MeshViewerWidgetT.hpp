@@ -46,7 +46,7 @@
  *                                                                           *
 \*===========================================================================*/
 
-#define OPENMESHAPPS_MESHVIEWERWIDGET_CC
+#define MESHVIEWERWIDGET_HPP
 
 //== INCLUDES =================================================================
 
@@ -64,7 +64,7 @@
 // --------------------
 #include <OpenMesh/Core/Utils/vector_cast.hh>
 #include <OpenMesh/Tools/Utils/Timer.hh>
-#include "MeshViewerWidgetT.hh"
+#include "MeshViewerWidgetT.h"
 
 using namespace OpenMesh;
 using namespace Qt;
@@ -575,12 +575,18 @@ MeshViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode)
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
-    if (mesh_.has_vertex_colors() && use_color_)
+    if (use_color_)
     {
-      glEnableClientState(GL_COLOR_ARRAY);
-      glColorPointer(3, GL_UNSIGNED_BYTE, 0, mesh_.vertex_colors());
+      if(mesh_.has_vertex_colors())
+      {
+          glEnableClientState(GL_COLOR_ARRAY);
+          glColorPointer(3, GL_UNSIGNED_BYTE, 0, mesh_.vertex_colors());
+      }else{
+          glEnableClientState(GL_COLOR_ARRAY);
+          glColorPointer(4, GL_UNSIGNED_BYTE, 0, custom_color_.vertex_colors());
+      }
     }
-
+    glPointSize(5);
     glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
