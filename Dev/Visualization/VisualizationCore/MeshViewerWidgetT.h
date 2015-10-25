@@ -47,8 +47,8 @@
 \*===========================================================================*/
 
 
-#ifndef OPENMESHAPPS_MESHVIEWERWIDGETT_H
-#define OPENMESHAPPS_MESHVIEWERWIDGETT_H
+#ifndef MESHVIEWERWIDGETT_H
+#define MESHVIEWERWIDGETT_H
 
 
 //== INCLUDES =================================================================
@@ -202,6 +202,6 @@ protected:
 //=============================================================================
 #include "MeshViewerWidgetT.hpp"
 //=============================================================================
-#endif // OPENMESHAPPS_MESHVIEWERWIDGETT_HH defined
+#endif // MESHVIEWERWIDGETT_H defined
 //=============================================================================
 

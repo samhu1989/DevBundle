@@ -1,4 +1,5 @@
-#define MESHPAIRVIEWERWIDGET_HPP
+#ifndef  MESHPAIRVIEWERWIDGETT_HPP
+#define MESHPAIRVIEWERWIDGETT_HPP
 
 #include <iostream>
 #include <fstream>
@@ -25,7 +26,7 @@ using namespace Qt;
 
 template <typename M>
 bool
-MeshPairViewerWidgetT<M>::open_mesh(const char* _filename,Mesh&mesh_,IO::Options _opt)
+MeshPairViewerWidgetT<M>::open_mesh(const char* _filename,Mesh& mesh_,Stripifier& strips_ ,IO::Options _opt)
 {
   // load mesh
   // calculate normals
@@ -131,7 +132,7 @@ MeshPairViewerWidgetT<M>::open_mesh(const char* _filename,Mesh&mesh_,IO::Options
       std::clog << "Computing strips.." << std::flush;
       OpenMesh::Utils::Timer t;
       t.start();
-      compute_strips();
+      compute_strips(strips_);
       t.stop();
       std::clog << "done [" << strips_.n_strips()
         << " strips created in " << t.as_string() << "]\n";
@@ -142,7 +143,7 @@ MeshPairViewerWidgetT<M>::open_mesh(const char* _filename,Mesh&mesh_,IO::Options
     updateGL();
 #endif
 
-    setWindowTitle(QFileInfo(_filename).fileName());
+//    setWindowTitle(QFileInfo(_filename).fileName());
 
     // loading done
     return true;
@@ -251,7 +252,7 @@ bool MeshPairViewerWidgetT<M>::set_texture( QImage& _texsrc )
 
 template <typename M>
 void
-MeshPairViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode,const Mesh& mesh_)
+MeshPairViewerWidgetT<M>::draw_openmesh(const Mesh& mesh_,const Stripifier& strips_,const std::string& _draw_mode)
 {
   typename Mesh::ConstFaceIter    fIt(mesh_.faces_begin()),
                                   fEnd(mesh_.faces_end());
@@ -404,7 +405,7 @@ MeshPairViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode,const Mesh
     glBegin(GL_TRIANGLES);
     for (; fIt!=fEnd; ++fIt)
     {
-      glColor( *fIt );
+      glColor( mesh_,*fIt );
 
       fvIt = mesh_.cfv_iter(*fIt);
       glArrayElement(fvIt->idx());
@@ -431,7 +432,7 @@ MeshPairViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode,const Mesh
     glBegin(GL_TRIANGLES);
     for (; fIt!=fEnd; ++fIt)
     {
-      glMaterial( *fIt );
+      glMaterial( mesh_,*fIt );
 
       fvIt = mesh_.cfv_iter(*fIt);
       glArrayElement(fvIt->idx());
@@ -464,8 +465,8 @@ MeshPairViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode,const Mesh
       glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, tex_mode_);
     }
 
-    typename MyStripifier::StripsIterator strip_it = strips_.begin();
-    typename MyStripifier::StripsIterator strip_last = strips_.end();
+    typename Stripifier::StripsIterator strip_it = strips_.begin();
+    typename Stripifier::StripsIterator strip_last = strips_.end();
 
     // Draw all strips
     for (; strip_it!=strip_last; ++strip_it)
@@ -482,8 +483,8 @@ MeshPairViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode,const Mesh
 
   else if (_draw_mode == "Show Strips" && strips_.is_valid() ) // -------------
   {
-    typename MyStripifier::StripsIterator strip_it = strips_.begin();
-    typename MyStripifier::StripsIterator strip_last = strips_.end();
+    typename Stripifier::StripsIterator strip_it = strips_.begin();
+    typename Stripifier::StripsIterator strip_last = strips_.end();
 
     float cmax  = 256.0f;
     int   range = 220;
@@ -497,8 +498,8 @@ MeshPairViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode,const Mesh
     // Draw all strips
     for (; strip_it!=strip_last; ++strip_it)
     {
-      typename MyStripifier::IndexIterator idx_it   = strip_it->begin();
-      typename MyStripifier::IndexIterator idx_last = strip_it->end();
+      typename Stripifier::IndexIterator idx_it   = strip_it->begin();
+      typename Stripifier::IndexIterator idx_last = strip_it->end();
 
       rcol = (rcol+drcol) % range;
       gcol = (gcol+dgcol) % range;
@@ -542,7 +543,7 @@ void
 MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 {
 
-  if ( 0 <  mesh_first->n_vertices() && 0 < mesh_second->n_vertices() )
+  if ( 0 <  first_->mesh_.n_vertices() && 0 < second_->mesh_.n_vertices() )
     return;
 
 #if defined(OM_USE_OSG) && OM_USE_OSG
@@ -550,23 +551,23 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   {
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , _draw_mode );
   }
   else
 #endif
   if ( _draw_mode == "Points" )
   {
     glDisable(GL_LIGHTING);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_ , _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_, second_->strips_ , _draw_mode );
   }
   else if (_draw_mode == "Wireframe")
   {
     glDisable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_, second_->strips_ , _draw_mode );
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 
@@ -577,14 +578,14 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glColor4f( 0.0f, 0.0f, 0.0f, 1.0f );
     glDepthRange(0.01, 1.0);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , "Wireframe" );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , "Wireframe" );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, "Wireframe" );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_, second_->strips_ , "Wireframe" );
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE);
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
     glDepthRange( 0.0, 1.0 );
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , "Wireframe" );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , "Wireframe" );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, "Wireframe" );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, "Wireframe" );
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
   }
@@ -593,8 +594,8 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   {
     glEnable(GL_LIGHTING);
     glShadeModel(GL_FLAT);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
   }
 
   else if (_draw_mode == "Solid Smooth"        ||
@@ -602,31 +603,31 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   {
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
   }
 
   else if (_draw_mode == "Show Strips")
   {
     glDisable(GL_LIGHTING);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
   }
 
   else if (_draw_mode == "Colored Vertices" )
   {
     glDisable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
   }
 
   else if (_draw_mode == "Solid Colored Faces")
   {
     glDisable(GL_LIGHTING);
     glShadeModel(GL_FLAT);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
     setDefaultMaterial();
   }
 
@@ -634,8 +635,8 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   {
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
-    if(0<mesh_first->n_vertices())draw_openmesh( * mesh_first , _draw_mode );
-    if(0<mesh_second->n_vertices())draw_openmesh( * mesh_second , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
     setDefaultMaterial();
   }
 
@@ -645,15 +646,15 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     glDisable(GL_LIGHTING);
     glBegin(GL_LINES);
     glColor3f(1.000f, 0.803f, 0.027f); // orange
-    for(vit=mesh_first->vertices_begin(); vit!=mesh_first->vertices_end(); ++vit)
+    for(vit=first_->mesh_.vertices_begin(); vit!=first_->mesh_.vertices_end(); ++vit)
     {
-      glVertex( *mesh_first , *vit );
-      glVertex( *mesh_first , mesh_first->point( *vit ) + normal_scale_*mesh_first->normal( *vit ) );
+      glVertex( first_->mesh_ , *vit );
+      glVertex( first_->mesh_.point( *vit ) + normal_scale_*first_->mesh_.normal( *vit ) );
     }
-    for(vit=mesh_second->vertices_begin(); vit!=mesh_second->vertices_end(); ++vit)
+    for(vit=second_->mesh_.vertices_begin(); vit!=second_->mesh_.vertices_end(); ++vit)
     {
-      glVertex( *mesh_second , *vit );
-      glVertex( *mesh_second , mesh_second->point( *vit ) + normal_scale_*mesh_second->normal( *vit ) );
+      glVertex( second_->mesh_ , *vit );
+      glVertex( second_->mesh_.point( *vit ) + normal_scale_*second_->mesh_.normal( *vit ) );
     }
     glEnd();
   }
@@ -664,11 +665,17 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     glDisable(GL_LIGHTING);
     glBegin(GL_LINES);
     glColor3f(0.705f, 0.976f, 0.270f); // greenish
-    for(fit=mesh_first->faces_begin(); fit!=mesh_first->faces_end(); ++fit)
+    for(fit=first_->mesh_.faces_begin(); fit!=first_->mesh_.faces_end(); ++fit)
     {
-      glVertex( *mesh_first, mesh_first->property(fp_normal_base_, *fit) );
-      glVertex( *mesh_first, mesh_first->property(fp_normal_base_, *fit) +
-                normal_scale_*mesh_first->normal( *fit ) );
+      glVertex( first_->mesh_.property(fp_normal_base_, *fit) );
+      glVertex( first_->mesh_.property(fp_normal_base_, *fit) +
+                normal_scale_*first_->mesh_.normal( *fit ) );
+    }
+    for(fit=second_->mesh_.faces_begin(); fit!=second_->mesh_.faces_end(); ++fit)
+    {
+      glVertex( second_->mesh_.property(fp_normal_base_, *fit) );
+      glVertex( second_->mesh_.property(fp_normal_base_, *fit) +
+                normal_scale_*second_->mesh_.normal( *fit ) );
     }
     glEnd();
   }
@@ -716,8 +723,8 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
   switch( _event->key() )
   {
     case Key_D:
-      if ( mesh_first->has_vertex_colors() &&
-           mesh_second->has_vertex_colors() &&
+      if ( first_->mesh_.has_vertex_colors() &&
+           second_->mesh_.has_vertex_colors() &&
            (current_draw_mode()=="Points")
            )
       {
@@ -744,12 +751,12 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       break;
 
     case Key_I:
-      std::cout << "\n# Vertices     : " << mesh_first->n_vertices() << std::endl;
-      std::cout << "# Edges        : " << mesh_first->n_edges()    << std::endl;
-      std::cout << "# Faces        : " << mesh_first->n_faces()    << std::endl;
-      std::cout << "\n# Vertices     : " << mesh_second->n_vertices() << std::endl;
-      std::cout << "# Edges        : " << mesh_second->n_edges()    << std::endl;
-      std::cout << "# Faces        : " << mesh_second->n_faces()    << std::endl;
+      std::cout << "\n# Vertices     : " << first_->mesh_.n_vertices() << std::endl;
+      std::cout << "# Edges        : " << first_->mesh_.n_edges()    << std::endl;
+      std::cout << "# Faces        : " << first_->mesh_.n_faces()    << std::endl;
+      std::cout << "\n# Vertices     : " << second_->mesh_.n_vertices() << std::endl;
+      std::cout << "# Edges        : " << second_->mesh_.n_edges()    << std::endl;
+      std::cout << "# Faces        : " << second_->mesh_.n_faces()    << std::endl;
       std::cout << "binary  input  : " << opt_.check(opt_.Binary) << std::endl;
       std::cout << "swapped input  : " << opt_.check(opt_.Swap) << std::endl;
       std::cout << "vertex normal  : "
@@ -783,6 +790,6 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
 }
 
 #undef TEXMODE
-
+#endif
 //=============================================================================
 

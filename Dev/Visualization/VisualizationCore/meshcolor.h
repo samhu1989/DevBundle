@@ -35,6 +35,7 @@ class MeshColor
     typedef M Mesh;
 public:
     MeshColor(const Mesh&);
+    MeshColor(const MeshColor &);
     ColorArray::RGBArray vertex_colors_array(void);
     void* vertex_colors(void);
 protected:

@@ -1,5 +1,5 @@
-#ifndef MESHPAIRVIEWERWIDGET_H
-#define MESHPAIRVIEWERWIDGET_H
+#ifndef MESHPAIRVIEWERWIDGETT_H
+#define MESHPAIRVIEWERWIDGETT_H
 #include <memory>
 #include <string>
 #include <OpenMesh/Core/IO/MeshIO.hh>
@@ -10,42 +10,58 @@
 #include <OpenMesh/Tools/Utils/StripifierT.hh>
 #include <OpenMesh/Tools/Utils/Timer.hh>
 #include "QGLViewerWidget.h"
+#include "MeshColor.h"
+
+template <typename M>
+class MeshBundle
+{
+public:
+    MeshBundle():
+        custom_color_(mesh_),
+        strips_(mesh_)
+    {}
+    M                           mesh_;
+    MeshColor<M>        custom_color_;
+    OpenMesh::StripifierT<M>  strips_;
+};
+
 template <typename M>
 class MeshPairViewerWidgetT : public QGLViewerWidget
 {
 public:
 
-  typedef M                             Mesh;
-  typedef OpenMesh::StripifierT<Mesh>   MyStripifier;
+  typedef M  Mesh;
+  typedef OpenMesh::StripifierT<M> Stripifier;
+
 public:
 
   /// default constructor
-  MeshViewerWidgetT(QWidget* _parent=0)
+  MeshPairViewerWidgetT(QWidget* _parent=0)
     : QGLViewerWidget(_parent),
       f_strips_(false),
       tex_id_(0),
       tex_mode_(GL_MODULATE),
-      strips_(mesh_),
       use_color_(true),
       show_vnormals_(false),
-      show_fnormals_(false)
+      show_fnormals_(false),
+      first_(new MeshBundle<Mesh>()),
+      second_(new MeshBundle<Mesh>())
   {
     QAction* a = add_draw_mode("Points");
     slotDrawMode(a);
     add_draw_mode("Hidden-Line");
-#if defined(OM_USE_OSG) && OM_USE_OSG
-    add_draw_mode("OpenSG Indices");
-#endif
+
+
   }
 
   /// destructor
-  ~MeshViewerWidgetT() {}
+  ~MeshPairViewerWidgetT() {}
 
 public:
 
   /// open mesh
-  virtual bool open_mesh(const char*,Mesh&,OpenMesh::IO::Options);
-  virtual bool save_mesh(const char*,const Mesh&,OpenMesh::IO::Options);
+  virtual bool open_mesh(const char*,Mesh&,Stripifier&,OpenMesh::IO::Options);
+  virtual bool save_mesh(const char*, Mesh& ,OpenMesh::IO::Options);
 
   /// load texture
   virtual bool open_texture( const char *_filename );
@@ -54,14 +70,14 @@ public:
   void enable_strips();
   void disable_strips();
 
-  Mesh& first() { return *mesh_first; }
-  const Mesh& first() const { return *mesh_first; }
+  MeshBundle<Mesh>& first() { return *first_; }
+  const MeshBundle<Mesh>& first() const { return *first_; }
 
-  Mesh& second() { return *mesh_second; }
-  const Mesh& second() const { return *mesh_second; }
+  MeshBundle<Mesh>& second() { return *second_; }
+  const MeshBundle<Mesh>& second() const { return *second_; }
 
-  std::shared_ptr<Mesh> first_ptr() { return mesh_first; }
-  std::shared_ptr<Mesh> _ptr() { return mesh_second; }
+  std::shared_ptr<MeshBundle<Mesh>> first_ptr() { return first_; }
+  std::shared_ptr<MeshBundle<Mesh>> second_ptr() { return second_; }
 
 protected:
 
@@ -71,14 +87,14 @@ protected:
 protected:
 
   /// draw the mesh
-  virtual void draw_openmesh(const Mesh& mesh_,const std::string& _drawmode);
+  virtual void draw_openmesh(const Mesh& mesh_,const Stripifier&,const std::string& _drawmode);
 
 
   void glVertex( const Mesh& m,  const typename Mesh::VertexHandle _vh)
   { glVertex3fv( &m.point( _vh )[0] ); }
 
-  void glVertex( const Mesh &m, const typename Mesh::Point& _p)
-  { glVertex3fv( &m._p[0] ); }
+  void glVertex( const typename Mesh::Point& _p)
+  { glVertex3fv( &_p[0] ); }
 
   void glNormal( const Mesh &m,  const typename Mesh::VertexHandle _vh )
   { glNormal3fv( &m.normal( _vh )[0] ); }
@@ -109,14 +125,12 @@ protected:
 
 protected: // Strip support
 
-  void compute_strips(void)
+  void compute_strips(OpenMesh::StripifierT<M>& strips)
   {
     if (f_strips_)
     {
-      strips_first.clear();
-      strips_first.stripify();
-      strips_second.clear();
-      strips_second.stripify();
+      strips.clear();
+      strips.stripify();
     }
   }
 
@@ -131,10 +145,9 @@ protected:
   GLint                  tex_mode_;
   OpenMesh::IO::Options  opt_; // mesh file contained texcoords?
 
-  std::shared_ptr<Mesh>  mesh_first;
-  std::shared_ptr<Mesh>  mesh_second;
-  MyStripifier           strips_first;
-  MyStripifier           strips_second;
+  std::shared_ptr<MeshBundle<Mesh>> first_;
+  std::shared_ptr<MeshBundle<Mesh>> second_;
+
   bool                   use_color_;
   bool                   show_vnormals_;
   bool                   show_fnormals_;
@@ -142,15 +155,7 @@ protected:
   OpenMesh::FPropHandleT< typename Mesh::Point > fp_normal_base_;
 };
 
-
 //=============================================================================
-#if defined(OM_INCLUDE_TEMPLATES) && !defined(OPENMESHAPPS_MESHVIEWERWIDGET_CC)
-#  define OPENMESH_MESHVIEWERWIDGET_TEMPLATES
-#  include "MeshPairViewerWidgetT.hpp"
-#endif
+#include "MeshPairViewerWidgetT.hpp"
 //=============================================================================
-#endif // OPENMESHAPPS_MESHVIEWERWIDGETT_HH defined
-//=============================================================================
-
-
 #endif // MESHPAIRVIEWERWIDGET_H

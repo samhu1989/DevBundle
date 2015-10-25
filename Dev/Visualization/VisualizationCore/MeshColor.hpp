@@ -5,6 +5,12 @@ MeshColor<M>::MeshColor(const Mesh& m):Ref_(m)
 
 }
 template<typename M>
+MeshColor<M>::MeshColor(const MeshColor& c):Ref_(c.Ref_)
+{
+    v_colors = c.v_colors;
+}
+
+template<typename M>
 ColorArray::RGBArray MeshColor<M>::vertex_colors_array(void)
 {
     return v_colors;

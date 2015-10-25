@@ -58,9 +58,8 @@
 #include <QFileDialog>
 #include <OpenMesh/Tools/Utils/getopt.h>
 #include <OpenMesh/Tools/Utils/Timer.hh>
-#include "MeshViewerWidgetT.h"
 #include "MeshType.h"
-
+#include "MeshViewerWidgetT.h"
 
 //== CLASS DEFINITION =========================================================
 
