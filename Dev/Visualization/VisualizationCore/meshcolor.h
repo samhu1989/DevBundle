@@ -18,6 +18,19 @@ namespace ColorArray
             }rgba;
             uint64_t color;
         }RGB64;
+
+        typedef union{
+            uint32_t color;
+            struct{
+                uint8_t b;
+                uint8_t g;
+                uint8_t r;
+                uint8_t a;
+            }rgba;
+        }RGB32;
+
+        const int32_t  DefaultColorNum_ = 24;
+        extern RGB32 DefaultColor[DefaultColorNum_];
     }
 
     typedef struct RGBArray{

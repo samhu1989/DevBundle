@@ -77,31 +77,6 @@ MeshPairViewerWidgetT<M>::open_mesh(const char* _filename,Mesh& mesh_,Stripifier
     if ( _opt.check( IO::Options::VertexTexCoord ) )
       std::cout << "File provides texture coordinates\n";
 
-
-    // bounding box
-    typename Mesh::ConstVertexIter vIt(mesh_.vertices_begin());
-    typename Mesh::ConstVertexIter vEnd(mesh_.vertices_end());
-
-    typedef typename Mesh::Point Point;
-    using OpenMesh::Vec3f;
-
-    Vec3f bbMin, bbMax;
-
-    bbMin = bbMax = OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt));
-
-    for (size_t count=0; vIt!=vEnd; ++vIt, ++count)
-    {
-        bbMin.minimize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
-        bbMax.maximize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
-    }
-
-    std::clog<<"Bounding Box("<<bbMin<<")-("<<bbMax<<")"<<std::endl;
-    // set center and radius
-    set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
-
-    // for normal display
-    normal_scale_ = (bbMax-bbMin).min()*0.05f;
-
     // info
     std::clog << mesh_.n_vertices() << " vertices, "
           << mesh_.n_edges()    << " edge, "
@@ -171,6 +146,34 @@ bool MeshPairViewerWidgetT<M>::save_mesh(const char* _filename,Mesh& mesh_,IO::O
   }
   return false;
 }
+
+template <typename M>
+void MeshPairViewerWidgetT<M>::set_center_at_mesh(const Mesh& mesh_)
+{
+    // bounding box
+    typename Mesh::ConstVertexIter vIt(mesh_.vertices_begin());
+    typename Mesh::ConstVertexIter vEnd(mesh_.vertices_end());
+
+    typedef typename Mesh::Point Point;
+    using OpenMesh::Vec3f;
+
+    Vec3f bbMin, bbMax;
+
+    bbMin = bbMax = OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt));
+
+    for (size_t count=0; vIt!=vEnd; ++vIt, ++count)
+    {
+        bbMin.minimize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
+        bbMax.maximize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
+    }
+
+    std::clog<<"Bounding Box("<<bbMin<<")-("<<bbMax<<")"<<std::endl;
+    // set center and radius
+    set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
+    // for normal display
+    normal_scale_ = (bbMax-bbMin).min()*0.05f;
+}
+
 //-----------------------------------------------------------------------------
 
 template <typename M>
@@ -252,8 +255,12 @@ bool MeshPairViewerWidgetT<M>::set_texture( QImage& _texsrc )
 
 template <typename M>
 void
-MeshPairViewerWidgetT<M>::draw_openmesh(const Mesh& mesh_,const Stripifier& strips_,const std::string& _draw_mode)
+MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _draw_mode)
 {
+  Mesh& mesh_ = b.mesh_;
+  Stripifier& strips_ = b.strips_;
+  MeshColor<Mesh>& color_ = b.custom_color_;
+
   typename Mesh::ConstFaceIter    fIt(mesh_.faces_begin()),
                                   fEnd(mesh_.faces_end());
 
@@ -520,12 +527,18 @@ MeshPairViewerWidgetT<M>::draw_openmesh(const Mesh& mesh_,const Stripifier& stri
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
-    if (mesh_.has_vertex_colors() && use_color_)
+    if ( use_color_)
     {
-      glEnableClientState(GL_COLOR_ARRAY);
-      glColorPointer(3, GL_UNSIGNED_BYTE, 0, mesh_.vertex_colors());
+        if(mesh_.has_vertex_colors())
+        {
+            glEnableClientState(GL_COLOR_ARRAY);
+            glColorPointer(3, GL_UNSIGNED_BYTE, 0, mesh_.vertex_colors());
+        }else{
+            glEnableClientState(GL_COLOR_ARRAY);
+            glColorPointer(4, GL_UNSIGNED_BYTE, 0, color_.vertex_colors());
+        }
     }
-
+    glPointSize(4.0);
     glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
@@ -533,6 +546,8 @@ MeshPairViewerWidgetT<M>::draw_openmesh(const Mesh& mesh_,const Stripifier& stri
 
 
 }
+
+//-----------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------
@@ -543,7 +558,7 @@ void
 MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 {
 
-  if ( 0 <  first_->mesh_.n_vertices() && 0 < second_->mesh_.n_vertices() )
+  if ( (!first_->mesh_.n_vertices()) && (!second_->mesh_.n_vertices()) )
     return;
 
 #if defined(OM_USE_OSG) && OM_USE_OSG
@@ -559,15 +574,15 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   if ( _draw_mode == "Points" )
   {
     glDisable(GL_LIGHTING);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_ , _draw_mode );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_, second_->strips_ , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_ , _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_ , _draw_mode );
   }
   else if (_draw_mode == "Wireframe")
   {
     glDisable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_, second_->strips_ , _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 
@@ -578,14 +593,14 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glColor4f( 0.0f, 0.0f, 0.0f, 1.0f );
     glDepthRange(0.01, 1.0);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, "Wireframe" );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_, second_->strips_ , "Wireframe" );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, "Wireframe" );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, "Wireframe" );
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE);
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
     glDepthRange( 0.0, 1.0 );
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, "Wireframe" );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, "Wireframe" );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, "Wireframe" );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, "Wireframe" );
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
   }
@@ -594,8 +609,8 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   {
     glEnable(GL_LIGHTING);
     glShadeModel(GL_FLAT);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
   }
 
   else if (_draw_mode == "Solid Smooth"        ||
@@ -603,31 +618,31 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   {
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
   }
 
   else if (_draw_mode == "Show Strips")
   {
     glDisable(GL_LIGHTING);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
   }
 
   else if (_draw_mode == "Colored Vertices" )
   {
     glDisable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
   }
 
   else if (_draw_mode == "Solid Colored Faces")
   {
     glDisable(GL_LIGHTING);
     glShadeModel(GL_FLAT);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
     setDefaultMaterial();
   }
 
@@ -635,8 +650,8 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   {
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
-    if(0<first_->mesh_.n_vertices())draw_openmesh( first_->mesh_ , first_->strips_, _draw_mode );
-    if(0<second_->mesh_.n_vertices())draw_openmesh( second_->mesh_ , second_->strips_, _draw_mode );
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
     setDefaultMaterial();
   }
 
@@ -731,7 +746,7 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
         use_color_ = !use_color_;
         std::cout << "use color: " << (use_color_?"yes\n":"no\n");
         if (!use_color_)
-          glColor3f(1.0f, 1.0f, 1.0f);
+          glColor3f(0.60048044f, 0.7001344f, 0.79978836f);
         updateGL();
       }
       break;

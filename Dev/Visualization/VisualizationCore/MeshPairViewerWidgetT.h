@@ -51,7 +51,6 @@ public:
     slotDrawMode(a);
     add_draw_mode("Hidden-Line");
 
-
   }
 
   /// destructor
@@ -63,6 +62,8 @@ public:
   virtual bool open_mesh(const char*,Mesh&,Stripifier&,OpenMesh::IO::Options);
   virtual bool save_mesh(const char*, Mesh& ,OpenMesh::IO::Options);
 
+  ///set center of scene
+  virtual void set_center_at_mesh(const Mesh&);
   /// load texture
   virtual bool open_texture( const char *_filename );
   bool set_texture( QImage& _texsrc );
@@ -87,8 +88,7 @@ protected:
 protected:
 
   /// draw the mesh
-  virtual void draw_openmesh(const Mesh& mesh_,const Stripifier&,const std::string& _drawmode);
-
+  virtual void draw_openmesh(MeshBundle<Mesh>& b ,const std::string& _drawmode);
 
   void glVertex( const Mesh& m,  const typename Mesh::VertexHandle _vh)
   { glVertex3fv( &m.point( _vh )[0] ); }

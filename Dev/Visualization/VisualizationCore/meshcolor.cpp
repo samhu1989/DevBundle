@@ -1,5 +1,6 @@
 #include "MeshColor.h"
 #include "visualizationcore_global.h"
+
 void VISUALIZATIONCORESHARED_EXPORT ColorArray::RGBArray::reset(long size, uint8_t r, uint8_t g, uint8_t b)
 {
     int N;
@@ -27,3 +28,30 @@ void VISUALIZATIONCORESHARED_EXPORT ColorArray::RGBArray::reset(long size, uint8
         long_ptr++;
     }
 }
+
+ColorArray::RGB32 VISUALIZATIONCORESHARED_EXPORT ColorArray::DefaultColor[DefaultColorNum_] = {
+    {0XFF66CCCC},
+    {0XFFCCFF66},
+    {0XFFFF99CC},
+    {0XFFFF9999},
+    {0XFFFFCC99},
+    {0XFFFF6666},
+    {0XFFFFFF66},
+    {0XFF99CC66},
+    {0XFF666699},
+    {0XFFFF9999},
+    {0XFFFF6600},
+    {0XFF99CC33},
+    {0XFFCC3399},
+    {0XFFFF9900},
+    {0XFFFF9966},
+    {0XFFFF0033},
+    {0XFFFFCC00},
+    {0XFFFF9900},
+    {0XFF99CC33},
+    {0XFF993366},
+    {0XFFFFFF66},
+    {0XFF666633},
+    {0XFF66CCCC},
+    {0XFF666699}
+};

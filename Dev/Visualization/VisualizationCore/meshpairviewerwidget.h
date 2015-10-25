@@ -42,24 +42,10 @@ public:
         std::cout << "Loaded mesh in ~" << t.as_string() << std::endl;
     }
 
-    void open_texture_gui(QString fname)
-    {
-        if ( fname.isEmpty() || !open_texture( fname.toStdString().c_str() ) )
-        {
-            QString msg = "Cannot load texture image from file:\n '";
-            msg += fname;
-            msg += "'\n\nPossible reasons:\n";
-            msg += "- Mesh file didn't provide texture coordinates\n";
-            msg += "- Texture file does not exist\n";
-            msg += "- Texture file is not accessible.\n";
-            QMessageBox::warning( NULL, windowTitle(), msg );
-        }
-    }
-
 public slots:
     void query_open_source_file() {
         QString fileName = QFileDialog::getOpenFileName(this,
-            tr("Open mesh file"),
+            tr("Open Source file"),
             tr("../../Dev_Data/"),
             tr("OBJ Files (*.obj);;"
             "OFF Files (*.off);;"
@@ -71,7 +57,7 @@ public slots:
     }
     void query_open_target_file() {
         QString fileName = QFileDialog::getOpenFileName(this,
-            tr("Open mesh file"),
+            tr("Open Target file"),
             tr("../../Dev_Data/"),
             tr("OBJ Files (*.obj);;"
             "OFF Files (*.off);;"
@@ -80,19 +66,7 @@ public slots:
             "All Files (*)"));
         if (!fileName.isEmpty())
             open_mesh_gui(fileName,*second_);
-    }
-    void query_open_texture_file() {
-        QString fileName = QFileDialog::getOpenFileName(this,
-            tr("Open texture file"),
-            tr("../../Dev_Data/"),
-            tr("PNG Files (*.png);;"
-            "BMP Files (*.bmp);;"
-            "GIF Files (*.gif);;"
-            "JPEG Files (*.jpg);;"
-            "TIFF Files (*.tif);;"
-            "All Files (*)"));
-        if (!fileName.isEmpty())
-            open_texture_gui(fileName);
+        set_center_at_mesh(second_->mesh_);
     }
 private:
     OpenMesh::IO::Options _options;
