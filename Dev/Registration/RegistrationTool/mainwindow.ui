@@ -36,9 +36,8 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen_Source"/>
-    <addaction name="actionOpen_Target"/>
-    <addaction name="actionSave_Combined"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
     <addaction name="separator"/>
     <addaction name="actionConfigure"/>
    </widget>
@@ -52,9 +51,9 @@
    <addaction name="menuEdit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionOpen_Source">
+  <action name="actionOpen">
    <property name="text">
-    <string>Open Source</string>
+    <string>Open Inputs</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -68,9 +67,9 @@
     <string>Ctrl+T</string>
    </property>
   </action>
-  <action name="actionSave_Combined">
+  <action name="actionSave">
    <property name="text">
-    <string>Save Combined</string>
+    <string>Save Result</string>
    </property>
    <property name="shortcut">
     <string>Shift+S</string>

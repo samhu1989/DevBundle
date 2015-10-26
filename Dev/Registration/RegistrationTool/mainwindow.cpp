@@ -1,12 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "MeshPairViewerWidget.h"
+#include "MeshListViewerWidget.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    MeshPairViewerWidget* w = new MeshPairViewerWidget(this);
+    MeshListViewerWidget* w = new MeshListViewerWidget(this);
     OpenMesh::IO::Options opt;
     opt += OpenMesh::IO::Options::VertexColor;
     opt += OpenMesh::IO::Options::VertexNormal;
@@ -17,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
     w->setOptions(opt);
     setCentralWidget(w);
     connect(this,SIGNAL(destroyed(QObject*)),w,SLOT(deleteLater()));
-    connect(ui->actionOpen_Source,SIGNAL(triggered(bool)),w,SLOT(query_open_source_file()));
-    connect(ui->actionOpen_Target,SIGNAL(triggered(bool)),w,SLOT(query_open_target_file()));
+    connect(ui->actionOpen,SIGNAL(triggered(bool)),w,SLOT(query_open_file()));
+    connect(ui->actionSave,SIGNAL(triggered(bool)),w,SLOT(query_save_file()));
 }
 
 MainWindow::~MainWindow()

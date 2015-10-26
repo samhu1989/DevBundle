@@ -28,7 +28,10 @@ HEADERS += visualizationcore.h\
     MeshPairViewerWidget.h \
     MeshType.h \
     MeshColor.h \
-    MeshColor.hpp
+    MeshColor.hpp \
+    MeshListViewerWidget.h \
+    MeshListViewerWidgetT.h \
+    MeshListViewerWidgetT.hpp
 
 unix {
     target.path = /usr/lib

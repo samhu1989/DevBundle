@@ -7,23 +7,10 @@
 #include <OpenMesh/Core/Utils/GenProg.hh>
 #include <OpenMesh/Core/Utils/color_cast.hh>
 #include <OpenMesh/Core/Mesh/Attributes.hh>
-#include <OpenMesh/Tools/Utils/StripifierT.hh>
 #include <OpenMesh/Tools/Utils/Timer.hh>
+#include "MeshType.h"
 #include "QGLViewerWidget.h"
 #include "MeshColor.h"
-
-template <typename M>
-class MeshBundle
-{
-public:
-    MeshBundle():
-        custom_color_(mesh_),
-        strips_(mesh_)
-    {}
-    M                           mesh_;
-    MeshColor<M>        custom_color_;
-    OpenMesh::StripifierT<M>  strips_;
-};
 
 template <typename M>
 class MeshPairViewerWidgetT : public QGLViewerWidget
