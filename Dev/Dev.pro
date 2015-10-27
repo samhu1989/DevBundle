@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     Registration \
-    Visualization
+    Visualization \
+    Common

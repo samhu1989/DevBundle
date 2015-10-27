@@ -24,6 +24,11 @@ win32: LIBS += -L$$DESTDIR/ -lVisualizationCore
 INCLUDEPATH += $$PWD/../../Visualization/VisualizationCore
 DEPENDPATH += $$PWD/../../Visualization/VisualizationCore
 
+win32: LIBS += -L$$DESTDIR/ -lCommon
+
+INCLUDEPATH += $$PWD/../../Common
+DEPENDPATH += $$PWD/../../Common
+
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshCore.dll
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshCored.dll
 

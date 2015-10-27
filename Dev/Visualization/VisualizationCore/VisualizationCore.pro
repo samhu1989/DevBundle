@@ -14,8 +14,7 @@ DEFINES += VISUALIZATIONCORE_LIBRARY
 DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
 SOURCES += visualizationcore.cpp \
-    QGLViewerWidget.cpp \
-    MeshColor.cpp
+    QGLViewerWidget.cpp
 
 HEADERS += visualizationcore.h\
         visualizationcore_global.h \
@@ -26,9 +25,6 @@ HEADERS += visualizationcore.h\
     MeshViewerWidgetT.hpp \
     MeshPairViewerWidgetT.hpp \
     MeshPairViewerWidget.h \
-    MeshType.h \
-    MeshColor.h \
-    MeshColor.hpp \
     MeshListViewerWidget.h \
     MeshListViewerWidgetT.h \
     MeshListViewerWidgetT.hpp
@@ -37,6 +33,12 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+
+win32: LIBS += -L$$DESTDIR/ -lCommon
+
+INCLUDEPATH += $$PWD/../../Common
+DEPENDPATH += $$PWD/../../Common
 
 win32:CONFIG(release, debug|release): LIBS += -lfreeglut
 else:win32:CONFIG(debug, debug|release): LIBS += -lfreeglut
@@ -50,4 +52,6 @@ DEPENDPATH += $$PWD/../../../3rdParty/OpenMesh/include
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshTools.dll
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshToolsd.dll
+
+
 
