@@ -35,7 +35,7 @@ namespace ColorArray
     }
 
     typedef struct RGBArray{
-        const uint8_t dim_ = 3;
+        static const uint8_t dim_ = 3;
         long size_ = 0;
         uint8_t* data_=NULL;
         void reset(long size,uint8_t r,uint8_t g, uint8_t b);

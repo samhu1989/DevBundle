@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       -= core gui
+QT       -=  gui
 
 TARGET = RegistrationCore
 TEMPLATE = lib
@@ -16,7 +16,11 @@ SOURCES += registrationcore.cpp \
 
 HEADERS += registrationcore.h\
         registrationcore_global.h \
-    coherentpointdrift.h
+    coherentpointdrift.h \
+    RegistrationBase.h \
+    RegistrationThreadT.h \
+    coherentpointdrift.hpp \
+    RegistrationThreadT.hpp
 
 unix {
     target.path = /usr/lib
@@ -25,6 +29,10 @@ unix {
 
 DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
+win32: LIBS += -L$$DESTDIR/ -lCommon
+
+INCLUDEPATH += $$PWD/../../Common
+DEPENDPATH += $$PWD/../../Common
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshCore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshCored
@@ -49,7 +57,6 @@ win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdPa
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/libsuperlu.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/superlu.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/superlu.lib
-
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lblas

@@ -1,13 +1,15 @@
 #ifndef COHERENTPOINTDRIFT_H
 #define COHERENTPOINTDRIFT_H
+#include "registrationcore_global.h"
 #include <armadillo>
 #include <iostream>
 #include <memory>
+#include <RegistrationBase.h>
 #if !defined(M_PI)
 #  define M_PI 3.1415926535897932
 #endif
 namespace Registration {
-    class CPDBase
+    class REGISTRATIONCORESHARED_EXPORT CPDBase:public RegistrationBase
     {
     public:
         typedef enum{
@@ -17,7 +19,7 @@ namespace Registration {
         }EndMode;
         typedef struct Info{
             float omega = 0.3;// weight for uniform distribution
-            int max_iter = 10;
+            int max_iter = 100;
             float fitness_th = std::numeric_limits<float>::max();
             float var_th = std::numeric_limits<float>::max() ;
             bool isApplyed = true;//is transform applied on input matrix source
@@ -27,6 +29,7 @@ namespace Registration {
         }Info;
         CPDBase(){}
         virtual ~CPDBase(){}
+        //when compute in Thread
         //each col is a point
         void compute(const arma::fmat&source,const arma::fmat&target,Info&info)
         {
@@ -36,6 +39,15 @@ namespace Registration {
                 computeOnce();
             }
         }
+
+        void compute()
+        {
+            while(!isEnd())
+            {
+                computeOnce();
+            }
+        }
+
         virtual void reset(const arma::fmat&source,const arma::fmat&target,Info&info)
         {
             InfoPtr_ = std::shared_ptr<Info>(&info);
@@ -71,6 +83,7 @@ namespace Registration {
         std::shared_ptr<Info> InfoPtr_;
     };
 
+    template<typename M>
     class CPDRigid3D:public CPDBase
     {
     public:
@@ -83,7 +96,11 @@ namespace Registration {
             float t[3];
             float s;
         }Result;
+        typedef typename std::vector<typename MeshBundle<M>::Ptr> MeshList;
         CPDRigid3D();
+        virtual bool initForThread(void*);
+        //configure info from global configure
+        void configure(Info&);
         virtual void reset(const arma::fmat&source,const arma::fmat&target,Info&info);
         float fitness();
         virtual ~CPDRigid3D();
@@ -98,7 +115,9 @@ namespace Registration {
         arma::fmat mX_; // centered X
         arma::fmat mY_; // centered Y
         std::shared_ptr<Result> ResPtr_;
+    private:
+        MeshList mesh_list;
     };
 }
-
+#include "coherentpointdrift.hpp"
 #endif // COHERENTPOINTDRIFT_H

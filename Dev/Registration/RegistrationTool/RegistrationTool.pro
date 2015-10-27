@@ -24,6 +24,11 @@ win32: LIBS += -L$$DESTDIR/ -lVisualizationCore
 INCLUDEPATH += $$PWD/../../Visualization/VisualizationCore
 DEPENDPATH += $$PWD/../../Visualization/VisualizationCore
 
+win32: LIBS += -L$$DESTDIR/ -lRegistrationCore
+
+INCLUDEPATH += $$PWD/../RegistrationCore
+DEPENDPATH += $$PWD/../RegistrationCore
+
 win32: LIBS += -L$$DESTDIR/ -lCommon
 
 INCLUDEPATH += $$PWD/../../Common
@@ -40,3 +45,28 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenM
 
 win32:CONFIG(release, debug|release): LIBS += -lfreeglut
 else:win32:CONFIG(debug, debug|release): LIBS += -lfreeglut
+
+LIBS += -lopenblas
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu
+
+INCLUDEPATH += $$PWD/../../../3rdParty/SuperLU/include
+DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/libsuperlu.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/libsuperlu.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/superlu.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/superlu.lib
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lblas
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lblas
+
+INCLUDEPATH += $$PWD/../../../3rdParty/SuperLU/include
+DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/libblas.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/libblas.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/blas.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/blas.lib

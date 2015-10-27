@@ -1,24 +1,21 @@
 #ifndef REGISTRATIONCORE_H
 #define REGISTRATIONCORE_H
 #include "registrationcore_global.h"
-#include <OpenMesh/Core/Mesh/TriMeshT.hh>
-#include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
 #include <armadillo>
 #include <iostream>
 #include <memory>
-namespace Registration
+#include "MeshType.h"
+#include "RegistrationBase.h"
+#include "coherentpointdrift.h"
+#include "RegistrationThreadT.h"
+//CPDRigid3D DefaultMesh Registration Thread:
+template class REGISTRATIONCORESHARED_EXPORT Registration::CPDRigid3D<DefaultMesh>;
+class REGISTRATIONCORESHARED_EXPORT CPDR3D_DM_R_Thread:public Registration::RegistrationThreadT<Registration::CPDRigid3D<DefaultMesh>,DefaultMesh>
 {
-    namespace MeshPort{
-        struct DefaultTraits : public OpenMesh::DefaultTraits
-        {
-            HalfedgeAttributes(OpenMesh::Attributes::PrevHalfedge);
-        };
-        typedef OpenMesh::TriMesh_ArrayKernelT<DefaultTraits>  DefaultMesh;
-        template<typename MeshType>
-        void meshToMat(MeshType&mesh,arma::fmat&X);
-        template<typename MeshType>
-        void matToMesh(arma::fmat&X,MeshType&mesh);
-    }
-
-}
+    Q_OBJECT
+public:
+protected:
+    void run(void){compute();}
+private:
+};
 #endif // REGISTRATIONCORE_H

@@ -10,6 +10,7 @@ struct Traits : public OpenMesh::DefaultTraits
   HalfedgeAttributes(OpenMesh::Attributes::PrevHalfedge);
 };
 
+
 typedef OpenMesh::TriMesh_ArrayKernelT<Traits>  DefaultMesh;
 
 template <typename M>
