@@ -20,7 +20,9 @@ HEADERS += registrationcore.h\
     RegistrationBase.h \
     RegistrationThreadT.h \
     coherentpointdrift.hpp \
-    RegistrationThreadT.hpp
+    RegistrationThreadT.hpp \
+    jrmpc.h \
+    jrmpc.hpp
 
 unix {
     target.path = /usr/lib

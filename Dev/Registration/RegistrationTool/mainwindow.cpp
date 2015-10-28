@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&timer,SIGNAL(timeout()),w,SLOT(updateGL()));
     timer.setSingleShot(false);
     //force the repaint in gl every 100ms
-    timer.start(100);
+    timer.start(50);
 }
 
 void MainWindow::start_registration(void)

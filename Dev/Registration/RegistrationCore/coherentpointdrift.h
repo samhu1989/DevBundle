@@ -41,7 +41,7 @@ namespace Registration {
             }
         }
 
-        void compute()
+        virtual void compute()
         {
             while(!isEnd())
             {
