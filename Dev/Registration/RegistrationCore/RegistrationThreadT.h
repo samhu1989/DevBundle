@@ -16,7 +16,6 @@ namespace Registration{
         virtual void compute(void);
     private:
         Reg reg_;
-        std::shared_ptr<void*> info_;
     };
 }
 #include <RegistrationThreadT.hpp>

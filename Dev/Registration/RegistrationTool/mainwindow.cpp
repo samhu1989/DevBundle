@@ -67,15 +67,18 @@ void MainWindow::start_registration(void)
 
 void MainWindow::finish_registration(void)
 {
-    QString msg = "Current Algorithm is finished";
-    QMessageBox::information( this, windowTitle(), msg);
     if(alg_thread)
     {
-        if(!alg_thread->isRunning()){
-            alg_thread->deleteLater();
-            alg_thread = NULL;
+        while(!alg_thread->isRunning())
+        {
+            alg_thread->terminate();
+            QApplication::processEvents();
         }
+        alg_thread->deleteLater();
+        alg_thread = NULL;
     }
+    QString msg = "Current Algorithm is finished";
+    QMessageBox::information( this, windowTitle(), msg);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent*e)

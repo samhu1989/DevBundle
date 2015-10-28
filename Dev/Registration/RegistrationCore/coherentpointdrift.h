@@ -117,8 +117,6 @@ namespace Registration {
         arma::fmat mX_; // centered X
         arma::fmat mY_; // centered Y
         std::shared_ptr<Result> ResPtr_;
-    private:
-        MeshList mesh_list;
     };
 }
 #include "coherentpointdrift.hpp"
