@@ -17,11 +17,13 @@ CPDRigid3D<M>::~CPDRigid3D()
 template<typename M>
 void CPDRigid3D<M>::stepM()
 {
+    arma::fmat& X_ = *X_ptr;
+    arma::fmat& Y_ = *Y_ptr;
     //update Center
     dividebyNp_ = 1.0 / arma::accu(P_);
-    muX = dividebyNp_*arma::sum(X_*(P_.t()),2);
+    muX = dividebyNp_*arma::sum(X_*(P_.t()),1);
     mX_ = X_.each_col() - muX;
-    muY = dividebyNp_*arma::sum(Y_*P_,2);
+    muY = dividebyNp_*arma::sum(Y_*P_,1);
     mY_ = Y_.each_col() - muY;
 
     //update Rotation
@@ -42,13 +44,13 @@ void CPDRigid3D<M>::stepM()
     float trAtR = arma::accu(A_%R);
 
     //trace( mY_ * d(P1) * mY_ )
-    arma::fvec P_SumRow_ = arma::sum(P_,2);
+    arma::fvec P_SumRow_ = arma::sum(P_,1);
     arma::fmat square_mY_ = arma::square(mY_);
-    square_mY_.each_row() %= P_SumRow_;
+    square_mY_.each_row() %= (P_SumRow_.t());
     float trYPY = arma::accu(square_mY_);
 
     //trace( mX.t() * d(P.t()1) * mX )
-    arma::fvec P_SumCol_ = arma::sum(P_,1);
+    arma::frowvec P_SumCol_ = arma::sum(P_,0);
     arma::fmat square_mX_ = arma::square(mX_);
     square_mX_.each_row() %= P_SumCol_;
     float trXPX = arma::accu(square_mX_);
@@ -75,7 +77,7 @@ void CPDRigid3D<M>::stepM()
 }
 
 template<typename M>
-void CPDRigid3D<M>::reset(const arma::fmat&source,const arma::fmat&target,Info&info)
+void CPDRigid3D<M>::reset(const arma::fmat&source,const arma::fmat&target,InfoPtr&info)
 {
     CPDBase::reset(source,target,info);
     arma::fmat R(ResPtr_->R,3,3,false,true);
@@ -83,13 +85,13 @@ void CPDRigid3D<M>::reset(const arma::fmat&source,const arma::fmat&target,Info&i
     arma::fvec t(ResPtr_->t,3,false,true);
     t = arma::zeros<arma::fmat>(3);
     ResPtr_->s = 1.0;
-    info.result = (void*)ResPtr_.get();
+    InfoPtr_->result = (void*)ResPtr_.get();
 }
 
 template<typename M>
 float CPDRigid3D<M>::fitness()
 {
-    ;
+    return std::numeric_limits<float>::max();
 }
 
 template<typename M>
@@ -110,27 +112,36 @@ bool CPDRigid3D<M>::isEnd()
     return false;
 }
 template<typename M>
-void CPDRigid3D<M>::configure(Info&)
+bool CPDRigid3D<M>::configure(Info&)
 {
-    ;
+    return true;
 }
 
 template<typename M>
 bool CPDRigid3D<M>::initForThread(void* meshlistptr)
 {
     MeshList* list = reinterpret_cast<MeshList*>(meshlistptr);
-    if(!list)return false;
+    if(!list){
+        error_string_ = "Can not locate the inputs";
+        return false;
+    }
     if(list->size()!=2){
-        std::clog<<"This algorithm is designed for two input meshes"<<std::endl;
+        error_string_ = "This algorithm is designed for two input meshes";
         return false;
     }
     arma::fmat source((float*)(*list)[0]->mesh_.points(),3,(*list)[0]->mesh_.n_vertices(),false,true);
     arma::fmat target((float*)(*list)[1]->mesh_.points(),3,(*list)[1]->mesh_.n_vertices(),false,true);
 
     std::shared_ptr<Info> info(new Info);
-    configure(*info);
+    if(!configure(*info))
+    {
+        error_string_ = "With no proper configure";
+        return false;
+    }
 
-    reset(source,target,*info);
+    reset(source,target,info);
+    return true;
+
 }
 
 }

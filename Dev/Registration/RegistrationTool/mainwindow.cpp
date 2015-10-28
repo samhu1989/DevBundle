@@ -22,6 +22,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpen,SIGNAL(triggered(bool)),w,SLOT(query_open_file()));
     connect(ui->actionSave,SIGNAL(triggered(bool)),w,SLOT(query_save_file()));
     connect(ui->actionCPDRigid3D,SIGNAL(triggered(bool)),this,SLOT(start_registration()));
+    connect(&timer,SIGNAL(timeout()),w,SLOT(updateGL()));
+    timer.setSingleShot(false);
+    //force the repaint in gl every 100ms
+    timer.start(100);
 }
 
 void MainWindow::start_registration(void)
@@ -63,6 +67,8 @@ void MainWindow::start_registration(void)
 
 void MainWindow::finish_registration(void)
 {
+    QString msg = "Current Algorithm is finished";
+    QMessageBox::information( this, windowTitle(), msg);
     if(alg_thread)
     {
         if(!alg_thread->isRunning()){

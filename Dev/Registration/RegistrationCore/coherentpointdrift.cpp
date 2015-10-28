@@ -5,6 +5,8 @@ namespace Registration
     void CPDBase::stepE()
     {
         //initialize the probability matrix
+        arma::fmat& X_ = *X_ptr;
+        arma::fmat& Y_ = *Y_ptr;
         if(P_.is_empty())
         {
             P_ = arma::fmat(Y_.n_cols,X_.n_cols);
@@ -18,7 +20,7 @@ namespace Registration
             P_.row(r) = arma::sum(arma::square(tmpm));
         }
         P_ = arma::exp(k*P_);
-        arma::fvec p_sum = arma::sum(P_) + c;
+        arma::frowvec p_sum = arma::sum(P_) + c;
         for(int c=0;c<P_.n_cols;++c)
         {
             P_.col(c) /= p_sum(c);

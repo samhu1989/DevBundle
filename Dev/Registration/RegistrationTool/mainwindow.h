@@ -6,6 +6,7 @@
 #include <QGLWidget>
 #include <QThread>
 #include <QKeyEvent>
+#include <QTimer>
 namespace Ui {
 class MainWindow;
 }
@@ -22,6 +23,7 @@ protected slots:
     void finish_registration(void);
 private:
     Ui::MainWindow *ui;
+    QTimer timer;
     QThread* alg_thread;
 };
 

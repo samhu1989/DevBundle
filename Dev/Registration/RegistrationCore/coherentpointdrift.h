@@ -18,20 +18,21 @@ namespace Registration {
             VarBelowThreshold
         }EndMode;
         typedef struct Info{
-            float omega = 0.3;// weight for uniform distribution
+            float omega = 0.1;// weight for uniform distribution
             int max_iter = 100;
-            float fitness_th = std::numeric_limits<float>::max();
-            float var_th = std::numeric_limits<float>::max() ;
+            float fitness_th = 0.0;
+            float var_th = 0.0 ;
             bool isApplyed = true;//is transform applied on input matrix source
             bool isScaled = false;
             EndMode mode;
             void* result = NULL;
         }Info;
+        typedef std::shared_ptr<Info> InfoPtr;
         CPDBase(){}
         virtual ~CPDBase(){}
         //when compute in Thread
         //each col is a point
-        void compute(const arma::fmat&source,const arma::fmat&target,Info&info)
+        void compute(const arma::fmat&source,const arma::fmat&target,InfoPtr&info)
         {
             reset(source,target,info);
             while(!isEnd())
@@ -48,20 +49,21 @@ namespace Registration {
             }
         }
 
-        virtual void reset(const arma::fmat&source,const arma::fmat&target,Info&info)
+        virtual void reset(const arma::fmat&source,const arma::fmat&target,InfoPtr&info)
         {
-            InfoPtr_ = std::shared_ptr<Info>(&info);
-            if(InfoPtr_->isApplyed)Y_ = arma::fmat((float*)(source.memptr()),source.n_rows,source.n_cols,false,true);
-            else Y_ = arma::fmat((float*)(source.memptr()),source.n_rows,source.n_cols,true);
-            X_ = arma::fmat((float*)(target.memptr()),target.n_rows,target.n_cols,false,true);
+            InfoPtr_ = info;
+            if(InfoPtr_->isApplyed)Y_ptr = std::shared_ptr<arma::fmat>(new arma::fmat((float*)(source.memptr()),source.n_rows,source.n_cols,false,true));
+            else Y_ptr = std::shared_ptr<arma::fmat>(new arma::fmat((float*)(source.memptr()),source.n_rows,source.n_cols,true));
+            X_ptr = std::shared_ptr<arma::fmat>(new arma::fmat((float*)(target.memptr()),target.n_rows,target.n_cols,false,true));
             var = 0.0;
-            for( int idx = 0 ; idx < Y_.n_cols ;++idx)
+            for( int idx = 0 ; idx < Y_ptr->n_cols ;++idx)
             {
-                arma::fmat tmpm = X_.each_col() - Y_.col(idx);
-                arma::fvec tmpv = arma::sum(arma::square(tmpm));
-                var += arma::mean(tmpv);
+                arma::fmat tmpa = X_ptr->each_col() - Y_ptr->col(idx);
+                arma::fmat tmpb = arma::square(tmpa);
+                arma::frowvec tmpc = arma::sum(tmpb);
+                var += arma::mean(tmpc);
             }
-            var /= Y_.n_cols;
+            var /= Y_ptr->n_cols;
             count = 0;
         }
         void computeOnce(void)
@@ -78,8 +80,8 @@ namespace Registration {
         int count;
         float var;
         arma::fmat P_;
-        arma::fmat X_;
-        arma::fmat Y_;
+        std::shared_ptr<arma::fmat> X_ptr;
+        std::shared_ptr<arma::fmat> Y_ptr;
         std::shared_ptr<Info> InfoPtr_;
     };
 
@@ -88,8 +90,8 @@ namespace Registration {
     {
     public:
         using CPDBase::P_;
-        using CPDBase::X_;
-        using CPDBase::Y_;
+        using CPDBase::X_ptr;
+        using CPDBase::Y_ptr;
         using CPDBase::InfoPtr_;
         typedef struct Result{
             float R[9];
@@ -100,8 +102,8 @@ namespace Registration {
         CPDRigid3D();
         virtual bool initForThread(void*);
         //configure info from global configure
-        void configure(Info&);
-        virtual void reset(const arma::fmat&source,const arma::fmat&target,Info&info);
+        bool configure(Info&);
+        virtual void reset(const arma::fmat&source, const arma::fmat&target, InfoPtr &info);
         float fitness();
         virtual ~CPDRigid3D();
     protected:
