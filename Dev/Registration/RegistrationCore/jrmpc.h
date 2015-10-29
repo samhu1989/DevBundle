@@ -9,13 +9,14 @@ namespace Registration {
         typedef enum{
             MaxIter,
             ErrorBelowThreshold,
-            VarBelowThreshold
+            VarBelowThreshold,
+            Force
         }EndMode;
 
         typedef struct Info{
             int k = 0;
-            float gamma = 0.1;// weight for uniform distribution
-            int max_iter = 1;
+            float gamma = 0.2;// weight for uniform distribution
+            int max_iter = 50;
             float fitness_th = 0.0;
             float var_th = 0.0 ;
             bool isApplyed = true;//is transform applied on input matrix source
@@ -31,6 +32,7 @@ namespace Registration {
         typedef typename std::vector<typename MeshBundle<M>::Ptr> MeshList;
         typedef std::shared_ptr<Info> InfoPtr;
         typedef std::shared_ptr<Result> ResPtr;
+        typedef std::shared_ptr<arma::fmat> MatPtr;
     public:
         JRMPC();
         bool configure(Info&);
@@ -75,6 +77,7 @@ namespace Registration {
             while(!isEnd())
             {
                 computeOnce();
+
             }
         }
 
@@ -82,8 +85,7 @@ namespace Registration {
         {
             stepE();
             stepMa();
-            stepMb();
-            stepMc();
+            stepMbc();
             stepMd();
             ++count;
         }
@@ -95,8 +97,7 @@ namespace Registration {
         virtual void initX(const std::vector<std::shared_ptr<arma::fmat>>&source,arma::fmat&target);
         virtual void stepE();
         virtual void stepMa();
-        virtual void stepMb();
-        virtual void stepMc();
+        virtual void stepMbc();
         virtual void stepMd();
         virtual bool isEnd();
 

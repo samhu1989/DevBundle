@@ -14,7 +14,7 @@ namespace Registration{
         const std::string& errorString(void){ return reg_.errorForThread(); }
     protected:
         virtual void compute(void);
-    private:
+    protected:
         Reg reg_;
     };
 }

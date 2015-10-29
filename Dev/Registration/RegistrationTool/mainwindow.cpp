@@ -113,7 +113,7 @@ void MainWindow::keyPressEvent(QKeyEvent*e)
                     QMessageBox::No)
                 )
         {
-            alg_thread->terminate();
+            alg_thread->quit();
         }
     }
     QMainWindow::keyPressEvent(e);

@@ -5,7 +5,7 @@
 #include "jrmpc.h"
 namespace Registration {
 template<typename M>
-JRMPC<M>::JRMPC():
+JRMPC<M>::JRMPC():RegistrationBase(),
     count(0)
 {
 
@@ -181,31 +181,133 @@ void JRMPC<M>::initX(const std::vector<std::shared_ptr<arma::fmat>>&source,
 template<typename M>
 void JRMPC<M>::stepE()
 {
-    ;
+    arma::fmat& X_ = *X_ptr;
+    std::vector<MatPtr>::iterator VIter;
+    int idx = 0;
+    for(VIter=V_ptrs.begin();VIter!=V_ptrs.end();++VIter)
+    {
+        arma::fmat& V_ = **VIter;
+        while(alpha_ptrs.size()<=idx)
+        {
+            alpha_ptrs.push_back(std::make_shared<arma::fmat>(V_.n_cols,X_.n_cols));
+        }
+        arma::fmat& alpha = *alpha_ptrs[idx];
+        for(int r=0;r<alpha.n_rows;++r)
+        {
+            arma::fmat tmpm = X_.each_col() - V_.col(r);
+            alpha.row(r) = arma::sum(arma::square(tmpm));
+        }
+        alpha.each_row()%=(-0.5*var.t());
+        alpha = arma::exp(alpha);
+        alpha.each_row()%=arma::pow(var.t(),1.5);
+        alpha.each_row()%=P_.t();
+        arma::fvec alpha_rowsum = arma::sum(alpha,1)+beta;
+        alpha.each_col()/=alpha_rowsum;
+        ++idx;
+    }
 }
 
 template<typename M>
 void JRMPC<M>::stepMa()
 {
-    ;
+    arma::fmat& X_ = *X_ptr;
+    std::vector<MatPtr>::iterator VIter;
+    int idx = 0;
+    for(VIter=V_ptrs.begin();VIter!=V_ptrs.end();++VIter)
+    {
+        arma::fmat& V_ = **VIter;
+        arma::fmat& R = *(res_ptr->Rs[idx]);
+        arma::fmat dR;
+        arma::fvec& t = *(res_ptr->ts[idx]);
+        arma::fvec dt;
+        arma::fmat& alpha = *alpha_ptrs[idx];
+        arma::frowvec alpha_colsum = arma::sum(alpha);
+        arma::frowvec square_lambda = (var.t())%alpha_colsum;
+        arma::fmat W = V_*alpha;
+        W.each_row()/=alpha_colsum;
+        arma::frowvec p(square_lambda.n_cols,arma::fill::ones);
+        arma::frowvec square_norm_lambda = square_lambda / arma::accu(square_lambda);
+        p -= square_norm_lambda;
+        arma::fmat tmp = X_;
+        tmp.each_row() %= p;
+        tmp.each_row() %= square_lambda;
+        arma::fmat A = tmp*(W.t());
+        arma::fmat U,V;
+        arma::fvec s;
+        if(!arma::svd(U,s,V,A,"std"))
+        {
+            A += 1e-6*arma::fmat(3,3,arma::fill::eye);
+            if(!arma::svd(U,s,V,A))
+            {
+                U = arma::fmat(3,3,arma::fill::eye);
+                V = U;
+                s = arma::fvec(3,arma::fill::ones);
+                end_ = true;
+            }
+        }
+        arma::fmat C(3,3,arma::fill::eye);
+        C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+        dR = U*C*(V.t());
+        R = dR*R;
+        tmp = X_ - dR*W;
+        tmp.each_row()%=square_norm_lambda;
+        dt = arma::sum(tmp,1);
+        t = dR*t + dt;
+        V_ = dR*V_;
+        V_.each_col() += dt;
+        ++idx;
+    }
 }
 
 template<typename M>
-void JRMPC<M>::stepMb()
+void JRMPC<M>::stepMbc()
 {
-    ;
+    arma::fmat& X_ = *X_ptr;
+    arma::fmat X_sum(X_.n_rows,X_.n_cols,arma::fill::zeros);
+    arma::frowvec var_sum(X_.n_cols,arma::fill::zeros);
+    arma::frowvec alpha_sum(X_.n_cols,arma::fill::zeros);
+    std::vector<MatPtr>::iterator VIter;
+    int idx = 0;
+    for(VIter=V_ptrs.begin();VIter!=V_ptrs.end();++VIter)
+    {
+        arma::fmat& V_ = **VIter;
+        arma::fmat& alpha = *alpha_ptrs[idx];
+        arma::frowvec alpha_colsum = arma::sum(alpha);
+        alpha_sum += alpha_colsum;
+        arma::fmat tmpx =  V_*alpha;
+        X_sum += tmpx;
+        arma::fmat alpha_2(alpha.n_rows,alpha.n_cols);
+        for(int r=0;r<alpha_2.n_rows;++r)
+        {
+            arma::fmat tmpm = X_.each_col() - V_.col(r);
+            alpha_2.row(r) = arma::sum(arma::square(tmpm));
+        }
+        arma::frowvec tmpvar = arma::sum(alpha_2%alpha);
+        var_sum += tmpvar;
+        ++idx;
+    }
+    X_ = X_sum.each_row() / alpha_sum;
+    var = ( var_sum / (3.0*alpha_sum) ).t();
+    var += 1e-6;
+    var = 1.0/var;
 }
 
-template<typename M>
-void JRMPC<M>::stepMc()
-{
-    ;
-}
 
 template<typename M>
 void JRMPC<M>::stepMd()
 {
-    ;
+    float mu = 0.0;
+    arma::frowvec alpha_sumij(X_ptr->n_cols,arma::fill::zeros);
+    std::vector<MatPtr>::iterator AIter;
+    for(AIter=alpha_ptrs.begin();AIter!=alpha_ptrs.end();++AIter)
+    {
+        arma::fmat& alpha = **AIter;
+        alpha_sumij += arma::sum(alpha);
+        mu+=arma::sum(alpha_sumij);
+    }
+    mu*=(info_ptr->gamma+1.0);
+    P_ = alpha_sumij.t();
+    P_ /= mu;
 }
 
 template<typename M>
@@ -214,6 +316,11 @@ bool JRMPC<M>::isEnd()
     if( count >= info_ptr->max_iter )
     {
         info_ptr->mode = MaxIter;
+        return true;
+    }
+    if( end_ )
+    {
+        info_ptr->mode = Force;
         return true;
     }
     return false;

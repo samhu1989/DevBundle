@@ -113,6 +113,11 @@ bool CPDRigid3D<M>::isEnd()
         InfoPtr_->mode = CPDBase::ErrorBelowThreshold;
         return true;
     }
+    if(end_)
+    {
+        InfoPtr_->mode = Force;
+        return true;
+    }
     return false;
 }
 template<typename M>

@@ -15,7 +15,8 @@ namespace Registration {
         typedef enum{
             MaxIter,
             ErrorBelowThreshold,
-            VarBelowThreshold
+            VarBelowThreshold,
+            Force
         }EndMode;
         typedef struct Info{
             float omega = 0.1;// weight for uniform distribution
@@ -28,7 +29,7 @@ namespace Registration {
             void* result = NULL;
         }Info;
         typedef std::shared_ptr<Info> InfoPtr;
-        CPDBase(){}
+        CPDBase():RegistrationBase(){}
         virtual ~CPDBase(){}
         //when compute in Thread
         //each col is a point
