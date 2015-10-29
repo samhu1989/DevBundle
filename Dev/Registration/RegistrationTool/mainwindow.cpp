@@ -21,7 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(destroyed(QObject*)),w,SLOT(deleteLater()));
     connect(ui->actionOpen,SIGNAL(triggered(bool)),w,SLOT(query_open_file()));
     connect(ui->actionSave,SIGNAL(triggered(bool)),w,SLOT(query_save_file()));
+
     connect(ui->actionCPDRigid3D,SIGNAL(triggered(bool)),this,SLOT(start_registration()));
+    connect(ui->actionJRMPC,SIGNAL(triggered(bool)),this,SLOT(start_registration()));
+
     connect(&timer,SIGNAL(timeout()),w,SLOT(updateGL()));
     timer.setSingleShot(false);
     //force the repaint in gl every 100ms
@@ -62,6 +65,22 @@ void MainWindow::start_registration(void)
         }
         alg_thread = thread;
     }
+    if(s==ui->actionJRMPC)
+    {
+        JRMPC_Thread* thread = new JRMPC_Thread();
+        if(!thread->init(w->list()))
+        {
+            QString msg = "Fail to Initialize the Registration:\n '";
+            msg += QString::fromStdString(thread->errorString());
+            QMessageBox::critical( NULL, windowTitle(), msg);
+            return;
+        }else{
+            w->reset_center();
+            w->show_back();
+            connect(thread,SIGNAL(finished()),this,SLOT(finish_registration()));
+        }
+        alg_thread = thread;
+    }
     if(alg_thread)alg_thread->start(QThread::NormalPriority);
 }
 
@@ -69,7 +88,7 @@ void MainWindow::finish_registration(void)
 {
     if(alg_thread)
     {
-        while(!alg_thread->isRunning())
+        while(alg_thread->isRunning())
         {
             alg_thread->terminate();
             QApplication::processEvents();

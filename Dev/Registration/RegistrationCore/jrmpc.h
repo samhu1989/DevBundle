@@ -13,8 +13,9 @@ namespace Registration {
         }EndMode;
 
         typedef struct Info{
-            float gama = 0.2;// weight for uniform distribution
-            int max_iter = 50;
+            int k = 0;
+            float gamma = 0.1;// weight for uniform distribution
+            int max_iter = 1;
             float fitness_th = 0.0;
             float var_th = 0.0 ;
             bool isApplyed = true;//is transform applied on input matrix source
@@ -23,22 +24,51 @@ namespace Registration {
         }Info;
 
         typedef struct Result{
-            std::shared_ptr<arma::fmat> Rs;
-            std::shared_ptr<arma::fvec> ts;
+            std::vector<std::shared_ptr<arma::fmat>> Rs;
+            std::vector<std::shared_ptr<arma::fvec>> ts;
         }Result;
 
         typedef typename std::vector<typename MeshBundle<M>::Ptr> MeshList;
         typedef std::shared_ptr<Info> InfoPtr;
+        typedef std::shared_ptr<Result> ResPtr;
     public:
         JRMPC();
         bool configure(Info&);
         virtual bool initForThread(void *meshlistptr);
 
         virtual void reset(
+                const std::vector<std::shared_ptr<arma::fmat> > &source,
+                InfoPtr &info
+                )
+        {
+            arma::fmat target;
+            initK(source,info->k);
+            initX(source,target);
+            reset(source,target,info);
+        }
+
+        virtual void reset(
                 const std::vector<std::shared_ptr<arma::fmat>>&source,
                 const arma::fmat&target,
                 InfoPtr&info
                 );
+
+        virtual void compute(
+                const std::vector<std::shared_ptr<arma::fmat>>&source,
+                InfoPtr&info)
+        {
+            reset(source,info);
+            compute();
+        }
+
+        virtual void compute(
+                const std::vector<std::shared_ptr<arma::fmat>>&source,
+                const arma::fmat&target,
+                InfoPtr&info)
+        {
+            reset(source,target,info);
+            compute();
+        }
 
         virtual void compute(void)
         {
@@ -58,7 +88,11 @@ namespace Registration {
             ++count;
         }
 
+
+
     protected:
+        virtual void initK(const std::vector<std::shared_ptr<arma::fmat>>&source,int&k);
+        virtual void initX(const std::vector<std::shared_ptr<arma::fmat>>&source,arma::fmat&target);
         virtual void stepE();
         virtual void stepMa();
         virtual void stepMb();
@@ -68,14 +102,17 @@ namespace Registration {
 
     protected:
         int count;
-        arma::fmat P_;
 
+        arma::fvec P_;
         std::shared_ptr<arma::fmat> X_ptr;
         arma::fvec var;
 
         std::vector<std::shared_ptr<arma::fmat>> V_ptrs;
         std::vector<std::shared_ptr<arma::fmat>> alpha_ptrs;
         InfoPtr info_ptr;
+        ResPtr res_ptr;
+
+        float beta;
     };
 }
 #include <jrmpc.hpp>

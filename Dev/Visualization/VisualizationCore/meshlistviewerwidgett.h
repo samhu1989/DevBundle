@@ -61,6 +61,15 @@ public:
   std::vector< typename MeshBundle<Mesh>::Ptr >& list() { return mesh_list_; }
   const std::vector< typename MeshBundle<Mesh>::Ptr >& list() const { return mesh_list_; }
 
+  void show_back(){
+      current_mesh_start_ = mesh_list_.size() - 1;
+      updateGL();
+  }
+
+  void reset_center(){
+      set_center_at_mesh(mesh_list_.back()->mesh_);
+  }
+
 protected:
 
   /// inherited drawing method

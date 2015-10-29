@@ -32,16 +32,18 @@ void CPDRigid3D<M>::stepM()
     arma::fmat V;
     arma::fvec s;
     arma::fmat R(ResPtr_->R,3,3,false,true);
+    arma::fmat dR;
     if(!arma::svd(U,s,V,A_,"std"))
     {
         std::cerr<<"Faild to do svd on A!"<<std::endl;
     }
     arma::fmat C(3,3,arma::fill::eye);
     C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
-    R = U*C*(V.t());
+    dR = U*C*(V.t());
+    R = dR*R;
 
     //trace( A_.t() * R ) with A_ and R are 3x3
-    float trAtR = arma::accu(A_%R);
+    float trAtR = arma::accu(A_%dR);
 
     //trace( mY_ * d(P1) * mY_ )
     arma::fvec P_SumRow_ = arma::sum(P_,1);
@@ -66,14 +68,16 @@ void CPDRigid3D<M>::stepM()
 
     //update Translation
     arma::fvec t(ResPtr_->t,3,false,true);
-    t = muX - ResPtr_->s*(R*muY);
+    arma::fvec dt;
 
+    dt = muX - ResPtr_->s*(dR*muY);
+    t = dR*t + dt;
     //update Var
     var = dividebyNp_*( trXPX - ResPtr_->s*trAtR ) / 3.0 ;
 
     //update Y
-    Y_ = R*Y_ ;
-    Y_.each_col() += t;
+    Y_ = dR*Y_ ;
+    Y_.each_col() += dt;
 }
 
 template<typename M>
