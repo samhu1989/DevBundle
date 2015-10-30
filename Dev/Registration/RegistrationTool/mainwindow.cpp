@@ -81,7 +81,7 @@ void MainWindow::start_registration(void)
         }
         alg_thread = thread;
     }
-    if(alg_thread)alg_thread->start(QThread::NormalPriority);
+    if(alg_thread)alg_thread->start(QThread::HighestPriority);
 }
 
 void MainWindow::finish_registration(void)

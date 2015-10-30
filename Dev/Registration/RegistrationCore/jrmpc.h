@@ -6,6 +6,7 @@ namespace Registration {
     template<typename M>
     class JRMPC:public RegistrationBase
     {
+        using RegistrationBase::end_;
         typedef enum{
             MaxIter,
             ErrorBelowThreshold,
@@ -77,20 +78,22 @@ namespace Registration {
             while(!isEnd())
             {
                 computeOnce();
-
+                //color code the var
+                varToColor();
+                ++count;
             }
         }
 
-        virtual void computeOnce(void)
+        virtual void computeOnceStep(void)
         {
             stepE();
             stepMa();
             stepMbc();
             stepMd();
-            ++count;
         }
 
-
+        virtual void computeOnce(void);
+        virtual void setVarColor(uint32_t*,int k);
 
     protected:
         virtual void initK(const std::vector<std::shared_ptr<arma::fmat>>&source,int&k);
@@ -100,13 +103,14 @@ namespace Registration {
         virtual void stepMbc();
         virtual void stepMd();
         virtual bool isEnd();
-
+        virtual void varToColor();
     protected:
         int count;
 
         arma::fvec P_;
         std::shared_ptr<arma::fmat> X_ptr;
         arma::fvec var;
+        std::shared_ptr<arma::Col<uint32_t>> var_color;
 
         std::vector<std::shared_ptr<arma::fmat>> V_ptrs;
         std::vector<std::shared_ptr<arma::fmat>> alpha_ptrs;

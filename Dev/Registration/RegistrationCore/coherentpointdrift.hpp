@@ -150,7 +150,6 @@ bool CPDRigid3D<M>::initForThread(void* meshlistptr)
 
     reset(source,target,info);
     return true;
-
 }
 
 }

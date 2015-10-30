@@ -3,6 +3,9 @@
 #include <QApplication>
 #include "mainwindow.h"
 #include <MeshViewerWidget.h>
+#include <QLibraryInfo>
+#include <QDebug>
+#include "common.h"
 
 int print_usage(int argc, char *argv[] )
 {
@@ -21,6 +24,10 @@ int print_usage(int argc, char *argv[] )
 int uiMain(int argc, char *argv[])
 {
     QApplication::setColorSpec( QApplication::CustomColor );
+    //in case the qt is not installed
+    QApplication::addLibraryPath("./qtplugins/");
+    QApplication::addLibraryPath("./bin/qtplugins/");
+
     QApplication app(argc,argv);
 
     if ( !QGLFormat::hasOpenGL() ) {

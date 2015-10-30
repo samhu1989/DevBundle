@@ -94,6 +94,7 @@ namespace Registration {
         using CPDBase::X_ptr;
         using CPDBase::Y_ptr;
         using CPDBase::InfoPtr_;
+        using CPDBase::end_;
         typedef struct Result{
             float R[9];
             float t[3];
