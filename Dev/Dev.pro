@@ -3,4 +3,6 @@ TEMPLATE = subdirs
 SUBDIRS += \
     Registration \
     Visualization \
-    Common
+    Common \
+    Segmentation \
+    Feature

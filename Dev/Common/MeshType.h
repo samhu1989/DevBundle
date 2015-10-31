@@ -1,5 +1,5 @@
-#ifndef MESHTYPE
-#define MESHTYPE
+#ifndef MESHTYPE_H
+#define MESHTYPE_H
 #include <memory>
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
