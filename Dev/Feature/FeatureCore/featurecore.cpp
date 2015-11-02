@@ -1,5 +1,3 @@
 #include "featurecore.h"
-namespace Feature
-{
+#include "pointnormal.h"
 
-}

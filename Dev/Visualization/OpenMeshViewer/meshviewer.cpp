@@ -65,8 +65,9 @@
 #include "MeshColor.h"
 #include "MeshViewerWidget.h"
 #include <iomanip>
+#include "mainwindow.h"
 
-void create_menu(QMainWindow &w);
+void create_menu(MainWindow &w);
 void usage_and_exit(int xcode);
 
 int main(int argc, char **argv)
@@ -111,7 +112,7 @@ int main(int argc, char **argv)
   opt += OpenMesh::IO::Options::FaceTexCoord;
 
   // create widget
-  QMainWindow mainWin;
+  MainWindow mainWin;
   MeshViewerWidget w(&mainWin);
   w.setOptions(opt);
   mainWin.setCentralWidget(&w);
@@ -144,12 +145,10 @@ int main(int argc, char **argv)
   rgb64.rgba.g1 = 0;
   rgb64.rgba.b1 = 0;
   rgb64.rgba.a1 = 255;
-  std::cerr<<std::hex<<rgb64.color<<std::endl;
-
   return app.exec();
 }
 
-void create_menu(QMainWindow &w)
+void create_menu(MainWindow &w)
 {
     using namespace Qt;
     QMenu *fileMenu = w.menuBar()->addMenu(w.tr("&File"));
@@ -171,6 +170,13 @@ void create_menu(QMainWindow &w)
     texAct->setStatusTip(w.tr("Open a texture file"));
     QObject::connect(texAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_open_texture_file()));
     fileMenu->addAction(texAct);
+
+    QMenu *editMenu = w.menuBar()->addMenu(w.tr("&Edit"));
+    QAction* normalAct = new QAction(w.tr("&Compute Vertex Normal"), &w);
+    normalAct->setStatusTip(w.tr("Compute Vertex Normal"));
+    QObject::connect(normalAct, SIGNAL(triggered()), &w, SLOT(computeVertexNormal()));
+    editMenu->addAction(normalAct);
+
 }
 
 void usage_and_exit(int xcode)

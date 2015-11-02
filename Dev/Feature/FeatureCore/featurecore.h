@@ -1,15 +1,8 @@
 #ifndef FEATURECORE_H
 #define FEATURECORE_H
-#include <memory>
+#include "MeshType.h"
 #include "featurecore_global.h"
+#include <armadillo>
 #include "pointnormal.h"
-namespace  Feature
-{
-template void FEATURECORESHARED_EXPORT computeNormalPoint<DefaultMesh>(
-                                                                DefaultMesh& mesh,
-                                                                float r,
-                                                                int k
-                                                                        );
-}
 
 #endif // FEATURECORE_H

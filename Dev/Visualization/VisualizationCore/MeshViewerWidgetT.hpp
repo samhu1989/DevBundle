@@ -589,6 +589,7 @@ MeshViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode)
     glPointSize(5);
     glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
     glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
   }
 
