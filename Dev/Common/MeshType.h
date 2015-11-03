@@ -2,7 +2,7 @@
 #define MESHTYPE_H
 #include <memory>
 #include <OpenMesh/Core/IO/MeshIO.hh>
-#include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
+#include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
 #include <OpenMesh/Tools/Utils/StripifierT.hh>
 #include "MeshColor.h"
 struct Traits : public OpenMesh::DefaultTraits
@@ -11,7 +11,7 @@ struct Traits : public OpenMesh::DefaultTraits
 };
 
 
-typedef OpenMesh::TriMesh_ArrayKernelT<Traits>  DefaultMesh;
+typedef OpenMesh::PolyMesh_ArrayKernelT<Traits>  DefaultMesh;
 
 template <typename M>
 class MeshBundle

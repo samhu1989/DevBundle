@@ -27,6 +27,11 @@ FORMS    += \
     mainwindow.ui
 
 
+win32: LIBS += -L$$DESTDIR/ -lFeatureCore
+
+INCLUDEPATH += $$PWD/../../Feature/FeatureCore
+DEPENDPATH += $$PWD/../../Feature/FeatureCore
+
 win32:CONFIG(release, debug|release): LIBS += -L$$DESTDIR/ -lVisualizationCore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$DESTDIR/ -lVisualizationCore
 
@@ -40,11 +45,6 @@ DEPENDPATH += $$PWD/../../Common
 
 win32:CONFIG(release, debug|release): LIBS += -lfreeglut
 else:win32:CONFIG(debug, debug|release): LIBS += -lfreeglut
-
-win32: LIBS += -L$$DESTDIR/ -lFeatureCore
-
-INCLUDEPATH += $$PWD/../../Feature/FeatureCore
-DEPENDPATH += $$PWD/../../Feature/FeatureCore
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshTools.dll
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshToolsd.dll

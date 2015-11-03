@@ -4,5 +4,4 @@
 #include "featurecore_global.h"
 #include <armadillo>
 #include "pointnormal.h"
-
 #endif // FEATURECORE_H
