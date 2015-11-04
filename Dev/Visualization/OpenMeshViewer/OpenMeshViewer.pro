@@ -17,11 +17,13 @@ DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 SOURCES += \
     meshviewer.cpp \
     mainwindow.cpp \
-    computenormalthread.cpp
+    computenormalthread.cpp \
+    computeoctreethread.cpp
 
 HEADERS  += \
     mainwindow.h \
-    computenormalthread.h
+    computenormalthread.h \
+    computeoctreethread.h
 
 FORMS    += \
     mainwindow.ui

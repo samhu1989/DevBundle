@@ -42,6 +42,21 @@ public:
         std::cout << "Loaded mesh in ~" << t.as_string() << std::endl;
     }
 
+    void save_mesh_gui(QString fname,MeshBundle<Mesh>&bundle)
+    {
+        OpenMesh::Utils::Timer t;
+        t.start();
+        if ( fname.isEmpty() || !save_mesh( fname.toStdString().c_str(),bundle.mesh_, _options) )
+        {
+            QString msg = "Cannot save mesh to file:\n '";
+            msg += fname;
+            msg += "'";
+            QMessageBox::critical( NULL, windowTitle(), msg);
+        }
+        t.stop();
+        std::cout << "Saved mesh to ~" << t.as_string() << std::endl;
+    }
+
 public slots:
     void query_open_source_file() {
         QString fileName = QFileDialog::getOpenFileName(this,
@@ -54,6 +69,7 @@ public slots:
             "All Files (*)"));
         if (!fileName.isEmpty())
             open_mesh_gui(fileName,*first_);
+        set_center_at_mesh(first_->mesh_);
     }
     void query_open_target_file() {
         QString fileName = QFileDialog::getOpenFileName(this,
@@ -66,7 +82,18 @@ public slots:
             "All Files (*)"));
         if (!fileName.isEmpty())
             open_mesh_gui(fileName,*second_);
-        set_center_at_mesh(second_->mesh_);
+    }
+    void query_save_mesh_file() {
+        QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save mesh file"),
+            tr("../../Dev_Data/"),
+            tr("OBJ Files (*.obj);;"
+            "OFF Files (*.off);;"
+            "STL Files (*.stl);;"
+            "PLY Files (*.ply);;"
+            "All Files (*)"));
+        if (!fileName.isEmpty())
+            save_mesh_gui(fileName,*first_);
     }
 private:
     OpenMesh::IO::Options _options;

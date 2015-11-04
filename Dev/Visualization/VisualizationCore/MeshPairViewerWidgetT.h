@@ -37,6 +37,7 @@ public:
     QAction* a = add_draw_mode("Points");
     slotDrawMode(a);
     add_draw_mode("Hidden-Line");
+    add_draw_mode("Octree");
 
   }
 

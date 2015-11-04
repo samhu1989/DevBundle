@@ -63,7 +63,7 @@
 #include <GL/glut.h>
 #endif
 #include "MeshColor.h"
-#include "MeshViewerWidget.h"
+#include "MeshPairViewerWidget.h"
 #include <iomanip>
 #include "mainwindow.h"
 
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
   // create widget
   MainWindow mainWin;
-  MeshViewerWidget w(&mainWin);
+  MeshPairViewerWidget w(&mainWin);
   w.setOptions(opt);
   mainWin.setCentralWidget(&w);
 
@@ -126,15 +126,15 @@ int main(int argc, char **argv)
   mainWin.show();
 
   // load scene if specified on the command line
-  if ( optind < argc )
-  {
-    w.open_mesh_gui(argv[optind]);
-  }
+//  if ( optind < argc )
+//  {
+//    w.open_mesh_gui(argv[optind]);
+//  }
 
-  if ( ++optind < argc )
-  {
-      w.open_texture_gui(argv[optind]);
-  }
+//  if ( ++optind < argc )
+//  {
+//      w.open_texture_gui(argv[optind]);
+//  }
 
   ColorArray::RGB64 rgb64;
   rgb64.rgba.r0 = 0;
@@ -156,7 +156,7 @@ void create_menu(MainWindow &w)
     QAction* openAct = new QAction(w.tr("&Open mesh..."), &w);
     openAct->setShortcut(w.tr("Ctrl+O"));
     openAct->setStatusTip(w.tr("Open a mesh file"));
-    QObject::connect(openAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_open_mesh_file()));
+    QObject::connect(openAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_open_source_file()));
     fileMenu->addAction(openAct);
 
     QAction* saveAct = new QAction(w.tr("&Save mesh..."), &w);
@@ -165,17 +165,23 @@ void create_menu(MainWindow &w)
     QObject::connect(saveAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_save_mesh_file()));
     fileMenu->addAction(saveAct);
 
-    QAction* texAct = new QAction(w.tr("Open &texture..."), &w);
-    texAct->setShortcut(w.tr("Ctrl+T"));
-    texAct->setStatusTip(w.tr("Open a texture file"));
-    QObject::connect(texAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_open_texture_file()));
-    fileMenu->addAction(texAct);
+//    QAction* texAct = new QAction(w.tr("Open &texture..."), &w);
+//    texAct->setShortcut(w.tr("Ctrl+T"));
+//    texAct->setStatusTip(w.tr("Open a texture file"));
+//    QObject::connect(texAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_open_texture_file()));
+//    fileMenu->addAction(texAct);
 
     QMenu *editMenu = w.menuBar()->addMenu(w.tr("&Edit"));
+
     QAction* normalAct = new QAction(w.tr("&Compute Vertex Normal"), &w);
     normalAct->setStatusTip(w.tr("Compute Vertex Normal"));
     QObject::connect(normalAct, SIGNAL(triggered()), &w, SLOT(computeVertexNormal()));
     editMenu->addAction(normalAct);
+
+    QAction* octreeAct = new QAction(w.tr("&Compute Octree"), &w);
+    octreeAct->setStatusTip(w.tr("Compute Octree"));
+    QObject::connect(octreeAct, SIGNAL(triggered()), &w, SLOT(computeOctree()));
+    editMenu->addAction(octreeAct);
 
 }
 

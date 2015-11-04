@@ -298,17 +298,15 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
 
   if (_draw_mode == "Wireframe") // -------------------------------------------
   {
-     glBegin(GL_TRIANGLES);
      for (; fIt!=fEnd; ++fIt)
      {
-        fvIt = mesh_.cfv_iter(*fIt);
-        glVertex3fv( &mesh_.point(*fvIt)[0] );
-        ++fvIt;
-        glVertex3fv( &mesh_.point(*fvIt)[0] );
-        ++fvIt;
-        glVertex3fv( &mesh_.point(*fvIt)[0] );
+        glBegin(GL_POLYGON);
+        for(fvIt=mesh_.cfv_begin(*fIt);fvIt!=mesh_.cfv_end(*fIt);++fvIt)
+        {
+            glVertex3fv( &mesh_.point(*fvIt)[0] );
+        }
+        glEnd();
      }
-     glEnd();
   }
 
   else if (_draw_mode == "Solid Flat") // -------------------------------------
@@ -605,6 +603,19 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
   }
 
+  else if ( _draw_mode == "Octree" )
+  {
+    glDisable(GL_LIGHTING);
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_ , "Points" );
+
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE);
+    glColor4f( 112.0f/255.0f, 170.0f/255.0f, 57.0/255.0f, 1.0f );
+    glDepthRange( 0.0, 1.0 );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, "Wireframe" );
+
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
+  }
+
   else if (_draw_mode == "Solid Flat")
   {
     glEnable(GL_LIGHTING);
@@ -666,11 +677,6 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
       glVertex( first_->mesh_ , *vit );
       glVertex( first_->mesh_.point( *vit ) + normal_scale_*first_->mesh_.normal( *vit ) );
     }
-    for(vit=second_->mesh_.vertices_begin(); vit!=second_->mesh_.vertices_end(); ++vit)
-    {
-      glVertex( second_->mesh_ , *vit );
-      glVertex( second_->mesh_.point( *vit ) + normal_scale_*second_->mesh_.normal( *vit ) );
-    }
     glEnd();
   }
 
@@ -685,12 +691,6 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
       glVertex( first_->mesh_.property(fp_normal_base_, *fit) );
       glVertex( first_->mesh_.property(fp_normal_base_, *fit) +
                 normal_scale_*first_->mesh_.normal( *fit ) );
-    }
-    for(fit=second_->mesh_.faces_begin(); fit!=second_->mesh_.faces_end(); ++fit)
-    {
-      glVertex( second_->mesh_.property(fp_normal_base_, *fit) );
-      glVertex( second_->mesh_.property(fp_normal_base_, *fit) +
-                normal_scale_*second_->mesh_.normal( *fit ) );
     }
     glEnd();
   }

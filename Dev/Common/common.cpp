@@ -2,7 +2,7 @@
 #include "common_global.h"
 #include "MeshType.h"
 #include "MeshColor.h"
-template class COMMONSHARED_EXPORT MeshColor<DefaultMesh>;
+
 
 void ColorArray::hsv2rgb(float h,float s,float v,RGB32&rgba)
 {

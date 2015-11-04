@@ -5,6 +5,7 @@
 #include <armadillo>
 #include <ext/hash_map>
 #include "segmentationbase.h"
+#include "common.h"
 namespace Segmentation{
 template<typename M>
 class SuperVoxel
@@ -57,24 +58,33 @@ template<typename M>
 class SuperVoxelClustering:public SegmentationBase
 {
 public:
-    typedef std::function<float(const typename SuperVoxel<M>::Ptr&,const typename SuperVoxel<M>::Ptr&,float seed_res)> DistFunc;
+    typedef std::function<float(const typename SuperVoxel<M>::Ptr&,const typename SuperVoxel<M>::Ptr&)> DistFunc;
     typedef __gnu_cxx::hash_map<uint64_t,typename SuperVoxel<M>::Ptr> SuperVoxels;
+    typedef __gnu_cxx::hash_multimap<uint64_t,uint64_t> SuperVoxelAdjacency;
+    typedef std::shared_ptr<M> MeshPtr;
     SuperVoxelClustering(float v_res,float seed_res);
     SuperVoxelClustering(float v_res,float seed_res,bool);
     virtual ~SuperVoxelClustering();
 
     void setDistFunctor(DistFunc&);
-    void input(const M& mesh);
-    void extract(SuperVoxels&);
-
+    void input(MeshPtr mesh);
+    void extract(arma::uvec&labels);
+    void extract(SuperVoxels&supervoxel_clusters);
+    void getSupervoxelAdjacency(SuperVoxelAdjacency&label_adjacency)const;
 protected:
-
-    std::shared_ptr<M> input_;
+    bool initCompute();
+    void deinitCompute();
+    void selectInitialSupervoxelSeeds(arma::uvec&indices);
+    void createSupervoxels(arma::uvec& seed_indices);
+    void expandSupervoxels(int depth);
+    void makeSupervoxels(SuperVoxels&);
+protected:
+    MeshPtr input_;
 private:
     float seed_resolution_;
-    float voxel_resoution_;
+    float voxel_resolution_;
     DistFunc vDist_;
 };
 }
-
+#include "supervoxelclustering.hpp"
 #endif // SUPERVOXELCLUSTERING_H

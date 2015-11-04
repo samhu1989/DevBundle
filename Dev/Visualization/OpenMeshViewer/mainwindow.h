@@ -16,6 +16,7 @@ public:
     ~MainWindow();
 public slots:
     void computeVertexNormal();
+    void computeOctree();
 private:
     Ui::MainWindow *ui;
 };

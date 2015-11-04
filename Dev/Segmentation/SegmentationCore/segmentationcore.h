@@ -4,13 +4,12 @@
 #include <armadillo>
 #include <stdint.h>
 #include "segmentationcore_global.h"
-#include "MeshType.h"
 namespace Segmentation
 {
 template class SEGMENTATIONCORESHARED_EXPORT  SuperVoxel<DefaultMesh>;
 template class SEGMENTATIONCORESHARED_EXPORT  DefaultVoxelDistFunctor<DefaultMesh>;
 template class SEGMENTATIONCORESHARED_EXPORT  SuperVoxelClustering<DefaultMesh>;
-typedef SuperVoxelClustering<DefaultMesh> DefaultSuperVoxelClustering;
+typedef SuperVoxelClustering<DefaultMesh> SuperVox;
 }
 
 #endif // SEGMENTATIONCORE_H
