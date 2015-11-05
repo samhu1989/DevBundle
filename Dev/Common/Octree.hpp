@@ -31,7 +31,7 @@
 #include <memory>
 #include <queue>
 #include "MeshType.h"
-
+#include <hash_map>
 //this template help to build an octree upon an mesh
 template<typename M>
 class MeshOctreeContainer
@@ -43,9 +43,10 @@ public:
     {}
     inline uint32_t size()const{return points_->n_cols;}
     inline arma::fvec operator[](const uint64_t& k)const{return points_->col(k);}
+    inline void add(float*p){mesh_.add_vertex(DefaultMesh::Point(p[0],p[1],p[2]));}
 private:
     std::shared_ptr<arma::fmat> points_;
-    const M& mesh_;
+    M& mesh_;
 };
 
 //this template help to display an octree into mesh (cubes)
@@ -63,6 +64,29 @@ protected:
     void generateCube(float x,float y,float z,float ext);
 private:
     DefaultMesh& leaf_mesh_;
+    const Octree& octree_;
+};
+//this template help to manage Adjacency relation among Leaves
+template<typename Octree>
+class OctreeAdjacency
+{
+public:
+    typedef __gnu_cxx::hash_multimap<uint32_t,uint32_t> NeighborMap;
+    OctreeAdjacency(const Octree&octree):octree_(octree){}
+    void getNeighbors(uint32_t index,std::vector<uint32_t>&neighbor_indices)
+    {
+        if(map_.empty())computeNeighbor();
+        std::pair<NeighborMap::iterator,NeighborMap::iterator> iterRange;
+        for(iterRange=map_.equal_range(index);iterRange.first!=iterRange.second;++iterRange.first)
+        {
+            neighbor_indices.push_back(iterRange.first->second);
+        }
+    }
+
+protected:
+    void computeNeighbor();
+    NeighborMap map_;
+private:
     const Octree& octree_;
 };
 
@@ -345,6 +369,13 @@ class Octree
     void radiusNeighbors(const PointT& query, float radius, std::vector<uint32_t>& resultIndices,
         std::vector<float>& distances) const;
 
+    /** \brief get centers of the occupied leafs. **/
+    int getLeafCenters(ContainerT& leaf_pts);
+
+    int getLeafNum(void){return occupied_leafs.size();}
+
+    int getPointofLeafAt(uint32_t index, std::vector<uint32_t> &point_index);
+
   protected:
 
     class Octant
@@ -420,8 +451,9 @@ class Octree
     const ContainerT* data_;
 
     std::vector<uint32_t> successors_; // single connected list of next point indices...
-
+    std::vector<Octant*> occupied_leafs;//occupied leafs
     friend class OctreeMeshInterface<Octree<PointT, ContainerT>>;
+    friend class OctreeAdjacency<Octree<PointT, ContainerT>>;
 };
 
 template<typename PointT, typename ContainerT>
@@ -464,6 +496,7 @@ void Octree<PointT, ContainerT>::initialize(const ContainerT& pts, const OctreeP
 
   const uint32_t N = pts.size();
   successors_ = std::vector<uint32_t>(N);
+  occupied_leafs.reserve(N);
 
   // determine axis-aligned bounding box.
   float min[3], max[3];
@@ -512,6 +545,7 @@ void Octree<PointT, ContainerT>::initialize(const ContainerT& pts, const std::ve
   params_ = params;
   const uint32_t N = pts.size();
   successors_ = std::vector<uint32_t>(N);
+  occupied_leafs.reserve(N);
 
   if (indexes.size() == 0) return;
 
@@ -566,6 +600,7 @@ void Octree<PointT, ContainerT>::clear()
   root_ = 0;
   data_ = 0;
   successors_.clear();
+  occupied_leafs.clear();
 }
 
 template<typename PointT, typename ContainerT>
@@ -649,6 +684,8 @@ typename Octree<PointT, ContainerT>::Octant* Octree<PointT, ContainerT>::createO
       octant->end = octant->child[i]->end;
       firsttime = false;
     }
+  }else{
+      if(size>0)occupied_leafs.push_back(octant);
   }
 
   return octant;
@@ -821,33 +858,51 @@ bool Octree<PointT, ContainerT>::contains(const PointT& query, float sqRadius, c
   return (Distance::norm(x, y, z) < sqRadius);
 }
 
+template<typename PointT, typename ContainerT>
+int Octree<PointT, ContainerT>::getLeafCenters(ContainerT& leaf_pts)
+{
+    typename std::vector<Octant*>::iterator iter;
+    for(iter=occupied_leafs.begin();iter!=occupied_leafs.end();++iter)
+    {
+        float p[3];
+        p[0] = (*iter)->x;
+        p[1] = (*iter)->y;
+        p[2] = (*iter)->z;
+        leaf_pts.add(&p[0]);
+    }
+    return occupied_leafs.size();
+}
+
+template<typename PointT, typename ContainerT>
+int Octree<PointT, ContainerT>::getPointofLeafAt(uint32_t index,std::vector<uint32_t>&point_index)
+{
+    Octant* octant = occupied_leafs[index];
+    uint32_t idx = octant->start;
+    for (uint32_t i = 0; i < octant->size; ++i)
+    {
+      point_index.push_back(idx);
+      idx = successors_[idx];
+    }
+    return point_index.size();
+}
+
 }
 
 template<typename Octree>
 void OctreeMeshInterface<Octree>::rebuildLeafMesh(void)
 {
     leaf_mesh_.clear();
-    std::queue<typename Octree::Octant*> octqueue;
-    octqueue.push(octree_.root_);
-    while(!octqueue.empty())
+    typename std::vector<typename Octree::Octant*>::const_iterator iter;
+    for(iter=octree_.occupied_leafs.cbegin();iter!=octree_.occupied_leafs.cend();++iter)
     {
-        typename Octree::Octant* octant = octqueue.front();
-        octqueue.pop();
-        if(!octant)continue;
-        if((octant->isLeaf)&&(octant->size>0))
-        {
-            generateCube(octant->x,octant->y,octant->z,octant->extent);
-        }else{
-            octqueue.push(octant->child[0]);
-            octqueue.push(octant->child[1]);
-            octqueue.push(octant->child[2]);
-            octqueue.push(octant->child[3]);
-            octqueue.push(octant->child[4]);
-            octqueue.push(octant->child[5]);
-            octqueue.push(octant->child[6]);
-            octqueue.push(octant->child[7]);
-        }
+        generateCube((*iter)->x,(*iter)->y,(*iter)->z,(*iter)->extent);
     }
+}
+
+template<typename Octree>
+void OctreeAdjacency<Octree>::computeNeighbor()
+{
+    //to do compute neighbor relation of the octree leaf;
 }
 
 #endif /* OCTREE_HPP_ */

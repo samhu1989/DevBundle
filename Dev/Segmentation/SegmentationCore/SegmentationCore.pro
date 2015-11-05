@@ -37,6 +37,9 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenM
 INCLUDEPATH += $$PWD/../../../3rdParty/OpenMesh/include
 DEPENDPATH += $$PWD/../../../3rdParty/OpenMesh/include
 
+INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
+DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include
+
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/OpenMesh/lib/libOpenMeshCore.a
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/OpenMesh/lib/libOpenMeshCored.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/OpenMesh/lib/OpenMeshCore.lib
