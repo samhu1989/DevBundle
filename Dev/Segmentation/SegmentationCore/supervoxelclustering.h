@@ -25,10 +25,10 @@ public:
         colors_((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true),
         indices_(indices)
     {
-        xyz_ = arma::mean(points_,1);
-        normal_ = arma::mean(normals_,1);
-        arma::fmat colors = arma::conv_to<arma::fmat>::from(colors_);
-        rgb_ = arma::mean(colors,1);
+        xyz_ = arma::mean(voxels(),1);
+        normal_ = arma::mean(normals(),1);
+        arma::fmat c = arma::conv_to<arma::fmat>::from(colors());
+        rgb_ = arma::mean(c,1);
     }
 
     Voxel(const M& mesh):
@@ -47,6 +47,7 @@ public:
     const arma::fmat& normals()const{return normals_.cols(indices_);}
     const arma::Mat<uint8_t>& colors()const{return colors_.cols(indices_);}
     const arma::uvec& indices()const{return indices_;}
+    void add_neighbor(Ptr n){neighbors_.push_back(n);}
     std::vector<Ptr> neighbors_;
     typename SuperVoxel<M>::Ptr parent_;
     float dist2parent_;
@@ -78,6 +79,8 @@ public:
     void expand();
     void removeVoxel(typename Voxel<M>::Ptr);
     void addVoxel(typename Voxel<M>::Ptr);
+    void getPointIndices(std::vector<uint32_t>&indices);
+    void getPointIndices(arma::uvec&indices);
 private:
     typename Voxel<M>::Ptr centroid_;
     std::vector<typename Voxel<M>::Ptr> voxels;
@@ -105,14 +108,14 @@ class SuperVoxelClustering:public SegmentationBase
 {
 public:
     typedef std::function<float(const typename Voxel<M>::Ptr&,const typename Voxel<M>::Ptr&)> DistFunc;
-    typedef __gnu_cxx::hash_multimap<uint64_t,arma::uvec> SuperVoxelsMap;
-    typedef __gnu_cxx::hash_multimap<uint64_t,uint64_t> SuperVoxelAdjacency;
+    typedef __gnu_cxx::hash_multimap<uint32_t,uint32_t> SuperVoxelsMap;
+    typedef __gnu_cxx::hash_multimap<uint32_t,uint32_t> SuperVoxelAdjacency;
     typedef std::shared_ptr<M> MeshPtr;
     typedef unibn::Octree<arma::fvec,MeshOctreeContainer<M>> SuperVoxelOctree;
     typedef typename std::vector<typename Voxel<M>::Ptr>::iterator VoxelIter;
+    typedef Voxel<M> Vox;
     typedef typename std::vector<typename SuperVoxel<M>::Ptr>::iterator SuperVoxelIter;
     SuperVoxelClustering(float v_res,float seed_res);
-    SuperVoxelClustering(float v_res,float seed_res,bool);
     virtual ~SuperVoxelClustering();
 
     void setDistFunctor(DistFunc&);
@@ -123,10 +126,12 @@ public:
 protected:
     bool initCompute();
     void deinitCompute();
-    void selectInitialSupervoxelSeeds(arma::uvec&indices);
-    void createSupervoxels(arma::uvec& seed_indices);
+    void computeVoxelData();
+    void selectInitialSupervoxelSeeds(std::vector<uint32_t>&indices);
+    void createSupervoxels(std::vector<uint32_t>& seed_indices);
     void expandSupervoxels(int depth);
     void makeSupervoxels(SuperVoxelsMap&);
+    void makeLabels(arma::uvec&);
 protected:
     std::shared_ptr<SuperVoxelOctree> adjacency_octree_;
     std::vector<typename Voxel<M>::Ptr> voxels_;

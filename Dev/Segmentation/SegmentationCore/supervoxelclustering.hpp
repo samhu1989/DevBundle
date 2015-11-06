@@ -4,13 +4,9 @@
 namespace Segmentation{
 template<typename M>
 SuperVoxelClustering<M>::SuperVoxelClustering(float v_res,float seed_res)
+    :voxel_resolution_(v_res),seed_resolution_(seed_res)
 {
-    ;
-}
-template<typename M>
-SuperVoxelClustering<M>::SuperVoxelClustering(float v_res,float seed_res,bool)
-{
-    ;
+
 }
 
 template<typename M>
@@ -28,13 +24,25 @@ void SuperVoxelClustering<M>::setDistFunctor(DistFunc& vDist)
 template<typename M>
 void SuperVoxelClustering<M>::input(MeshPtr mesh)
 {
-    ;
+    input_ = mesh;
 }
 
 template<typename M>
 void SuperVoxelClustering<M>::extract(arma::uvec&labels)
 {
-    ;
+    bool segmentation_is_possible = initCompute ();
+    if ( !segmentation_is_possible )
+    {
+        deinitCompute ();
+        return;
+    }
+    std::vector<uint32_t> seed_indices;
+    selectInitialSupervoxelSeeds (seed_indices);
+    createSupervoxels(seed_indices);
+    int max_depth = static_cast<int> (1.8f*seed_resolution_/voxel_resolution_);
+    expandSupervoxels (max_depth);
+    makeLabels(labels);
+    deinitCompute ();
 }
 
 template<typename M>
@@ -46,17 +54,12 @@ void SuperVoxelClustering<M>::extract(SuperVoxelsMap&supervoxel_clusters)
         deinitCompute ();
         return;
     }
-
-    arma::uvec seed_indices;
+    std::vector<uint32_t> seed_indices;
     selectInitialSupervoxelSeeds (seed_indices);
-
     createSupervoxels(seed_indices);
-
     int max_depth = static_cast<int> (1.8f*seed_resolution_/voxel_resolution_);
     expandSupervoxels (max_depth);
-
     makeSupervoxels (supervoxel_clusters);
-
     deinitCompute ();
 }
 
@@ -77,6 +80,22 @@ bool SuperVoxelClustering<M>::initCompute()
     voxel_centroids_.reset(new M);
     MeshOctreeContainer<M> center_container(*voxel_centroids_);
     adjacency_octree_->getLeafCenters(center_container);
+    computeVoxelData();
+}
+
+template<typename M>
+void SuperVoxelClustering<M>::computeVoxelData()
+{
+    for(int i=0;i<adjacency_octree_->getLeafNum();++i)
+    {
+        arma::uvec indices;
+        adjacency_octree_->getPointofLeafAt(i,indices);
+        voxels_.push_back(
+                    std::make_shared<Vox>(*input_,indices)
+                    );
+    }
+    OctreeVoxelAdjacency<SuperVoxelOctree> adjacency(*adjacency_octree_);
+    adjacency.template computeNeighbor<Vox>( voxels_ );
 }
 
 template<typename M>
@@ -86,7 +105,7 @@ void SuperVoxelClustering<M>::deinitCompute()
 }
 
 template<typename M>
-void SuperVoxelClustering<M>::selectInitialSupervoxelSeeds(arma::uvec&indices)
+void SuperVoxelClustering<M>::selectInitialSupervoxelSeeds(std::vector<uint32_t>&indices_vec)
 {
     SuperVoxelOctree seed_octree;
     MeshOctreeContainer<M> container(*voxel_centroids_);
@@ -114,7 +133,6 @@ void SuperVoxelClustering<M>::selectInitialSupervoxelSeeds(arma::uvec&indices)
     }
     float search_radius = 0.5f*seed_resolution_;
     float min_points = 0.05f*(search_radius)*(search_radius)*M_PI/(voxel_resolution_*voxel_resolution_);
-    std::vector<arma::uword> indices_vec;
     indices_vec.reserve(seed_indices_orig.size());
     float* points_ptr = (float*)voxel_centroids_->points();
     std::vector<std::pair<arma::uword,float>> neighbors;
@@ -130,13 +148,18 @@ void SuperVoxelClustering<M>::selectInitialSupervoxelSeeds(arma::uvec&indices)
            indices_vec.push_back(seed_indices_orig(i));
         }
     }
-    indices = arma::uvec(indices_vec);
 }
 
 template<typename M>
-void SuperVoxelClustering<M>::createSupervoxels(arma::uvec& seed_indices)
+void SuperVoxelClustering<M>::createSupervoxels(std::vector<uint32_t> &seed_indices)
 {
-    ;
+    std::vector<uint32_t>::iterator iter;
+    for(iter=seed_indices.begin();iter!=seed_indices.end();++iter)
+    {
+        supervoxels_.push_back(std::make_shared<SuperVoxel<M>>(*this));
+        supervoxels_.back()->addVoxel(voxels_[*iter]);
+        supervoxels_.back()->updateCentroid();
+    }
 }
 
 template<typename M>
@@ -167,9 +190,67 @@ void SuperVoxelClustering<M>::expandSupervoxels(int depth)
 }
 
 template<typename M>
-void SuperVoxelClustering<M>::makeSupervoxels(SuperVoxelsMap &)
+void SuperVoxelClustering<M>::makeSupervoxels(SuperVoxelsMap& supervoxelsmap)
 {
-    ;
+    typename std::vector<typename SuperVoxel<M>::Ptr>::iterator iter;
+    uint32_t sindex = 0;
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        std::vector<uint32_t> indices;
+        (*iter)->getPointIndices(indices);
+        std::vector<uint32_t>::iterator piter;
+        for(piter=indices.begin();piter!=indices.end();++piter)
+        {
+            supervoxelsmap.insert(
+                        std::make_pair(
+                            sindex,
+                            *piter
+                            )
+                        );
+        }
+        ++sindex;
+    }
+}
+
+template<typename M>
+void SuperVoxelClustering<M>::makeLabels(arma::uvec&labels)
+{
+    typename std::vector<typename SuperVoxel<M>::Ptr>::iterator iter;
+    arma::uword sindex = 0;
+    labels = arma::uvec(input_->n_vertices());
+    labels.fill(std::numeric_limits<uint64_t>::max());
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        arma::uvec indices;
+        (*iter)->getPointIndices(indices);
+        labels.elem(indices).fill(sindex);
+        ++sindex;
+    }
+}
+
+template<typename M>
+void SuperVoxel<M>::getPointIndices(std::vector<uint32_t>&indices)
+{
+    VoxelIter voxeliter;
+    for ( voxeliter = voxels.begin (); voxeliter != voxels.end (); ++voxeliter)
+    {
+        const arma::uvec& vindices = (*voxeliter)->indices();
+        for(int i=0;i<vindices.n_cols;++i)
+        {
+            indices.push_back(vindices(i));
+        }
+    }
+}
+
+template<typename M>
+void SuperVoxel<M>::getPointIndices(arma::uvec&indices)
+{
+    VoxelIter voxeliter;
+    for ( voxeliter = voxels.begin (); voxeliter != voxels.end (); ++voxeliter)
+    {
+        const arma::uvec& vindices = (*voxeliter)->indices();
+        indices = arma::join_cols(vindices,indices);
+    }
 }
 
 template<typename M>
@@ -183,9 +264,9 @@ void SuperVoxel<M>::updateCentroid()
         centroid_->normal() += (*iter)->normal();
         centroid_->xyz() += (*iter)->xyz();
     }
-    centroid_->color() /= voxels.size();
-    centroid_->xyz() /= voxels.size();
-    centroid_->normal() /= voxels.size();
+    centroid_->color() /= float(voxels.size());
+    centroid_->xyz() /= float(voxels.size());
+    centroid_->normal() /= float(voxels.size());
 }
 
 template<typename M>

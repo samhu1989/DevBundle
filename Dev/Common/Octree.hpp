@@ -68,24 +68,12 @@ private:
 };
 //this template help to manage Adjacency relation among Leaves
 template<typename Octree>
-class OctreeAdjacency
+class OctreeVoxelAdjacency
 {
 public:
-    typedef __gnu_cxx::hash_multimap<uint32_t,uint32_t> NeighborMap;
-    OctreeAdjacency(const Octree&octree):octree_(octree){}
-    void getNeighbors(uint32_t index,std::vector<uint32_t>&neighbor_indices)
-    {
-        if(map_.empty())computeNeighbor();
-        std::pair<NeighborMap::iterator,NeighborMap::iterator> iterRange;
-        for(iterRange=map_.equal_range(index);iterRange.first!=iterRange.second;++iterRange.first)
-        {
-            neighbor_indices.push_back(iterRange.first->second);
-        }
-    }
-
-protected:
-    void computeNeighbor();
-    NeighborMap map_;
+    OctreeVoxelAdjacency(const Octree&octree):octree_(octree){}
+    template<typename Voxel>
+    inline void computeNeighbor(std::vector<typename Voxel::Ptr>& voxel_vec)const;
 private:
     const Octree& octree_;
 };
@@ -374,7 +362,7 @@ class Octree
 
     int getLeafNum(void){return occupied_leafs.size();}
 
-    int getPointofLeafAt(uint32_t index, std::vector<uint32_t> &point_index);
+    int getPointofLeafAt(uint32_t index, arma::uvec& point_index);
 
   protected:
 
@@ -453,7 +441,7 @@ class Octree
     std::vector<uint32_t> successors_; // single connected list of next point indices...
     std::vector<Octant*> occupied_leafs;//occupied leafs
     friend class OctreeMeshInterface<Octree<PointT, ContainerT>>;
-    friend class OctreeAdjacency<Octree<PointT, ContainerT>>;
+    friend class OctreeVoxelAdjacency<Octree<PointT, ContainerT>>;
 };
 
 template<typename PointT, typename ContainerT>
@@ -874,13 +862,14 @@ int Octree<PointT, ContainerT>::getLeafCenters(ContainerT& leaf_pts)
 }
 
 template<typename PointT, typename ContainerT>
-int Octree<PointT, ContainerT>::getPointofLeafAt(uint32_t index,std::vector<uint32_t>&point_index)
+int Octree<PointT, ContainerT>::getPointofLeafAt(uint32_t index, arma::uvec &point_index)
 {
     Octant* octant = occupied_leafs[index];
     uint32_t idx = octant->start;
+    point_index = arma::uvec(octant->size);
     for (uint32_t i = 0; i < octant->size; ++i)
     {
-      point_index.push_back(idx);
+      point_index(i) = idx;
       idx = successors_[idx];
     }
     return point_index.size();
@@ -900,9 +889,66 @@ void OctreeMeshInterface<Octree>::rebuildLeafMesh(void)
 }
 
 template<typename Octree>
-void OctreeAdjacency<Octree>::computeNeighbor()
+template<typename Voxel>
+inline void OctreeVoxelAdjacency<Octree>::computeNeighbor(std::vector<typename Voxel::Ptr>& voxel_vec) const
 {
-    //to do compute neighbor relation of the octree leaf;
+    typedef std::vector<typename Voxel::Ptr> VoxelVec;
+    __gnu_cxx::hash_map<uint32_t,typename Voxel::Ptr> map;
+    typename std::vector<typename Octree::Octant*>::const_iterator iter;
+
+    float min_x_ = octree_.root_->x - octree_.root_->extent;
+    float min_y_ = octree_.root_->y - octree_.root_->extent;
+    float min_z_ = octree_.root_->z - octree_.root_->extent;
+    float res = octree_.params_.resolution_;
+    uint32_t N_ = static_cast<uint32_t>( 2.0*octree_.root_->extent / res ) ;
+    uint32_t idx = 0;
+    for(iter=octree_.occupied_leafs.cbegin();iter!=octree_.occupied_leafs.cend();++iter)
+    {
+        uint32_t kx = static_cast<uint32_t>( ( (*iter)->x - min_x_ ) / res );
+        uint32_t ky = static_cast<uint32_t>( ( (*iter)->y - min_y_ ) / res );
+        uint32_t kz = static_cast<uint32_t>( ( (*iter)->z - min_z_ ) / res );
+        uint32_t key = (kz*N_+ky)*N_+kx;
+        std::pair<uint32_t,typename Voxel::Ptr> pair;
+        pair.first = key;
+        pair.second = voxel_vec[idx];
+        map.insert(pair);
+        ++idx;
+    }
+    for(idx=0;idx<voxel_vec.size();++idx)
+    {
+        uint32_t kx = static_cast<uint32_t>( ( (*iter)->x - min_x_ ) / res );
+        uint32_t ky = static_cast<uint32_t>( ( (*iter)->y - min_y_ ) / res );
+        uint32_t kz = static_cast<uint32_t>( ( (*iter)->z - min_z_ ) / res );
+
+        int dx_min = (kx > 0) ? -1 : 0;
+        int dy_min = (ky > 0) ? -1 : 0;
+        int dz_min = (kz > 0) ? -1 : 0;
+        int dx_max = (kx == N_) ? 0 : 1;
+        int dy_max = (ky == N_) ? 0 : 1;
+        int dz_max = (kz == N_) ? 0 : 1;
+
+        for (int dx = dx_min; dx <= dx_max; ++dx)
+        {
+          for (int dy = dy_min; dy <= dy_max; ++dy)
+          {
+            for (int dz = dz_min; dz <= dz_max; ++dz)
+            {
+              uint32_t nx = static_cast<uint32_t> (kx + dx);
+              uint32_t ny = static_cast<uint32_t> (ky + dy);
+              uint32_t nz = static_cast<uint32_t> (kz + dz);
+              uint32_t neighbor_key = (nz*N_+ny)*N_+nx;
+              if(map.end()!=map.find(neighbor_key))
+              {
+                  typename Voxel::Ptr neighbor_ptr = map[neighbor_key];
+                  if (neighbor_ptr)
+                  {
+                      voxel_vec[idx]->add_neighbor(neighbor_ptr);
+                  }
+              }
+            }
+          }
+        }
+    }
 }
 
 #endif /* OCTREE_HPP_ */
