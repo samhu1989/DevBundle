@@ -14,10 +14,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-public slots:
-    void computeSuperVoxel();
-    void computeVertexNormal();
-    void computeOctree();
+
 private:
     Ui::MainWindow *ui;
 };

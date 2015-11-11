@@ -17,7 +17,9 @@ HEADERS += segmentationcore.h\
         segmentationcore_global.h \
     supervoxelclustering.h \
     supervoxelclustering.hpp \
-    segmentationbase.h
+    segmentationbase.h \
+    regiongrowing.h \
+    regiongrowing.hpp
 
 unix {
     target.path = /usr/lib

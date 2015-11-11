@@ -18,12 +18,14 @@ SOURCES += \
     meshviewer.cpp \
     mainwindow.cpp \
     computenormalthread.cpp \
-    computeoctreethread.cpp
+    computeoctreethread.cpp \
+    computesupervoxelthread.cpp
 
 HEADERS  += \
     mainwindow.h \
     computenormalthread.h \
-    computeoctreethread.h
+    computeoctreethread.h \
+    computesupervoxelthread.h
 
 FORMS    += \
     mainwindow.ui
@@ -86,3 +88,8 @@ else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/..
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/blas.lib
 
 
+
+win32: LIBS += -L$$DESTDIR/ -lSegmentationCore
+
+INCLUDEPATH += $$PWD/../../Segmentation/SegmentationCore
+DEPENDPATH += $$PWD/../../Segmentation/SegmentationCore

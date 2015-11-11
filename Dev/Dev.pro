@@ -5,4 +5,5 @@ SUBDIRS += \
     Visualization \
     Common \
     Segmentation \
-    Feature
+    Feature \
+    ExpIA

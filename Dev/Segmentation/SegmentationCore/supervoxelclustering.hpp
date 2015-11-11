@@ -1,6 +1,7 @@
 #include "supervoxelclustering.h"
 #include "common.h"
 #include "nanoflann.hpp"
+#include <utility>
 namespace Segmentation{
 template<typename M>
 SuperVoxelClustering<M>::SuperVoxelClustering(float v_res,float seed_res)
@@ -64,9 +65,38 @@ void SuperVoxelClustering<M>::extract(SuperVoxelsMap&supervoxel_clusters)
 }
 
 template<typename M>
-void SuperVoxelClustering<M>::getSupervoxelAdjacency(SuperVoxelAdjacency&label_adjacency)const
+void SuperVoxelClustering<M>::getSupervoxelAdjacency(SuperVoxelAdjacency&label_adjacency)
 {
-    ;
+    SuperVoxelIter iter;
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        SuperVoxel<M>& supervoxel = **iter;
+        std::vector<uint32_t> neighbors;
+        supervoxel.getNeighbors(neighbors);
+        uint32_t label = supervoxel.getLabel();
+        std::vector<uint32_t>::iterator labeliter;
+        for(labeliter=neighbors.begin();labeliter!=neighbors.end();++labeliter)
+        {
+            std::pair<uint32_t,uint32_t> p;
+            p.first = label;
+            p.second = *labeliter;
+            label_adjacency.insert(p);
+        }
+    }
+}
+
+template<typename M>
+void SuperVoxelClustering<M>::getCentroidMesh(M&cmesh)
+{
+    std::vector<typename M::VertexHandle> vhandle;
+    SuperVoxelIter iter;
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        SuperVoxel<M>& supervoxel = **iter;
+        Voxel<M>& center = *supervoxel.centeroid();
+        arma::fvec& c = center.xyz();
+        vhandle.push_back( cmesh.add_vertex( typename M::Point( c(0),c(1),c(2) ) ) );
+    }
 }
 
 template<typename M>
@@ -154,11 +184,13 @@ template<typename M>
 void SuperVoxelClustering<M>::createSupervoxels(std::vector<uint32_t> &seed_indices)
 {
     std::vector<uint32_t>::iterator iter;
+    uint32_t label = 0;
     for(iter=seed_indices.begin();iter!=seed_indices.end();++iter)
     {
-        supervoxels_.push_back(std::make_shared<SuperVoxel<M>>(*this));
+        supervoxels_.push_back(std::make_shared<SuperVoxel<M>>(*this,label));
         supervoxels_.back()->addVoxel(voxels_[*iter]);
         supervoxels_.back()->updateCentroid();
+        ++label;
     }
 }
 
@@ -193,7 +225,6 @@ template<typename M>
 void SuperVoxelClustering<M>::makeSupervoxels(SuperVoxelsMap& supervoxelsmap)
 {
     typename std::vector<typename SuperVoxel<M>::Ptr>::iterator iter;
-    uint32_t sindex = 0;
     for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
     {
         std::vector<uint32_t> indices;
@@ -203,12 +234,11 @@ void SuperVoxelClustering<M>::makeSupervoxels(SuperVoxelsMap& supervoxelsmap)
         {
             supervoxelsmap.insert(
                         std::make_pair(
-                            sindex,
+                            (*iter)->getLabel(),
                             *piter
                             )
                         );
         }
-        ++sindex;
     }
 }
 
@@ -216,15 +246,14 @@ template<typename M>
 void SuperVoxelClustering<M>::makeLabels(arma::uvec&labels)
 {
     typename std::vector<typename SuperVoxel<M>::Ptr>::iterator iter;
-    arma::uword sindex = 0;
     labels = arma::uvec(input_->n_vertices());
     labels.fill(std::numeric_limits<uint64_t>::max());
     for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
     {
         arma::uvec indices;
         (*iter)->getPointIndices(indices);
+        arma::uword sindex = (*iter)->getLabel();
         labels.elem(indices).fill(sindex);
-        ++sindex;
     }
 }
 
@@ -334,6 +363,28 @@ template<typename M>
 void SuperVoxel<M>::addVoxel(typename Voxel<M>::Ptr ptr)
 {
     voxels.push_back(ptr);
+}
+
+template<typename M>
+void SuperVoxel<M>::getNeighbors(std::vector<uint32_t>&indices)
+{
+    VoxelIter voxeliter;
+    VoxelIter neighborIter;
+    for ( voxeliter = voxels.begin (); voxeliter != voxels.end (); ++voxeliter)
+    {
+        //for each neighbor of the leaf
+        for(neighborIter=(*voxeliter)->neighbors_.begin();neighborIter!=(*voxeliter)->neighbors_.end();++neighborIter)
+        {
+            //Get a reference to the data contained in the leaf
+            Voxel<M>& neighbor_voxel = **neighborIter;
+            //TODO this is a shortcut, really we should always recompute distance
+            if(neighbor_voxel.parent_.get() == this)
+                continue;
+            if (neighbor_voxel.parent_){
+                indices.push_back(neighbor_voxel.parent_->getLabel());
+            }
+        }
+    }
 }
 
 }

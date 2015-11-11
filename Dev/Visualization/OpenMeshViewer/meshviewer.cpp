@@ -183,6 +183,11 @@ void create_menu(MainWindow &w)
     QObject::connect(octreeAct, SIGNAL(triggered()), &w, SLOT(computeOctree()));
     editMenu->addAction(octreeAct);
 
+    QAction* svAct = new QAction(w.tr("&Compute Supervoxel"), &w);
+    octreeAct->setStatusTip(w.tr("Compute Supervoxel"));
+    QObject::connect(svAct, SIGNAL(triggered()), &w, SLOT(computeOctree()));
+    editMenu->addAction(svAct);
+
 }
 
 void usage_and_exit(int xcode)

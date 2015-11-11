@@ -73,7 +73,7 @@ public:
     typedef typename std::vector<typename Voxel<M>::Ptr>::iterator VoxelIter;
     typedef std::shared_ptr<SuperVoxel> Ptr;
     typedef SuperVoxelClustering<M> Parent;
-    SuperVoxel(const Parent& p):parent_(p){centroid_.reset(new Voxel<M>(*p.input_));}
+    SuperVoxel(const Parent& p,uint32_t l):parent_(p),label_(l){centroid_.reset(new Voxel<M>(*p.input_));}
     size_t size(){return voxels.size();}
     void updateCentroid();
     void expand();
@@ -81,7 +81,11 @@ public:
     void addVoxel(typename Voxel<M>::Ptr);
     void getPointIndices(std::vector<uint32_t>&indices);
     void getPointIndices(arma::uvec&indices);
+    void getNeighbors(std::vector<uint32_t>&indices);
+    typename Voxel<M>::Ptr centeroid(){return centroid_;}
+    uint32_t getLabel(){return label_;}
 private:
+    const uint32_t label_;
     typename Voxel<M>::Ptr centroid_;
     std::vector<typename Voxel<M>::Ptr> voxels;
     const Parent& parent_;
@@ -122,7 +126,8 @@ public:
     void input(MeshPtr mesh);
     void extract(arma::uvec&labels);
     void extract(SuperVoxelsMap&supervoxel_clusters);
-    void getSupervoxelAdjacency(SuperVoxelAdjacency&label_adjacency)const;
+    void getSupervoxelAdjacency(SuperVoxelAdjacency&label_adjacency);
+    void getCentroidMesh(M&cmesh);
 protected:
     bool initCompute();
     void deinitCompute();

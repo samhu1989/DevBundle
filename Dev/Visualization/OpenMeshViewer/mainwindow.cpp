@@ -3,6 +3,7 @@
 #include "MeshPairViewerWidget.h"
 #include "computenormalthread.h"
 #include "computeoctreethread.h"
+#include "computesupervoxelthread.h"
 #include "QMessageBox"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -30,6 +31,20 @@ void MainWindow::computeOctree()
     MeshPairViewerWidget* v = qobject_cast<MeshPairViewerWidget*>(centralWidget());
     if(!v)return;
     ComputeOctreeThread th(v->first_ptr()->mesh_,v->second_ptr()->mesh_);
+    th.start(QThread::HighestPriority);
+    while(!th.wait(30))
+    {
+        QApplication::processEvents();
+    }
+    QString msg = "Done Compute Octree:\n '";
+    QMessageBox::information( this, windowTitle(), msg );
+}
+
+void MainWindow::computeSuperVoxel()
+{
+    MeshPairViewerWidget* v = qobject_cast<MeshPairViewerWidget*>(centralWidget());
+    if(!v)return;
+    ComputeSupervoxelThread th(v->first_ptr()->mesh_,v->second_ptr()->mesh_);
     th.start(QThread::HighestPriority);
     while(!th.wait(30))
     {
