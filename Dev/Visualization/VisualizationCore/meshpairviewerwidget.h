@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <OpenMesh/Tools/Utils/getopt.h>
 #include <OpenMesh/Tools/Utils/Timer.hh>
+#include <QTimer>
 #include "MeshType.h"
 #include "MeshPairViewerWidgetT.h"
 
@@ -22,7 +23,13 @@ public:
     using MeshPairViewerWidgetT<DefaultMesh>::Mesh;
     /// default constructor
     MeshPairViewerWidget(QWidget* parent=0) : MeshPairViewerWidgetT<DefaultMesh>(parent)
-    {}
+    {
+        connect(&timer,SIGNAL(timeout()),this,SLOT(updateGL()));
+        timer.setSingleShot(false);
+        timer.start(80);
+    }
+
+    virtual ~MeshPairViewerWidget(){}
     OpenMesh::IO::Options& options() { return _options; }
     const OpenMesh::IO::Options& options() const { return _options; }
     void setOptions(const OpenMesh::IO::Options& opts) { _options = opts; }
@@ -95,8 +102,10 @@ public slots:
         if (!fileName.isEmpty())
             save_mesh_gui(fileName,*first_);
     }
+    void use_custom_color(bool isUsing){custom_color_=isUsing;updateGL();}
 private:
     OpenMesh::IO::Options _options;
+    QTimer timer;
 };
 
 #endif // MESHPAIRVIEWERWIDGET

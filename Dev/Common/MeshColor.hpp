@@ -20,7 +20,6 @@ ColorArray::RGBArray MeshColor<M>::vertex_colors_array(void)
 template<typename M>
 void* MeshColor<M>::vertex_colors(void)
 {
-    std::srand(time(NULL));
     int index = std::rand() % ColorArray::DefaultColorNum_;
     uint8_t r = ColorArray::DefaultColor[index].rgba.r;
     uint8_t g = ColorArray::DefaultColor[index].rgba.g;

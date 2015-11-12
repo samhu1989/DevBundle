@@ -22,6 +22,7 @@ public:
         custom_color_(mesh_),
         strips_(mesh_)
     {}
+    std::string name_;
     M                           mesh_;
     MeshColor<M>        custom_color_;
     OpenMesh::StripifierT<M>  strips_;

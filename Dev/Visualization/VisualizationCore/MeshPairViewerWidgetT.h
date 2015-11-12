@@ -31,6 +31,7 @@ public:
       use_color_(true),
       show_vnormals_(false),
       show_fnormals_(false),
+      custom_color_(false),
       first_(new MeshBundle<Mesh>()),
       second_(new MeshBundle<Mesh>())
   {
@@ -42,7 +43,7 @@ public:
   }
 
   /// destructor
-  ~MeshPairViewerWidgetT() {}
+  virtual ~MeshPairViewerWidgetT() {}
 
 public:
 
@@ -65,8 +66,8 @@ public:
   MeshBundle<Mesh>& second() { return *second_; }
   const MeshBundle<Mesh>& second() const { return *second_; }
 
-  std::shared_ptr<MeshBundle<Mesh>> first_ptr() { return first_; }
-  std::shared_ptr<MeshBundle<Mesh>> second_ptr() { return second_; }
+  std::shared_ptr<MeshBundle<Mesh>>& first_ptr() { return first_; }
+  std::shared_ptr<MeshBundle<Mesh>>& second_ptr() { return second_; }
 
 protected:
 
@@ -133,10 +134,11 @@ protected:
   GLint                  tex_mode_;
   OpenMesh::IO::Options  opt_; // mesh file contained texcoords?
 
-  std::shared_ptr<MeshBundle<Mesh>> first_;
-  std::shared_ptr<MeshBundle<Mesh>> second_;
+  typename MeshBundle<Mesh>::Ptr first_;
+  typename MeshBundle<Mesh>::Ptr second_;
 
   bool                   use_color_;
+  bool                   custom_color_;
   bool                   show_vnormals_;
   bool                   show_fnormals_;
   float                  normal_scale_;

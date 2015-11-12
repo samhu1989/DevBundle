@@ -527,7 +527,7 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
 
     if ( use_color_)
     {
-        if(mesh_.has_vertex_colors())
+        if( mesh_.has_vertex_colors() && !custom_color_)
         {
             glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(3, GL_UNSIGNED_BYTE, 0, mesh_.vertex_colors());

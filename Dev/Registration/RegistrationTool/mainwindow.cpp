@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     MeshListViewerWidget* w = new MeshListViewerWidget(this);
     OpenMesh::IO::Options opt;
+    opt += OpenMesh::IO::Options::Binary;
     opt += OpenMesh::IO::Options::VertexColor;
     opt += OpenMesh::IO::Options::VertexNormal;
     opt += OpenMesh::IO::Options::VertexTexCoord;
