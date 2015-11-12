@@ -13,9 +13,11 @@ TEMPLATE = app
 CONFIG += c++11
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    regiongrowthread.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    regiongrowthread.h
 
 FORMS    += mainwindow.ui
 
