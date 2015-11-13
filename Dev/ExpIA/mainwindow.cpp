@@ -10,12 +10,14 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    edit_thread_(NULL)
+    edit_thread_(NULL),config_(new Config("./Default.config"))
 {
     ui->setupUi(this);
 
+    if(!config_->has("Configure"))config_->reload("../Default.config");
+
+    connect(ui->actionConfigure,SIGNAL(triggered(bool)),this,SLOT(configure()));
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(open_inputs()));
-    connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(view_inputs()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
@@ -25,11 +27,24 @@ MainWindow::MainWindow(QWidget *parent) :
     io_opt_ += OpenMesh::IO::Options::FaceTexCoord;
 }
 
+void MainWindow::configure()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Confugre"),
+        tr("./"),
+        tr("Configure (*.config);;"
+        "All Files (*)"));
+    if (!fileName.isEmpty())
+    {
+        config_->reload(fileName.toStdString());
+    }
+}
+
 void MainWindow::open_inputs()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(this,
         tr("Open Source file"),
-        tr("../../Dev_Data/"),
+        tr("../Dev_Data/"),
         tr("OBJ Files (*.obj);;"
         "OFF Files (*.off);;"
         "STL Files (*.stl);;"
@@ -38,6 +53,7 @@ void MainWindow::open_inputs()
     if (!fileNames.isEmpty())
     {
         open_inputs(fileNames);
+        view_inputs();
     }
 }
 
@@ -133,13 +149,7 @@ bool MainWindow::open_mesh(DefaultMesh& mesh_,const std::string&_filename)
 
 void MainWindow::view_inputs()
 {
-    std::vector<WidgetPtr>::iterator viter;
-    for(viter=mesh_views_.begin();viter!=mesh_views_.end();++viter)
-    {
-        QWidget& w = **viter;
-        w.close();
-        w.deleteLater();
-    }
+    ui->mdiArea->closeAllSubWindows();
     mesh_views_.clear();
     ui->actionCustom_Color->setChecked(false);
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter;
@@ -147,7 +157,7 @@ void MainWindow::view_inputs()
     {
         MeshBundle<DefaultMesh>::Ptr& bundle_ptr = *iter;
         MeshPairViewerWidget* widget = new MeshPairViewerWidget(this);
-        widget->setMinimumSize(320,240);
+        widget->setMinimumSize(300,200);
         widget->first_ptr() = bundle_ptr;
         widget->set_center_at_mesh(bundle_ptr->mesh_);
         widget->setWindowTitle(QString::fromStdString(bundle_ptr->name_));
@@ -190,14 +200,19 @@ void MainWindow::start_editing()
 {
     if(edit_thread_)
     {
-        QString msg = "Please Wait Till the End of Last Algorithm:\n '";
-        QMessageBox::critical( NULL, windowTitle(), msg);
+        QString msg = "Please Wait Till the End of Last Algorithm\n";
+        QMessageBox::critical(this, windowTitle(), msg);
         return;
     }
     QAction* edit = qobject_cast<QAction*>(sender());
     if(edit==ui->actionRegionGrow)
     {
         RegionGrowThread* th = new RegionGrowThread(inputs_,labels_);
+        if(!th->configure(config_)){
+            QString msg = "Missing Some Configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
         connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         edit_thread_ = th;
     }

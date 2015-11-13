@@ -1,20 +1,19 @@
-#ifndef REGIONGROWTHREAD_H
-#define REGIONGROWTHREAD_H
+#ifndef UNIFYLABELCOLORSIZETHREAD_H
+#define UNIFYLABELCOLORSIZETHREAD_H
 #include <QThread>
-#include <armadillo>
 #include "common.h"
-class RegionGrowThread:public QThread
+class UnifyLabelColorSizeThread:public QThread
 {
     Q_OBJECT
 public:
     typedef std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator InputIterator;
     typedef std::vector<arma::uvec>::iterator OutputIterator;
-    RegionGrowThread(
+    UnifyLabelColorSizeThread(
             std::vector<MeshBundle<DefaultMesh>::Ptr>& inputs,
             std::vector<arma::uvec>& outputs
             ):inputs_(inputs),labels_(outputs)
     {
-        setObjectName("RegionGrowThread");
+        setObjectName("UnifyLabelColorSizeThread");
     }
     bool configure(Config::Ptr config);
 signals:
@@ -27,4 +26,4 @@ private:
     Config::Ptr config_;
 };
 
-#endif // REGIONGROWTHREAD_H
+#endif // UNIFYLABELCOLORSIZETHREAD_H

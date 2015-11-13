@@ -17,10 +17,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void close_views();
+
 public slots:
     void showInMdi(QWidget* w);
 
 protected slots:
+    void configure();
+
     void open_inputs();
     void open_inputs(QStringList&);
     bool open_mesh(DefaultMesh&,const std::string&);
@@ -36,6 +41,7 @@ private:
     std::vector<WidgetPtr> mesh_views_;
     std::vector<arma::uvec> labels_;
     IO::Options io_opt_;
+    Config::Ptr config_;
     QThread* edit_thread_;
 };
 

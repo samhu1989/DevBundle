@@ -5,6 +5,7 @@
 #include "MeshColor.h"
 #include "KDtree.hpp"
 #include "Octree.hpp"
+#include "configure.h"
 namespace ColorArray {
 void COMMONSHARED_EXPORT hsv2rgb(float h,float s,float v,RGB32&rgba);
 }

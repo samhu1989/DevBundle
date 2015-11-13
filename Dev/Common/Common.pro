@@ -12,7 +12,8 @@ TEMPLATE = lib
 DEFINES += COMMON_LIBRARY
 CONFIG += c++11
 SOURCES += common.cpp \
-    MeshColor.cpp
+    MeshColor.cpp \
+    configure.cpp
 
 HEADERS += common.h\
         common_global.h \
@@ -20,7 +21,8 @@ HEADERS += common.h\
     MeshColor.hpp \
     MeshType.h \
     Octree.hpp \
-    KDtree.hpp
+    KDtree.hpp \
+    configure.h
 
 unix {
     target.path = /usr/lib

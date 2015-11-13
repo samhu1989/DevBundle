@@ -14,10 +14,12 @@ CONFIG += c++11
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    regiongrowthread.cpp
+    regiongrowthread.cpp \
+    unifylabelcolorsizethread.cpp
 
 HEADERS  += mainwindow.h \
-    regiongrowthread.h
+    regiongrowthread.h \
+    unifylabelcolorsizethread.h
 
 FORMS    += mainwindow.ui
 

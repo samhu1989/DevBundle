@@ -69,7 +69,7 @@
      <property name="title">
       <string>Unify Label</string>
      </property>
-     <addaction name="actionUse_Color_Histogram"/>
+     <addaction name="actionUse_Color_and_Size"/>
      <addaction name="actionMannually"/>
     </widget>
     <addaction name="actionRegionGrow"/>
@@ -133,9 +133,9 @@
     <string>Update Color Model</string>
    </property>
   </action>
-  <action name="actionUse_Color_Histogram">
+  <action name="actionUse_Color_and_Size">
    <property name="text">
-    <string>Use Color Histogram</string>
+    <string>Use Color and Size</string>
    </property>
   </action>
   <action name="actionMannually">

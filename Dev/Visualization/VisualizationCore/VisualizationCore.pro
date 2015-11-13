@@ -53,5 +53,6 @@ DEPENDPATH += $$PWD/../../../3rdParty/OpenMesh/include
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshTools.dll
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshToolsd.dll
 
-
+INCLUDEPATH += $$PWD/../../../3rdParty/SuperLU/include
+DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
 
