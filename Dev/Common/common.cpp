@@ -3,7 +3,6 @@
 #include "MeshType.h"
 #include "MeshColor.h"
 
-
 void ColorArray::hsv2rgb(float h,float s,float v,RGB32&rgba)
 {
 int hi = (int(h) / 60) % 6;
@@ -28,3 +27,5 @@ uint8_t v_ = 255.0*v;
         rgba.rgba.r=v_;rgba.rgba.g=p;rgba.rgba.b=q;return;
     }
 }
+
+

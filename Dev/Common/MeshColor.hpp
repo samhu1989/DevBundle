@@ -33,3 +33,22 @@ void* MeshColor<M>::vertex_colors(void)
     }
     return (void*)v_colors.data_;
 }
+
+template<typename M>
+void MeshColor<M>::fromlabel(const arma::uvec&label)
+{
+    if(label.size()!=Ref_.n_vertices())return;
+    uint32_t* ptr = (uint32_t*)v_colors.data_;
+    if(v_colors.size_!=Ref_.n_vertices())vertex_colors();
+    int index;
+    for(int i = 0 ; i < v_colors.size_ ; ++i )
+    {
+        if(label(i)==0)index=0;
+        else{
+            std::srand(label(i));
+            index = std::rand()%ColorArray::DefaultColorNum_;
+        }
+        *ptr = ColorArray::DefaultColor[index].color;
+        ++ptr;
+    }
+}

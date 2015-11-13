@@ -19,7 +19,9 @@ RegionGrowing<M>::RegionGrowing () :
   neighbour_number_ (30),
   neighbour_radius_ (0.0),
   search_ (),
-  normals_ (),
+  normals_(NULL),
+  curvatures_(),
+  input_(NULL),
   point_neighbours_ (0),
   point_labels_ (0),
   normal_flag_ (true),
@@ -35,8 +37,8 @@ RegionGrowing<M>::~RegionGrowing ()
 {
   if (search_ != 0)
     search_.reset ();
-  if (normals_ != 0)
-    normals_.reset ();
+  if (normals_ != NULL)
+    normals_=NULL;
 
   point_neighbours_.clear ();
   point_labels_.clear ();
@@ -224,8 +226,8 @@ RegionGrowing<M>::getCurvatures()
 template <typename M> void
 RegionGrowing<M>::setInputNormals (const NormalPtr& norm)
 {
-  if (normals_ != 0)
-    normals_.reset ();
+  if (normals_ != NULL)
+    normals_ = NULL;
 
   normals_ = norm;
 }
@@ -280,17 +282,30 @@ RegionGrowing<M>::extract (std::vector<arma::uvec>& clusters)
 template <typename M>
 void RegionGrowing<M>::extract (arma::uvec&labels)
 {
-    ;
+    std::vector<arma::uvec> clusters;
+    extract(clusters);
+    labels = arma::uvec(input_->n_vertices(),arma::fill::zeros);
+    int l;
+    for(l=0;l<clusters.size();++l)
+    {
+        labels.elem(clusters[l]).fill(arma::uword(l+1));
+    }
+    input_ = NULL;
 }
 ///////////////////////////////////////////////////////////////////////////////////
 template <typename M>
 void RegionGrowing<M>::setInputMesh(MeshPtr input)
 {
-    input_ = input;
-    search_cloud_.reset(new MeshKDTreeInterface<M>(*input));
-    if(input_->has_vertex_normals())
+    input_ = static_cast<MeshPtr>(input);
+    if(input_)
     {
-        normals_.reset((float*)input_->vertex_normals());
+        if(input_->has_vertex_normals())
+        {
+            normals_=(float*)input_->vertex_normals();
+        }
+        search_cloud_.reset(new MeshKDTreeInterface<M>(*input_));
+    }else{
+        std::logic_error("Input NULL");
     }
 }
 
@@ -305,7 +320,7 @@ RegionGrowing<M>::prepareForSegmentation ()
     return (false);
 
   // if user forgot to pass normals or the sizes of point and normal cloud are different
-  if ( !normals_ || !input_->has_vertex_normals() )
+  if ( !normals_ )
     return (false);
 
   // if residual test is on then we need to check if all needed parameters were correctly initialized
@@ -332,6 +347,7 @@ RegionGrowing<M>::prepareForSegmentation ()
   if (!search_)
   {
     search_.reset (new KdTree(3,*search_cloud_,nanoflann::KDTreeSingleIndexAdaptorParams(3)));
+    search_->buildIndex();
   }
 
   return (true);
@@ -359,7 +375,7 @@ RegionGrowing<M>::findPointNeighbours ()
           point_neighbours_[i].clear();
           for(iter=radiusResult.begin();iter!=radiusResult.end();++iter)
           {
-              point_neighbours_[i].push_back(iter->first);
+              point_neighbours_[i].push_back(int(iter->first));
           }
       }
       else {
@@ -487,7 +503,7 @@ RegionGrowing<M>::validatePoint (int initial_seed, int point, int nghbr, bool& i
 
   float cosine_threshold = cosf (theta_threshold_);
   float* pts_ptr = (float*)input_->points();
-  float* n_ptr = normals_.get();
+  float* n_ptr = normals_;
 
   arma::fvec initial_point (&(pts_ptr[3*point]),3,false,true);
   arma::fvec initial_normal (&(n_ptr[3*point]),3,false,true);
@@ -634,7 +650,14 @@ bool RegionGrowing<M>::initCompute()
 template <typename M>
 void RegionGrowing<M>::deinitCompute()
 {
-    ;
+    curvatures_.reset();
+    normals_ = NULL;
+    search_.reset();
+    search_cloud_.reset();
+    point_neighbours_.clear ();
+    point_labels_.clear ();
+    num_pts_in_segment_.clear ();
+    clusters_.clear ();
 }
 
 }

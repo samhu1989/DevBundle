@@ -9,7 +9,7 @@ template <typename M>
 class RegionGrowing : public SegmentationBase
 {
    public:
-    typedef std::shared_ptr<float> NormalPtr;
+    typedef float* NormalPtr;
     typedef std::shared_ptr<float> CurvaturePtr;
     typedef
     nanoflann::KDTreeSingleIndexAdaptor<
@@ -18,7 +18,7 @@ class RegionGrowing : public SegmentationBase
             3,arma::uword>
     KdTree;
     typedef std::shared_ptr<KdTree> KdTreePtr;
-    typedef std::shared_ptr<M> MeshPtr;
+    typedef M* MeshPtr;
     typedef std::shared_ptr<MeshKDTreeInterface<M>> MeshKDTreeInterfacePtr;
 
      /** \brief Constructor that sets default values for member variables. */

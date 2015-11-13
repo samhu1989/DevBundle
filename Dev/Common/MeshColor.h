@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdint-gcc.h>
 #include <common_global.h>
+#include <armadillo>
 namespace ColorArray
 {
     extern "C"{
@@ -30,7 +31,7 @@ namespace ColorArray
             }rgba;
         }RGB32;
 
-        const int32_t  DefaultColorNum_ = 24;
+        const int32_t  DefaultColorNum_ = 59;
         extern RGB32 DefaultColor[DefaultColorNum_];
     }
 
@@ -52,6 +53,7 @@ public:
     MeshColor(const MeshColor &);
     ColorArray::RGBArray vertex_colors_array(void);
     void* vertex_colors(void);
+    void fromlabel(const arma::uvec&);
 protected:
     ColorArray::RGBArray v_colors;
 private:

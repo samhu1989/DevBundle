@@ -5,15 +5,18 @@
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Tools/Utils/Timer.hh>
 #include "MeshPairViewerWidget.h"
+#include "regiongrowthread.h"
 #include <vector>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    edit_thread_(NULL)
 {
     ui->setupUi(this);
 
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(open_inputs()));
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(view_inputs()));
+    connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
     io_opt_ += OpenMesh::IO::Options::VertexTexCoord;
@@ -143,7 +146,7 @@ void MainWindow::view_inputs()
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         MeshBundle<DefaultMesh>::Ptr& bundle_ptr = *iter;
-        MeshPairViewerWidget* widget = new MeshPairViewerWidget();
+        MeshPairViewerWidget* widget = new MeshPairViewerWidget(this);
         widget->setMinimumSize(320,240);
         widget->first_ptr() = bundle_ptr;
         widget->set_center_at_mesh(bundle_ptr->mesh_);
@@ -181,6 +184,41 @@ void MainWindow::removeView()
             }
         }
     }
+}
+
+void MainWindow::start_editing()
+{
+    if(edit_thread_)
+    {
+        QString msg = "Please Wait Till the End of Last Algorithm:\n '";
+        QMessageBox::critical( NULL, windowTitle(), msg);
+        return;
+    }
+    QAction* edit = qobject_cast<QAction*>(sender());
+    if(edit==ui->actionRegionGrow)
+    {
+        RegionGrowThread* th = new RegionGrowThread(inputs_,labels_);
+        connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        edit_thread_ = th;
+    }
+    connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
+    if(edit_thread_)edit_thread_->start(QThread::HighestPriority);
+}
+
+void MainWindow::finish_editing()
+{
+    QString msg = edit_thread_->objectName() + " is Finished";
+    if(edit_thread_)
+    {
+        while(edit_thread_->isRunning())
+        {
+            edit_thread_->terminate();
+            QApplication::processEvents();
+        }
+        edit_thread_->deleteLater();
+        edit_thread_ = NULL;
+    }
+    QMessageBox::information( this, windowTitle(), msg);
 }
 
 MainWindow::~MainWindow()

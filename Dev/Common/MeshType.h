@@ -4,6 +4,7 @@
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
 #include <OpenMesh/Tools/Utils/StripifierT.hh>
+#include <armadillo>
 #include "MeshColor.h"
 struct Traits : public OpenMesh::DefaultTraits
 {
@@ -18,15 +19,19 @@ class MeshBundle
 {
 public:
     typedef typename std::shared_ptr<MeshBundle<M>> Ptr;
+    typedef typename std::shared_ptr<M> MeshPtr;
     MeshBundle():
         custom_color_(mesh_),
         strips_(mesh_)
     {}
+    MeshPtr mesh_ptr(){return std::shared_ptr<M>(&mesh_);}
     std::string name_;
     M                           mesh_;
     MeshColor<M>        custom_color_;
     OpenMesh::StripifierT<M>  strips_;
 };
+
+
 
 #endif // MESHTYPE
 

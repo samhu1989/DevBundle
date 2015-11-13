@@ -114,6 +114,11 @@ void computePointNormal(M& mesh,std::shared_ptr<float>& curvature,float r,int k)
         }else{
             float d2o;//distance to origin
             fitPlane(center,neighborMat,normal,c_ptr[idx],d2o);
+            //flip normal towards (0,0,0)
+            if(arma::dot(normal,center)>0)
+            {
+                normal*=-1.0;
+            }
         }
         point_ptr+=3;
         normal_ptr+=3;

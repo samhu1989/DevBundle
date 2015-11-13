@@ -54,7 +54,6 @@ inline void fitPlane(
         curvature = s.min(minidx);
         normal = U.col(minidx);
         distToOrigin = - arma::dot(normal,center);
-
     }
 }
 }

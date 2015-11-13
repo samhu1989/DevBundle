@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
+#include <QThread>
 #include <common.h>
 using namespace OpenMesh;
 namespace Ui {
@@ -25,14 +25,18 @@ protected slots:
     void open_inputs(QStringList&);
     bool open_mesh(DefaultMesh&,const std::string&);
     void view_inputs();
-
     void removeView();
+
+    void start_editing();
+    void finish_editing();
+
 private:
     Ui::MainWindow *ui;
     std::vector<MeshBundle<DefaultMesh>::Ptr> inputs_;
     std::vector<WidgetPtr> mesh_views_;
     std::vector<arma::uvec> labels_;
     IO::Options io_opt_;
+    QThread* edit_thread_;
 };
 
 #endif // MAINWINDOW_H

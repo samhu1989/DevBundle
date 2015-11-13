@@ -66,3 +66,16 @@ win32: LIBS += -L$$DESTDIR/ -lVisualizationCore
 
 INCLUDEPATH += $$PWD/../Visualization/VisualizationCore
 DEPENDPATH += $$PWD/../Visualization/VisualizationCore
+
+win32: LIBS += -L$$DESTDIR/ -lSegmentationCore
+
+INCLUDEPATH += $$PWD/../Segmentation/SegmentationCore
+DEPENDPATH += $$PWD/../Segmentation/SegmentationCore
+
+INCLUDEPATH += $$PWD/../../3rdParty/NanoFlann/include
+DEPENDPATH += $$PWD/../../3rdParty/NanoFlann/include
+
+win32: LIBS += -L$$DESTDIR/ -lFeatureCore
+
+INCLUDEPATH += $$PWD/../Feature/FeatureCore
+DEPENDPATH += $$PWD/../Feature/FeatureCore
