@@ -6,6 +6,7 @@
 #include <OpenMesh/Tools/Utils/Timer.hh>
 #include "MeshPairViewerWidget.h"
 #include "regiongrowthread.h"
+#include "unifylabelcolorsizethread.h"
 #include <vector>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -18,7 +19,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionConfigure,SIGNAL(triggered(bool)),this,SLOT(configure()));
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(open_inputs()));
+    connect(ui->actionSave_Segments,SIGNAL(triggered(bool)),this,SLOT(save_labels()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
     io_opt_ += OpenMesh::IO::Options::VertexTexCoord;
@@ -167,6 +171,11 @@ void MainWindow::view_inputs()
     }
 }
 
+void MainWindow::save_labels()
+{
+    ;
+}
+
 void MainWindow::showInMdi(QWidget* w)
 {
     w->setAttribute(Qt::WA_DeleteOnClose,true);
@@ -208,6 +217,17 @@ void MainWindow::start_editing()
     if(edit==ui->actionRegionGrow)
     {
         RegionGrowThread* th = new RegionGrowThread(inputs_,labels_);
+        if(!th->configure(config_)){
+            QString msg = "Missing Some Configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionUse_Color_and_Size)
+    {
+        UnifyLabelColorSizeThread* th = new UnifyLabelColorSizeThread(inputs_,labels_);
         if(!th->configure(config_)){
             QString msg = "Missing Some Configure\n";
             QMessageBox::critical(this, windowTitle(), msg);

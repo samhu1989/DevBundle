@@ -32,9 +32,10 @@ protected slots:
     void view_inputs();
     void removeView();
 
+    void save_labels();
+
     void start_editing();
     void finish_editing();
-
 private:
     Ui::MainWindow *ui;
     std::vector<MeshBundle<DefaultMesh>::Ptr> inputs_;
