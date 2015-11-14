@@ -64,6 +64,7 @@ void MainWindow::open_inputs()
 void MainWindow::open_inputs(QStringList&fileNames)
 {
     inputs_.clear();
+    labels_.clear();
     foreach(QString fname,fileNames)
     {
         ui->statusBar->showMessage(tr("Loading:")+fname,5);
@@ -71,6 +72,7 @@ void MainWindow::open_inputs(QStringList&fileNames)
         open_mesh(inputs_.back()->mesh_,fname.toStdString());
         QFileInfo info(fname);
         inputs_.back()->name_ = info.completeBaseName().toStdString();
+        labels_.push_back(arma::uvec(inputs_.back()->mesh_.n_vertices(),arma::fill::zeros));
         QApplication::processEvents();
     }
 }

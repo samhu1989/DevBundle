@@ -25,6 +25,8 @@ void RegionGrowThread::run()
         std::shared_ptr<float> curvature;
         Feature::computePointNormal(input.mesh_,curvature,0.0,config_->getInt("NormalEstimation_k"));
         seg.setInputMesh(&input.mesh_);
+        arma::uvec indices = arma::find(*oiter==0);
+        seg.setIndices(indices);
         seg.getCurvatures() = curvature;
         seg.extract(*oiter);
         input.custom_color_.fromlabel(*oiter);

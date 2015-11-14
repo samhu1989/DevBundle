@@ -32,6 +32,8 @@ class RegionGrowing : public SegmentationBase
 
      void setInputMesh(MeshPtr input);
 
+     void setIndices(arma::uvec&indices);
+
      /** \brief Get the minimum number of points that a cluster needs to contain in order to be considered valid. */
      int
      getMinClusterSize ();
@@ -291,6 +293,8 @@ class RegionGrowing : public SegmentationBase
 
      /** \brief After the segmentation it will contain the segments. */
      std::vector <arma::uvec> clusters_;
+
+     arma::uvec indices_;
 
      /** \brief Stores the number of segments. */
      int number_of_segments_;

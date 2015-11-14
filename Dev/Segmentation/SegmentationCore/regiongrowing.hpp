@@ -283,14 +283,61 @@ template <typename M>
 void RegionGrowing<M>::extract (arma::uvec&labels)
 {
     std::vector<arma::uvec> clusters;
-    extract(clusters);
-    labels = arma::uvec(input_->n_vertices(),arma::fill::zeros);
+    clusters_.clear ();
+    clusters.clear ();
+    point_neighbours_.clear ();
+    point_labels_.clear ();
+    num_pts_in_segment_.clear ();
+    number_of_segments_ = 0;
+
+    bool segmentation_is_possible = initCompute ();
+    if ( !segmentation_is_possible )
+    {
+      deinitCompute ();
+      return;
+    }
+
+    segmentation_is_possible = prepareForSegmentation ();
+    if ( !segmentation_is_possible )
+    {
+      deinitCompute ();
+      return;
+    }
+
+    findPointNeighbours ();
+    applySmoothRegionGrowingAlgorithm ();
+    assembleRegions ();
+
+    clusters.resize (clusters_.size ());
+    std::vector<arma::uvec>::iterator cluster_iter_input = clusters.begin ();
+    for (std::vector<arma::uvec>::const_iterator cluster_iter = clusters_.begin (); cluster_iter != clusters_.end (); cluster_iter++)
+    {
+      if ((static_cast<int> (cluster_iter->size ()) >= min_pts_per_cluster_) &&
+          (static_cast<int> (cluster_iter->size ()) <= max_pts_per_cluster_))
+      {
+        *cluster_iter_input = *cluster_iter;
+        cluster_iter_input++;
+      }
+    }
+
+    clusters_ = std::vector<arma::uvec> (clusters.begin (), cluster_iter_input);
+    clusters.resize(clusters_.size());
+
+    arma::uword baselabel=0;
+    if(indices_.size()!=labels.size())
+    {
+        arma::uvec tmplabel = labels;
+        tmplabel.elem(indices_).fill(0);
+        baselabel = arma::max(tmplabel);
+    }
+
     int l;
     for(l=0;l<clusters.size();++l)
     {
-        labels.elem(clusters[l]).fill(arma::uword(l+1));
+        labels.elem(clusters[l]).fill(arma::uword(baselabel+l+1));
     }
-    input_ = NULL;
+
+    deinitCompute ();
 }
 ///////////////////////////////////////////////////////////////////////////////////
 template <typename M>
@@ -303,10 +350,18 @@ void RegionGrowing<M>::setInputMesh(MeshPtr input)
         {
             normals_=(float*)input_->vertex_normals();
         }
-        search_cloud_.reset(new MeshKDTreeInterface<M>(*input_));
+        if(indices_.is_empty())search_cloud_.reset(new MeshKDTreeInterface<M>(*input_));
+        else search_cloud_.reset(new MeshKDTreeInterface<M>(*input_,indices_));
     }else{
         std::logic_error("Input NULL");
     }
+}
+
+template <typename M>
+void RegionGrowing<M>::setIndices(arma::uvec&indices)
+{
+    indices_ = indices;
+    if(input_)search_cloud_.reset(new MeshKDTreeInterface<M>(*input_,indices_));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,6 +373,11 @@ RegionGrowing<M>::prepareForSegmentation ()
 
   if ( input_->n_vertices() == 0 )
     return (false);
+
+  if( indices_.size() == 0)
+  {
+      indices_ = arma::linspace<arma::uvec>(0,input_->n_vertices()-1,input_->n_vertices());
+  }
 
   // if user forgot to pass normals or the sizes of point and normal cloud are different
   if ( !normals_ )
@@ -357,7 +417,7 @@ RegionGrowing<M>::prepareForSegmentation ()
 template <typename M> void
 RegionGrowing<M>::findPointNeighbours ()
 {
-  int point_number = static_cast<int> (input_->n_vertices());
+  int point_number = static_cast<int> (indices_.size());
   point_neighbours_.resize (input_->n_vertices());
   float* pts_ptr = (float*)input_->points();
   std::vector<std::pair<arma::uword,float>> radiusResult;
@@ -366,23 +426,23 @@ RegionGrowing<M>::findPointNeighbours ()
   nanoflann::SearchParams param;
   for (int i = 0; i < point_number; i++)
   {
-      if (!std::isfinite(pts_ptr[3*i])||!std::isfinite(pts_ptr[3*i+1])||!std::isfinite(pts_ptr[3*i+2]))
+      int pi = indices_(i);
+      if (!std::isfinite(pts_ptr[3*pi])||!std::isfinite(pts_ptr[3*pi+1])||!std::isfinite(pts_ptr[3*pi+2]))
           continue;
-
       if(neighbour_radius_!=0.0){
-          search_->radiusSearch(&pts_ptr[3*i],neighbour_radius_,radiusResult,param);
+          search_->radiusSearch(&pts_ptr[3*pi],neighbour_radius_,radiusResult,param);
           std::vector<std::pair<arma::uword,float>>::iterator iter;
-          point_neighbours_[i].clear();
+          point_neighbours_[pi].clear();
           for(iter=radiusResult.begin();iter!=radiusResult.end();++iter)
           {
-              point_neighbours_[i].push_back(int(iter->first));
+              point_neighbours_[pi].push_back(indices_(iter->first));
           }
       }
       else {
-          search_->knnSearch(&pts_ptr[3*i], neighbour_number_,knnNeighbors,knnDistance);
+          search_->knnSearch(&pts_ptr[3*pi], neighbour_number_,knnNeighbors,knnDistance);
           for(int k=0;k<neighbour_number_;++k)
           {
-              point_neighbours_[i].push_back(knnNeighbors[k]);
+              point_neighbours_[pi].push_back(indices_(knnNeighbors[k]));
           }
       }
   }
@@ -392,7 +452,7 @@ RegionGrowing<M>::findPointNeighbours ()
 template <typename M> void
 RegionGrowing<M>::applySmoothRegionGrowingAlgorithm ()
 {
-  int num_of_pts = static_cast<int> (input_->n_vertices());
+  int num_of_pts = static_cast<int> (indices_.size());
   point_labels_.resize (input_->n_vertices(), -1);
 
   std::vector< std::pair<float, int> > point_residual;
@@ -405,8 +465,9 @@ RegionGrowing<M>::applySmoothRegionGrowingAlgorithm ()
   {
     for (int i_point = 0; i_point < num_of_pts; i_point++)
     {
-      point_residual[i_point].first = c_ptr[i_point];
-      point_residual[i_point].second = i_point;
+      int pi = indices_(i_point);
+      point_residual[i_point].first = c_ptr[pi];
+      point_residual[i_point].second = pi;
     }
     std::sort (point_residual.begin (), point_residual.end (), comparePair);
   }
@@ -414,9 +475,9 @@ RegionGrowing<M>::applySmoothRegionGrowingAlgorithm ()
   {
     for (int i_point = 0; i_point < num_of_pts; i_point++)
     {
-      int point_index = i_point;
+      int pi = indices_(i_point);
       point_residual[i_point].first = 0;
-      point_residual[i_point].second = point_index;
+      point_residual[i_point].second = pi;
     }
   }
   int seed_counter = 0;
@@ -590,11 +651,13 @@ RegionGrowing<M>::getSegmentFromPoint (int index, arma::uvec &cluster)
 
   // first of all we need to find out if this point belongs to cloud
   bool point_was_found = false;
-  int number_of_points = static_cast <int> (input_->n_vertices());
-  if ( number_of_points > index)
-  {
+  int number_of_points = static_cast <int> (indices_.size());
+  for (int point = 0; point < number_of_points; point++)
+    if ( indices_(point) == index)
+    {
       point_was_found = true;
-  }
+      break;
+    }
 
   if (point_was_found)
   {
@@ -658,6 +721,8 @@ void RegionGrowing<M>::deinitCompute()
     point_labels_.clear ();
     num_pts_in_segment_.clear ();
     clusters_.clear ();
+    input_ = NULL;
+    indices_.reset();
 }
 
 }
