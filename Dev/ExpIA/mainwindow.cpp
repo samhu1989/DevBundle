@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionConfigure,SIGNAL(triggered(bool)),this,SLOT(configure()));
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(open_inputs()));
     connect(ui->actionSave_Segments,SIGNAL(triggered(bool)),this,SLOT(save_labels()));
+    connect(ui->actionLoad_Segments,SIGNAL(triggered(bool)),this,SLOT(load_labels()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -179,7 +180,77 @@ void MainWindow::view_inputs()
 
 void MainWindow::save_labels()
 {
-    ;
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save Labels"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    std::vector<arma::uvec>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    QDir dir;
+    miter = inputs_.begin();
+    for(iter=labels_.begin();iter!=labels_.end();++iter)
+    {
+        dir.setPath(dirName);
+        QString filepath = dir.absoluteFilePath(
+                    QString::fromStdString((*miter)->name_+".label.arma")
+                    );
+        if(!iter->save(filepath.toStdString(),arma::arma_binary))
+        {
+            QString msg = "Failed to Save "+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
+}
+
+void MainWindow::load_labels()
+{
+    if(inputs_.empty())
+    {
+        QString msg = "Please Load Inputs First\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+    }
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Load Labels"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    std::vector<arma::uvec>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    QDir dir;
+    miter = inputs_.begin();
+    if(labels_.size()!=inputs_.size())
+    {
+        labels_.resize(inputs_.size());
+    }
+    for(iter=labels_.begin();iter!=labels_.end();++iter)
+    {
+        arma::uvec label;
+        QString filepath = dir.absoluteFilePath(
+                    QString::fromStdString((*miter)->name_+".label.arma")
+                    );
+        if(!label.load(filepath.toStdString()))
+        {
+            QString msg = "Failed to Load "+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        if( label.size() != (*miter)->mesh_.n_vertices() )
+        {
+            QString msg = "Some size of this set of labels doesn't match the inputs\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        *iter = label;
+        (*miter)->custom_color_.fromlabel(*iter);
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
 }
 
 void MainWindow::showInMdi(QWidget* w,Qt::WindowFlags flag)

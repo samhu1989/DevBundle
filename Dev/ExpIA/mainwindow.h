@@ -33,6 +33,7 @@ protected slots:
     void removeView();
 
     void save_labels();
+    void load_labels();
 
     void start_editing();
     void finish_editing();

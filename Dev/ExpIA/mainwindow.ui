@@ -50,6 +50,7 @@
     </property>
     <addaction name="actionOpen_Inputs"/>
     <addaction name="actionSave_Segments"/>
+    <addaction name="actionLoad_Segments"/>
     <addaction name="actionSave_Object_Model"/>
     <addaction name="actionSave_Scenes"/>
     <addaction name="separator"/>
@@ -151,6 +152,11 @@
    </property>
    <property name="text">
     <string>Custom Color</string>
+   </property>
+  </action>
+  <action name="actionLoad_Segments">
+   <property name="text">
+    <string>Load Labels</string>
    </property>
   </action>
  </widget>
