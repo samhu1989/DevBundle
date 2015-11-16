@@ -21,7 +21,7 @@ signals:
     void close_views();
 
 public slots:
-    void showInMdi(QWidget* w);
+    void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
 
 protected slots:
     void configure();

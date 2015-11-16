@@ -82,6 +82,7 @@ template <typename M>
 bool 
 MeshViewerWidgetT<M>::open_mesh(const char* _filename, IO::Options _opt)
 {
+  Mesh& mesh_ = *mesh_ptr_;
   // load mesh
   // calculate normals
   // set scene center and radius   
@@ -188,7 +189,7 @@ MeshViewerWidgetT<M>::open_mesh(const char* _filename, IO::Options _opt)
       t.start();
       compute_strips();
       t.stop();
-      std::clog << "done [" << strips_.n_strips() 
+      std::clog << "done [" << strips_->n_strips()
 		<< " strips created in " << t.as_string() << "]\n";
     }
     
@@ -206,9 +207,38 @@ MeshViewerWidgetT<M>::open_mesh(const char* _filename, IO::Options _opt)
 }
 
 template <typename M>
+void MeshViewerWidgetT<M>::set_center_at_mesh(const Mesh& mesh_)
+{
+    // bounding box
+    typename Mesh::ConstVertexIter vIt(mesh_.vertices_begin());
+    typename Mesh::ConstVertexIter vEnd(mesh_.vertices_end());
+
+    typedef typename Mesh::Point Point;
+    using OpenMesh::Vec3f;
+
+    Vec3f bbMin, bbMax;
+
+    bbMin = bbMax = OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt));
+
+    size_t count;
+    for (count=0; vIt!=vEnd; ++vIt, ++count)
+    {
+        bbMin.minimize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
+        bbMax.maximize( OpenMesh::vector_cast<Vec3f>(mesh_.point(*vIt)));
+    }
+
+    std::clog<<"Bounding Box("<<bbMin<<")-("<<bbMax<<")"<<std::endl;
+    // set center and radius
+    set_scene_pos( (bbMin+bbMax)*0.5f , (bbMin-bbMax).norm()*0.5 );
+    // for normal display
+    normal_scale_ = (bbMax-bbMin).min()*0.05f;
+}
+
+template <typename M>
 bool
 MeshViewerWidgetT<M>::save_mesh(const char* _filename, IO::Options _opt)
 {
+  Mesh& mesh_ = *mesh_ptr_;
   // load mesh
   // calculate normals
   // set scene center and radius
@@ -309,6 +339,7 @@ template <typename M>
 void
 MeshViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode)
 {
+  Mesh& mesh_ = *mesh_ptr_;
   typename Mesh::ConstFaceIter    fIt(mesh_.faces_begin()), 
                                   fEnd(mesh_.faces_end());
 
@@ -520,8 +551,8 @@ MeshViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode)
       glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, tex_mode_);
     }
 
-    typename MyStripifier::StripsIterator strip_it = strips_.begin();
-    typename MyStripifier::StripsIterator strip_last = strips_.end();
+    typename MyStripifier::StripsIterator strip_it = strips_->begin();
+    typename MyStripifier::StripsIterator strip_last = strips_->end();
 
     // Draw all strips
     for (; strip_it!=strip_last; ++strip_it)
@@ -536,10 +567,10 @@ MeshViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode)
   }
 
 
-  else if (_draw_mode == "Show Strips" && strips_.is_valid() ) // -------------
+  else if (_draw_mode == "Show Strips" && strips_->is_valid() ) // -------------
   {
-    typename MyStripifier::StripsIterator strip_it = strips_.begin();
-    typename MyStripifier::StripsIterator strip_last = strips_.end();
+    typename MyStripifier::StripsIterator strip_it = strips_->begin();
+    typename MyStripifier::StripsIterator strip_last = strips_->end();
 
     float cmax  = 256.0f;
     int   range = 220;
@@ -583,7 +614,7 @@ MeshViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode)
           glColorPointer(3, GL_UNSIGNED_BYTE, 0, mesh_.vertex_colors());
       }else{
           glEnableClientState(GL_COLOR_ARRAY);
-          glColorPointer(4, GL_UNSIGNED_BYTE, 0, custom_color_.vertex_colors());
+          glColorPointer(4, GL_UNSIGNED_BYTE, 0, custom_color_->vertex_colors());
       }
     }
     glPointSize(5);
@@ -604,7 +635,7 @@ template <typename M>
 void 
 MeshViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 {
-  
+  Mesh& mesh_ = *mesh_ptr_;
   if ( ! mesh_.n_vertices() )
     return;
    
@@ -760,6 +791,7 @@ template <typename M>
 void 
 MeshViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
 {
+    Mesh& mesh_ = *mesh_ptr_;
   switch( _event->key() )
   {
     case Key_D:

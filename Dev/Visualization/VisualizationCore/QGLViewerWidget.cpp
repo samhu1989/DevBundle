@@ -113,7 +113,7 @@ QGLViewerWidget::init(void)
 {
   // qt stuff
   setAttribute(Qt::WA_NoSystemBackground, true);
-  setFocusPolicy(Qt::StrongFocus);
+  setFocusPolicy(Qt::ClickFocus);
   setAcceptDrops( true );  
   setCursor(PointingHandCursor);
 
@@ -132,10 +132,12 @@ QGLViewerWidget::init(void)
   //draw_mode_ = 4;
   QAction *a;
   a = add_draw_mode("Wireframe");
-  a->setShortcut(QKeySequence(Key_W));
+  a->setShortcutContext(Qt::WidgetShortcut);
+  a->setShortcut(QKeySequence(SHIFT|Key_W));
   add_draw_mode("Solid Flat");
   a = add_draw_mode("Solid Smooth");
-  a->setShortcut(QKeySequence(Key_S));
+  a->setShortcutContext(Qt::WidgetShortcut);
+  a->setShortcut(QKeySequence(SHIFT|Key_S));
   a->setChecked(true);
 
   slotDrawMode(a);
@@ -227,6 +229,11 @@ QGLViewerWidget::initializeGL()
   glLoadIdentity();
   glGetDoublev(GL_MODELVIEW_MATRIX, modelview_matrix_);
   set_scene_pos(Vec3f(0.0, 0.0, 0.0), 1.0);
+}
+
+void QGLViewerWidget::setBackgroundColor(QColor c)
+{
+    glClearColor(c.redF(),c.greenF(),c.blueF(), 0.0);
 }
 
 
@@ -442,6 +449,7 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
   {
     case Key_Print:
       slotSnapshot();
+      _event->accept();
       break;
 
     case Key_H:
@@ -453,6 +461,7 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
       std::cerr << "  N\tenable/disable display of vertex normals\n";
       std::cerr << "  Shift N\tenable/disable display of face normals\n";
       std::cerr << "  Shift P\tperformance check\n";
+      _event->accept();
       break;
 
     case Key_C:
@@ -469,6 +478,7 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
               std::cerr << "Culling: enabled\n";
           }
           updateGL();
+          _event->accept();
       }
       break;
 
@@ -483,12 +493,14 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
           glEnable( GL_FOG );
           std::cerr << "Fog: enabled\n";
       }
+      _event->accept();
       updateGL();
       break;
 
     case Key_I:
       std::cerr << "Scene radius: " << radius_ << std::endl;
       std::cerr << "Scene center: " << center_ << std::endl;
+      _event->accept();
       break;
 
     case Key_P:
@@ -499,10 +511,11 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
                     << std::setiosflags (std::ios_base::fixed)
                     << fps << std::endl;
       }
+      _event->accept();
     break;
     case Key_Q:
     case Key_Escape:
-      qApp->quit();      
+      close();
   }
   _event->ignore();
 }
@@ -650,6 +663,7 @@ QGLViewerWidget::add_draw_mode(const std::string& _s)
   QAction* act = new QAction(tr(_s.c_str()), this);
   act->setCheckable(true);
   act->setData(n_draw_modes_);
+  act->setShortcutContext(Qt::WidgetShortcut);
 
   grp->addAction(act);
   popup_menu_->addAction(act);

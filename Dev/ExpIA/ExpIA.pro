@@ -15,13 +15,19 @@ CONFIG += c++11
 SOURCES += main.cpp\
         mainwindow.cpp \
     regiongrowthread.cpp \
-    unifylabelcolorsizethread.cpp
+    unifylabelcolorsizethread.cpp \
+    unifylabelmannual.cpp \
+    patchpairview.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
-    unifylabelcolorsizethread.h
+    unifylabelcolorsizethread.h \
+    unifylabelmannual.h \
+    patchpairview.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    unifylabelmannual.ui \
+    patchpairview.ui
 
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 

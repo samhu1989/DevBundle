@@ -45,7 +45,8 @@ void MeshColor<M>::fromlabel(const arma::uvec&label)
         if(label(i)==0)index=0;
         else{
             std::srand(label(i));
-            index = std::rand()%ColorArray::DefaultColorNum_;
+            index = std::rand()%( ColorArray::DefaultColorNum_ - 1 );
+            index += 1;
         }
         *ptr = ColorArray::DefaultColor[index].color;
         ++ptr;

@@ -63,6 +63,7 @@
 #include <OpenMesh/Tools/Utils/Timer.hh>
 #include "QGLViewerWidget.h"
 #include "MeshColor.h"
+#include <memory>
 
 
 //== FORWARDS =================================================================
@@ -88,8 +89,9 @@ public:
       f_strips_(false), 
       tex_id_(0),
       tex_mode_(GL_MODULATE),
-      strips_(mesh_),
-      custom_color_(mesh_),
+      mesh_ptr_(new Mesh),
+      strips_(new MyStripifier(*mesh_ptr_)),
+      custom_color_(new MeshColor<Mesh>(*mesh_ptr_)),
       use_color_(true),
       show_vnormals_(false),
       show_fnormals_(false)
@@ -116,11 +118,23 @@ public:
   bool set_texture( QImage& _texsrc );
  
   void enable_strips();
-  void disable_strips();  
-  
+  void disable_strips();
 
-  Mesh& mesh() { return mesh_; }
-  const Mesh& mesh() const { return mesh_; }
+  virtual void set_center_at_mesh(const Mesh&);
+  
+  Mesh& mesh() { return *mesh_ptr_; }
+  const Mesh& mesh() const { return *mesh_ptr_; }
+
+  std::shared_ptr<Mesh>& mesh_ptr(){ return mesh_ptr_;}
+  void reset_ptr(std::shared_ptr<Mesh>& ptr)
+  {
+      mesh_ptr_ = ptr;
+      std::cerr<<"setting up centers:"<<std::endl;
+      if(mesh_ptr_&&mesh_ptr_->n_vertices()!=0)set_center_at_mesh(*mesh_ptr_);
+      strips_.reset(new MyStripifier(*mesh_ptr_));
+      custom_color_.reset(new MeshColor<Mesh>(*mesh_ptr_));
+      updateGL();
+  }
   
 protected:
   
@@ -134,32 +148,32 @@ protected:
 
 
   void glVertex( const typename Mesh::VertexHandle _vh )
-  { glVertex3fv( &mesh_.point( _vh )[0] ); }
+  { glVertex3fv( &mesh_ptr_->point( _vh )[0] ); }
 
   void glVertex( const typename Mesh::Point& _p )
   { glVertex3fv( &_p[0] ); }
   
   void glNormal( const typename Mesh::VertexHandle _vh )
-  { glNormal3fv( &mesh_.normal( _vh )[0] ); }
+  { glNormal3fv( &mesh_ptr_->normal( _vh )[0] ); }
 
   void glTexCoord( const typename Mesh::VertexHandle _vh )
-  { glTexCoord2fv( &mesh_.texcoord(_vh)[0] ); }
+  { glTexCoord2fv( &mesh_ptr_->texcoord(_vh)[0] ); }
   
   void glColor( const typename Mesh::VertexHandle _vh )
-  { glColor3ubv( &mesh_.color(_vh)[0] ); }
+  { glColor3ubv( &mesh_ptr_->color(_vh)[0] ); }
   
   // face properties
 
   void glNormal( const typename Mesh::FaceHandle _fh )
-  { glNormal3fv( &mesh_.normal( _fh )[0] ); }
+  { glNormal3fv( &mesh_ptr_->normal( _fh )[0] ); }
 
   void glColor( const typename Mesh::FaceHandle _fh )
-  { glColor3ubv( &mesh_.color(_fh)[0] ); }
+  { glColor3ubv( &mesh_ptr_->color(_fh)[0] ); }
 
   void glMaterial( const typename Mesh::FaceHandle _fh, 
 		   int _f=GL_FRONT_AND_BACK, int _m=GL_DIFFUSE )
   { 
-    OpenMesh::Vec3f c=OpenMesh::color_cast<OpenMesh::Vec3f>(mesh_.color(_fh));
+    OpenMesh::Vec3f c=OpenMesh::color_cast<OpenMesh::Vec3f>(mesh_ptr_->color(_fh));
     OpenMesh::Vec4f m( c[0], c[1], c[2], 1.0f );
 
     glMaterialfv(_f, _m, &m[0]); 
@@ -172,8 +186,8 @@ protected: // Strip support
   {
     if (f_strips_)
     {
-      strips_.clear();
-      strips_.stripify();
+      strips_->clear();
+      strips_->stripify();
     }
   }    
 
@@ -188,9 +202,9 @@ protected:
   GLint                  tex_mode_;
   OpenMesh::IO::Options  opt_; // mesh file contained texcoords?
   
-  Mesh                   mesh_;
-  MeshColor<Mesh>        custom_color_;
-  MyStripifier           strips_;
+  std::shared_ptr<Mesh>  mesh_ptr_;
+  std::shared_ptr<MeshColor<Mesh>> custom_color_;
+  std::shared_ptr<MyStripifier>    strips_;
   bool                   use_color_;
   bool                   show_vnormals_;
   bool                   show_fnormals_;

@@ -87,9 +87,12 @@ public:
   // Destructor.
   virtual ~QGLViewerWidget();
 
+public slots:
+  void setBackgroundColor(QColor);
+
 private:
 
-  void init(void);
+  virtual void init(void);
 
 public:
 

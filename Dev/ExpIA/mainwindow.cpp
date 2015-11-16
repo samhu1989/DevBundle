@@ -7,7 +7,10 @@
 #include "MeshPairViewerWidget.h"
 #include "regiongrowthread.h"
 #include "unifylabelcolorsizethread.h"
+#include "unifylabelmannual.h"
 #include <vector>
+#include <QMdiSubWindow>
+#include <QDebug>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -22,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSave_Segments,SIGNAL(triggered(bool)),this,SLOT(save_labels()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
@@ -169,7 +173,7 @@ void MainWindow::view_inputs()
         widget->setWindowTitle(QString::fromStdString(bundle_ptr->name_));
         connect(ui->actionCustom_Color,SIGNAL(toggled(bool)),widget,SLOT(use_custom_color(bool)));
         mesh_views_.push_back(WidgetPtr(widget));
-        showInMdi((QWidget*)widget);
+        showInMdi((QWidget*)widget,Qt::Widget|Qt::WindowMinMaxButtonsHint);
     }
 }
 
@@ -178,12 +182,17 @@ void MainWindow::save_labels()
     ;
 }
 
-void MainWindow::showInMdi(QWidget* w)
+void MainWindow::showInMdi(QWidget* w,Qt::WindowFlags flag)
 {
     w->setAttribute(Qt::WA_DeleteOnClose,true);
-    ui->mdiArea->addSubWindow(w);
+    QMdiSubWindow* s = ui->mdiArea->addSubWindow(w,flag);
     connect(w,SIGNAL(destroyed()),this,SLOT(removeView()));
     w->show();
+    QList<QAction*> list = s->actions();
+    foreach(QAction* a,list)
+    {
+        a->setShortcutContext(Qt::WidgetShortcut);
+    }
 }
 
 void MainWindow::removeView()
@@ -215,6 +224,12 @@ void MainWindow::start_editing()
         QMessageBox::critical(this, windowTitle(), msg);
         return;
     }
+    if( inputs_.empty() || labels_.empty() )
+    {
+        QString msg = "No Inputs for Editing\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
+    }
     QAction* edit = qobject_cast<QAction*>(sender());
     if(edit==ui->actionRegionGrow)
     {
@@ -238,8 +253,23 @@ void MainWindow::start_editing()
         connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         edit_thread_ = th;
     }
-    connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
-    if(edit_thread_)edit_thread_->start(QThread::HighestPriority);
+    if(edit==ui->actionMannually)
+    {
+        UnifyLabelMannual* w = new UnifyLabelMannual(inputs_,labels_);
+        if(!w->configure(config_)){
+            QString msg = "You probably should do regiongrow first\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->initLater();
+        showInMdi((QWidget*)w);
+    }
+    if(edit_thread_){
+        connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
+        edit_thread_->start(QThread::HighestPriority);
+    }
 }
 
 void MainWindow::finish_editing()

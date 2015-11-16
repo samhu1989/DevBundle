@@ -94,9 +94,6 @@
    <property name="text">
     <string>Open Inputs</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
   </action>
   <action name="actionSave_Segments">
    <property name="text">
