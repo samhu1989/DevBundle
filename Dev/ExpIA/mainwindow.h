@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QThread>
 #include <common.h>
+#include "objectmodel.h"
 using namespace OpenMesh;
 namespace Ui {
 class MainWindow;
@@ -37,11 +38,14 @@ protected slots:
 
     void start_editing();
     void finish_editing();
+
+    void showLab();
 private:
     Ui::MainWindow *ui;
-    std::vector<MeshBundle<DefaultMesh>::Ptr> inputs_;
     std::vector<WidgetPtr> mesh_views_;
+    std::vector<MeshBundle<DefaultMesh>::Ptr> inputs_;
     std::vector<arma::uvec> labels_;
+    std::vector<ObjModel::Ptr> objects_;
     IO::Options io_opt_;
     Config::Ptr config_;
     QThread* edit_thread_;

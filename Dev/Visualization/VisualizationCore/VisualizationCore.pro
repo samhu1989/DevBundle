@@ -14,7 +14,8 @@ DEFINES += VISUALIZATIONCORE_LIBRARY
 DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
 SOURCES += visualizationcore.cpp \
-    QGLViewerWidget.cpp
+    QGLViewerWidget.cpp \
+    labspace.cpp
 
 HEADERS += visualizationcore.h\
         visualizationcore_global.h \
@@ -27,7 +28,8 @@ HEADERS += visualizationcore.h\
     MeshPairViewerWidget.h \
     MeshListViewerWidget.h \
     MeshListViewerWidgetT.h \
-    MeshListViewerWidgetT.hpp
+    MeshListViewerWidgetT.hpp \
+    labspace.h
 
 unix {
     target.path = /usr/lib
@@ -55,4 +57,7 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenM
 
 INCLUDEPATH += $$PWD/../../../3rdParty/SuperLU/include
 DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
+
+FORMS += \
+    labspace.ui
 

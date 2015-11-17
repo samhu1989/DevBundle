@@ -29,6 +29,11 @@ void COMMONSHARED_EXPORT ColorArray::RGBArray::reset(long size, uint8_t r, uint8
     }
 }
 
+void ColorArray::Lab2RGB(const arma::fvec& Lab, arma::Mat<uint8_t>& rgb)
+{
+
+}
+
 ColorArray::RGB32 COMMONSHARED_EXPORT ColorArray::DefaultColor[DefaultColorNum_] = {
     {0XFF000000},
     {0XFFBF80FF},

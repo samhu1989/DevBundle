@@ -60,12 +60,6 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <widget class="QMenu" name="menuUpdate_Object_Model">
-     <property name="title">
-      <string>Update Object Model</string>
-     </property>
-     <addaction name="actionUpdate_Color_Model"/>
-    </widget>
     <widget class="QMenu" name="menuUnify_Label">
      <property name="title">
       <string>Unify Label</string>
@@ -75,7 +69,7 @@
     </widget>
     <addaction name="actionRegionGrow"/>
     <addaction name="menuUnify_Label"/>
-    <addaction name="menuUpdate_Object_Model"/>
+    <addaction name="actionUpdateObjModel"/>
     <addaction name="actionUpdate_Label"/>
     <addaction name="separator"/>
     <addaction name="actionIterate"/>
@@ -85,6 +79,7 @@
      <string>View</string>
     </property>
     <addaction name="actionCustom_Color"/>
+    <addaction name="actionLab_Color_Space"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -157,6 +152,16 @@
   <action name="actionLoad_Segments">
    <property name="text">
     <string>Load Labels</string>
+   </property>
+  </action>
+  <action name="actionUpdateObjModel">
+   <property name="text">
+    <string>Update Object Model</string>
+   </property>
+  </action>
+  <action name="actionLab_Color_Space">
+   <property name="text">
+    <string>Lab Color Space</string>
    </property>
   </action>
  </widget>

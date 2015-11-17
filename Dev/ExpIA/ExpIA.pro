@@ -11,23 +11,30 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ExpIA
 TEMPLATE = app
 CONFIG += c++11
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -lgomp -lpthread
 
 SOURCES += main.cpp\
         mainwindow.cpp \
     regiongrowthread.cpp \
     unifylabelcolorsizethread.cpp \
     unifylabelmannual.cpp \
-    patchpairview.cpp
+    patchpairview.cpp \
+    updateobjectmodel.cpp \
+    objectmodel.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
     unifylabelcolorsizethread.h \
     unifylabelmannual.h \
-    patchpairview.h
+    patchpairview.h \
+    updateobjectmodel.h \
+    objectmodel.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
-    patchpairview.ui
+    patchpairview.ui \
+    updateobjectmodel.ui
 
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 

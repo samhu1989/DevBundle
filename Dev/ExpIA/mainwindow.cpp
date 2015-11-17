@@ -8,6 +8,8 @@
 #include "regiongrowthread.h"
 #include "unifylabelcolorsizethread.h"
 #include "unifylabelmannual.h"
+#include "updateobjectmodel.h"
+#include "labspace.h"
 #include <vector>
 #include <QMdiSubWindow>
 #include <QDebug>
@@ -27,6 +29,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionUpdateObjModel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+
+    connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
 
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
@@ -271,6 +276,7 @@ void MainWindow::removeView()
     WidgetPtr w = qobject_cast<WidgetPtr>(sender());
     if(w)
     {
+        if(mesh_views_.empty())return;
         if(mesh_views_.back()==w)mesh_views_.pop_back();
         else{
             std::vector<WidgetPtr>::iterator viter;
@@ -334,7 +340,23 @@ void MainWindow::start_editing()
             return;
         }
         connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        showInMdi((QWidget*)w);
         w->initLater();
+    }
+    if(edit==ui->actionUpdateObjModel)
+    {
+        UpdateObjectModel* w = new UpdateObjectModel(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        if(!w->configure(config_)){
+            QString msg = "You probably should do unify label first\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         showInMdi((QWidget*)w);
     }
     if(edit_thread_){
@@ -357,6 +379,16 @@ void MainWindow::finish_editing()
         edit_thread_ = NULL;
     }
     QMessageBox::information( this, windowTitle(), msg);
+}
+
+void MainWindow::showLab()
+{
+    LabSpace* v = new LabSpace();
+    v->setAttribute(Qt::WA_DeleteOnClose,true);
+    QMdiSubWindow* s = ui->mdiArea->addSubWindow(v);
+    connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));
+    s->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    v->show();
 }
 
 MainWindow::~MainWindow()
