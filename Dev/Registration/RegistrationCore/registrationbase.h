@@ -8,7 +8,7 @@ namespace Registration
     {
     public:
         RegistrationBase():end_(false){}
-        virtual bool initForThread(void*)=0;
+        virtual bool initForThread(void*){return false;}
         virtual void compute()=0;
         virtual const std::string& errorForThread(void)const {return error_string_;}
         virtual void quit(){end_=true;}

@@ -4,6 +4,7 @@
 #include <armadillo>
 #include <iostream>
 #include <memory>
+#include "common.h"
 #include <RegistrationBase.h>
 #if !defined(M_PI)
 #  define M_PI 3.1415926535897932
@@ -100,11 +101,14 @@ namespace Registration {
             float t[3];
             float s;
         }Result;
+        typedef std::shared_ptr<Result> ResPtr;
         typedef typename std::vector<typename MeshBundle<M>::Ptr> MeshList;
         CPDRigid3D();
-        virtual bool initForThread(void*);
+        virtual bool initForThread(void*,InfoPtr info);
+        virtual bool initForThread(void*,std::vector<arma::uword>&,InfoPtr info);
         //configure info from global configure
-        bool configure(Info&);
+        bool configure(Config::Ptr&,InfoPtr&);
+        ResPtr result(void){return ResPtr_;}
         virtual void reset(const arma::fmat&source, const arma::fmat&target, InfoPtr &info);
         float fitness();
         virtual ~CPDRigid3D();
@@ -118,7 +122,7 @@ namespace Registration {
         arma::fvec muY; // Y center
         arma::fmat mX_; // centered X
         arma::fmat mY_; // centered Y
-        std::shared_ptr<Result> ResPtr_;
+        ResPtr ResPtr_;
     };
 }
 #include "coherentpointdrift.hpp"

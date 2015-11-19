@@ -194,10 +194,10 @@ void MainWindow::save_labels()
     std::vector<arma::uvec>::iterator iter;
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
     QDir dir;
+    dir.setPath(dirName);
     miter = inputs_.begin();
     for(iter=labels_.begin();iter!=labels_.end();++iter)
     {
-        dir.setPath(dirName);
         QString filepath = dir.absoluteFilePath(
                     QString::fromStdString((*miter)->name_+".label.arma")
                     );
@@ -228,6 +228,7 @@ void MainWindow::load_labels()
     std::vector<arma::uvec>::iterator iter;
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
     QDir dir;
+    dir.setPath(dirName);
     miter = inputs_.begin();
     if(labels_.size()!=inputs_.size())
     {
@@ -357,6 +358,7 @@ void MainWindow::start_editing()
             return;
         }
         connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->startLater();
         showInMdi((QWidget*)w);
     }
     if(edit_thread_){

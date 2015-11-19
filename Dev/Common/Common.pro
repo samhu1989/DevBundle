@@ -11,6 +11,8 @@ TEMPLATE = lib
 
 DEFINES += COMMON_LIBRARY
 CONFIG += c++11
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -lgomp -lpthread
 SOURCES += common.cpp \
     MeshColor.cpp \
     configure.cpp

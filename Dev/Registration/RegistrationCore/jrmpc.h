@@ -2,11 +2,13 @@
 #define JRMPC_H
 #include "RegistrationBase.h"
 #include <armadillo>
+#include "common.h"
 namespace Registration {
     template<typename M>
     class JRMPC:public RegistrationBase
     {
         using RegistrationBase::end_;
+    public:
         typedef enum{
             MaxIter,
             ErrorBelowThreshold,
@@ -36,8 +38,11 @@ namespace Registration {
         typedef std::shared_ptr<arma::fmat> MatPtr;
     public:
         JRMPC();
-        bool configure(Info&);
-        virtual bool initForThread(void *meshlistptr);
+        bool configure(Config::Ptr&,InfoPtr&);
+        ResPtr result(void){return res_ptr;}
+
+        virtual bool initForThread(void *meshlistptr,InfoPtr info);
+        virtual bool initForThread(void *meshlistptr,std::vector<arma::uword>&valid_index,InfoPtr info);
 
         virtual void reset(
                 const std::vector<std::shared_ptr<arma::fmat> > &source,
@@ -97,6 +102,7 @@ namespace Registration {
 
     protected:
         virtual void initK(const std::vector<std::shared_ptr<arma::fmat>>&source,int&k);
+        virtual void initX(arma::fmat&target);
         virtual void initX(const std::vector<std::shared_ptr<arma::fmat>>&source,arma::fmat&target);
         virtual void stepE();
         virtual void stepMa();

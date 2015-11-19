@@ -55,7 +55,8 @@ void MainWindow::start_registration(void)
     if(s==ui->actionCPDRigid3D)
     {
         CPDR3D_DM_R_Thread* thread = new CPDR3D_DM_R_Thread();
-        if(!thread->init(w->list()))
+        Config::Ptr config_ptr;
+        if(!thread->init(w->list(),config_ptr))
         {
             QString msg = "Fail to Initialize the Registration:\n '";
             msg += QString::fromStdString(thread->errorString());
@@ -69,7 +70,8 @@ void MainWindow::start_registration(void)
     if(s==ui->actionJRMPC)
     {
         JRMPC_Thread* thread = new JRMPC_Thread();
-        if(!thread->init(w->list()))
+        Config::Ptr config_ptr;
+        if(!thread->init(w->list(),config_ptr))
         {
             QString msg = "Fail to Initialize the Registration:\n '";
             msg += QString::fromStdString(thread->errorString());

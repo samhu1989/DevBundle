@@ -37,7 +37,10 @@ public slots:
         Registration::RegistrationThreadT<Registration::JRMPC<DefaultMesh>,DefaultMesh>::quit();
     }
 protected:
-    void run(void){compute();}
+    void run(void)
+    {
+        compute();
+    }
 private:
 };
 #endif // REGISTRATIONCORE_H

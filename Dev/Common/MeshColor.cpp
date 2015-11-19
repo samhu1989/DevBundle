@@ -29,9 +29,80 @@ void COMMONSHARED_EXPORT ColorArray::RGBArray::reset(long size, uint8_t r, uint8
     }
 }
 
-void ColorArray::Lab2RGB(const arma::fvec& Lab, arma::Mat<uint8_t>& rgb)
+void ColorArray::Lab2RGB(const arma::fmat& Lab, arma::Mat<uint8_t>& rgb)
 {
+    if(3!=Lab.n_rows)std::logic_error("Lab.n_rows!=3");
 
+    const float T1(0.008856);
+    const float T2(0.206893);
+    const float m[9]={
+        3.240479,-0.969256,0.055648,
+        -1.537150,1.875992,-0.204043,
+        -0.498535,0.041556,1.057311};
+
+    const arma::fmat::fixed<3,3> MAT(&m[0]);
+    //Y
+    arma::frowvec Y;
+    arma::frowvec L = Lab.row(0);
+    Y = arma::pow( ( L + 16.0 ) / 116.0 , 3 );
+    arma::uvec YT = arma::find( Y > T1 );
+    arma::uvec _YT = arma::find( Y <= T1 );
+    Y(_YT) = L(_YT);
+    Y(_YT) /= 903.3;
+    //alter fY
+    arma::frowvec fY = Y;
+    fY(YT) = arma::pow( fY(YT) , 1.0/3.0 );
+    fY(_YT)*=7.787;
+    fY(_YT) += 16.0/116.0;
+    //X
+    arma::frowvec X;
+    X = Lab.row(1) / 500.0 + fY;
+    arma::uvec XT = arma::find( X > T2 );
+    arma::uvec _XT = arma::find( X <= T2 );
+    X(XT) = arma::pow( X(XT) ,3);
+    X(_XT) -= 16.0/116.0;
+    X(_XT) /= 7.787;
+    X*=0.950456;
+    //Z
+    arma::frowvec Z;
+    Z = fY;
+    Z -= Lab.row(2) / 200.0;
+    arma::uvec ZT = arma::find( Z > T2 );
+    arma::uvec _ZT = arma::find( Z <= T2 );
+    Z(ZT) = arma::pow( Z(ZT) ,3);
+    Z(_ZT) -= 16.0/116.0;
+    Z(_ZT) /= 7.787;
+    Z*= 1.088754;
+
+    arma::fmat fxyz(3,Lab.n_cols);
+    arma::fmat frgb;
+
+    fxyz.row(0) = X;
+    fxyz.row(1) = Y;
+    fxyz.row(2) = Z;
+
+    frgb = MAT*fxyz;
+
+    arma::uvec i0 = arma::find( frgb.row(0) < 0.0 );
+    arma::uvec i1 = arma::find( frgb.row(1) < 0.0 );
+    arma::uvec i2 = arma::find( frgb.row(2) < 0.0 );
+
+
+    frgb.cols(i0).fill(1.0);
+    frgb.cols(i1).fill(1.0);
+    frgb.cols(i2).fill(1.0);
+
+    i0 = arma::find( frgb.row(0) > 1.0 );
+    i1 = arma::find( frgb.row(1) > 1.0 );
+    i2 = arma::find( frgb.row(2) > 1.0 );
+
+    frgb.cols(i0).fill(1.0);
+    frgb.cols(i1).fill(1.0);
+    frgb.cols(i2).fill(1.0);
+
+    frgb*=255.0;
+
+    rgb = arma::conv_to<arma::Mat<uint8_t>>::from(frgb);
 }
 
 ColorArray::RGB32 COMMONSHARED_EXPORT ColorArray::DefaultColor[DefaultColorNum_] = {

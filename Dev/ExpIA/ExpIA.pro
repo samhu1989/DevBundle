@@ -94,3 +94,8 @@ win32: LIBS += -L$$DESTDIR/ -lFeatureCore
 
 INCLUDEPATH += $$PWD/../Feature/FeatureCore
 DEPENDPATH += $$PWD/../Feature/FeatureCore
+
+win32: LIBS += -L$$DESTDIR/ -lRegistrationCore
+
+INCLUDEPATH += $$PWD/../Registration/RegistrationCore
+DEPENDPATH += $$PWD/../Registration/RegistrationCore

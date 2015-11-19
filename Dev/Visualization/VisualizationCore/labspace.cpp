@@ -9,20 +9,52 @@ LabSpace::LabSpace(QWidget *parent) :
 {
     ui->setupUi(this);
     ab_ = new LabLabel(LabLabel::ab);
+    ab_->init();
     L_ = new LabLabel(LabLabel::L);
-    ui->horizontalLayout->addWidget(ab_);
+    L_->init();
+    connect(ui->verticalSlider,SIGNAL(valueChanged(int)),ab_,SLOT(changeL(int)));
     ui->horizontalLayout->addWidget(L_);
+    ui->horizontalLayout->addWidget(ab_);
 }
 
 LabSpace::~LabSpace()
 {
-    std::cerr<<"s"<<std::endl;
     ui->horizontalLayout->removeWidget(ab_);
     ui->horizontalLayout->removeWidget(L_);
-    std::cerr<<"s"<<std::endl;
     ab_->deleteLater();
     L_->deleteLater();
-    std::cerr<<"s"<<std::endl;
     delete ui;
-    std::cerr<<"s"<<std::endl;
+}
+
+void LabLabel::changeL(int value)
+{
+    QSlider* s = qobject_cast<QSlider*>(sender());
+    if(s)
+    {
+        Lab_.row(0).fill(100.0*(value - s->minimum())/(s->maximum() - s->minimum()));
+        ColorArray::Lab2RGB(Lab_,*L50ab_);
+        update();
+    }
+}
+
+void LabLabel::paintEvent(QPaintEvent *e)
+{
+    QPainter p;
+    p.begin(this);
+    switch(m_)
+    {
+    case L:
+        p.drawImage(0,0,L_.scaledToHeight(this->height()));
+        break;
+    case ab:
+        p.drawImage(0,0,ab_.scaled(this->size()));
+        break;
+    }
+    p.end();
+    QLabel::paintEvent(e);
+}
+
+void LabLabel::mousePressEvent(QMouseEvent* e)
+{
+    ;
 }

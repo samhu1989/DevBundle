@@ -121,13 +121,18 @@ bool CPDRigid3D<M>::isEnd()
     return false;
 }
 template<typename M>
-bool CPDRigid3D<M>::configure(Info&)
+bool CPDRigid3D<M>::configure(Config::Ptr& config, InfoPtr& info)
 {
-    return true;
+    info = std::make_shared<Info>();
+    if(!config)
+    {
+        return true;
+    }
+    return false;
 }
 
 template<typename M>
-bool CPDRigid3D<M>::initForThread(void* meshlistptr)
+bool CPDRigid3D<M>::initForThread(void* meshlistptr,InfoPtr info)
 {
     MeshList* list = reinterpret_cast<MeshList*>(meshlistptr);
     if(!list){
@@ -141,12 +146,24 @@ bool CPDRigid3D<M>::initForThread(void* meshlistptr)
     arma::fmat source((float*)(*list)[0]->mesh_.points(),3,(*list)[0]->mesh_.n_vertices(),false,true);
     arma::fmat target((float*)(*list)[1]->mesh_.points(),3,(*list)[1]->mesh_.n_vertices(),false,true);
 
-    std::shared_ptr<Info> info(new Info);
-    if(!configure(*info))
-    {
-        error_string_ = "With no proper configure";
+    reset(source,target,info);
+    return true;
+}
+
+template<typename M>
+bool CPDRigid3D<M>::initForThread(void* meshlistptr,std::vector<arma::uword>& valid_index,InfoPtr info)
+{
+    MeshList* list = reinterpret_cast<MeshList*>(meshlistptr);
+    if(!list){
+        error_string_ = "Can not locate the inputs";
         return false;
     }
+    if(list->size()!=2){
+        error_string_ = "This algorithm is designed for two input meshes";
+        return false;
+    }
+    arma::fmat source((float*)(*list)[0]->mesh_.points(),3,(*list)[0]->mesh_.n_vertices(),false,true);
+    arma::fmat target((float*)(*list)[1]->mesh_.points(),3,(*list)[1]->mesh_.n_vertices(),false,true);
 
     reset(source,target,info);
     return true;
