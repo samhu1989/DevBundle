@@ -43,6 +43,8 @@ namespace ColorArray
         ~RGBArray(){if(data_)delete[]data_;}
         }RGBArray;
     void COMMONSHARED_EXPORT Lab2RGB(const arma::fmat& Lab, arma::Mat<uint8_t>& rgb);
+    void COMMONSHARED_EXPORT RGB2Lab(const arma::Mat<uint8_t>& rgb, arma::fmat& Lab);
+    void COMMONSHARED_EXPORT RGB2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab);
 }
 
 template <typename M>

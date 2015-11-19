@@ -105,6 +105,117 @@ void ColorArray::Lab2RGB(const arma::fmat& Lab, arma::Mat<uint8_t>& rgb)
     rgb = arma::conv_to<arma::Mat<uint8_t>>::from(frgb);
 }
 
+void ColorArray::RGB2Lab(const arma::Mat<uint8_t>& rgb, arma::fmat& Lab)
+{
+    if(3!=rgb.n_rows)std::logic_error("rgb.n_rows!=3");
+    const float T(0.008856);
+    const float m[9] = {
+        0.412453,0.212671,0.019334,
+        0.212671,0.715160,0.072169,
+        0.019224,0.119193,0.950227
+                       };
+    const arma::fmat::fixed<3,3> MAT(&m[0]);
+    arma::fmat XYZ = MAT*(arma::conv_to<arma::fmat>::from(rgb)/255.0);
+    XYZ.row(0) /= 0.950456;
+    XYZ.row(2) /= 1.088754;
+
+    arma::uvec XT = arma::find( XYZ.row(1) > T );
+    arma::uvec _XT = arma::find( XYZ.row(1) <= T );
+
+    arma::frowvec fX = XYZ.row(0);
+    fX(XT) = arma::pow(fX(XT),1.0/3.0);
+    fX(_XT) *= 7.787;
+    fX(_XT) += 16.0/116.0;
+
+    arma::uvec YT = arma::find( XYZ.row(0) > T );
+    arma::uvec _YT = arma::find( XYZ.row(0) <= T );
+
+    arma::frowvec fY = XYZ.row(1);
+    fY(YT) = arma::pow(fY(YT),1.0/3.0);
+    fY(_YT) *= 7.787;
+    fY(_YT) += 16.0/116.0;
+
+    arma::frowvec Y = XYZ.row(1);
+    Y(_YT) *= 903.3;
+    Y(YT) = fY(YT);
+    Y(YT) *= 116.0;
+    Y(YT) -= 16.0;
+
+    arma::uvec ZT = arma::find( XYZ.row(2) > T );
+    arma::uvec _ZT = arma::find( XYZ.row(2) <= T );
+
+    arma::frowvec fZ = XYZ.row(2);
+    fZ(ZT) = arma::pow(fZ(ZT),1.0/3.0);
+    fZ(_ZT) *= 7.787;
+    fZ(_ZT) += 16.0/116.0;
+
+
+    Lab = arma::fmat(rgb.n_rows,rgb.n_cols);
+    Lab.row(0) = Y;
+    Lab.row(1) = 500*( fX - fY );
+    Lab.row(2) = 200*( fY - fZ );
+}
+
+void ColorArray::RGB2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab)
+{
+    if(3!=rgb.n_rows)std::logic_error("rgb.n_rows!=3");
+    const float T(0.008856);
+    const float m[9] = {
+        0.412453,0.212671,0.019334,
+        0.212671,0.715160,0.072169,
+        0.019224,0.119193,0.950227
+                       };
+    const arma::fmat::fixed<3,3> MAT(&m[0]);
+    arma::fvec XYZ = MAT*(arma::conv_to<arma::Col<uint8_t>>::from(rgb)/255.0);
+    XYZ(0) /= 0.950456;
+    XYZ(2) /= 1.088754;
+
+    float fX;
+    fX = XYZ(0);
+    if( fX > T )
+    {
+        fX = std::pow(fX,1.0/3.0);
+    }else{
+        fX *= 7.787;
+        fX += 16.0/116.0;
+    }
+
+    float fY;
+    fY = XYZ(1);
+    if( fY > T )
+    {
+        fY = std::pow(fY,1.0/3.0);
+    }else{
+        fY *= 7.787;
+        fY += 16.0/116.0;
+    }
+
+    float fZ;
+    fZ = XYZ(2);
+    if( fZ > T )
+    {
+        fZ = std::pow(fZ,1.0/3.0);
+    }else{
+        fZ *= 7.787;
+        fZ += 16.0/116.0;
+    }
+
+    float Y = XYZ(1);
+    if( Y > T )
+    {
+        Y = std::pow(Y,1.0/3.0);
+        Y *= 116.0;
+        Y -= 16.0;
+    }else{
+        Y*=903.3;
+    }
+
+    Lab = arma::fvec(3);
+    Lab(0) = Y;
+    Lab(1) = 500*( fX - fY );
+    Lab(2) = 200*( fY - fZ );
+}
+
 ColorArray::RGB32 COMMONSHARED_EXPORT ColorArray::DefaultColor[DefaultColorNum_] = {
     {0XFF000000},
     {0XFFBF80FF},

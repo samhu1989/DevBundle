@@ -46,13 +46,11 @@ bool JRMPC<M>::initForThread(void *meshlistptr,InfoPtr info)
     {
         float*data = (float*)(*meshIter) -> mesh_.points();
         int N = (*meshIter) -> mesh_.n_vertices();
-        source.push_back(
-                    std::shared_ptr<arma::fmat>(new arma::fmat(data,3,N,false,true))
-                    );
+        source.emplace_back(new arma::fmat(data,3,N,false,true));
     }
 
     initK(source,info->k);
-    list->push_back(typename MeshBundle<M>::Ptr(new MeshBundle<M>()));
+    list->emplace_back(new MeshBundle<M>());
 
     while( info->k > list->back()->mesh_.n_vertices() )
     {
@@ -99,13 +97,11 @@ bool JRMPC<M>::initForThread(void *meshlistptr,std::vector<arma::uword>&valid_in
         mesh_ptr = (*list)[valid_index[index]];
         float*data = (float*)mesh_ptr -> mesh_.points();
         int N = mesh_ptr -> mesh_.n_vertices();
-        source.push_back(
-                    std::shared_ptr<arma::fmat>(new arma::fmat(data,3,N,false,true))
-                    );
+        source.emplace_back(new arma::fmat(data,3,N,false,true));
     }
 
     initK(source,info->k);
-    list->push_back(typename MeshBundle<M>::Ptr(new MeshBundle<M>()));
+    list->emplace_back(new MeshBundle<M>());
 
     while( info->k > list->back()->mesh_.n_vertices() )
     {
@@ -162,8 +158,8 @@ void JRMPC<M>::reset(
     {
         arma::fmat&v = **VIter;
         arma::fvec meanV = arma::mean(v,1);
-        res_ptr->Rs.push_back(std::make_shared<arma::fmat>(3,3,arma::fill::eye));
-        res_ptr->ts.push_back(std::make_shared<arma::fvec>(meanX-meanV));
+        res_ptr->Rs.emplace_back(new arma::fmat(3,3,arma::fill::eye));
+        res_ptr->ts.emplace_back(new arma::fvec(meanX-meanV));
         v.each_col() += *(res_ptr->ts.back());
     }
     info_ptr ->result = (void*)(res_ptr.get());
@@ -270,7 +266,7 @@ void JRMPC<M>::stepE()
         arma::fmat& V_ = **VIter;
         while(alpha_ptrs.size()<=idx)
         {
-            alpha_ptrs.push_back(std::make_shared<arma::fmat>(V_.n_cols,X_.n_cols));
+            alpha_ptrs.emplace_back(new arma::fmat(V_.n_cols,X_.n_cols));
         }
         arma::fmat& alpha = *alpha_ptrs[idx];
         for(int r=0;r<alpha.n_rows;++r)
@@ -408,7 +404,7 @@ void JRMPC<M>::computeOnce(void)
         //allocate alpha
         while(alpha_ptrs.size()<=idx)
         {
-            alpha_ptrs.push_back(std::make_shared<arma::fmat>(V_.n_cols,X_.n_cols));
+            alpha_ptrs.emplace_back(new arma::fmat(V_.n_cols,X_.n_cols));
         }
         //compute alpha(step-E)
         arma::fmat& alpha = *alpha_ptrs[idx];

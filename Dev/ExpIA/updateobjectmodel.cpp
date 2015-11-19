@@ -111,9 +111,9 @@ void UpdateObjectModel::update_objects()
             Registration::JRMPC<DefaultMesh>::ResPtr r = th->result();
             while(outputs_.size()<current_label_)
             {
-                outputs_.push_back(std::make_shared<ObjModel>());
+                outputs_.emplace_back(new ObjModel);
             }
-            ObjModel::Ptr obj_ptr = outputs_[current_label_];
+            ObjModel::Ptr obj_ptr = outputs_[current_label_-1];
             if(!obj_ptr->GeoM_)obj_ptr->GeoM_.reset(new MeshBundle<DefaultMesh>);
 
             std::vector<arma::uword>::iterator iter;
