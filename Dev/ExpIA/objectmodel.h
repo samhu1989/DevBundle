@@ -12,7 +12,9 @@ struct ObjModel
     }T;
     ObjModel();
     void update(MeshBundle<DefaultMesh>::Ptr ptr);
+    void computeLayout();
     MeshBundle<DefaultMesh>::Ptr GeoM_;
+    MeshBundle<DefaultMesh>::Ptr GeoLayout_;
     std::vector<T::Ptr> GeoT_;
     std::vector<float> GeoP_;
     std::shared_ptr<arma::gmm_diag> ColorM_;

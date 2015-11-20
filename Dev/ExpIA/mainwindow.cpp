@@ -272,6 +272,13 @@ void MainWindow::showInMdi(QWidget* w,Qt::WindowFlags flag)
     }
 }
 
+void MainWindow::showBox(size_t index,MeshBundle<DefaultMesh>::Ptr ptr)
+{
+    if(index>=mesh_views_.size())return;
+    MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(mesh_views_[index]);
+    w->second_ptr() = ptr;
+}
+
 void MainWindow::removeView()
 {
     WidgetPtr w = qobject_cast<WidgetPtr>(sender());
@@ -358,6 +365,7 @@ void MainWindow::start_editing()
             return;
         }
         connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(w,SIGNAL(show_layout(size_t,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(size_t,MeshBundle<DefaultMesh>::Ptr)));
         w->startLater();
         showInMdi((QWidget*)w);
     }

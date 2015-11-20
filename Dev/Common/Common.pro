@@ -15,7 +15,8 @@ QMAKE_CXXFLAGS += -fopenmp
 LIBS += -lgomp -lpthread
 SOURCES += common.cpp \
     MeshColor.cpp \
-    configure.cpp
+    configure.cpp \
+    mbb.cpp
 
 HEADERS += common.h\
         common_global.h \
@@ -24,7 +25,8 @@ HEADERS += common.h\
     MeshType.h \
     Octree.hpp \
     KDtree.hpp \
-    configure.h
+    configure.h \
+    mbb.h
 
 unix {
     target.path = /usr/lib

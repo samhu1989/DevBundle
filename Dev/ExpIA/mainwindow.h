@@ -23,6 +23,7 @@ signals:
 
 public slots:
     void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
+    void showBox(size_t,MeshBundle<DefaultMesh>::Ptr);
 
 protected slots:
     void configure();

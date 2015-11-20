@@ -21,7 +21,10 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
     connect(&timer_,SIGNAL(timeout()),this,SLOT(start_align()));
     connect(&timer_,SIGNAL(timeout()),this,SLOT(start_fit()));
 
+    connect(&gl_timer,SIGNAL(timeout()),geo_view_,SLOT(updateGL()));
+
     timer_.setSingleShot(true);
+    gl_timer.setSingleShot(false);
 
     //find out the max label
     max_label_ = 0;
@@ -33,6 +36,7 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
     }
     current_label_ = 0;
     current_patches_.resize(inputs_.size());
+    gl_timer.start(90);
 }
 
 bool UpdateObjectModel::configure(Config::Ptr config)
@@ -137,9 +141,10 @@ void UpdateObjectModel::update_objects()
             for(;piter!=patch_list_.rend();++piter)
             {
                 MeshBundle<DefaultMesh>::Ptr& patch_ptr = *piter;
-                if(!patch_ptr)continue;
+                if(!patch_ptr||0==patch_ptr.use_count())continue;
                 obj_ptr->update(patch_ptr);
             }
+            obj_ptr->computeLayout();;
         }
     }
 }
@@ -191,6 +196,7 @@ void UpdateObjectModel::finish_current()
                 QApplication::processEvents();
             }
             update_objects();
+            show_layouts();
             done_align_ = true;
             geo_thread_->deleteLater();
             geo_thread_ = NULL;
@@ -211,5 +217,27 @@ void UpdateObjectModel::finish_current()
     if(done_align_&&done_fit_)
     {
         timer_.start(1);
+    }
+}
+
+void UpdateObjectModel::show_layouts(void)
+{
+    std::vector<ObjModel::T::Ptr>::iterator iter;
+    ObjModel::Ptr obj_ptr = outputs_[current_label_-1];
+    size_t index = 0;
+    for(iter=obj_ptr->GeoT_.begin();iter!=obj_ptr->GeoT_.end();++iter)
+    {
+        ObjModel::T &T = **iter;
+        arma::fmat::fixed<3,3> R(T.R);
+        arma::fvec::fixed<3> t(T.t);
+        arma::fmat invR = arma::inv(R);
+        MeshBundle<DefaultMesh>::Ptr layout_m(new MeshBundle<DefaultMesh>);
+        layout_m->mesh_ =
+                    obj_ptr->GeoLayout_->mesh_;
+        arma::fmat layout((float*)layout_m->mesh_.points(),3,layout_m->mesh_.n_vertices(),false,true);
+        layout.each_col() -= t;
+        layout = invR*layout;
+        emit show_layout(index,layout_m);
+        ++index;
     }
 }

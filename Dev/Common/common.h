@@ -6,6 +6,10 @@
 #include "KDtree.hpp"
 #include "Octree.hpp"
 #include "configure.h"
+#include "mbb.h"
+#ifndef M_PI
+#  define M_PI 3.1415926535897932
+#endif
 namespace ColorArray {
 void COMMONSHARED_EXPORT hsv2rgb(float h,float s,float v,RGB32&rgba);
 }

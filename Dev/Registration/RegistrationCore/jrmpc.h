@@ -18,7 +18,7 @@ namespace Registration {
 
         typedef struct Info{
             int k = 0;
-            float gamma = 0.2;// weight for uniform distribution
+            float gamma = 0.05;// weight for uniform distribution
             int max_iter = 50;
             float fitness_th = 0.0;
             float var_th = 0.0 ;

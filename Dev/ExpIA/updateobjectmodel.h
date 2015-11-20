@@ -30,6 +30,7 @@ public slots:
     void startLater();
 signals:
     void message(QString,int);
+    void show_layout(size_t,MeshBundle<DefaultMesh>::Ptr);
 protected slots:
     void prepare_for_next();
     void start_align(); //start thread for registration
@@ -38,6 +39,7 @@ protected slots:
 protected:
     void extract_patches();
     void update_objects();
+    void show_layouts();
 private:
     Config::Ptr config_;
     IMeshList& inputs_;
@@ -45,6 +47,7 @@ private:
     OModelList& outputs_;
 
     QTimer timer_;
+    QTimer gl_timer;
     QThread* geo_thread_;
     QThread* color_thread_;
 

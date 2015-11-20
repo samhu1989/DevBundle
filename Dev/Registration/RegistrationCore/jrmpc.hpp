@@ -210,7 +210,7 @@ void JRMPC<M>::initK(
         nviews(idx) = (*iter)->n_cols;
         ++idx;
     }
-    k = int(0.5*arma::median(nviews));
+    k = int(0.95*arma::median(nviews));
     k = k > 12 ? k : 12 ;
 }
 

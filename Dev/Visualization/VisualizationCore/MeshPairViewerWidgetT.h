@@ -35,11 +35,10 @@ public:
       first_(new MeshBundle<Mesh>()),
       second_(new MeshBundle<Mesh>())
   {
-    QAction* a = add_draw_mode("Points");
-    slotDrawMode(a);
+    add_draw_mode("Points");
     add_draw_mode("Hidden-Line");
-    add_draw_mode("Octree");
-
+    QAction* a = add_draw_mode("Octree");
+    slotDrawMode(a);
   }
 
   /// destructor

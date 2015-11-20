@@ -6,9 +6,7 @@
 #include <memory>
 #include "common.h"
 #include <RegistrationBase.h>
-#if !defined(M_PI)
-#  define M_PI 3.1415926535897932
-#endif
+
 namespace Registration {
     class REGISTRATIONCORESHARED_EXPORT CPDBase:public RegistrationBase
     {

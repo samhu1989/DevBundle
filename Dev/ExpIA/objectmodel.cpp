@@ -1,9 +1,10 @@
 #include "objectmodel.h"
 #include <nanoflann.hpp>
+#include "common.h"
 using namespace nanoflann;
-
 ObjModel::ObjModel():
     GeoM_(new MeshBundle<DefaultMesh>),
+    GeoLayout_(new MeshBundle<DefaultMesh>),
     ColorM_(new arma::gmm_diag())
 {
     ;
@@ -94,4 +95,21 @@ void ObjModel::update(MeshBundle<DefaultMesh>::Ptr input)
         ++index;
     }
 
+}
+
+void ObjModel::computeLayout()
+{
+    if(GeoP_.size()!=GeoM_->mesh_.n_vertices())std::logic_error("GeoP_.size()!=GeoM_->mesh_.n_vertices()");
+    if(ColorP_.size()!=GeoM_->mesh_.n_vertices())std::logic_error("ColorP_.size()!=GeoM_->mesh_.n_vertices()");
+    buildBB(GeoLayout_->mesh_);
+    arma::fmat box((float*)GeoLayout_->mesh_.points(),3,8,false,true);
+    arma::fmat pts((float*)GeoM_->mesh_.points(),3,GeoM_->mesh_.n_vertices(),false,true);
+    arma::uvec indices;
+    arma::fvec gp(GeoP_);
+    arma::fvec cp(ColorP_);
+    float gm = arma::max(gp);
+    float cm = arma::max(cp);
+    indices = arma::find( ( gp >= 0.5*gm ) && ( cp >= 0.5*cm ) );
+    arma::fmat input = pts.cols(indices);
+    get3DMBB(input,2,box);
 }
