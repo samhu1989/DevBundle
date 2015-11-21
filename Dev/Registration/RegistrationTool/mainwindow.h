@@ -7,6 +7,7 @@
 #include <QThread>
 #include <QKeyEvent>
 #include <QTimer>
+#include <QTime>
 namespace Ui {
 class MainWindow;
 }
@@ -24,6 +25,7 @@ protected slots:
 private:
     Ui::MainWindow *ui;
     QTimer timer;
+    QTime time;
     QThread* alg_thread;
 };
 

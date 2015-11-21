@@ -84,11 +84,17 @@ void MainWindow::start_registration(void)
         }
         alg_thread = thread;
     }
-    if(alg_thread)alg_thread->start(QThread::HighestPriority);
+    if(alg_thread){
+        time.restart();
+        alg_thread->start(QThread::HighestPriority);
+    }
 }
 
 void MainWindow::finish_registration(void)
 {
+    std::cerr<<time.elapsed()<<std::endl;
+    QString msg ;
+    msg = msg.sprintf("Current Algorithm is Finished(%d ms)",time.elapsed()) ;
     if(alg_thread)
     {
         while(alg_thread->isRunning())
@@ -99,8 +105,9 @@ void MainWindow::finish_registration(void)
         alg_thread->deleteLater();
         alg_thread = NULL;
     }
-    QString msg = "Current Algorithm is finished";
+
     QMessageBox::information( this, windowTitle(), msg);
+    ui->statusbar->showMessage(msg);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent*e)

@@ -82,6 +82,7 @@ namespace Registration {
         {
             while(!isEnd())
             {
+
                 computeOnce();
                 //color code the var
                 varToColor();
@@ -113,9 +114,9 @@ namespace Registration {
     protected:
         int count;
 
-        arma::fvec P_;
+        arma::frowvec P_;
         std::shared_ptr<arma::fmat> X_ptr;
-        arma::fvec var;
+        arma::frowvec var;
         std::shared_ptr<arma::Col<uint32_t>> var_color;
 
         std::vector<std::shared_ptr<arma::fmat>> V_ptrs;
@@ -124,6 +125,11 @@ namespace Registration {
         ResPtr res_ptr;
 
         float beta;
+
+        arma::fmat X_sum;
+        arma::frowvec var_sum;
+        arma::frowvec alpha_sum;
+        arma::frowvec alpha_sumij;
     };
 }
 #include <jrmpc.hpp>
