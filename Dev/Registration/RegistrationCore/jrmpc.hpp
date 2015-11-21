@@ -447,7 +447,7 @@ void JRMPC<M>::computeOnce(void)
         arma::frowvec square_norm_lambda = square_lambda / arma::accu(square_lambda);
         p -= square_norm_lambda;
         arma::fmat tmp = X_;
-        tmp.each_row() %= p % square_lambda;
+        tmp.each_row() %= p%square_lambda;
         arma::fmat A = tmp*(W.t());
         if(!arma::svd(U,s,V,A,"std"))
         {
@@ -487,7 +487,7 @@ void JRMPC<M>::computeOnce(void)
         var_sum += tmpvar;
         //
         alpha_sumij += alpha_colsum;
-        mu+=arma::accu(alpha_sumij);
+        mu += arma::accu(alpha_sumij);
         ++idx;
     }
     X_ = X_sum.each_row() / alpha_sum;
