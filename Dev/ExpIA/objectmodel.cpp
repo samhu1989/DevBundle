@@ -111,5 +111,21 @@ void ObjModel::computeLayout()
     float cm = arma::max(cp);
     indices = arma::find( ( gp >= 0.5*gm ) && ( cp >= 0.5*cm ) );
     arma::fmat input = pts.cols(indices);
+    arma::fmat R;
+    arma::fvec t;
+    std::vector<ObjModel::T::Ptr>::iterator iter;
+    for(iter=GeoT_.begin();iter!=GeoT_.end();++iter)
+    {
+        if(0!=iter->use_count()&&(*iter))
+        {
+            R = arma::fmat((*iter)->R,3,3,false,true);
+            t = arma::fvec((*iter)->t,3,false,true);
+            break;
+        }
+    }
+    input.each_col() -= t;
+    input = arma::inv(R)*input;
     get3DMBB(input,2,box);
+    box = R*box ;
+    box.each_col() += t;
 }
