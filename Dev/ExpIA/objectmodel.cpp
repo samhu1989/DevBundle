@@ -109,7 +109,7 @@ void ObjModel::computeLayout()
     arma::fvec cp(ColorP_);
     float gm = arma::max(gp);
     float cm = arma::max(cp);
-    indices = arma::find( ( gp >= 0.5*gm ) && ( cp >= 0.5*cm ) );
+    indices = arma::find( ( gp >= ( 0.6*gm ) ) && ( cp >= ( 0.6*cm ) ) );
     arma::fmat input = pts.cols(indices);
     arma::fmat R;
     arma::fvec t;
@@ -128,4 +128,99 @@ void ObjModel::computeLayout()
     get3DMBB(input,2,box);
     box = R*box ;
     box.each_col() += t;
+}
+
+bool ObjModel::save(const std::string& path)
+{
+    OpenMesh::IO::Options opt;
+    opt+=OpenMesh::IO::Options::Binary;
+    opt+=OpenMesh::IO::Options::VertexColor;
+    opt+=OpenMesh::IO::Options::VertexNormal;
+    GeoM_->mesh_.request_vertex_normals();
+    if(!OpenMesh::IO::write_mesh(GeoM_->mesh_,path+"\\GeoM.ply",opt,10)){
+        std::cerr<<"can't save to:"<<path+"\\GeoM.ply"<<std::endl;
+        return false;
+    }
+    opt-=OpenMesh::IO::Options::VertexColor;
+    opt-=OpenMesh::IO::Options::VertexNormal;
+    if(!OpenMesh::IO::write_mesh(GeoLayout_->mesh_,path+"\\GeoLayout.ply",opt,10)){
+        std::cerr<<"can't save to:"<<path+"\\GeoLayout.ply"<<std::endl;
+        return false;
+    }
+    arma::fvec ColorP(ColorP_);
+    if(!ColorP.save(path+"\\ColorP.fvec.arma",arma::arma_binary))return false;
+    arma::fvec GeoP(GeoP_);
+    if(!GeoP.save(path+"\\GeoP.fvec.arma",arma::arma_binary))return false;
+    //saving Ts;
+    arma::uvec T_indices(GeoT_.size(),arma::fill::zeros);
+    std::vector<T::Ptr>::iterator iter;
+    size_t index = 0;
+    size_t T_cnt = 0;
+    for(iter=GeoT_.begin();iter!=GeoT_.end();++iter)
+    {
+        T::Ptr& ptr = *iter;
+        if(ptr&&0!=ptr.use_count())
+        {
+            T_indices(index) = 1;
+            ++ T_cnt;
+        }
+        ++index;
+    }
+    if(!T_indices.save(path+"\\T_indices.uvec.arma",arma::arma_binary))return false;
+    arma::fcube T_cube(3,4,T_cnt);
+    index = 0;
+    for(iter=GeoT_.begin();iter!=GeoT_.end();++iter)
+    {
+        T::Ptr& ptr = *iter;
+        if(ptr&&0!=ptr.use_count())
+        {
+            arma::fmat R(ptr->R,3,3,false,true);
+            arma::fmat t(ptr->t,3,1,false,true);
+            T_cube.slice(index) = arma::join_rows(R,t);
+            ++ index;
+        }
+    }
+    if(!T_cube.save(path+"\\T_cube.fcube.arma",arma::arma_binary))return false;
+    return true;
+}
+
+bool ObjModel::load(const std::string& path)
+{
+    OpenMesh::IO::Options opt;
+    opt+=OpenMesh::IO::Options::Binary;
+    opt+=OpenMesh::IO::Options::VertexColor;
+    opt+=OpenMesh::IO::Options::VertexNormal;
+    GeoM_->mesh_.request_vertex_normals();
+    GeoM_->mesh_.request_vertex_colors();
+    if(!OpenMesh::IO::read_mesh(GeoM_->mesh_,path+"\\GeoM.ply",opt))return false;
+    GeoLayout_->mesh_.request_vertex_normals();
+    GeoLayout_->mesh_.request_vertex_colors();
+    if(!OpenMesh::IO::read_mesh(GeoLayout_->mesh_,path+"\\GeoLayout.ply",opt))return false;
+    arma::fvec ColorP;
+    if(!ColorP.load(path+"\\ColorP.fvec.arma"))return false;
+    ColorP_ = arma::conv_to<std::vector<float>>::from(ColorP);
+    arma::fvec GeoP;
+    if(!GeoP.load(path+"\\GeoP.fvec.arma"))return false;
+    GeoP_ = arma::conv_to<std::vector<float>>::from(GeoP);
+    //loading Ts;
+    arma::uvec T_indices;
+    if(!T_indices.load(path+"\\T_indices.uvec.arma"))return false;
+    arma::fcube T_cube;
+    if(!T_cube.load(path+"\\T_cube.fcube.arma"))return false;
+    if( T_cube.n_cols != 4 || T_cube.n_rows != 3 )return false;
+    GeoT_.resize(T_indices.size());
+    arma::uvec indices = arma::find(T_indices==1);
+    arma::uword index = 0;
+    arma::uvec::iterator iter;
+    for(iter=indices.begin();iter!=indices.end();++iter)
+    {
+        T::Ptr& ptr = GeoT_[*iter];
+        ptr = std::make_shared<T>();
+        arma::fmat R(ptr->R,3,3,false,true);
+        arma::fvec t(ptr->t,3,false,true);
+        R = T_cube.slice(index).cols(0,2);
+        t = T_cube.slice(index).col(3);
+        ++index;
+    }
+    return true;
 }

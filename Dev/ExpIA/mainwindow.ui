@@ -52,6 +52,7 @@
     <addaction name="actionSave_Segments"/>
     <addaction name="actionLoad_Segments"/>
     <addaction name="actionSave_Object_Model"/>
+    <addaction name="actionLoad_Objects"/>
     <addaction name="actionSave_Scenes"/>
     <addaction name="separator"/>
     <addaction name="actionConfigure"/>
@@ -162,6 +163,11 @@
   <action name="actionLab_Color_Space">
    <property name="text">
     <string>Lab Color Space</string>
+   </property>
+  </action>
+  <action name="actionLoad_Objects">
+   <property name="text">
+    <string>Load Objects</string>
    </property>
   </action>
  </widget>

@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     unifylabelmannual.cpp \
     patchpairview.cpp \
     updateobjectmodel.cpp \
-    objectmodel.cpp
+    objectmodel.cpp \
+    colorgmmthread.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -29,7 +30,8 @@ HEADERS  += mainwindow.h \
     unifylabelmannual.h \
     patchpairview.h \
     updateobjectmodel.h \
-    objectmodel.h
+    objectmodel.h \
+    colorgmmthread.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

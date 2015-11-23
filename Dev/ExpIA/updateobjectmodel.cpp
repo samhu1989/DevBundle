@@ -1,6 +1,7 @@
 #include "updateobjectmodel.h"
 #include "ui_updateobjectmodel.h"
 #include "registrationcore.h"
+#include "colorgmmthread.h"
 UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OModelList &outputs, QWidget *parent) :
     QFrame(parent),
     inputs_(inputs),
@@ -13,13 +14,13 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
     ui->setupUi(this);
     geo_view_ = new MeshListViewerWidget();
     geo_view_->setMinimumSize(640,480);
-    color_view_ = new LabSpace();
+//    color_view_ = new LabSpace();
     ui->horizontalLayout->addWidget(geo_view_);
-    ui->horizontalLayout->addWidget(color_view_);
+//    ui->horizontalLayout->addWidget(color_view_);
 
     connect(&timer_,SIGNAL(timeout()),this,SLOT(prepare_for_next()));
     connect(&timer_,SIGNAL(timeout()),this,SLOT(start_align()));
-    connect(&timer_,SIGNAL(timeout()),this,SLOT(start_fit()));
+//    connect(&timer_,SIGNAL(timeout()),this,SLOT(start_fit()));
 
     connect(&gl_timer,SIGNAL(timeout()),geo_view_,SLOT(updateGL()));
 
@@ -41,6 +42,8 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
 
 bool UpdateObjectModel::configure(Config::Ptr config)
 {
+    if(labels_.empty())return false;
+    if(max_label_==0)return false;
     config_ = config;
     if(config_->has("Align_Max_Iter")){
         std::cerr<<"Align_Max_Iter:"<<config_->getInt("Align_Max_Iter")<<std::endl;
@@ -48,7 +51,6 @@ bool UpdateObjectModel::configure(Config::Ptr config)
     if(config_->has("Align_Eps")){
         std::cerr<<"Align_Eps:"<<config_->getFloat("Align_Eps")<<std::endl;
     }
-    if(labels_.empty())return false;
     return true;
 }
 
@@ -60,17 +62,18 @@ void UpdateObjectModel::startLater()
 UpdateObjectModel::~UpdateObjectModel()
 {
     geo_view_->close();
-    color_view_->close();
+//    color_view_->close();
     ui->horizontalLayout->removeWidget(geo_view_);
-    ui->horizontalLayout->removeWidget(color_view_);
+//    ui->horizontalLayout->removeWidget(color_view_);
     geo_view_->deleteLater();
-    color_view_->deleteLater();
+//    color_view_->deleteLater();
     delete ui;
 }
 
 void UpdateObjectModel::prepare_for_next()
 {
     ++current_label_;
+    if(current_label_ > max_label_)return;
     done_align_ = false;
     done_fit_ = false;
     extract_patches();
@@ -156,6 +159,7 @@ void UpdateObjectModel::update_objects()
 
 void UpdateObjectModel::start_align()
 {
+    if( current_label_ > max_label_)return;
     if(geo_thread_)
     {
         QString msg = "Please Wait Till the End of Last Registration\n";
@@ -184,7 +188,26 @@ void UpdateObjectModel::start_align()
 
 void UpdateObjectModel::start_fit()
 {
-    ;
+    if(color_thread_)
+    {
+        QString msg = "Please Wait Till the End of Last Registration\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
+    }
+    ColorGMMThread* th = new ColorGMMThread();
+    if(!th->init())
+    {
+        QString msg = "Fail to Initialize the GMM Learning\n '";
+        QMessageBox::critical( NULL, windowTitle(), msg);
+    }else{
+        connect(th,SIGNAL(finished()),this,SLOT(finish_current()));
+    }
+    color_thread_ = th;
+    QString name;
+    name = name.sprintf("Color GMM L%d",current_label_);
+    color_thread_->setObjectName(name);
+    emit message("Start "+name,2000);
+    color_thread_->start(QThread::HighestPriority);
 }
 
 void UpdateObjectModel::finish_current()
@@ -219,9 +242,14 @@ void UpdateObjectModel::finish_current()
         }
         emit message(msg,0);
     }
-    if(done_align_&&done_fit_)
+    if(done_align_)
     {
-        timer_.start(1);
+        if(current_label_<max_label_)timer_.start(1);
+        else{
+            QString msg = "All Objects are Updated";
+            QMessageBox::information( NULL, windowTitle(), msg);
+            emit closeInMdi(parentWidget());
+        }
     }
 }
 

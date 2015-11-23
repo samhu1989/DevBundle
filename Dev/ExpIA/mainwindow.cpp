@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(open_inputs()));
     connect(ui->actionSave_Segments,SIGNAL(triggered(bool)),this,SLOT(save_labels()));
     connect(ui->actionLoad_Segments,SIGNAL(triggered(bool)),this,SLOT(load_labels()));
+    connect(ui->actionSave_Object_Model,SIGNAL(triggered(bool)),this,SLOT(save_objects()));
+    connect(ui->actionLoad_Objects,SIGNAL(triggered(bool)),this,SLOT(load_objects()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -82,7 +84,7 @@ void MainWindow::open_inputs(QStringList&fileNames)
         open_mesh(inputs_.back()->mesh_,fname.toStdString());
         QFileInfo info(fname);
         inputs_.back()->name_ = info.completeBaseName().toStdString();
-        labels_.push_back(arma::uvec(inputs_.back()->mesh_.n_vertices(),arma::fill::zeros));
+        labels_.emplace_back(inputs_.back()->mesh_.n_vertices(),arma::fill::zeros);
         QApplication::processEvents();
     }
 }
@@ -259,6 +261,104 @@ void MainWindow::load_labels()
     }
 }
 
+void MainWindow::save_objects()
+{
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save Objects"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    std::vector<ObjModel::Ptr>::iterator iter;
+    QDir dir;
+    dir.setPath(dirName);
+    size_t index = 0;
+    for(iter=objects_.begin();iter!=objects_.end();++iter)
+    {
+        ObjModel::Ptr &ptr = *iter;
+        if( !ptr || 0 == ptr.use_count()){
+            std::cerr<<"Not all Objects Generated"<<std::endl;
+            break;
+        }else if( 0 == ptr->GeoM_->mesh_.n_vertices() )
+        {
+            std::cerr<<"Empty Objects In List"<<std::endl;
+            break;
+        }
+        QString path;
+        path = path.sprintf("GeoObj%u",index);
+        QDir odir;
+        odir.setPath(dir.absoluteFilePath(path));
+        if(!odir.exists())
+        {
+            if(!dir.mkdir(path))
+            {
+                QString msg = "Failed to make "+dir.absoluteFilePath(path)+"\n";
+                QMessageBox::critical(this, windowTitle(), msg);
+                return;
+            }
+        }
+        QString filepath = dir.absoluteFilePath(path);
+        if(!ptr->save(filepath.toStdString()))
+        {
+            QString msg = "Failed to Save to"+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        ++index;
+    }
+}
+
+void MainWindow::load_objects()
+{
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Load Objects"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    std::vector<ObjModel::Ptr>::iterator iter;
+    QDir dir;
+    dir.setPath(dirName);
+    QString path;
+    path = "GeoObj0";
+    QDir odir;
+    odir.setPath(dir.absoluteFilePath(path));
+    objects_.clear();
+    size_t index = 0;
+    while(odir.exists())
+    {
+        objects_.emplace_back(new ObjModel());
+        ObjModel::Ptr &ptr = objects_.back();
+        path = path.sprintf("GeoObj%u",index);
+        QString filepath = dir.absoluteFilePath(path);
+        odir.setPath(filepath);
+        if(!ptr->load(filepath.toStdString()))
+        {
+            QString msg = "Failed to Load From"+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        ++index;
+    }
+    if(!labels_.empty())
+    {
+        size_t max_label_ = 0;
+        std::vector<arma::uvec>::iterator iter;
+        for(iter=labels_.begin();iter!=labels_.end();++iter)
+        {
+            arma::uword max = arma::max(*iter);
+            if(max>max_label_)max_label_=max;
+        }
+        if(max_label_!=objects_.size())
+        {
+            QString msg;
+            msg = msg.sprintf("%u objects loaded \n while labels show %u objects",objects_.size(),max_label_);
+            QMessageBox::warning(this, windowTitle(), msg);
+            return;
+        }
+    }
+}
+
 void MainWindow::showInMdi(QWidget* w,Qt::WindowFlags flag)
 {
     w->setAttribute(Qt::WA_DeleteOnClose,true);
@@ -270,6 +370,12 @@ void MainWindow::showInMdi(QWidget* w,Qt::WindowFlags flag)
     {
         a->setShortcutContext(Qt::WidgetShortcut);
     }
+}
+
+void MainWindow::closeInMdi(QWidget *w)
+{
+    ui->mdiArea->setActiveSubWindow((QMdiSubWindow*)w);
+    ui->mdiArea->closeActiveSubWindow();
 }
 
 void MainWindow::showBox(size_t index,MeshBundle<DefaultMesh>::Ptr ptr)
@@ -366,8 +472,11 @@ void MainWindow::start_editing()
         }
         connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         connect(w,SIGNAL(show_layout(size_t,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(size_t,MeshBundle<DefaultMesh>::Ptr)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w,Qt::Widget|Qt::WindowMinMaxButtonsHint);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        s->show();
         w->startLater();
-        showInMdi((QWidget*)w);
     }
     if(edit_thread_){
         connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));

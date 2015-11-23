@@ -13,11 +13,13 @@ struct ObjModel
     ObjModel();
     void update(MeshBundle<DefaultMesh>::Ptr ptr);
     void computeLayout();
+    bool save(const std::string& path);
+    bool load(const std::string& path);
     MeshBundle<DefaultMesh>::Ptr GeoM_;
     MeshBundle<DefaultMesh>::Ptr GeoLayout_;
     std::vector<T::Ptr> GeoT_;
     std::vector<float> GeoP_;
-    std::shared_ptr<arma::gmm_diag> ColorM_;
+    std::shared_ptr<arma::gmm_diag> ColorM_;//not used yet
     std::vector<float> ColorP_;
 };
 

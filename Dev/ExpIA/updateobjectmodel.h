@@ -31,6 +31,7 @@ public slots:
 signals:
     void message(QString,int);
     void show_layout(size_t,MeshBundle<DefaultMesh>::Ptr);
+    void closeInMdi(QWidget*);
 protected slots:
     void prepare_for_next();
     void start_align(); //start thread for registration
@@ -55,7 +56,7 @@ private:
     bool done_fit_;
 
     MeshListViewerWidget* geo_view_;
-    LabSpace* color_view_;
+//    LabSpace* color_view_;
     Ui::UpdateObjectModel *ui;
 
     arma::uword current_label_;

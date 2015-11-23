@@ -460,7 +460,14 @@ void JRMPC<M>::computeOnce(void)
         arma::fvec dt;
         arma::frowvec alpha_colsum = arma::sum( alpha );
         arma::fmat W = V_*alpha;
-        W.each_row() /= alpha_colsum;
+        #pragma omp parallel for
+        for(int c=0;c<alpha.n_cols;++c)
+        {
+            if( 0 != alpha_colsum(c) )
+            {
+                W.col(c) /= alpha_colsum(c);
+            }
+        }
         arma::frowvec square_lambda = var % alpha_colsum;
         arma::frowvec p(square_lambda.n_cols,arma::fill::ones);
         arma::frowvec square_norm_lambda = square_lambda / arma::accu(square_lambda);
@@ -523,7 +530,10 @@ void JRMPC<M>::computeOnce(void)
     arma::frowvec delta =  arma::sum(arma::square(X_ - newX));
     arma::uvec updatedX = arma::find( delta > info_ptr->eps );
     X_updated_ = updatedX.size();
-    if(X_updated_>0)X_.cols(updatedX) = newX.cols(updatedX);
+    if(X_updated_>0){
+        arma::uvec finite_i = arma::find_finite(delta);
+        X_.cols(finite_i) = newX.cols(finite_i);
+    }
     var = ( (3.0*alpha_sum ) / ( var_sum + 1e-5 ) );//restore reciprocal fractions of variation
     mu = arma::accu(alpha_sumij);
     mu*=(info_ptr->gamma+1.0);
@@ -564,6 +574,7 @@ bool JRMPC<M>::isEnd()
 {
     if( count >= info_ptr->max_iter )
     {
+        std::cerr<<"N_Iter=="<<count<<std::endl;
         info_ptr->mode = MaxIter;
         return true;
     }

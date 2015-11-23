@@ -23,6 +23,7 @@ signals:
 
 public slots:
     void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
+    void closeInMdi(QWidget* w);
     void showBox(size_t,MeshBundle<DefaultMesh>::Ptr);
 
 protected slots:
@@ -36,6 +37,9 @@ protected slots:
 
     void save_labels();
     void load_labels();
+
+    void save_objects();
+    void load_objects();
 
     void start_editing();
     void finish_editing();
