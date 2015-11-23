@@ -42,8 +42,13 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
 bool UpdateObjectModel::configure(Config::Ptr config)
 {
     config_ = config;
-    if(!config_->has("Align_Max_Iter"))return false;
-    if(!config_->has("Align_T_Eps"))return false;
+    if(config_->has("Align_Max_Iter")){
+        std::cerr<<"Align_Max_Iter:"<<config_->getInt("Align_Max_Iter")<<std::endl;
+    }
+    if(config_->has("Align_Eps")){
+        std::cerr<<"Align_Eps:"<<config_->getFloat("Align_Eps")<<std::endl;
+    }
+    if(labels_.empty())return false;
     return true;
 }
 

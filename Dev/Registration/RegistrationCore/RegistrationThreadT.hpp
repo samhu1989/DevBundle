@@ -21,7 +21,7 @@ template<typename Reg,typename M>
 bool RegistrationThreadT<Reg,M>::init(MeshList& mesh_list,std::vector<arma::uword>& valid_index,Config::Ptr& config)
 {
     typename Reg::InfoPtr info;
-    reg_.configure(config,info);
+    if(!reg_.configure(config,info))return false;
     return reg_.initForThread((void*)&mesh_list,valid_index,info);
 }
 

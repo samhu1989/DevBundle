@@ -34,7 +34,7 @@ void ObjModel::update(MeshBundle<DefaultMesh>::Ptr input)
             L2_Simple_Adaptor<float,MeshKDTreeInterface<DefaultMesh>>,
             MeshKDTreeInterface<DefaultMesh>,
             3,arma::uword>
-            kdtree(3,points,KDTreeSingleIndexAdaptorParams(4));
+            kdtree(3,points,KDTreeSingleIndexAdaptorParams(9));
     kdtree.buildIndex();
     arma::uvec indices(8);
     arma::fvec dists(8);

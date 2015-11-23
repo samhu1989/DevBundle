@@ -16,11 +16,18 @@ template<typename M>
 bool JRMPC<M>::configure(Config::Ptr& config,InfoPtr& info)
 {
     info = std::make_shared<Info>();
-    if(!config)
+    if( !config || 0==config.use_count() )
     {
-        return true;
+        std::cerr<<"no configure"<<std::endl;
+        return false;
     }else{
-        info->max_iter = config->getFloat("Align_Max_Iter");
+        if(config->has("Align_Max_Iter")){
+            info->max_iter = config->getInt("Align_Max_Iter");
+        }
+        if(config->has("Align_Eps"))
+        {
+            info->eps = config->getFloat("Align_Eps");
+        }
         return true;
     }
     return false;
@@ -120,7 +127,7 @@ bool JRMPC<M>::initForThread(void *meshlistptr,std::vector<arma::uword>&valid_in
     }
 
     arma::fmat target(target_data,3,target_N,false,true);
-    initX(source,target);
+    initX(target);
     reset(source,target,info);
     setVarColor((uint32_t*)list->back()->custom_color_.vertex_colors(),list->back()->mesh_.n_vertices());
     return true;
@@ -134,6 +141,8 @@ void JRMPC<M>::reset(
         )
 {
     count = 0;
+    T_updated_ = 0;
+    X_updated_ = 0;
     float* target_data = (float*)target.memptr();
     int r = target.n_rows;
     int c = target.n_cols;
@@ -215,7 +224,7 @@ void JRMPC<M>::initK(
         nviews(idx) = (*iter)->n_cols;
         ++idx;
     }
-    k = int(0.95*arma::median(nviews));
+    k = int(0.9*arma::median(nviews));
     k = k > 12 ? k : 12 ;
 }
 
@@ -394,12 +403,13 @@ void JRMPC<M>::stepMd()
 template<typename M>
 void JRMPC<M>::computeOnce(void)
 {
-    arma::wall_clock tc;
     arma::fmat& X_ = *X_ptr;
     X_sum.fill(0.0);
     var_sum.fill(0.0);
     alpha_sum.fill(0.0);
     alpha_sumij.fill(0.0);
+    T_updated_ = 0;
+    X_updated_ = 0;
     float mu = 0.0;
     int idx = 0;
     std::vector<MatPtr>::iterator VIter;
@@ -432,6 +442,15 @@ void JRMPC<M>::computeOnce(void)
             alpha_memptr[n] = std::exp(alpha_memptr[n]);
         }
         alpha.each_row()%=arma::pow(var,1.5)%P_;
+        #pragma omp parallel for
+        for(int c=0;c<alpha.n_cols;++c)
+        {
+            arma::fvec ccol = alpha.col(c);
+            float th = arma::median(ccol);
+            arma::uvec smallerth = arma::find( ccol < th );
+            ccol(smallerth).fill(0.0);
+            alpha.col(c) = ccol;
+        }
         alpha_rowsum = arma::sum(alpha,1)+beta;
         alpha.each_col() /= alpha_rowsum;
         //update R t
@@ -439,36 +458,46 @@ void JRMPC<M>::computeOnce(void)
         arma::fmat dR;
         arma::fvec& t = *(res_ptr->ts[idx]);
         arma::fvec dt;
-        arma::frowvec alpha_colsum = arma::sum(alpha);
+        arma::frowvec alpha_colsum = arma::sum( alpha );
         arma::fmat W = V_*alpha;
-        W.each_row()/=alpha_colsum;
-        arma::frowvec square_lambda = var%alpha_colsum;
+        W.each_row() /= alpha_colsum;
+        arma::frowvec square_lambda = var % alpha_colsum;
         arma::frowvec p(square_lambda.n_cols,arma::fill::ones);
         arma::frowvec square_norm_lambda = square_lambda / arma::accu(square_lambda);
         p -= square_norm_lambda;
         arma::fmat tmp = X_;
-        tmp.each_row() %= p%square_lambda;
-        arma::fmat A = tmp*(W.t());
-        if(!arma::svd(U,s,V,A,"std"))
+        tmp.each_row() %= p % square_lambda;
+        arma::uvec nearest(alpha.n_cols);
+        #pragma omp parallel for
+        for(int c=0;c<alpha.n_cols;++c)
         {
-            A += 1e-6*arma::fmat(3,3,arma::fill::eye);
-            if(!arma::svd(U,s,V,A))
-            {
-                U = arma::fmat(3,3,arma::fill::eye);
-                V = U;
-                s = arma::fvec(3,arma::fill::ones);
-                end_ = true;
-                return;
-            }
+            arma::uword uidx;
+            alpha.col(c).max( uidx );
+            nearest(c) = uidx;
         }
-
-        C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
-        dR = U*C*(V.t());
+        arma::fmat V_nearest = V_.cols(nearest);
+        arma::fmat A = tmp * ( V_nearest.t() );
+        dR = arma::fmat(3,3,arma::fill::eye);
+        dt = arma::fvec(3,arma::fill::zeros);
+        if(arma::svd(U,s,V,A,"std"))
+        {
+            C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+            dR = U*C*(V.t());
+            tmp = X_ - dR*W;
+            tmp.each_row()%=square_norm_lambda;
+            dt = arma::sum(tmp,1);
+        }
         R = dR*R;
-        tmp = X_ - dR*W;
-        tmp.each_row()%=square_norm_lambda;
-        dt = arma::sum(tmp,1);
         t = dR*t + dt;
+        //evaluate if the T is really updated
+        arma::fmat I(3,3,arma::fill::eye);
+        if(
+            info_ptr->eps < arma::accu(arma::square(dR - I)) ||
+            info_ptr->eps < arma::accu(arma::square(dt))
+           )
+        {
+            ++T_updated_;
+        }
 
         //update V
         V_ = dR*V_;
@@ -487,14 +516,19 @@ void JRMPC<M>::computeOnce(void)
         var_sum += tmpvar;
         //
         alpha_sumij += alpha_colsum;
-        mu += arma::accu(alpha_sumij);
         ++idx;
     }
-    X_ = X_sum.each_row() / alpha_sum;
+    //count how much X are updated
+    arma::fmat newX = X_sum.each_row() / alpha_sum;
+    arma::frowvec delta =  arma::sum(arma::square(X_ - newX));
+    arma::uvec updatedX = arma::find( delta > info_ptr->eps );
+    X_updated_ = updatedX.size();
+    if(X_updated_>0)X_.cols(updatedX) = newX.cols(updatedX);
     var = ( (3.0*alpha_sum ) / ( var_sum + 1e-5 ) );//restore reciprocal fractions of variation
+    mu = arma::accu(alpha_sumij);
     mu*=(info_ptr->gamma+1.0);
     P_ = alpha_sumij;
-    P_ /= mu;
+    if( mu != 0)P_ /= mu;
 }
 
 template<typename M>
@@ -531,6 +565,17 @@ bool JRMPC<M>::isEnd()
     if( count >= info_ptr->max_iter )
     {
         info_ptr->mode = MaxIter;
+        return true;
+    }
+    if( 0==T_updated_ )
+    {
+        std::cerr<<"T_updated_=="<<T_updated_<<std::endl;
+        info_ptr->mode = Converge;
+        return true;
+    }
+    if( 0==X_updated_ ){
+        std::cerr<<"X_updated_=="<<X_updated_<<std::endl;
+        info_ptr->mode = Converge;
         return true;
     }
     if( end_ )

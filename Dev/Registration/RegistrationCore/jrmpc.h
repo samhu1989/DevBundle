@@ -11,6 +11,7 @@ namespace Registration {
     public:
         typedef enum{
             MaxIter,
+            Converge,
             ErrorBelowThreshold,
             VarBelowThreshold,
             Force
@@ -22,6 +23,7 @@ namespace Registration {
             int max_iter = 50;
             float fitness_th = 0.0;
             float var_th = 0.0 ;
+            float eps = 1e-7;
             bool isApplyed = true;//is transform applied on input matrix source
             EndMode mode;
             void* result = NULL;
@@ -80,14 +82,12 @@ namespace Registration {
 
         virtual void compute(void)
         {
-            while(!isEnd())
-            {
 
+            do{
                 computeOnce();
-                //color code the var
                 varToColor();
                 ++count;
-            }
+            }while(!isEnd());
         }
 
         virtual void computeOnceStep(void)
@@ -130,6 +130,9 @@ namespace Registration {
         arma::frowvec var_sum;
         arma::frowvec alpha_sum;
         arma::frowvec alpha_sumij;
+
+        int T_updated_;
+        int X_updated_;
     };
 }
 #include <jrmpc.hpp>
