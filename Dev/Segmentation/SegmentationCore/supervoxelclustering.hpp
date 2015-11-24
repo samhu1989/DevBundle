@@ -23,7 +23,7 @@ void SuperVoxelClustering<M>::setDistFunctor(DistFunc& vDist)
 }
 
 template<typename M>
-void SuperVoxelClustering<M>::input(MeshPtr mesh)
+void SuperVoxelClustering<M>::input(M *mesh)
 {
     input_ = mesh;
 }
@@ -120,9 +120,7 @@ void SuperVoxelClustering<M>::computeVoxelData()
     {
         arma::uvec indices;
         adjacency_octree_->getPointofLeafAt(i,indices);
-        voxels_.push_back(
-                    std::make_shared<Vox>(*input_,indices)
-                    );
+        voxels_.emplace_back(new Vox(*input_,indices));
     }
     OctreeVoxelAdjacency<SuperVoxelOctree> adjacency(*adjacency_octree_);
     adjacency.template computeNeighbor<Vox>( voxels_ );

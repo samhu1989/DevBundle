@@ -914,7 +914,8 @@ inline void OctreeVoxelAdjacency<Octree>::computeNeighbor(std::vector<typename V
         map.insert(pair);
         ++idx;
     }
-    for(idx=0;idx<voxel_vec.size();++idx)
+    idx = 0;
+    for(iter=octree_.occupied_leafs.cbegin();iter!=octree_.occupied_leafs.cend();++iter)
     {
         uint32_t kx = static_cast<uint32_t>( ( (*iter)->x - min_x_ ) / res );
         uint32_t ky = static_cast<uint32_t>( ( (*iter)->y - min_y_ ) / res );
@@ -948,6 +949,7 @@ inline void OctreeVoxelAdjacency<Octree>::computeNeighbor(std::vector<typename V
             }
           }
         }
+        ++idx;
     }
 }
 

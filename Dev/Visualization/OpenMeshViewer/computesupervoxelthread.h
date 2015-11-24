@@ -2,21 +2,24 @@
 #define COMPUTESUPERVOXELTHREAD_H
 #include <QThread>
 #include "common.h"
+#include "segmentationcore.h"
 class ComputeSupervoxelThread:public QThread
 {
 public:
-    ComputeSupervoxelThread(DefaultMesh&in,DefaultMesh&out,QObject* parent=0):
+    ComputeSupervoxelThread(MeshBundle<DefaultMesh>::Ptr in,MeshBundle<DefaultMesh>::Ptr out,QObject* parent=0):
         QThread(parent),
         input_(in),
-        output_(out)
+        output_(out),
+        svc_(0.008,0.1)
     {
         ;
     }
 protected:
     void run();
 private:
-    DefaultMesh& input_;
-    DefaultMesh& output_;
+    MeshBundle<DefaultMesh>::Ptr input_;
+    MeshBundle<DefaultMesh>::Ptr output_;
+    Segmentation::SuperVoxelClustering<DefaultMesh> svc_;
 };
 
 #endif // COMPUTESUPERVOXELTHREAD_H

@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = OpenMeshViewer
 TEMPLATE = app
 CONFIG += c++11
-DEFINES += OM_STATIC_BUILD
+#DEFINES += OM_STATIC_BUILD
 DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
 SOURCES += \

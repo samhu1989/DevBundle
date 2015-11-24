@@ -25,17 +25,17 @@ public:
         colors_((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true),
         indices_(indices)
     {
-        xyz_ = arma::mean(voxels(),1);
-        normal_ = arma::mean(normals(),1);
-        arma::fmat c = arma::conv_to<arma::fmat>::from(colors());
-        rgb_ = arma::mean(c,1);
+        xyz_ = arma::mean(points_.cols(indices_),1);
+        normal_ = arma::mean(normals_.cols(indices_),1);
+        arma::Mat<uint8_t> c = colors_.cols(indices_);
+        arma::fmat fc = arma::conv_to<arma::fmat>::from(c);
+        rgb_ = arma::mean(fc,1);
     }
 
     Voxel(const M& mesh):
         xyz_(arma::fvec(3,arma::fill::zeros)),
         rgb_(arma::fvec(3,arma::fill::zeros)),
         normal_(arma::fvec(3,arma::fill::zeros)),
-        indices_(0),
         mesh_(mesh)
     {}
 
@@ -43,9 +43,9 @@ public:
     inline arma::fvec& normal(){return normal_;}
     inline arma::fvec& color() {return rgb_;}
 
-    const arma::fmat& voxels()const{return points_.cols(indices_);}
-    const arma::fmat& normals()const{return normals_.cols(indices_);}
-    const arma::Mat<uint8_t>& colors()const{return colors_.cols(indices_);}
+    arma::fmat voxels(){return points_.cols(indices_);}
+    arma::fmat normals(){return normals_.cols(indices_);}
+    arma::Mat<uint8_t> colors(){return colors_.cols(indices_);}
     const arma::uvec& indices()const{return indices_;}
     void add_neighbor(Ptr n){neighbors_.push_back(n);}
     std::vector<Ptr> neighbors_;
@@ -60,7 +60,7 @@ protected:
     const arma::fmat normals_;
     const arma::fmat points_;
     const arma::Mat<uint8_t> colors_;
-    const arma::uvec& indices_;
+    const arma::uvec indices_;
 private:
     const M& mesh_;
 };
@@ -123,11 +123,15 @@ public:
     virtual ~SuperVoxelClustering();
 
     void setDistFunctor(DistFunc&);
-    void input(MeshPtr mesh);
+    void input(M* mesh);
     void extract(arma::uvec&labels);
     void extract(SuperVoxelsMap&supervoxel_clusters);
     void getSupervoxelAdjacency(SuperVoxelAdjacency&label_adjacency);
     void getCentroidMesh(M&cmesh);
+
+public:
+    inline float getSeedResolution()const{return seed_resolution_;}
+
 protected:
     bool initCompute();
     void deinitCompute();
@@ -142,7 +146,7 @@ protected:
     std::vector<typename Voxel<M>::Ptr> voxels_;
     std::vector<typename SuperVoxel<M>::Ptr> supervoxels_;
     MeshPtr voxel_centroids_;
-    MeshPtr input_;
+    M* input_;
 private:
     float seed_resolution_;
     float voxel_resolution_;

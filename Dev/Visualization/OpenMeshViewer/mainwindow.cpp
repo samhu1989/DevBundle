@@ -44,13 +44,13 @@ void MainWindow::computeSuperVoxel()
 {
     MeshPairViewerWidget* v = qobject_cast<MeshPairViewerWidget*>(centralWidget());
     if(!v)return;
-    ComputeSupervoxelThread th(v->first_ptr()->mesh_,v->second_ptr()->mesh_);
+    ComputeSupervoxelThread th(v->first_ptr(),v->second_ptr());
     th.start(QThread::HighestPriority);
     while(!th.wait(30))
     {
         QApplication::processEvents();
     }
-    QString msg = "Done Compute Octree:\n '";
+    QString msg = "Done Compute SuperVoxel:\n '";
     QMessageBox::information( this, windowTitle(), msg );
 }
 

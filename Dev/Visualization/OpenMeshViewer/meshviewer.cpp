@@ -165,12 +165,6 @@ void create_menu(MainWindow &w)
     QObject::connect(saveAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_save_mesh_file()));
     fileMenu->addAction(saveAct);
 
-//    QAction* texAct = new QAction(w.tr("Open &texture..."), &w);
-//    texAct->setShortcut(w.tr("Ctrl+T"));
-//    texAct->setStatusTip(w.tr("Open a texture file"));
-//    QObject::connect(texAct, SIGNAL(triggered()), w.centralWidget(), SLOT(query_open_texture_file()));
-//    fileMenu->addAction(texAct);
-
     QMenu *editMenu = w.menuBar()->addMenu(w.tr("&Edit"));
 
     QAction* normalAct = new QAction(w.tr("&Compute Vertex Normal"), &w);
@@ -184,9 +178,17 @@ void create_menu(MainWindow &w)
     editMenu->addAction(octreeAct);
 
     QAction* svAct = new QAction(w.tr("&Compute Supervoxel"), &w);
-    octreeAct->setStatusTip(w.tr("Compute Supervoxel"));
-    QObject::connect(svAct, SIGNAL(triggered()), &w, SLOT(computeOctree()));
+    svAct->setStatusTip(w.tr("Compute Supervoxel"));
+    QObject::connect(svAct, SIGNAL(triggered()), &w, SLOT(computeSuperVoxel()));
     editMenu->addAction(svAct);
+
+    QMenu *viewMenu = w.menuBar()->addMenu(w.tr("&View"));
+
+    QAction* customcolorAct = new QAction(w.tr("&Show Custom Color"), &w);
+    customcolorAct->setCheckable(true);
+    customcolorAct->setStatusTip(w.tr("Show Custom Color"));
+    QObject::connect(customcolorAct, SIGNAL(toggled(bool)), w.centralWidget(), SLOT(use_custom_color(bool)));
+    viewMenu->addAction(customcolorAct);
 
 }
 

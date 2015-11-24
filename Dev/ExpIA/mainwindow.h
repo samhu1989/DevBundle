@@ -4,6 +4,7 @@
 #include <QThread>
 #include <common.h>
 #include "objectmodel.h"
+#include "voxelgraph.h"
 using namespace OpenMesh;
 namespace Ui {
 class MainWindow;
@@ -49,8 +50,10 @@ private:
     Ui::MainWindow *ui;
     std::vector<WidgetPtr> mesh_views_;
     std::vector<MeshBundle<DefaultMesh>::Ptr> inputs_;
+    VoxelGraph::PtrList graphs_;
     std::vector<arma::uvec> labels_;
     std::vector<ObjModel::Ptr> objects_;
+
     IO::Options io_opt_;
     Config::Ptr config_;
     QThread* edit_thread_;
