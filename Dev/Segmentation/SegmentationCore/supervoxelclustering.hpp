@@ -40,9 +40,13 @@ void SuperVoxelClustering<M>::extract(arma::uvec&labels)
     std::vector<uint32_t> seed_indices;
     selectInitialSupervoxelSeeds (seed_indices);
     createSupervoxels(seed_indices);
-    int max_depth = static_cast<int> (1.8f*seed_resolution_/voxel_resolution_);
+    int max_depth = 1 + static_cast<int> (1.8f*seed_resolution_/voxel_resolution_);
     expandSupervoxels (max_depth);
     makeLabels(labels);
+    arma::uvec nz = arma::find(labels!=0);
+    std::cerr<<"Numbers:"<<std::endl;
+    std::cerr<<nz.size()<<std::endl;
+    std::cerr<<input_->n_vertices()<<std::endl;
     deinitCompute ();
 }
 
@@ -111,19 +115,37 @@ bool SuperVoxelClustering<M>::initCompute()
     MeshOctreeContainer<M> center_container(*voxel_centroids_);
     adjacency_octree_->getLeafCenters(center_container);
     computeVoxelData();
+    return true;
 }
 
 template<typename M>
 void SuperVoxelClustering<M>::computeVoxelData()
 {
+    voxels_.clear();
+    voxels_.reserve(adjacency_octree_->getLeafNum());
     for(int i=0;i<adjacency_octree_->getLeafNum();++i)
     {
         arma::uvec indices;
         adjacency_octree_->getPointofLeafAt(i,indices);
-        voxels_.emplace_back(new Vox(*input_,indices));
+        if(!indices.is_empty())voxels_.emplace_back(new Vox(*input_,indices));
+        else{ std::cerr<<"encounter an empty voxel in octree"<<std::endl; }
     }
+    std::cerr<<"Compute Voxel Data N:"<<voxels_.size()<<std::endl;
     OctreeVoxelAdjacency<SuperVoxelOctree> adjacency(*adjacency_octree_);
     adjacency.template computeNeighbor<Vox>( voxels_ );
+//    int min_neighbor_n = 1000;
+//    int max_neighbor_n = 0;
+//    VoxelIter iter;
+//    size_t num = 0;
+//    for(iter=voxels_.begin();iter!=voxels_.end();++iter)
+//    {
+//        int n = (*iter)->neighbors_.size();
+//        if(n<min_neighbor_n)min_neighbor_n=n;
+//        if(n>max_neighbor_n)max_neighbor_n=n;
+//        num += (*iter)->indices().size();
+//    }
+//    std::cerr<<"num points:"<<num<<std::endl;
+//    std::cerr<<"Neighbor N("<<min_neighbor_n<<","<<max_neighbor_n<<")"<<std::endl;
 }
 
 template<typename M>
@@ -185,8 +207,10 @@ void SuperVoxelClustering<M>::createSupervoxels(std::vector<uint32_t> &seed_indi
     uint32_t label = 0;
     for(iter=seed_indices.begin();iter!=seed_indices.end();++iter)
     {
-        supervoxels_.push_back(std::make_shared<SuperVoxel<M>>(*this,label));
+        supervoxels_.emplace_back(new SuperVoxel<M>(*this,label));
+        voxels_[*iter]->dist2parent_ = 0.0;
         supervoxels_.back()->addVoxel(voxels_[*iter]);
+        voxels_[*iter]->parent_ = supervoxels_.back();
         supervoxels_.back()->updateCentroid();
         ++label;
     }
@@ -202,19 +226,10 @@ void SuperVoxelClustering<M>::expandSupervoxels(int depth)
         {
             (*iter)->expand();
         }
-        for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+        std::sort(supervoxels_.begin(), supervoxels_.end(),SuperVoxel<M>(*this,0));
+        while(0==supervoxels_.back()->size())
         {
-            if(0==(*iter)->size())
-            {
-                //erase empty supervoxel
-                if((iter+1)==supervoxels_.end())supervoxels_.pop_back();
-                else{
-                    *iter = supervoxels_.back();
-                    supervoxels_.pop_back();
-                }
-            }else{
-                (*iter)->updateCentroid();
-            }
+            supervoxels_.pop_back();
         }
     }
 }
@@ -245,12 +260,12 @@ void SuperVoxelClustering<M>::makeLabels(arma::uvec&labels)
 {
     typename std::vector<typename SuperVoxel<M>::Ptr>::iterator iter;
     labels = arma::uvec(input_->n_vertices());
-    labels.fill(std::numeric_limits<uint64_t>::max());
+    labels.fill(0);
     for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
     {
         arma::uvec indices;
         (*iter)->getPointIndices(indices);
-        arma::uword sindex = (*iter)->getLabel();
+        arma::uword sindex = ( (*iter)->getLabel() + 1 );
         labels.elem(indices).fill(sindex);
     }
 }
@@ -294,6 +309,10 @@ void SuperVoxel<M>::updateCentroid()
     centroid_->color() /= float(voxels.size());
     centroid_->xyz() /= float(voxels.size());
     centroid_->normal() /= float(voxels.size());
+    for(iter=voxels.begin();iter!=voxels.end();++iter)
+    {
+        (*iter)->dist2parent_ = parent_.dist_(centroid_,(*iter));
+    }
 }
 
 template<typename M>
@@ -304,30 +323,34 @@ void SuperVoxel<M>::expand()
     //For each leaf belonging to this supervoxel
     VoxelIter voxeliter;
     VoxelIter neighborIter;
+    VoxelIter vbegin = voxels.begin ();
     for ( voxeliter = voxels.begin (); voxeliter != voxels.end (); ++voxeliter)
     {
-        //for each neighbor of the leaf
-        for(neighborIter=(*voxeliter)->neighbors_.begin();neighborIter!=(*voxeliter)->neighbors_.end();++neighborIter)
-        {
-            //Get a reference to the data contained in the leaf
-            Voxel<M>& neighbor_voxel = **neighborIter;
+        VoxelIter nbegin = (*voxeliter)->neighbors_.begin();
+        VoxelIter nend = (*voxeliter)->neighbors_.end();
+
+        for(neighborIter=nbegin;neighborIter!=nend;++neighborIter)
+        { 
+//            std::cerr<<"address:"<<(*neighborIter).get()<<std::endl;
+//            std::cerr<<"count:"<<(*neighborIter).use_count()<<std::endl;
             //TODO this is a shortcut, really we should always recompute distance
-            if(neighbor_voxel.parent_.get() == this)
-                continue;
+            if(0!=(*neighborIter)->parent_.use_count()&&(*neighborIter)->parent_)
+            {
+                if((*neighborIter)->parent_.get()==this)continue;
+            }
             //Compute distance to the neighbor
-            float dist = parent_.dist_(centroid_,*neighborIter);
+            float dist = parent_.dist_(centroid_,(*neighborIter));
             //If distance is less than previous, we remove it from its owner's list
             //and change the owner to this and distance (we *steal* it!)
-            if (dist < neighbor_voxel.dist2parent_)
+            if (dist < (*neighborIter)->dist2parent_)
             {
-                neighbor_voxel.dist2parent_ = dist;
-                if (neighbor_voxel.parent_.get() != this)
+                (*neighborIter)->dist2parent_ = dist;
+                if (0!=(*neighborIter)->parent_.use_count()&&(*neighborIter)->parent_)
                 {
-                    if (neighbor_voxel.parent_)
-                        (neighbor_voxel.parent_)->removeVoxel(*neighborIter);
-                    neighbor_voxel.parent_.reset(this);
-                    new_owned.push_back (*neighborIter);
+                    (*neighborIter)->parent_ -> removeVoxel(*neighborIter);
                 }
+                (*neighborIter)->parent_ = voxels.front()->parent_;
+                new_owned.push_back(*neighborIter);
             }
         }
     }
@@ -342,24 +365,44 @@ void SuperVoxel<M>::expand()
 template<typename M>
 void SuperVoxel<M>::removeVoxel(typename Voxel<M>::Ptr ptr)
 {
+    if(voxels.empty()){
+        std::cerr<<"try to remove from an empty supervoxel"<<std::endl;
+        return;
+    }
+    bool find = false;
+    VoxelIter iter;
     if(ptr!=voxels.back())
     {
-        VoxelIter iter;
         for(iter=voxels.begin();iter!=voxels.end();++iter)
         {
             if(ptr==*iter)
             {
+                (*iter)->parent_.reset();
                 *iter = voxels.back();
+                find = true;
                 break;
             }
         }
+    }else find = true;
+    if(find){
+        voxels.pop_back();
     }
-    voxels.pop_back();
+    else {
+        std::cerr<<"try to remove a voxel("<<ptr->Id_<<") with parent("<<ptr->parent_->getLabel()<<") but not recorded by supervoxel("<<label_<<")"<<std::endl;
+        std::cerr<<"who has:"<<std::endl;
+        for(iter=voxels.begin();iter!=voxels.end();++iter)
+        {
+            std::cerr<<(*iter)->Id_<<",";
+        }
+    }
 }
 
 template<typename M>
 void SuperVoxel<M>::addVoxel(typename Voxel<M>::Ptr ptr)
 {
+    if(label_==40){
+        std::cerr<<"40add"<<ptr->Id_<<std::endl;
+    }
     voxels.push_back(ptr);
 }
 

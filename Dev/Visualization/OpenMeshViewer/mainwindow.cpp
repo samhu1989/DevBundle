@@ -30,12 +30,14 @@ void MainWindow::computeOctree()
 {
     MeshPairViewerWidget* v = qobject_cast<MeshPairViewerWidget*>(centralWidget());
     if(!v)return;
-    ComputeOctreeThread th(v->first_ptr()->mesh_,v->second_ptr()->mesh_);
+    MeshBundle<DefaultMesh>::Ptr output(new MeshBundle<DefaultMesh>);
+    ComputeOctreeThread th(v->first_ptr()->mesh_,output->mesh_);
     th.start(QThread::HighestPriority);
     while(!th.wait(30))
     {
         QApplication::processEvents();
     }
+    v->second_ptr() = output;
     QString msg = "Done Compute Octree:\n '";
     QMessageBox::information( this, windowTitle(), msg );
 }

@@ -10,7 +10,7 @@ public:
         QThread(parent),
         input_(in),
         output_(out),
-        svc_(0.008,0.1)
+        svc_(0.05,0.19)
     {
         ;
     }

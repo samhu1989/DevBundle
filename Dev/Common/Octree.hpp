@@ -896,37 +896,89 @@ inline void OctreeVoxelAdjacency<Octree>::computeNeighbor(std::vector<typename V
     __gnu_cxx::hash_map<uint32_t,typename Voxel::Ptr> map;
     typename std::vector<typename Octree::Octant*>::const_iterator iter;
 
-    float min_x_ = octree_.root_->x - octree_.root_->extent;
-    float min_y_ = octree_.root_->y - octree_.root_->extent;
-    float min_z_ = octree_.root_->z - octree_.root_->extent;
-    float res = octree_.params_.resolution_;
-    uint32_t N_ = static_cast<uint32_t>( 2.0*octree_.root_->extent / res ) ;
-    uint32_t idx = 0;
+    float min_x_ = std::numeric_limits<float>::max();
+    float min_y_ = std::numeric_limits<float>::max();
+    float min_z_ = std::numeric_limits<float>::max();
+    float res ;
+//    float res = octree_.params_.resolution_;
+    uint32_t idx;
     for(iter=octree_.occupied_leafs.cbegin();iter!=octree_.occupied_leafs.cend();++iter)
     {
-        uint32_t kx = static_cast<uint32_t>( ( (*iter)->x - min_x_ ) / res );
-        uint32_t ky = static_cast<uint32_t>( ( (*iter)->y - min_y_ ) / res );
-        uint32_t kz = static_cast<uint32_t>( ( (*iter)->z - min_z_ ) / res );
-        uint32_t key = (kz*N_+ky)*N_+kx;
-        std::pair<uint32_t,typename Voxel::Ptr> pair;
-        pair.first = key;
-        pair.second = voxel_vec[idx];
-        map.insert(pair);
-        ++idx;
+        res = 2.0*(*iter)->extent;
+        float x = (*iter)->x - (*iter)->extent;
+        float y = (*iter)->y - (*iter)->extent;
+        float z = (*iter)->z - (*iter)->extent;
+        if( min_x_ > x ) min_x_ = x ;
+        if( min_y_ > y ) min_y_ = y ;
+        if( min_z_ > z ) min_z_ = z ;
     }
-    idx = 0;
+
+    uint32_t minkx = std::numeric_limits<uint32_t>::max();
+    uint32_t minky = std::numeric_limits<uint32_t>::max();
+    uint32_t minkz = std::numeric_limits<uint32_t>::max();
+
+    uint32_t maxkx = 0;
+    uint32_t maxky = 0;
+    uint32_t maxkz = 0;
+
     for(iter=octree_.occupied_leafs.cbegin();iter!=octree_.occupied_leafs.cend();++iter)
     {
         uint32_t kx = static_cast<uint32_t>( ( (*iter)->x - min_x_ ) / res );
         uint32_t ky = static_cast<uint32_t>( ( (*iter)->y - min_y_ ) / res );
         uint32_t kz = static_cast<uint32_t>( ( (*iter)->z - min_z_ ) / res );
 
+        if(minkx>kx)minkx=kx;
+        if(minky>ky)minky=ky;
+        if(minkz>kz)minkz=kz;
+
+        if(maxkx<kx)maxkx=kx;
+        if(maxky<ky)maxky=ky;
+        if(maxkz<kz)maxkz=kz;
+    }
+    std::cerr<<"mins:"<<std::endl;
+    std::cerr<<minkx<<std::endl;
+    std::cerr<<minky<<std::endl;
+    std::cerr<<minkz<<std::endl;
+    std::cerr<<"end min"<<std::endl;
+
+    std::cerr<<"max:"<<std::endl;
+    std::cerr<<maxkx<<std::endl;
+    std::cerr<<maxky<<std::endl;
+    std::cerr<<maxkz<<std::endl;
+    std::cerr<<"end max"<<std::endl;
+
+    idx = 0;
+    for(iter=octree_.occupied_leafs.cbegin();iter!=octree_.occupied_leafs.cend();++iter)
+    {
+        uint32_t kx = static_cast<uint32_t>( ( (*iter)->x - min_x_ ) / res );
+        uint32_t ky = static_cast<uint32_t>( ( (*iter)->y - min_y_ ) / res );
+        uint32_t kz = static_cast<uint32_t>( ( (*iter)->z - min_z_ ) / res );
+        uint32_t key = (kz*(maxky+1)+ky)*(maxkx+1)+kx;
+        std::pair<uint32_t,typename Voxel::Ptr> pair;
+        pair.first = key;
+        pair.second = voxel_vec[idx];
+        voxel_vec[idx]->Id_ = key;
+        if(map.end()==map.find(key))
+        {
+            map.insert(pair);
+        }else{
+            std::cerr<<"duplicate key:"<<key<<std::endl;
+        }
+        ++idx;
+    }
+    idx = 0;
+    for(iter=octree_.occupied_leafs.cbegin();iter!=octree_.occupied_leafs.cend();++iter)
+    {
+        int kx = static_cast<int>( ( (*iter)->x - min_x_ ) / res );
+        int ky = static_cast<int>( ( (*iter)->y - min_y_ ) / res );
+        int kz = static_cast<int>( ( (*iter)->z - min_z_ ) / res );
+
         int dx_min = (kx > 0) ? -1 : 0;
         int dy_min = (ky > 0) ? -1 : 0;
         int dz_min = (kz > 0) ? -1 : 0;
-        int dx_max = (kx == N_) ? 0 : 1;
-        int dy_max = (ky == N_) ? 0 : 1;
-        int dz_max = (kz == N_) ? 0 : 1;
+        int dx_max = (kx == maxkx) ? 0 : 1;
+        int dy_max = (ky == maxky) ? 0 : 1;
+        int dz_max = (kz == maxkz) ? 0 : 1;
 
         for (int dx = dx_min; dx <= dx_max; ++dx)
         {
@@ -937,13 +989,16 @@ inline void OctreeVoxelAdjacency<Octree>::computeNeighbor(std::vector<typename V
               uint32_t nx = static_cast<uint32_t> (kx + dx);
               uint32_t ny = static_cast<uint32_t> (ky + dy);
               uint32_t nz = static_cast<uint32_t> (kz + dz);
-              uint32_t neighbor_key = (nz*N_+ny)*N_+nx;
+              uint32_t neighbor_key = (nz*(maxky+1)+ny)*(maxkx+1)+nx;
+              if(neighbor_key==voxel_vec[idx]->Id_)continue;
               if(map.end()!=map.find(neighbor_key))
               {
                   typename Voxel::Ptr neighbor_ptr = map[neighbor_key];
-                  if (neighbor_ptr)
+                  if (neighbor_ptr&&0!=neighbor_ptr.use_count())
                   {
                       voxel_vec[idx]->add_neighbor(neighbor_ptr);
+                  }else{
+                      std::clog<<"encounter empty voxel from map"<<std::endl;
                   }
               }
             }
