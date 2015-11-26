@@ -42,6 +42,9 @@ protected slots:
     void save_objects();
     void load_objects();
 
+    void save_supervoxels();
+    void load_supervoxels();
+
     void start_editing();
     void finish_editing();
 
@@ -49,8 +52,7 @@ protected slots:
 private:
     Ui::MainWindow *ui;
     std::vector<WidgetPtr> mesh_views_;
-    std::vector<MeshBundle<DefaultMesh>::Ptr> inputs_;
-    VoxelGraph::PtrList graphs_;
+    MeshBundle<DefaultMesh>::PtrList inputs_;
     std::vector<arma::uvec> labels_;
     std::vector<ObjModel::Ptr> objects_;
 

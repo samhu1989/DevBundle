@@ -1,7 +1,6 @@
 #include "updateobjectmodel.h"
 #include "ui_updateobjectmodel.h"
 #include "registrationcore.h"
-#include "colorgmmthread.h"
 UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OModelList &outputs, QWidget *parent) :
     QFrame(parent),
     inputs_(inputs),
@@ -188,26 +187,26 @@ void UpdateObjectModel::start_align()
 
 void UpdateObjectModel::start_fit()
 {
-    if(color_thread_)
-    {
-        QString msg = "Please Wait Till the End of Last Registration\n";
-        QMessageBox::critical(this, windowTitle(), msg);
-        return;
-    }
-    ColorGMMThread* th = new ColorGMMThread();
-    if(!th->init())
-    {
-        QString msg = "Fail to Initialize the GMM Learning\n '";
-        QMessageBox::critical( NULL, windowTitle(), msg);
-    }else{
-        connect(th,SIGNAL(finished()),this,SLOT(finish_current()));
-    }
-    color_thread_ = th;
-    QString name;
-    name = name.sprintf("Color GMM L%d",current_label_);
-    color_thread_->setObjectName(name);
-    emit message("Start "+name,2000);
-    color_thread_->start(QThread::HighestPriority);
+//    if(color_thread_)
+//    {
+//        QString msg = "Please Wait Till the End of Last Registration\n";
+//        QMessageBox::critical(this, windowTitle(), msg);
+//        return;
+//    }
+//    ColorGMMThread* th = new ColorGMMThread();
+//    if(!th->init())
+//    {
+//        QString msg = "Fail to Initialize the GMM Learning\n '";
+//        QMessageBox::critical( NULL, windowTitle(), msg);
+//    }else{
+//        connect(th,SIGNAL(finished()),this,SLOT(finish_current()));
+//    }
+//    color_thread_ = th;
+//    QString name;
+//    name = name.sprintf("Color GMM L%d",current_label_);
+//    color_thread_->setObjectName(name);
+//    emit message("Start "+name,2000);
+//    color_thread_->start(QThread::HighestPriority);
 }
 
 void UpdateObjectModel::finish_current()

@@ -6,6 +6,7 @@
 #include <OpenMesh/Tools/Utils/StripifierT.hh>
 #include <armadillo>
 #include "MeshColor.h"
+#include "voxelgraph.h"
 struct Traits : public OpenMesh::DefaultTraits
 {
   HalfedgeAttributes(OpenMesh::Attributes::PrevHalfedge);
@@ -19,9 +20,11 @@ class MeshBundle
 {
 public:
     typedef typename std::shared_ptr<MeshBundle<M>> Ptr;
+    typedef typename std::vector<Ptr> PtrList;
     typedef typename std::shared_ptr<M> MeshPtr;
     MeshBundle():
         custom_color_(mesh_),
+        graph_(mesh_),
         strips_(mesh_)
     {}
     MeshPtr mesh_ptr(){return std::shared_ptr<M>(&mesh_);}
@@ -29,6 +32,7 @@ public:
     M                           mesh_;
     MeshColor<M>        custom_color_;
     OpenMesh::StripifierT<M>  strips_;
+    VoxelGraph<M>              graph_;
 };
 
 template <typename IM,typename OM>

@@ -21,6 +21,5 @@ void ComputeSupervoxelThread::run()
     svc_.extract(label);
     std::cerr<<"update color:"<<std::endl;
     input_->custom_color_.fromlabel(label);
-    label.save("label.uvec.arma",arma::raw_ascii);
 }
 

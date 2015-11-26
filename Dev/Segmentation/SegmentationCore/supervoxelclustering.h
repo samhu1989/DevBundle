@@ -151,7 +151,9 @@ public:
     void extract(arma::uvec&labels);
     void extract(SuperVoxelsMap&supervoxel_clusters);
     void getSupervoxelAdjacency(SuperVoxelAdjacency&label_adjacency);
-    void getCentroidMesh(M&cmesh);
+    void getSupervoxelAdjacency(arma::Mat<uint16_t>&);
+    void getCentroids(M&cmesh);
+    void getCentroids(arma::fmat&);
 
 public:
     inline float getSeedResolution()const{return seed_resolution_;}

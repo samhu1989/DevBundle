@@ -540,9 +540,14 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
     glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
+  }else if( _draw_mode == "VoxelGraph" )
+  {
+      glEnableClientState(GL_VERTEX_ARRAY);
+      glVertexPointer(3,GL_FLOAT,0,static_cast<GLfloat*>(b.graph_.voxel_centers.memptr()));
+      glLineWidth(2.0);
+      glDrawElements(GL_LINES,b.graph_.voxel_neighbors.size(),GL_UNSIGNED_SHORT,static_cast<GLushort*>(b.graph_.voxel_neighbors.memptr()));
+      glDisableClientState(GL_VERTEX_ARRAY);
   }
-
-
 }
 
 //-----------------------------------------------------------------------------
@@ -614,8 +619,16 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, "Wireframe" );
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
-  }
+  }else if( _draw_mode == "VoxelGraph")
+  {
+      glDisable(GL_LIGHTING);
+      if(0<first_->mesh_.n_vertices())draw_openmesh( *first_ , "Points" );
 
+      glPolygonMode( GL_FRONT_AND_BACK, GL_LINE);
+      glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+      glDepthRange( 0.0, 1.0 );
+      if(0<first_->graph_.voxel_neighbors.n_cols)draw_openmesh( *first_, "VoxelGraph" );
+  }
   else if (_draw_mode == "Solid Flat")
   {
     glEnable(GL_LIGHTING);

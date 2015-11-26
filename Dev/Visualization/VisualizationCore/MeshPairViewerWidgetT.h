@@ -35,9 +35,10 @@ public:
       first_(new MeshBundle<Mesh>()),
       second_(new MeshBundle<Mesh>())
   {
-    add_draw_mode("Points");
+    QAction* a = add_draw_mode("Points");
     add_draw_mode("Hidden-Line");
-    QAction* a = add_draw_mode("Octree");
+    add_draw_mode("Octree");
+    add_draw_mode("VoxelGraph");
     slotDrawMode(a);
   }
 

@@ -26,7 +26,9 @@ HEADERS += common.h\
     Octree.hpp \
     KDtree.hpp \
     configure.h \
-    mbb.h
+    mbb.h \
+    voxelgraph.h \
+    voxelgraph.hpp
 
 unix {
     target.path = /usr/lib

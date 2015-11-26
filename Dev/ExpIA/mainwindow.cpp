@@ -13,6 +13,7 @@
 #include <vector>
 #include <QMdiSubWindow>
 #include <QDebug>
+#include "supervoxelthread.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -24,10 +25,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionConfigure,SIGNAL(triggered(bool)),this,SLOT(configure()));
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(open_inputs()));
+    connect(ui->actionSave_Supervoxels,SIGNAL(triggered(bool)),this,SLOT(save_supervoxels()));
+    connect(ui->actionLoad_Supervoxels,SIGNAL(triggered(bool)),this,SLOT(load_supervoxels()));
     connect(ui->actionSave_Segments,SIGNAL(triggered(bool)),this,SLOT(save_labels()));
     connect(ui->actionLoad_Segments,SIGNAL(triggered(bool)),this,SLOT(load_labels()));
     connect(ui->actionSave_Object_Model,SIGNAL(triggered(bool)),this,SLOT(save_objects()));
     connect(ui->actionLoad_Objects,SIGNAL(triggered(bool)),this,SLOT(load_objects()));
+
+    connect(ui->actionSupervoxel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -359,6 +364,92 @@ void MainWindow::load_objects()
     }
 }
 
+void MainWindow::save_supervoxels()
+{
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save Supervoxels"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter;
+    QDir dir;
+    dir.setPath(dirName);
+    for(iter=inputs_.begin();iter!=inputs_.end();++iter)
+    {
+        MeshBundle<DefaultMesh>::Ptr &ptr = *iter;
+        if( !ptr || 0 == ptr.use_count()){
+            std::cerr<<"Empty Input ?"<<std::endl;
+            break;
+        }else if( 0 == ptr->graph_.voxel_neighbors.size() ||
+                  0 == ptr->graph_.voxel_label.size()   ||
+                  0 == ptr->graph_.voxel_centers.size()
+                  )
+        {
+            std::cerr<<"Empty Supervoxel In List"<<std::endl;
+            break;
+        }
+        QString path;
+        path = "supervoxel_"+QString::fromStdString(ptr->name_);
+        QDir odir;
+        odir.setPath(dir.absoluteFilePath(path));
+        if(!odir.exists())
+        {
+            if(!dir.mkdir(path))
+            {
+                QString msg = "Failed to make "+dir.absoluteFilePath(path)+"\n";
+                QMessageBox::critical(this, windowTitle(), msg);
+                return;
+            }
+        }
+        QString filepath = dir.absoluteFilePath(path);
+        if(!ptr->graph_.save(filepath.toStdString()))
+        {
+            QString msg = "Failed to Save to"+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+    }
+}
+
+void MainWindow::load_supervoxels()
+{
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Load Supervoxels"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter;
+    QDir dir;
+    dir.setPath(dirName);
+    for(iter=inputs_.begin();iter!=inputs_.end();++iter)
+    {
+        MeshBundle<DefaultMesh>::Ptr &ptr = *iter;
+        if( !ptr || 0 == ptr.use_count()){
+            std::cerr<<"Empty Input ?"<<std::endl;
+            break;
+        }
+        QString path;
+        path = "supervoxel_"+QString::fromStdString(ptr->name_);
+        QDir odir;
+        odir.setPath(dir.absoluteFilePath(path));
+        if(!odir.exists())
+        {
+            QString msg = "Failed to find "+dir.absoluteFilePath(path)+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        QString filepath = dir.absoluteFilePath(path);
+        if(!ptr->graph_.load(filepath.toStdString()))
+        {
+            QString msg = "Failed to Load from"+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+    }
+}
+
 void MainWindow::showInMdi(QWidget* w,Qt::WindowFlags flag)
 {
     w->setAttribute(Qt::WA_DeleteOnClose,true);
@@ -422,10 +513,23 @@ void MainWindow::start_editing()
         return;
     }
     QAction* edit = qobject_cast<QAction*>(sender());
+    if(edit==ui->actionSupervoxel)
+    {
+        SupervoxelThread* th = new SupervoxelThread(inputs_);
+        if(!th->configure(config_)){
+            th->deleteLater();
+            QString msg = "Missing Some Configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        edit_thread_ = th;
+    }
     if(edit==ui->actionRegionGrow)
     {
         RegionGrowThread* th = new RegionGrowThread(inputs_,labels_);
         if(!th->configure(config_)){
+            th->deleteLater();
             QString msg = "Missing Some Configure\n";
             QMessageBox::critical(this, windowTitle(), msg);
             return;
@@ -437,6 +541,7 @@ void MainWindow::start_editing()
     {
         UnifyLabelColorSizeThread* th = new UnifyLabelColorSizeThread(inputs_,labels_);
         if(!th->configure(config_)){
+            th->deleteLater();
             QString msg = "Missing Some Configure\n";
             QMessageBox::critical(this, windowTitle(), msg);
             return;

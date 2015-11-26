@@ -49,6 +49,8 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_Inputs"/>
+    <addaction name="actionSave_Supervoxels"/>
+    <addaction name="actionLoad_Supervoxels"/>
     <addaction name="actionSave_Segments"/>
     <addaction name="actionLoad_Segments"/>
     <addaction name="actionSave_Object_Model"/>
@@ -68,6 +70,7 @@
      <addaction name="actionUse_Color_and_Size"/>
      <addaction name="actionMannually"/>
     </widget>
+    <addaction name="actionSupervoxel"/>
     <addaction name="actionRegionGrow"/>
     <addaction name="menuUnify_Label"/>
     <addaction name="actionUpdateObjModel"/>
@@ -168,6 +171,21 @@
   <action name="actionLoad_Objects">
    <property name="text">
     <string>Load Objects</string>
+   </property>
+  </action>
+  <action name="actionSupervoxel">
+   <property name="text">
+    <string>Supervoxel</string>
+   </property>
+  </action>
+  <action name="actionSave_Supervoxels">
+   <property name="text">
+    <string>Save Supervoxels</string>
+   </property>
+  </action>
+  <action name="actionLoad_Supervoxels">
+   <property name="text">
+    <string>Load Supervoxels</string>
    </property>
   </action>
  </widget>

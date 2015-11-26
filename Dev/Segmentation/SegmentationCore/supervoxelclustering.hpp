@@ -88,9 +88,54 @@ void SuperVoxelClustering<M>::getSupervoxelAdjacency(SuperVoxelAdjacency&label_a
         }
     }
 }
+template<typename M>
+void SuperVoxelClustering<M>::getSupervoxelAdjacency(arma::Mat<uint16_t>&neighbors)
+{
+    SuperVoxelIter iter;
+    std::vector<uint16_t> result;
+    result.reserve(9*supervoxels_.size());
+    arma::umat mem(supervoxels_.size(),supervoxels_.size(),arma::fill::zeros);
+    __gnu_cxx::hash_map<uint32_t,uint32_t> labeltoindex;
+    uint32_t index = 0;
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        SuperVoxel<M>& supervoxel = **iter;
+        std::vector<uint32_t> neighbors;
+        supervoxel.getNeighbors(neighbors);
+        uint32_t label = supervoxel.getLabel();
+        labeltoindex[label] = index;
+        std::vector<uint32_t>::iterator labeliter;
+        for(labeliter=neighbors.begin();labeliter!=neighbors.end();++labeliter)
+        {
+            if(0==mem(label,*labeliter))
+            {
+                mem(label,*labeliter)=1;
+                mem(*labeliter,label)=1;
+                if(label !=* labeliter)
+                {
+                    if( label < *labeliter )
+                    {
+                        result.push_back(uint16_t(label));
+                        result.push_back(uint16_t(*labeliter));
+                    }else{
+                        result.push_back(uint16_t(*labeliter));
+                        result.push_back(uint16_t(label));
+                    }
+                }
+            }
+        }
+        ++index;
+    }
+    std::vector<uint16_t>::iterator riter;
+    for(riter=result.begin();riter!=result.end();++riter)
+    {
+        *riter = uint16_t(labeltoindex[uint32_t(*riter)]);
+    }
+    neighbors = arma::Mat<uint16_t>(result.data(),2,result.size()/2,true,true);
+}
 
 template<typename M>
-void SuperVoxelClustering<M>::getCentroidMesh(M&cmesh)
+void SuperVoxelClustering<M>::getCentroids(M&cmesh)
 {
     std::vector<typename M::VertexHandle> vhandle;
     SuperVoxelIter iter;
@@ -100,6 +145,22 @@ void SuperVoxelClustering<M>::getCentroidMesh(M&cmesh)
         Voxel<M>& center = *supervoxel.centeroid();
         arma::fvec& c = center.xyz();
         vhandle.push_back( cmesh.add_vertex( typename M::Point( c(0),c(1),c(2) ) ) );
+    }
+}
+
+template<typename M>
+void SuperVoxelClustering<M>::getCentroids(arma::fmat& centers)
+{
+    std::vector<typename M::VertexHandle> vhandle;
+    SuperVoxelIter iter;
+    centers = arma::fmat(3,supervoxels_.size(),arma::fill::ones);
+    int idx = 0;
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        SuperVoxel<M>& supervoxel = **iter;
+        Voxel<M>& center = *supervoxel.centeroid();
+        centers.col(idx) = center.xyz();
+        ++idx;
     }
 }
 
@@ -203,6 +264,7 @@ void SuperVoxelClustering<M>::selectInitialSupervoxelSeeds(std::vector<uint32_t>
 template<typename M>
 void SuperVoxelClustering<M>::createSupervoxels(std::vector<uint32_t> &seed_indices)
 {
+    supervoxels_.clear();
     std::vector<uint32_t>::iterator iter;
     uint32_t label = 0;
     for(iter=seed_indices.begin();iter!=seed_indices.end();++iter)
@@ -261,12 +323,13 @@ void SuperVoxelClustering<M>::makeLabels(arma::uvec&labels)
     typename std::vector<typename SuperVoxel<M>::Ptr>::iterator iter;
     labels = arma::uvec(input_->n_vertices());
     labels.fill(0);
+    arma::uword sindex = 0;
     for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
     {
         arma::uvec indices;
         (*iter)->getPointIndices(indices);
-        arma::uword sindex = ( (*iter)->getLabel() + 1 );
-        labels.elem(indices).fill(sindex);
+        labels.elem(indices).fill(sindex+1);
+        ++sindex;
     }
 }
 
