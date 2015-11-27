@@ -10,8 +10,19 @@ TARGET = SegmentationCore
 TEMPLATE = lib
 CONFIG += c++11
 DEFINES += SEGMENTATIONCORE_LIBRARY
-
-SOURCES += segmentationcore.cpp
+DEFINES += USE_64_BIT_PTR_CAST
+SOURCES += segmentationcore.cpp \
+    graphcut.cpp \
+    MRF/src/BP-S.cpp \
+    MRF/src/GCoptimization.cpp \
+    MRF/src/graph.cpp \
+    MRF/src/ICM.cpp \
+    MRF/src/LinkedBlockList.cpp \
+    MRF/src/maxflow.cpp \
+    MRF/src/MaxProdBP.cpp \
+    MRF/src/mrf.cpp \
+    MRF/src/regions-maxprod.cpp \
+    MRF/src/TRW-S.cpp
 
 HEADERS += segmentationcore.h\
         segmentationcore_global.h \
@@ -19,7 +30,20 @@ HEADERS += segmentationcore.h\
     supervoxelclustering.hpp \
     segmentationbase.h \
     regiongrowing.h \
-    regiongrowing.hpp
+    regiongrowing.hpp \
+    graphcut.h \
+    MRF/include/block.h \
+    MRF/include/BP-S.h \
+    MRF/include/energy.h \
+    MRF/include/GCoptimization.h \
+    MRF/include/graph.h \
+    MRF/include/ICM.h \
+    MRF/include/LinkedBlockList.h \
+    MRF/include/MaxProdBP.h \
+    MRF/include/mrf.h \
+    MRF/include/regions-new.h \
+    MRF/include/TRW-S.h \
+    MRF/include/typeTruncatedQuadratic2D.h
 
 unix {
     target.path = /usr/lib
@@ -71,3 +95,4 @@ win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdPa
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/libblas.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/blas.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/blas.lib
+

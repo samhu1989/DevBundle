@@ -9,6 +9,7 @@ public:
     VoxelGraph(M&m):Ref_(m){}
     bool save(const std::string&);
     bool load(const std::string&);
+    void sv2pix(arma::uvec& sv,arma::uvec& pix);//supervoxel label to pixel label
     arma::fmat voxel_centers;
     arma::uvec voxel_label;//start from one
     arma::Mat<uint16_t> voxel_neighbors;

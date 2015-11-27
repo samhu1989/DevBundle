@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     patchpairview.cpp \
     updateobjectmodel.cpp \
     objectmodel.cpp \
-    supervoxelthread.cpp
+    supervoxelthread.cpp \
+    graphcutthread.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwindow.h \
     patchpairview.h \
     updateobjectmodel.h \
     objectmodel.h \
-    supervoxelthread.h
+    supervoxelthread.h \
+    graphcutthread.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

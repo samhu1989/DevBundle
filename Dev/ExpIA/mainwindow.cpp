@@ -14,6 +14,7 @@
 #include <QMdiSubWindow>
 #include <QDebug>
 #include "supervoxelthread.h"
+#include "graphcutthread.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUpdateObjModel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionUpdate_Label,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
 
@@ -582,6 +584,18 @@ void MainWindow::start_editing()
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
         s->show();
         w->startLater();
+    }
+    if(edit==ui->actionUpdate_Label)
+    {
+        GraphCutThread* th = new GraphCutThread(inputs_,objects_,labels_);
+        if(!th->configure(config_)){
+            th->deleteLater();
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        edit_thread_ = th;
     }
     if(edit_thread_){
         connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));

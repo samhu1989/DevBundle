@@ -5,6 +5,7 @@
 #include <armadillo>
 #include <stdint.h>
 #include "segmentationcore_global.h"
+#include "graphcut.h"
 namespace Segmentation
 {
 template class SEGMENTATIONCORESHARED_EXPORT  Voxel<DefaultMesh>;
