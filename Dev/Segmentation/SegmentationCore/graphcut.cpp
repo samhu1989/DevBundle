@@ -64,4 +64,9 @@ void GraphCut::init(VoxelGraph<DefaultMesh>& graph,Method method)
     }
 }
 
+void GraphCut::setNeighbors(int pix1, int pix2, MRF::CostVal w)
+{
+    mrf_->setNeighbors(pix1,pix2,w);
+}
+
 }

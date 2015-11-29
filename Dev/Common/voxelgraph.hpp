@@ -66,3 +66,9 @@ void VoxelGraph<M>::match(
         score[sv_i] = sv_match_score[sv_i]*sv_geo_score[sv_i]*sv_color_score[sv_i];
     }
 }
+
+template <typename M>
+double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2)
+{
+    ;
+}

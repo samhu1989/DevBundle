@@ -1,4 +1,6 @@
 #include "graphcutthread.h"
+arma::sp_mat GraphCutThread::smooth_;
+
 bool GraphCutThread::configure(Config::Ptr config)
 {
     config_ = config;
@@ -19,7 +21,11 @@ void GraphCutThread::run(void)
         {
 
         }
-        if(!prepareSmoothTerm())
+        if(!prepareSmoothTerm(gc))
+        {
+
+        }
+        if(!prepareNeighbors(gc))
         {
 
         }
@@ -55,7 +61,7 @@ bool GraphCutThread::prepareDataTerm()
 }
 
 void GraphCutThread::prepareDataForLabel(uint32_t l,
-        VoxelGraph& graph,
+        VoxelGraph<DefaultMesh>& graph,
         DefaultMesh& obj,
         std::vector<float> &geo_score,
         std::vector<float> &color_score)
@@ -69,7 +75,36 @@ void GraphCutThread::prepareDataForLabel(uint32_t l,
     }
 }
 
-bool GraphCutThread::prepareSmoothTerm()
+bool GraphCutThread::prepareSmoothTerm(Segmentation::GraphCut& gc)
 {
-    ;
+    MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
+    smooth_ = arma::sp_mat(pix_number_,pix_number_);
+    for( size_t idx = 0 ; idx < m.graph_.voxel_neighbors.n_cols ; ++idx )
+    {
+        size_t pix1 = m.graph_.voxel_neighbors(idx,0);
+        size_t pix2 = m.graph_.voxel_neighbors(idx,1);
+        smooth_(pix1,pix2) = m.graph_.voxel_similarity(pix1,pix2);
+    }
+    current_smooth_.reset(new SmoothnessCost(fnCost));
+    return true;
+}
+
+MRF::CostVal GraphCutThread::fnCost(int pix1,int pix2,MRF::Label i,MRF::Label j)
+{
+    if(i==j)return 0.0;
+    else return smooth_(pix1,pix2);
+}
+
+bool GraphCutThread::prepareNeighbors(Segmentation::GraphCut& gc)
+{
+    MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
+    double w_eps = 1.0 / double( m.mesh_.n_vertices() );
+    for( size_t idx = 0 ; idx < m.graph_.voxel_neighbors.n_cols ; ++idx )
+    {
+        size_t pix1 = m.graph_.voxel_neighbors(idx,0);
+        size_t pix2 = m.graph_.voxel_neighbors(idx,1);
+        double w = w_eps * ( m.graph_.voxel_size(pix1)+m.graph_.voxel_size(pix2) );
+        gc.setNeighbors(pix1,pix2,w);
+    }
+    return true;
 }

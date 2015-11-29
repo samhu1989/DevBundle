@@ -11,7 +11,11 @@ public:
     bool load(const std::string&);
     void sv2pix(arma::uvec& sv,arma::uvec& pix);//supervoxel label to pixel label
     void match(M&mesh,std::vector<float>& gscore, std::vector<float>& cscore,std::vector<float>&score);
+    double voxel_similarity(size_t v1,size_t v2);
+
     arma::fmat voxel_centers;
+    arma::Mat<uint8_t> voxel_colors;
+    arma::uvec voxel_size;
     arma::uvec voxel_label;//start from one
     arma::Mat<uint16_t> voxel_neighbors;
 private:

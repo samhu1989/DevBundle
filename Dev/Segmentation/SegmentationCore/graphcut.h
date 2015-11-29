@@ -22,6 +22,7 @@ public:
     void inputDataTerm(std::shared_ptr<DataCost>);
     void inputSmoothTerm(std::shared_ptr<SmoothnessCost>);
     void init(VoxelGraph<DefaultMesh>&,Method);
+    void setNeighbors(int pix1, int pix2, MRF::CostVal w);
     void optimize(uint32_t,float&);
     void getAnswer(arma::uvec&);
     const std::string& info(){return info_;}
