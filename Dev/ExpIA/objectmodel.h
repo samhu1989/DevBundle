@@ -13,6 +13,8 @@ struct ObjModel
     ObjModel();
     void update(MeshBundle<DefaultMesh>::Ptr ptr);
     void computeLayout();
+    bool transform(DefaultMesh&,uint32_t);
+    bool transform(DefaultMesh&,arma::fmat&,arma::fvec&);
     bool save(const std::string& path);
     bool load(const std::string& path);
     MeshBundle<DefaultMesh>::Ptr GeoM_;

@@ -24,10 +24,14 @@ protected:
     void run(void);
 
     bool prepareDataTerm();
+    void prepareDataForLabel(uint32_t l, VoxelGraph& graph, DefaultMesh& obj, std::vector<float> &geo_score,std::vector<float> &color_score);
     bool prepareSmoothTerm();
 
     uint32_t current_frame_;
+    uint32_t label_number_;
+    uint32_t pix_number_;
     std::shared_ptr<DataCost> current_data_;
+    std::shared_ptr<double> data_;
     std::shared_ptr<SmoothnessCost> current_smooth_;
 private:
     MeshBundle<DefaultMesh>::PtrList& meshes_;

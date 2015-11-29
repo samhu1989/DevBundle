@@ -130,6 +130,25 @@ void ObjModel::computeLayout()
     box.each_col() += t;
 }
 
+bool ObjModel::transform(DefaultMesh& m,uint32_t T_index)
+{
+    ObjModel::T::Ptr& T_ptr = GeoT_[T_index];
+    if(T_ptr&&0!=T_ptr.use_count())
+    {
+        arma::fmat R(T_ptr->R,3,3,false,true);
+        arma::fvec t(T_ptr->t,3,false,true);
+        return transform(m,R,t);
+    }else return false;
+}
+
+bool ObjModel::transform(DefaultMesh& m,arma::fmat& R,arma::fvec& t)
+{
+    m = GeoM_->mesh_;
+    arma::fmat V((float*)m.points(),3,m.n_vertices(),false,true);
+    V = R*V + t;
+    return true;
+}
+
 bool ObjModel::save(const std::string& path)
 {
     OpenMesh::IO::Options opt;
