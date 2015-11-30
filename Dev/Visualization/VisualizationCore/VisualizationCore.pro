@@ -61,3 +61,5 @@ DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
 FORMS += \
     labspace.ui
 
+INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
+DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include

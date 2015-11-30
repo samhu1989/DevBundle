@@ -32,6 +32,7 @@ protected:
             std::vector<float> &geo_score,
             std::vector<float> &color_score
             );
+    void prepareDataForUnknown();
     std::shared_ptr<double> data_;
     std::shared_ptr<DataCost> current_data_;
 

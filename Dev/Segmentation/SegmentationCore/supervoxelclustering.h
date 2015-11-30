@@ -154,6 +154,8 @@ public:
     void getSupervoxelAdjacency(arma::Mat<uint16_t>&);
     void getCentroids(M&cmesh);
     void getCentroids(arma::fmat&);
+    void getCentroidColors(arma::Mat<uint8_t>&);
+    void getSizes(arma::uvec&);
 
 public:
     inline float getSeedResolution()const{return seed_resolution_;}

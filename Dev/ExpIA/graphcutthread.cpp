@@ -34,6 +34,7 @@ void GraphCutThread::run(void)
         gc.inputSmoothTerm(current_smooth_);
         gc.init(m.graph_,Segmentation::GraphCut::EXPANSION);
         float t;
+        emit message(QString::fromStdString(gc.info()),0);
         gc.optimize(config_->getInt("GC_n_iter"),t);
         emit message(QString::fromStdString(gc.info()),0);
         arma::uvec sv_label;
@@ -57,7 +58,9 @@ bool GraphCutThread::prepareDataTerm()
         prepareDataForLabel(1+obj_index,m.graph_,obj_mesh,model.GeoP_,model.ColorP_);
         ++obj_index;
     }
+    prepareDataForUnknown();
     current_data_.reset(new DataCost(data_.get()));
+    return true;
 }
 
 void GraphCutThread::prepareDataForLabel(uint32_t l,
@@ -67,12 +70,21 @@ void GraphCutThread::prepareDataForLabel(uint32_t l,
         std::vector<float> &color_score)
 {
     double* data = data_.get();
-    std::vector<float> score;
+    arma::vec score;
     graph.match(obj,geo_score,color_score,score);
     for(size_t pix=0 ; pix < pix_number_ ; ++ pix)
     {
-        data[ pix*label_number_ + l ] = score[pix];
+        data[ pix*label_number_ + l ] = score(pix);
     }
+}
+
+void GraphCutThread::prepareDataForUnknown()
+{
+    arma::mat data((double*)data_.get(),label_number_,pix_number_,false,true);
+    data.row(0).fill(0.5);
+    arma::rowvec label_sum = arma::sum(data);
+    data.each_row() -= label_sum;
+    data *= -1.0*config_->getDouble("GC_data_weight");
 }
 
 bool GraphCutThread::prepareSmoothTerm(Segmentation::GraphCut& gc)

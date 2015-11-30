@@ -33,7 +33,10 @@ void GraphCut::optimize(uint32_t iter,float& time)
     mrf_->clearAnswer();
     mrf_->optimize(iter,time);
     std::stringstream stream;
-    stream<<"GraphCut: Done "<<iter<<"iterations in"<<time<<"s";
+    stream<<"GraphCut:"
+          <<"Done "<<iter<<"iterations in"<<time<<"s"
+          <<"Result in Data("<<mrf_->dataEnergy()<<")+"
+          <<"Smooth("<<mrf_->smoothnessEnergy()<<")";
     info_ = stream.str();
 }
 
@@ -62,6 +65,11 @@ void GraphCut::init(VoxelGraph<DefaultMesh>& graph,Method method)
         mrf_.reset(new MaxProdBP(numberofPixels,numberofLabels,eng_.get()));
         break;
     }
+    std::stringstream stream;
+    stream<<"GraphCut:"
+          <<"Init with Data("<<mrf_->dataEnergy()<<")+"
+          <<"Smooth("<<mrf_->smoothnessEnergy()<<")";
+    info_ = stream.str();
 }
 
 void GraphCut::setNeighbors(int pix1, int pix2, MRF::CostVal w)

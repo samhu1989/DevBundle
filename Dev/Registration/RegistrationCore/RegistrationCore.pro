@@ -73,3 +73,6 @@ DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
 #else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/libblas.a
 #else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/blas.lib
 #else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/SuperLU/lib/blas.lib
+
+INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
+DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include

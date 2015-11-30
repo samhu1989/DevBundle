@@ -165,6 +165,37 @@ void SuperVoxelClustering<M>::getCentroids(arma::fmat& centers)
 }
 
 template<typename M>
+void SuperVoxelClustering<M>::getCentroidColors(arma::Mat<uint8_t>& colors)
+{
+    SuperVoxelIter iter;
+    colors = arma::Mat<uint8_t>(3,supervoxels_.size(),arma::fill::ones);
+    int idx = 0;
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        SuperVoxel<M>& supervoxel = **iter;
+        Voxel<M>& center = *supervoxel.centeroid();
+        colors.col(idx) = arma::conv_to<arma::Mat<uint8_t>>::from(center.color());
+        ++idx;
+    }
+}
+
+template<typename M>
+void SuperVoxelClustering<M>::getSizes(arma::uvec& sizes)
+{
+    SuperVoxelIter iter;
+    sizes = arma::uvec(supervoxels_.size(),arma::fill::zeros);
+    int idx = 0;
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        SuperVoxel<M>& supervoxel = **iter;
+        arma::uvec pointindices;
+        supervoxel.getPointIndices(pointindices);
+        sizes(idx) = pointindices.size();
+        ++idx;
+    }
+}
+
+template<typename M>
 bool SuperVoxelClustering<M>::initCompute()
 {
     if(!input_)return false;
