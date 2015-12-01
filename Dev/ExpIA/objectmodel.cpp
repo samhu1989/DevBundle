@@ -145,7 +145,8 @@ bool ObjModel::transform(DefaultMesh& m,arma::fmat& R,arma::fvec& t)
 {
     m = GeoM_->mesh_;
     arma::fmat V((float*)m.points(),3,m.n_vertices(),false,true);
-    V = R*V + t;
+    V.each_col() -= t;
+    V = arma::inv(R)*V;
     return true;
 }
 

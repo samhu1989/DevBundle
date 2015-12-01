@@ -336,16 +336,16 @@ void MainWindow::load_objects()
     {
         objects_.emplace_back(new ObjModel());
         ObjModel::Ptr &ptr = objects_.back();
-        path = path.sprintf("GeoObj%u",index);
-        QString filepath = dir.absoluteFilePath(path);
-        odir.setPath(filepath);
-        if(!ptr->load(filepath.toStdString()))
+        if(!ptr->load(odir.absolutePath().toStdString()))
         {
-            QString msg = "Failed to Load From"+filepath+"\n";
+            QString msg = "Failed to Load From"+odir.absolutePath()+"\n";
             QMessageBox::critical(this, windowTitle(), msg);
             return;
         }
         ++index;
+        path = path.sprintf("GeoObj%u",index);
+        QString filepath = dir.absoluteFilePath(path);
+        odir.setPath(filepath);
     }
     if(!labels_.empty())
     {
@@ -449,6 +449,7 @@ void MainWindow::load_supervoxels()
             QMessageBox::critical(this, windowTitle(), msg);
             return;
         }
+        ptr->custom_color_.fromlabel(ptr->graph_.voxel_label);
     }
 }
 

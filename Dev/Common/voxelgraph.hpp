@@ -21,6 +21,8 @@ bool VoxelGraph<M>::load(const std::string&path)
     if(!voxel_size.load(path+"\\sizes.uvec.arma"))return false;
     if(!voxel_neighbors.load(path+"\\neighbors.Mat_uint16_t.arma"))return false;
     if(!voxel_label.load(path+"\\labels.uvec.arma"))return false;
+    if(voxel_centers.n_cols!=voxel_size.size())return false;
+    if(voxel_centers.n_cols!=voxel_colors.n_cols)return false;
     return true;
 }
 
@@ -54,7 +56,7 @@ void VoxelGraph<M>::match(
             L2_Simple_Adaptor<float,MeshKDTreeInterface<M>>,
             MeshKDTreeInterface<M>,
             3,arma::uword>
-            kdtree(3,points,KDTreeSingleIndexAdaptorParams(9));
+            kdtree(3,points,KDTreeSingleIndexAdaptorParams(5));
     kdtree.buildIndex();
     size_t sv_N = voxel_centers.n_cols;
     arma::uvec search_idx(5);
@@ -68,6 +70,7 @@ void VoxelGraph<M>::match(
     float* pts = (float*)Ref_.points();
     arma::Mat<uint8_t> ref_c_mat((uint8_t*)Ref_.vertex_colors(),3,Ref_.n_vertices(),false,true);
     arma::Mat<uint8_t> m_c_mat((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
+
     for( size_t p_i = 0 ; p_i < Ref_.n_vertices() ; ++ p_i )
     {
         kdtree.knnSearch(&pts[3*p_i],5,search_idx.memptr(),search_dist.memptr());
@@ -78,10 +81,13 @@ void VoxelGraph<M>::match(
         arma::uword min_idx;
         color_dist.min(min_idx);
         arma::uword sv_idx = voxel_label(p_i) - 1;
+        arma::uword match_idx = search_idx(min_idx);
+        if(match_idx>gscore.size())std::logic_error("match_idx>gscore.size()");
+        if(match_idx>cscore.size())std::logic_error("match_idx>cscore.size()");
         if( search_dist(min_idx) < 0.1 )
         sv_match_score(sv_idx) += exp( -search_dist(min_idx) )*exp( -color_dist(min_idx) / 255.0 );
-        sv_geo_score(sv_idx) += gscore[p_i];
-        sv_color_score(sv_idx) += cscore[p_i];
+        sv_geo_score(sv_idx) += gscore[match_idx];
+        sv_color_score(sv_idx) += cscore[match_idx];
     }
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
     {
@@ -89,6 +95,7 @@ void VoxelGraph<M>::match(
         sv_geo_score(sv_i) /= voxel_size(sv_i);
         sv_color_score(sv_i) /= voxel_size(sv_i);
     }
+    sv_match_score /= arma::max(sv_match_score);
     sv_geo_score /= arma::max(sv_geo_score);
     sv_color_score /= arma::max(sv_color_score);
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
@@ -107,6 +114,8 @@ double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2)
     arma::fmat pts((float*)Ref_.points(),3,Ref_.n_vertices(),false,true);
     arma::uvec idx1 = arma::find( voxel_label == (v1+1) );
     arma::uvec idx2 = arma::find( voxel_label == (v2+1) );
+    if(idx1.is_empty())std::logic_error("idx1.is_empty()");
+    if(idx2.is_empty())std::logic_error("idx2.is_empty()");
     arma::fmat pts1;
     arma::fmat pts2;
     if( idx1.size() > idx2.size() )
@@ -132,7 +141,6 @@ double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2)
         kdtree.knnSearch(&p[3*pi],1,&i,&d);
         if( d < spatial_dist )spatial_dist = d;
     }
-    //use the center color as the color
     double rgb_dist;
     arma::vec rgb1 = arma::conv_to<arma::vec>::from(voxel_colors.col(v1));
     arma::vec rgb2 = arma::conv_to<arma::vec>::from(voxel_colors.col(v2));

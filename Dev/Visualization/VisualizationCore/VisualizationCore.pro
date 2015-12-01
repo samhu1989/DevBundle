@@ -63,3 +63,5 @@ FORMS += \
 
 INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
 DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include
+
+LIBS += -lopenblas
