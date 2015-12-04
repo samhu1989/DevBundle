@@ -15,6 +15,8 @@
 #include <QDebug>
 #include "supervoxelthread.h"
 #include "graphcutthread.h"
+#include "objectview.h"
+#include <typeinfo>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -41,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUpdate_Label,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
+    connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
 
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
@@ -472,7 +475,7 @@ void MainWindow::closeInMdi(QWidget *w)
     ui->mdiArea->closeActiveSubWindow();
 }
 
-void MainWindow::showBox(size_t index,MeshBundle<DefaultMesh>::Ptr ptr)
+void MainWindow::showBox(int index,MeshBundle<DefaultMesh>::Ptr ptr)
 {
     if(index>=mesh_views_.size())return;
     MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(mesh_views_[index]);
@@ -579,7 +582,7 @@ void MainWindow::start_editing()
             return;
         }
         connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
-        connect(w,SIGNAL(show_layout(size_t,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(size_t,MeshBundle<DefaultMesh>::Ptr)));
+        connect(w,SIGNAL(show_layout(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)));
         w->setAttribute(Qt::WA_DeleteOnClose,true);
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w,Qt::Widget|Qt::WindowMinMaxButtonsHint);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
@@ -596,6 +599,7 @@ void MainWindow::start_editing()
             return;
         }
         connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
         edit_thread_ = th;
     }
     if(edit_thread_){
@@ -623,6 +627,16 @@ void MainWindow::finish_editing()
 void MainWindow::showLab()
 {
     LabSpace* v = new LabSpace();
+    v->setAttribute(Qt::WA_DeleteOnClose,true);
+    QMdiSubWindow* s = ui->mdiArea->addSubWindow(v);
+    connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));
+    s->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    v->show();
+}
+
+void MainWindow::viewObj()
+{
+    ObjectView* v = new ObjectView(objects_);
     v->setAttribute(Qt::WA_DeleteOnClose,true);
     QMdiSubWindow* s = ui->mdiArea->addSubWindow(v);
     connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));

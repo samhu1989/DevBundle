@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     updateobjectmodel.cpp \
     objectmodel.cpp \
     supervoxelthread.cpp \
-    graphcutthread.cpp
+    graphcutthread.cpp \
+    objectview.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -33,12 +34,14 @@ HEADERS  += mainwindow.h \
     updateobjectmodel.h \
     objectmodel.h \
     supervoxelthread.h \
-    graphcutthread.h
+    graphcutthread.h \
+    objectview.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
     patchpairview.ui \
-    updateobjectmodel.ui
+    updateobjectmodel.ui \
+    objectview.ui
 
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 

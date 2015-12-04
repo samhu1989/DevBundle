@@ -94,7 +94,7 @@ void SuperVoxelClustering<M>::getSupervoxelAdjacency(arma::Mat<uint16_t>&neighbo
     SuperVoxelIter iter;
     std::vector<uint16_t> result;
     result.reserve(9*supervoxels_.size());
-    arma::umat mem(supervoxels_.size(),supervoxels_.size(),arma::fill::zeros);
+    arma::sp_umat mem(supervoxels_.size(),supervoxels_.size());
     __gnu_cxx::hash_map<uint32_t,uint32_t> labeltoindex;
     uint32_t index = 0;
     for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
@@ -107,21 +107,22 @@ void SuperVoxelClustering<M>::getSupervoxelAdjacency(arma::Mat<uint16_t>&neighbo
         std::vector<uint32_t>::iterator labeliter;
         for(labeliter=neighbors.begin();labeliter!=neighbors.end();++labeliter)
         {
-            if(0==mem(label,*labeliter))
+            uint32_t s,b;
+            if(label<*labeliter){
+                b = label;
+                s = *labeliter;
+            }else if(label==*labeliter)
             {
-                mem(label,*labeliter)=1;
-                mem(*labeliter,label)=1;
-                if(label !=* labeliter)
-                {
-                    if( label < *labeliter )
-                    {
-                        result.push_back(uint16_t(label));
-                        result.push_back(uint16_t(*labeliter));
-                    }else{
-                        result.push_back(uint16_t(*labeliter));
-                        result.push_back(uint16_t(label));
-                    }
-                }
+                continue;
+            }else{
+                b = *labeliter;
+                s = label;
+            }
+            if(0==mem(s,b))
+            {
+                mem(s,b)=1;
+                result.push_back(uint16_t(s));
+                result.push_back(uint16_t(b));
             }
         }
         ++index;

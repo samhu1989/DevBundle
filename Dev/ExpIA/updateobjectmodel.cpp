@@ -99,8 +99,8 @@ void UpdateObjectModel::extract_patches()
         if(!*piter)*piter = std::make_shared<MeshBundle<DefaultMesh>>();
         tmp = tmp.sprintf("F%dL%d",frame,current_label_);
         (*piter)->name_ = tmp.toStdString();
+        (*piter)->mesh_.clear();
         if(!indices.is_empty()){
-            (*piter)->mesh_.clear();
             extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*piter)->mesh_);
             valid_patches_.push_back(frame);
         }
@@ -143,15 +143,28 @@ void UpdateObjectModel::update_objects()
             }
             //update geometry object
             std::vector<MeshBundle<DefaultMesh>::Ptr>& patch_list_ = geo_view_->list();
-            PatchList::reverse_iterator piter = patch_list_.rbegin();
-            ++piter;
-            for(;piter!=patch_list_.rend();++piter)
+            PatchList::reverse_iterator piter=patch_list_.rbegin();
+            piter++;//avoid the patch of registration gaussian center
+            obj_ptr->init(*(r->X));
+            for( ;piter!=patch_list_.rend();++piter)
             {
                 MeshBundle<DefaultMesh>::Ptr& patch_ptr = *piter;
                 if(!patch_ptr||0==patch_ptr.use_count())continue;
-                obj_ptr->update(patch_ptr);
+                if(0==patch_ptr->mesh_.n_vertices())continue;
+                obj_ptr->updateColor(patch_ptr);
             }
-            obj_ptr->computeLayout();;
+            obj_ptr->finishColor();
+            piter=patch_list_.rbegin();
+            piter++;
+            for( ;piter!=patch_list_.rend();++piter)
+            {
+                MeshBundle<DefaultMesh>::Ptr& patch_ptr = *piter;
+                if(!patch_ptr||0==patch_ptr.use_count())continue;
+                if(0==patch_ptr->mesh_.n_vertices())continue;
+                obj_ptr->updateWeight(patch_ptr);
+            }
+            obj_ptr->finishWeight();
+            obj_ptr->computeLayout();
         }
     }
 }
@@ -259,6 +272,10 @@ void UpdateObjectModel::show_layouts(void)
     size_t index = 0;
     for(iter=obj_ptr->GeoT_.begin();iter!=obj_ptr->GeoT_.end();++iter)
     {
+        if(!(*iter)||0==(*iter).use_count()){
+            ++index;
+            continue;
+        }
         ObjModel::T &T = **iter;
         arma::fmat::fixed<3,3> R(T.R);
         arma::fvec::fixed<3> t(T.t);

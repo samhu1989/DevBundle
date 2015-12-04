@@ -31,6 +31,7 @@ public:
       tex_id_(0),
       tex_mode_(GL_MODULATE),
       use_color_(true),
+      custom_color_(false),
       show_vnormals_(false),
       show_fnormals_(false),
       current_mesh_start_(0),
@@ -140,6 +141,7 @@ protected:
   uint32_t current_mesh_start_;
   uint32_t current_visible_num_;
 
+  bool                   custom_color_;
   bool                   use_color_;
   bool                   show_vnormals_;
   bool                   show_fnormals_;

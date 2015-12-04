@@ -13,7 +13,6 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     typedef QWidget* WidgetPtr;
     explicit MainWindow(QWidget *parent = 0);
@@ -25,7 +24,7 @@ signals:
 public slots:
     void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
     void closeInMdi(QWidget* w);
-    void showBox(size_t,MeshBundle<DefaultMesh>::Ptr);
+    void showBox(int,MeshBundle<DefaultMesh>::Ptr);
 
 protected slots:
     void configure();
@@ -49,6 +48,7 @@ protected slots:
     void finish_editing();
 
     void showLab();
+    void viewObj();
 private:
     Ui::MainWindow *ui;
     std::vector<WidgetPtr> mesh_views_;

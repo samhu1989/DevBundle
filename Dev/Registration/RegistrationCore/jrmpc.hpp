@@ -104,7 +104,7 @@ bool JRMPC<M>::initForThread(void *meshlistptr,std::vector<arma::uword>&valid_in
         mesh_ptr = (*list)[valid_index[index]];
         float*data = (float*)mesh_ptr -> mesh_.points();
         int N = mesh_ptr -> mesh_.n_vertices();
-        source.emplace_back(new arma::fmat(data,3,N,false,true));
+        if( N > 0 )source.emplace_back(new arma::fmat(data,3,N,false,true));
     }
 
     initK(source,info->k);
@@ -224,8 +224,9 @@ void JRMPC<M>::initK(
         nviews(idx) = (*iter)->n_cols;
         ++idx;
     }
-    k = int(0.9*arma::median(nviews));
+    k = int(0.5*arma::median(nviews));
     k = k > 12 ? k : 12 ;
+    k = k < 8000 ? k : 8000;
 }
 
 template<typename M>
@@ -561,7 +562,7 @@ void JRMPC<M>::varToColor()
         for(idx=0;idx<var_color->size();++idx)
         {
             h = std::sqrt( ( var(idx) - min_var ) / ( max_var - min_var ) );
-            ColorArray::hsv2rgb(h*270.0,0.5,1.0,tmp);
+            ColorArray::hsv2rgb(h*220.0+5.0,0.5,1.0,tmp);
             (*var_color)(idx) = tmp.color;
         }
     }else{

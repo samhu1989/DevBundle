@@ -1,7 +1,7 @@
 #include "voxelgraph.h"
 #include "KDtree.hpp"
 #include "nanoflann.hpp"
-
+#include "MeshColor.h"
 template <typename M>
 bool VoxelGraph<M>::save(const std::string&path)
 {
@@ -42,13 +42,26 @@ void VoxelGraph<M>::sv2pix(arma::uvec& sv,arma::uvec& pix)
     }
 }
 
+template <typename M>
+void VoxelGraph<M>::sv2pix(arma::Col<uint32_t>&sv,arma::Col<uint32_t>&pix)
+{
+    arma::uvec vl = voxel_label;
+    vl -= arma::uvec(vl.size(),arma::fill::ones);
+    arma::uvec out_of_bounds = arma::find( vl >= sv.size() || vl < 0 );
+    if(!out_of_bounds.is_empty())std::logic_error("!out_of_bounds.is_empty()");
+    if(pix.size()!=vl.size())std::logic_error("pix.size()!=vl.size()");
+    pix = sv(vl);
+}
+
 using namespace nanoflann;
 template <typename M>
 void VoxelGraph<M>::match(
         M&mesh,
         std::vector<float>&gscore,
         std::vector<float>&cscore,
-        arma::vec&score
+        arma::vec&score,
+        double dist_th,
+        double color_var
         )
 {
     MeshKDTreeInterface<M> points(mesh);
@@ -70,34 +83,45 @@ void VoxelGraph<M>::match(
     float* pts = (float*)Ref_.points();
     arma::Mat<uint8_t> ref_c_mat((uint8_t*)Ref_.vertex_colors(),3,Ref_.n_vertices(),false,true);
     arma::Mat<uint8_t> m_c_mat((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
-
+    double min_dist = std::numeric_limits<double>::max();
     for( size_t p_i = 0 ; p_i < Ref_.n_vertices() ; ++ p_i )
     {
         kdtree.knnSearch(&pts[3*p_i],5,search_idx.memptr(),search_dist.memptr());
-        arma::fvec current_c = arma::conv_to<arma::fvec>::from(ref_c_mat.col(p_i));
-        arma::fmat nearest_c = arma::conv_to<arma::fmat>::from(m_c_mat.cols(search_idx));
+        arma::fvec current_c;
+        ColorArray::RGB2Lab(ref_c_mat.col(p_i),current_c);
+        arma::fmat nearest_c;
+        ColorArray::RGB2Lab(m_c_mat.cols(search_idx),nearest_c);
         nearest_c.each_col() -= current_c;
-        arma::frowvec color_dist = arma::sum(arma::square(nearest_c));
+        arma::frowvec color_dist = arma::sqrt(arma::sum(arma::square(nearest_c)));
         arma::uword min_idx;
         color_dist.min(min_idx);
         arma::uword sv_idx = voxel_label(p_i) - 1;
         arma::uword match_idx = search_idx(min_idx);
         if(match_idx>gscore.size())std::logic_error("match_idx>gscore.size()");
         if(match_idx>cscore.size())std::logic_error("match_idx>cscore.size()");
-        if( search_dist(min_idx) < 0.1 )
-        sv_match_score(sv_idx) += exp( -search_dist(min_idx) )*exp( -color_dist(min_idx) / 255.0 );
+        if( search_dist(min_idx) < dist_th )
+        {
+            sv_match_score(sv_idx) += 1.0/(1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)/color_var));
+        }
+        if( min_dist > search_dist(min_idx) ) min_dist = search_dist(min_idx);
         sv_geo_score(sv_idx) += gscore[match_idx];
         sv_color_score(sv_idx) += cscore[match_idx];
     }
+    if( min_dist > dist_th )std::cerr<<"min_dist:"<<min_dist<<std::endl;
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
     {
         sv_match_score(sv_i) /= voxel_size(sv_i);
         sv_geo_score(sv_i) /= voxel_size(sv_i);
         sv_color_score(sv_i) /= voxel_size(sv_i);
     }
-    sv_match_score /= arma::max(sv_match_score);
-    sv_geo_score /= arma::max(sv_geo_score);
-    sv_color_score /= arma::max(sv_color_score);
+//    double match_max = arma::max(sv_match_score);
+//    if(match_max!=0.0)sv_match_score /= match_max;
+//    else {
+//        std::cerr<<"All zeros in sv_match_score with dist th="<<dist_th<<std::endl;
+//    }
+//    sv_geo_score /= arma::max(sv_geo_score);
+//    sv_color_score /= arma::max(sv_color_score);
+    if(!sv_match_score.is_finite())std::cerr<<"Infinite in sv_match_score"<<std::endl;
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
     {
         score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i)*sv_color_score(sv_i);
@@ -105,7 +129,7 @@ void VoxelGraph<M>::match(
 }
 
 template <typename M>
-double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2)
+double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2,double dist_th,double color_var)
 {
     if(v1>=voxel_centers.n_cols)std::logic_error("v1>=voxel_centers.n_cols");
     if(v2>=voxel_centers.n_cols)std::logic_error("v2>=voxel_centers.n_cols");
@@ -141,9 +165,40 @@ double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2)
         kdtree.knnSearch(&p[3*pi],1,&i,&d);
         if( d < spatial_dist )spatial_dist = d;
     }
-    double rgb_dist;
-    arma::vec rgb1 = arma::conv_to<arma::vec>::from(voxel_colors.col(v1));
-    arma::vec rgb2 = arma::conv_to<arma::vec>::from(voxel_colors.col(v2));
-    rgb_dist = arma::norm( rgb1 - rgb2 ) / 255.0;
-    return exp( - rgb_dist )*exp( - spatial_dist );
+    double color_dist;
+    arma::fvec Lab1;
+    ColorArray::RGB2Lab(voxel_colors.col(v1),Lab1);
+    arma::fvec Lab2;
+    ColorArray::RGB2Lab(voxel_colors.col(v2),Lab2);
+    color_dist = arma::norm( Lab1 - Lab2 );
+    return std::exp( -( color_dist / color_var ) )*std::exp( -spatial_dist );
+}
+
+template <typename M>
+void VoxelGraph<M>::get_XYZLab(arma::fmat&voxels,const arma::uvec&indices)
+{
+    arma::fmat XYZ;
+    arma::fmat Lab;
+    if(!indices.is_empty())
+    {
+        XYZ = voxel_centers.cols(indices);
+        ColorArray::RGB2Lab(voxel_colors.cols(indices),Lab);
+    }else{
+        XYZ = voxel_centers;
+        ColorArray::RGB2Lab(voxel_colors,Lab);
+    }
+    voxels = arma::join_cols(XYZ,Lab);
+}
+
+template <typename M>
+void VoxelGraph<M>::get_Lab(arma::fmat&voxels,const arma::uvec&indices)
+{
+    arma::fmat Lab;
+    if(!indices.is_empty())
+    {
+        ColorArray::RGB2Lab(voxel_colors.cols(indices),Lab);
+    }else{
+        ColorArray::RGB2Lab(voxel_colors,Lab);
+    }
+    voxels = Lab;
 }

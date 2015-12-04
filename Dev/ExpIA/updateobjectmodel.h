@@ -30,7 +30,7 @@ public slots:
     void startLater();
 signals:
     void message(QString,int);
-    void show_layout(size_t,MeshBundle<DefaultMesh>::Ptr);
+    void show_layout(int,MeshBundle<DefaultMesh>::Ptr);
     void closeInMdi(QWidget*);
 protected slots:
     void prepare_for_next();

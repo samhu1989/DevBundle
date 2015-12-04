@@ -84,6 +84,7 @@ public slots:
         }
     }
 
+    void use_custom(bool use){custom_color_=use;}
 private:
     OpenMesh::IO::Options _options;
 };

@@ -4,6 +4,7 @@
 #include "objectmodel.h"
 #include "graphcut.h"
 #include "common.h"
+#include <typeinfo>
 class GraphCutThread:public QThread
 {
     Q_OBJECT
@@ -11,18 +12,23 @@ public:
     GraphCutThread(
             MeshBundle<DefaultMesh>::PtrList&inputmesh,
             std::vector<ObjModel::Ptr>& inputobj,
-            std::vector<arma::uvec>& outputlabels
-            ):meshes_(inputmesh),objects_(inputobj),outputs_(outputlabels)
+            std::vector<arma::uvec>& outputlabels,
+            QObject* parent=0
+            ):QThread(parent),meshes_(inputmesh),objects_(inputobj),outputs_(outputlabels)
     {
         setObjectName("GraphCutThread");
         current_frame_ = 0;
     }
-signals:
-    void message(QString,int);
+
 public:
     bool configure(Config::Ptr config);
+signals:
+    void message(QString,int);
+    void sendMatch(int,MeshBundle<DefaultMesh>::Ptr);
 protected:
     void run(void);
+    void showMatch(size_t,DefaultMesh&);
+    void showData(size_t);
 
     bool prepareDataTerm();
     void prepareDataForLabel(
@@ -33,6 +39,8 @@ protected:
             std::vector<float> &color_score
             );
     void prepareDataForUnknown();
+    void normalizeData();
+
     std::shared_ptr<double> data_;
     std::shared_ptr<DataCost> current_data_;
 

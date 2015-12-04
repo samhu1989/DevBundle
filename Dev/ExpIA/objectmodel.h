@@ -11,7 +11,11 @@ struct ObjModel
       float t[3];
     }T;
     ObjModel();
-    void update(MeshBundle<DefaultMesh>::Ptr ptr);
+    void init(arma::fmat&X);
+    void updateColor(MeshBundle<DefaultMesh>::Ptr);
+    void finishColor();
+    void updateWeight(MeshBundle<DefaultMesh>::Ptr);
+    void finishWeight();
     void computeLayout();
     bool transform(DefaultMesh&,uint32_t);
     bool transform(DefaultMesh&,arma::fmat&,arma::fvec&);
@@ -21,8 +25,10 @@ struct ObjModel
     MeshBundle<DefaultMesh>::Ptr GeoLayout_;
     std::vector<T::Ptr> GeoT_;
     std::vector<float> GeoP_;
-    std::shared_ptr<arma::gmm_diag> ColorM_;//not used yet
     std::vector<float> ColorP_;
+private:
+    arma::mat accu_color_;
+    arma::uword accu_count_;
 };
 
 #endif // OBJECTMODEL_H

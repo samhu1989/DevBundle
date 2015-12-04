@@ -31,8 +31,8 @@ public:
     std::string name_;
     M                           mesh_;
     MeshColor<M>        custom_color_;
-    OpenMesh::StripifierT<M>  strips_;
     VoxelGraph<M>              graph_;
+    OpenMesh::StripifierT<M>  strips_;
 };
 
 template <typename IM,typename OM>

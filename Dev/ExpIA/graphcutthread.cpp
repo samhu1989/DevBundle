@@ -6,6 +6,15 @@ bool GraphCutThread::configure(Config::Ptr config)
     config_ = config;
     if(!config_->has("GC_iter_num"))return false;
     if(!config_->has("GC_data_weight"))return false;
+    if(!config_->has("GC_smooth_weight"))return false;
+    if(!config_->has("GC_gamma"))return false;
+    if(config_->getDouble("GC_gamma")>0.5||config_->getDouble("GC_gamma")<0){
+        emit message(tr("Wrong GC_gamma"),0);
+        return false;
+    }
+    if(!config_->has("GC_distance_threshold"))return false;
+    if(meshes_.empty())return false;
+    if(meshes_.front()->graph_.empty())return false;
     return true;
 }
 
@@ -31,20 +40,15 @@ void GraphCutThread::run(void)
 
         }
         gc.inputSmoothTerm(current_smooth_);
-        std::cerr<<"gc.init"<<std::endl;
         gc.init(Segmentation::GraphCut::EXPANSION);
-        std::cerr<<"prepareNeighbors"<<std::endl;
         if(!prepareNeighbors(gc))
         {
             std::cerr<<"Failed in prepareNeighbors"<<std::endl;
         }
-        std::cerr<<"Graphcut Update Info"<<std::endl;
         gc.updateInfo();
         float t;
-        std::cerr<<"message before optimize"<<std::endl;
         emit message(QString::fromStdString(gc.info()),0);
         gc.optimize(config_->getInt("GC_iter_num"),t);
-        std::cerr<<"message after optimize"<<std::endl;
         emit message(QString::fromStdString(gc.info()),0);
         arma::uvec sv_label;
         gc.getAnswer(sv_label);
@@ -52,6 +56,50 @@ void GraphCutThread::run(void)
         m.custom_color_.fromlabel(outputs_[current_frame_]);
         ++current_frame_;
     }
+}
+
+void GraphCutThread::showMatch(size_t idx,DefaultMesh& mesh)
+{
+    MeshBundle<DefaultMesh>::Ptr m_ptr(new MeshBundle<DefaultMesh>);
+    m_ptr->mesh_.request_vertex_colors();
+    m_ptr->mesh_ = mesh;
+    arma::Mat<uint8_t> cmat(
+                (uint8_t*)m_ptr->custom_color_.vertex_colors(),
+                4,
+                m_ptr->mesh_.n_vertices(),
+                false,
+                true
+    );
+    cmat.fill(255);
+    emit sendMatch(idx,m_ptr);
+}
+
+void GraphCutThread::showData(size_t current_label)
+{
+    if(current_label>=label_number_)return;
+    MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
+    arma::mat data(data_.get(),label_number_,pix_number_,false,true);
+    arma::Col<uint32_t> cv(pix_number_);
+    arma::Col<uint32_t> cmat(
+                (uint32_t*)m.custom_color_.vertex_colors(),
+                m.mesh_.n_vertices(),
+                false,
+                true
+    );
+    float max_var = arma::max(data.row(current_label));
+    float min_var = arma::min(data.row(current_label));
+    float h;
+    ColorArray::RGB32 tmp;
+    int idx;
+    #pragma omp for
+    for(idx=0;idx<data.n_cols;++idx)
+    {
+        if( max_var!=min_var )h = ( data(current_label,idx) - min_var ) / ( max_var - min_var );
+        else h = 0.0;
+        ColorArray::hsv2rgb( h*255.0 + 5.0,0.5,1.0,tmp);
+        cv(idx) = tmp.color;
+    }
+    m.graph_.sv2pix(cv,cmat);
 }
 
 bool GraphCutThread::prepareDataTerm()
@@ -67,13 +115,30 @@ bool GraphCutThread::prepareDataTerm()
         DefaultMesh obj_mesh;
         if(model.transform(obj_mesh,current_frame_))
         {
+            if(obj_mesh.n_vertices()==0)std::logic_error("obj_mesh.n_vertices()==0");
+            if(config_->has("GC_show_match")&&1==config_->getInt("GC_show_match"))
+            {
+                showMatch(current_frame_,obj_mesh);
+                QThread::sleep(1);
+            }
             prepareDataForLabel(1+obj_index,m.graph_,obj_mesh,model.GeoP_,model.ColorP_);
+            if(config_->has("GC_show_data")&&1==config_->getInt("GC_show_data"))
+            {
+                showData(1+obj_index);
+                QThread::sleep(1);
+            }
         }else{
             data_mat.row(1+obj_index).fill(0.0);
         }
         ++obj_index;
     }
     prepareDataForUnknown();
+    if(config_->has("GC_show_data")&&1==config_->getInt("GC_show_data"))
+    {
+        showData(0);
+        QThread::sleep(1);
+    }
+    normalizeData();
     current_data_.reset(new DataCost(data_.get()));
     return true;
 }
@@ -87,17 +152,51 @@ void GraphCutThread::prepareDataForLabel(uint32_t l,
     double* data = data_.get();
     arma::mat data_mat(data,label_number_,pix_number_,false,true);
     arma::vec score;
-    graph.match(obj,geo_score,color_score,score);
+    if(!config_->has("GC_color_var"))graph.match(obj,geo_score,color_score,score,config_->getDouble("GC_distance_threshold"));
+    else graph.match(obj,geo_score,color_score,score,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
     data_mat.row(l) = score.t();
+    if(!data_mat.row(l).is_finite())
+    {
+        std::cerr<<"infinite in data row "<<l<<std::endl;
+    }
 }
 
 void GraphCutThread::prepareDataForUnknown()
 {
+    MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
     arma::mat data((double*)data_.get(),label_number_,pix_number_,false,true);
-    data.row(0).fill(0.5);
-    arma::rowvec label_sum = arma::sum(data);
-    data.each_row() -= label_sum;
-    data *= -1.0*config_->getDouble("GC_data_weight");
+    if(!data.is_finite())
+    {
+        std::cerr<<"infinite in data"<<std::endl;
+    }
+    arma::mat known_mat = data.rows(1,label_number_-1);
+    arma::uword unknown_num = double(pix_number_)*config_->getDouble("GC_gamma");
+    std::cerr<<"unknown_num:"<<unknown_num<<std::endl;
+    arma::rowvec known_median = arma::median(known_mat);
+    arma::rowvec known_sum = arma::sum(known_mat);
+    arma::uvec sorted_i = arma::sort_index(known_sum);
+    arma::rowvec unknown_data(data.n_cols);
+    unknown_data = known_median;
+    arma::uvec choosen_i = sorted_i.head(unknown_num);
+    if(0!=choosen_i.size())unknown_data(choosen_i) = known_sum(choosen_i);
+    data.row(0) = unknown_data;
+}
+
+void GraphCutThread::normalizeData()
+{
+    arma::mat data((double*)data_.get(),label_number_,pix_number_,false,true);
+    arma::rowvec row_sum = arma::sum(data);
+    #pragma omp for
+    for(size_t i=0 ; i < pix_number_ ; ++i )
+    {
+        if( row_sum(i) !=0 )data.col(i) /= row_sum(i);
+    }
+    data = arma::mat(label_number_,pix_number_,arma::fill::ones) - data;
+    data *= config_->getDouble("GC_data_weight");
+    if(!data.is_finite())
+    {
+        std::cerr<<"infinite in data after normalized"<<std::endl;
+    }
 }
 
 bool GraphCutThread::prepareSmoothTerm(Segmentation::GraphCut& gc)
@@ -110,8 +209,10 @@ bool GraphCutThread::prepareSmoothTerm(Segmentation::GraphCut& gc)
         size_t pix2 = m.graph_.voxel_neighbors(1,idx);
         if(pix1>=pix_number_)std::logic_error("pix1>=pix_number_");
         if(pix2>=pix_number_)std::logic_error("pix2>=pix_number_");
-        smooth_(pix1,pix2) = m.graph_.voxel_similarity(pix1,pix2);
+        if(!config_->has("GC_color_var"))smooth_(pix1,pix2) = m.graph_.voxel_similarity(pix1,pix2);
+        else smooth_(pix1,pix2) = m.graph_.voxel_similarity(pix1,pix2,config_->getDouble("GC_color_var"));
     }
+    smooth_ *= config_->getDouble("GC_smooth_weight");
     current_smooth_.reset(new SmoothnessCost(GraphCutThread::fnCost));
     return true;
 }

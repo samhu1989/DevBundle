@@ -166,7 +166,7 @@ void ColorArray::RGB2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab)
         0.019224,0.119193,0.950227
                        };
     const arma::fmat::fixed<3,3> MAT(&m[0]);
-    arma::fvec XYZ = MAT*(arma::conv_to<arma::Col<uint8_t>>::from(rgb)/255.0);
+    arma::fvec XYZ = MAT*(arma::conv_to<arma::fvec>::from(rgb)/255.0);
     XYZ(0) /= 0.950456;
     XYZ(2) /= 1.088754;
 
@@ -214,6 +214,26 @@ void ColorArray::RGB2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab)
     Lab(0) = Y;
     Lab(1) = 500*( fX - fY );
     Lab(2) = 200*( fY - fZ );
+}
+
+void ColorArray::Lab2BGR(const arma::fmat& Lab, arma::Mat<uint8_t>& bgr)
+{
+    Lab2RGB(Lab,bgr);
+    bgr.swap_rows(0,2);
+}
+
+void ColorArray::BGR2Lab(const arma::Mat<uint8_t>& bgr, arma::fmat& Lab)
+{
+    arma::Mat<uint8_t> rgb = bgr;
+    rgb.swap_rows(0,2);
+    RGB2Lab(rgb,Lab);
+}
+
+void ColorArray::BGR2Lab(const arma::Col<uint8_t>& bgr, arma::fvec& Lab)
+{
+    arma::Col<uint8_t> rgb = bgr;
+    rgb.swap_rows(0,2);
+    RGB2Lab(rgb,Lab);
 }
 
 ColorArray::RGB32 COMMONSHARED_EXPORT ColorArray::DefaultColor[DefaultColorNum_] = {

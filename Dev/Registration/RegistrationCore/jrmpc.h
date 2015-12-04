@@ -32,6 +32,7 @@ namespace Registration {
         typedef struct Result{
             std::vector<std::shared_ptr<arma::fmat>> Rs;
             std::vector<std::shared_ptr<arma::fvec>> ts;
+            std::shared_ptr<arma::fmat> X;
         }Result;
 
         typedef typename std::vector<typename MeshBundle<M>::Ptr> MeshList;
@@ -88,6 +89,7 @@ namespace Registration {
                 varToColor();
                 ++count;
             }while(!isEnd());
+            res_ptr->X = X_ptr;
         }
 
         virtual void computeOnceStep(void)
