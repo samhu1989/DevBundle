@@ -7,9 +7,14 @@ bool GraphCutThread::configure(Config::Ptr config)
     if(!config_->has("GC_iter_num"))return false;
     if(!config_->has("GC_data_weight"))return false;
     if(!config_->has("GC_smooth_weight"))return false;
-    if(!config_->has("GC_gamma"))return false;
-    if(config_->getDouble("GC_gamma")>0.5||config_->getDouble("GC_gamma")<0){
-        emit message(tr("Wrong GC_gamma"),0);
+    if(!config_->has("GC_gamma_soft"))return false;
+    if(config_->getDouble("GC_gamma_soft")>0.5||config_->getDouble("GC_gamma_soft")<0){
+        emit message(tr("Wrong GC_gamma_soft"),0);
+        return false;
+    }
+    if(!config_->has("GC_gamma_hard"))return false;
+    if(config_->getDouble("GC_gamma_hard")>0.5||config_->getDouble("GC_gamma_hard")<0){
+        emit message(tr("Wrong GC_gamma_hard"),0);
         return false;
     }
     if(!config_->has("GC_distance_threshold"))return false;
@@ -170,7 +175,7 @@ void GraphCutThread::prepareDataForUnknown()
         std::cerr<<"infinite in data"<<std::endl;
     }
     arma::mat known_mat = data.rows(1,label_number_-1);
-    arma::uword unknown_num = double(pix_number_)*config_->getDouble("GC_gamma");
+    arma::uword unknown_num = double(pix_number_)*config_->getDouble("GC_gamma_soft");
     std::cerr<<"unknown_num:"<<unknown_num<<std::endl;
     arma::rowvec known_median = arma::median(known_mat);
     arma::rowvec known_sum = arma::sum(known_mat);
@@ -191,6 +196,11 @@ void GraphCutThread::normalizeData()
     {
         if( row_sum(i) !=0 )data.col(i) /= row_sum(i);
     }
+    arma::uword unknown_num = double(pix_number_)*config_->getDouble("GC_gamma_hard");
+    arma::rowvec unknown_data = data.row(0);
+    arma::uvec sorted_i = arma::sort_index(unknown_data);
+    arma::uvec choosen_i = sorted_i.head(unknown_num);
+    unknown_data(choosen_i).fill(1.0);
     data = arma::mat(label_number_,pix_number_,arma::fill::ones) - data;
     data *= config_->getDouble("GC_data_weight");
     if(!data.is_finite())
