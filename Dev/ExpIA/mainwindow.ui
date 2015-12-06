@@ -85,6 +85,7 @@
     <addaction name="actionCustom_Color"/>
     <addaction name="actionLab_Color_Space"/>
     <addaction name="actionObject_View"/>
+    <addaction name="actionSupervoxel_Color"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -192,6 +193,11 @@
   <action name="actionObject_View">
    <property name="text">
     <string>Object View</string>
+   </property>
+  </action>
+  <action name="actionSupervoxel_Color">
+   <property name="text">
+    <string>Supervoxel Color</string>
    </property>
   </action>
  </widget>

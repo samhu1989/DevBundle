@@ -24,8 +24,9 @@ struct ObjModel
     MeshBundle<DefaultMesh>::Ptr GeoM_;
     MeshBundle<DefaultMesh>::Ptr GeoLayout_;
     std::vector<T::Ptr> GeoT_;
-    std::vector<float> GeoP_;
-    std::vector<float> ColorP_;
+    arma::fvec DistP_;
+    arma::fvec ColorP_;
+    arma::fvec NormP_;
 private:
     arma::mat accu_color_;
     arma::uword accu_count_;

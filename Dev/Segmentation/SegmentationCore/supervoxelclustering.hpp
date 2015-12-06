@@ -152,7 +152,6 @@ void SuperVoxelClustering<M>::getCentroids(M&cmesh)
 template<typename M>
 void SuperVoxelClustering<M>::getCentroids(arma::fmat& centers)
 {
-    std::vector<typename M::VertexHandle> vhandle;
     SuperVoxelIter iter;
     centers = arma::fmat(3,supervoxels_.size(),arma::fill::ones);
     int idx = 0;
@@ -161,6 +160,21 @@ void SuperVoxelClustering<M>::getCentroids(arma::fmat& centers)
         SuperVoxel<M>& supervoxel = **iter;
         Voxel<M>& center = *supervoxel.centeroid();
         centers.col(idx) = center.xyz();
+        ++idx;
+    }
+}
+
+template<typename M>
+void SuperVoxelClustering<M>::getCentroidNormals(arma::fmat& normals)
+{
+    SuperVoxelIter iter;
+    normals = arma::fmat(3,supervoxels_.size(),arma::fill::ones);
+    int idx = 0;
+    for(iter=supervoxels_.begin();iter!=supervoxels_.end();++iter)
+    {
+        SuperVoxel<M>& supervoxel = **iter;
+        Voxel<M>& center = *supervoxel.centeroid();
+        normals.col(idx) = center.normal();
         ++idx;
     }
 }

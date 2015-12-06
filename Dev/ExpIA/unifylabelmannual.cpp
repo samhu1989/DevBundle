@@ -170,7 +170,7 @@ void UnifyLabelMannual::patchNext()
 void UnifyLabelMannual::patchDelete()
 {
     PatchPairView* v = pair_views_[current_patch_];
-    if(v->oview()->mesh_ptr()&&(0!=v->oview()->mesh_ptr()->n_vertices()))
+    if(v->oview()->mesh_ptr()&&(0!=v->oview()->mesh_ptr()->n_vertices()))//empty view
     {
         MeshPtr ptr(new DefaultMesh);
         v->pview()->reset_ptr(ptr);
@@ -181,7 +181,6 @@ void UnifyLabelMannual::patchDelete()
         {
             patches_.pop_back();
             patch_label_.shed_row(patch_label_.size()-1);
-            pair_views_.pop_back();
             --current_patch_;
         }else
         {
@@ -191,12 +190,13 @@ void UnifyLabelMannual::patchDelete()
             {
                 pair_views_[i]->pview()->reset_ptr(pair_views_[i+1]->pview()->mesh_ptr());
             }
-            pair_views_.back()->close();
-            pair_views_.back()->deleteLater();
-            ui->layout->removeWidget(pair_views_.back());
-            update();
-            pair_views_.pop_back();
         }
+        pair_views_.back()->hide();
+        pair_views_.back()->close();
+        ui->layout->removeWidget(pair_views_.back());
+        pair_views_.back()->deleteLater();
+        update();
+        pair_views_.pop_back();
         pair_views_[current_patch_]->setFrameShape(QFrame::Box);
     }
 }

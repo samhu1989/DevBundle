@@ -1,6 +1,7 @@
 #include "objectmodel.h"
 #include <nanoflann.hpp>
 #include "common.h"
+#include "featurecore.h"
 using namespace nanoflann;
 ObjModel::ObjModel():
     GeoM_(new MeshBundle<DefaultMesh>),
@@ -15,14 +16,16 @@ void ObjModel::init(arma::fmat&X)
         //init on first update
         accu_color_ = arma::mat(3,X.n_cols,arma::fill::zeros);
         accu_count_ = 0;
-        GeoP_.resize(X.n_cols,0.0);
-        ColorP_.resize(X.n_cols,0.0);
+        DistP_  = arma::fvec(X.n_cols,arma::fill::zeros);
+        ColorP_ = arma::fvec(X.n_cols,arma::fill::zeros);
+        NormP_ = arma::fvec(X.n_cols,arma::fill::zeros);
         GeoM_->mesh_.request_vertex_colors();
         GeoM_->mesh_.request_vertex_normals();
         for( size_t i = 0 ; i < X.n_cols ; ++ i )
         {
             GeoM_->mesh_.add_vertex(DefaultMesh::Point(X(0,i),X(1,i),X(2,i)));
         }
+        Feature::computePointNormal<DefaultMesh>(GeoM_->mesh_,0.0,10);
         return;
     }
 }
@@ -39,6 +42,7 @@ void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input)
     arma::uvec indices(1);
     arma::fvec dists(1);
     arma::fvec current_color;
+    arma::fvec current_normal;
     float* pdata = (float*)GeoM_->mesh_.points();
     uint8_t* cdata = (uint8_t*)input->mesh_.vertex_colors();
     arma::Mat<uint8_t> cmat(cdata,3,input->mesh_.n_vertices(),false,true);
@@ -47,8 +51,8 @@ void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input)
         kdtree.knnSearch(&(pdata[3*index]),1,indices.memptr(),dists.memptr());
         double w = 1.0 / ( 1.0 + dists(0) );
         current_color = arma::conv_to<arma::fvec>::from(cmat.col(indices(0)));
-        GeoP_[index] += w;
         accu_color_.col(index) += arma::conv_to<arma::vec>::from(w*current_color);
+        DistP_[index] += w;
     }
     ++ accu_count_;
 }
@@ -58,11 +62,15 @@ void ObjModel::finishColor()
     #pragma omp for
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
-        accu_color_.col(index) /= GeoP_[index];
-        GeoP_[index] /= accu_count_;
+        accu_color_.col(index) /= DistP_(index);
     }
     arma::Mat<uint8_t> mc((uint8_t*)GeoM_->mesh_.vertex_colors(),3,GeoM_->mesh_.n_vertices(),false,true);
     mc = arma::conv_to<arma::Mat<uint8_t>>::from(accu_color_);
+    #pragma omp for
+    for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
+    {
+        DistP_(index) /= accu_count_;
+    }
     accu_count_ = 0;
 }
 
@@ -79,19 +87,35 @@ void ObjModel::updateWeight(MeshBundle<DefaultMesh>::Ptr input)
     arma::fvec dists(1);
     arma::fvec current_color;
     arma::fvec neighbor_color;
+    arma::fvec current_normal;
+    arma::fvec neighbor_normal;
+
+    uint8_t* mcdata = (uint8_t*)GeoM_->mesh_.vertex_colors();
+    arma::Mat<uint8_t> mcmat(mcdata,3,GeoM_->mesh_.n_vertices(),false,true);
+    float* mndata = (float*)GeoM_->mesh_.vertex_normals();
+    arma::fmat mnmat(mndata,3,GeoM_->mesh_.n_vertices(),false,true);
+
     float* pdata = (float*)GeoM_->mesh_.points();
-    uint8_t* mdata = (uint8_t*)GeoM_->mesh_.vertex_colors();
-    arma::Mat<uint8_t> mcmat(mdata,3,GeoM_->mesh_.n_vertices(),false,true);
     uint8_t* cdata = (uint8_t*)input->mesh_.vertex_colors();
     arma::Mat<uint8_t> cmat(cdata,3,input->mesh_.n_vertices(),false,true);
+    float* ndata = (float*)input->mesh_.vertex_normals();
+    arma::fmat nmat(ndata,3,input->mesh_.n_vertices(),false,true);
+
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
         kdtree.knnSearch(&(pdata[3*index]),1,indices.memptr(),dists.memptr());
         ColorArray::RGB2Lab(cmat.col(indices(0)),current_color);
         ColorArray::RGB2Lab(mcmat.col(index),neighbor_color);
+        current_normal = nmat.col(indices(0));
+        neighbor_normal = mnmat.col(index);
         double color_dist = arma::norm(current_color - neighbor_color);
-        double w = 1.0 / ( 1.0 + color_dist );
-        ColorP_[index] += w;
+        double cw = 1.0 / ( 1.0 + color_dist );
+        ColorP_(index) += cw;
+        if(current_normal.is_finite()&&neighbor_normal.is_finite())
+        {
+            double nw = std::abs(arma::dot(current_normal,neighbor_normal));
+            NormP_(index) += nw;
+        }
     }
     ++ accu_count_;
 }
@@ -101,24 +125,29 @@ void ObjModel::finishWeight()
     #pragma omp for
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
-        ColorP_[index] /= accu_count_;
+        ColorP_(index) /= accu_count_;
+        NormP_(index) /= accu_count_;
     }
     accu_count_ = 0;
 }
 
 void ObjModel::computeLayout()
 {
-    if(GeoP_.size()!=GeoM_->mesh_.n_vertices())std::logic_error("GeoP_.size()!=GeoM_->mesh_.n_vertices()");
+    if(DistP_.size()!=GeoM_->mesh_.n_vertices())std::logic_error("GeoP_.size()!=GeoM_->mesh_.n_vertices()");
+    if(NormP_.size()!=GeoM_->mesh_.n_vertices())std::logic_error("NormP_.size()!=GeoM_->mesh_.n_vertices()");
     if(ColorP_.size()!=GeoM_->mesh_.n_vertices())std::logic_error("ColorP_.size()!=GeoM_->mesh_.n_vertices()");
     buildBB(GeoLayout_->mesh_);
     arma::fmat box((float*)GeoLayout_->mesh_.points(),3,8,false,true);
     arma::fmat pts((float*)GeoM_->mesh_.points(),3,GeoM_->mesh_.n_vertices(),false,true);
     arma::uvec indices;
-    arma::fvec gp(GeoP_);
-    arma::fvec cp(ColorP_);
-    float gm = arma::mean(gp);
-    float cm = arma::mean(cp);
-    indices = arma::find( ( gp >= gm ) && ( cp >= cm ) );
+    float dm = arma::median(DistP_);
+    float cm = arma::median(ColorP_);
+    float nm = arma::median(NormP_);
+    indices = arma::find( ( DistP_ >= dm ) && ( ColorP_ >= cm ) && ( NormP_ >= nm ) );
+    if(indices.is_empty())
+    {
+       indices = arma::find(  ( ColorP_ >= cm ) );
+    }
     arma::fmat input = pts.cols(indices);
     arma::fmat R;
     arma::fvec t;
@@ -152,11 +181,14 @@ bool ObjModel::transform(DefaultMesh& m,uint32_t T_index)
 
 bool ObjModel::transform(DefaultMesh& m,arma::fmat& R,arma::fvec& t)
 {
+    m.request_vertex_normals();
     m.request_vertex_colors();
     m = GeoM_->mesh_;
     arma::fmat V((float*)m.points(),3,m.n_vertices(),false,true);
     V.each_col() -= t;
     V = arma::inv(R)*V;
+    arma::fmat N((float*)m.vertex_normals(),3,m.n_vertices(),false,true);
+    N = arma::inv(R)*N;
     return true;
 }
 
@@ -177,10 +209,9 @@ bool ObjModel::save(const std::string& path)
         std::cerr<<"can't save to:"<<path+"\\GeoLayout.ply"<<std::endl;
         return false;
     }
-    arma::fvec ColorP(ColorP_);
-    if(!ColorP.save(path+"\\ColorP.fvec.arma",arma::arma_binary))return false;
-    arma::fvec GeoP(GeoP_);
-    if(!GeoP.save(path+"\\GeoP.fvec.arma",arma::arma_binary))return false;
+    if(!ColorP_.save(path+"\\ColorP.fvec.arma",arma::arma_binary))return false;
+    if(!NormP_.save(path+"\\NormP.fvec.arma",arma::arma_binary))return false;
+    if(!DistP_.save(path+"\\DistP.fvec.arma",arma::arma_binary))return false;
     //saving Ts;
     arma::uvec T_indices(GeoT_.size(),arma::fill::zeros);
     std::vector<T::Ptr>::iterator iter;
@@ -226,20 +257,21 @@ bool ObjModel::load(const std::string& path)
     GeoLayout_->mesh_.request_vertex_normals();
     GeoLayout_->mesh_.request_vertex_colors();
     if(!OpenMesh::IO::read_mesh(GeoLayout_->mesh_,path+"\\GeoLayout.ply",opt))return false;
-    arma::fvec ColorP;
-    if(!ColorP.load(path+"\\ColorP.fvec.arma"))return false;
-    ColorP_ = arma::conv_to<std::vector<float>>::from(ColorP);
-    if(!ColorP.is_finite())
+    if(!ColorP_.load(path+"\\ColorP.fvec.arma"))return false;
+    if(!ColorP_.is_finite())
     {
         std::cerr<<"Infinite in ColorP"<<std::endl;
     }
-    arma::fvec GeoP;
-    if(!GeoP.load(path+"\\GeoP.fvec.arma"))return false;
-    if(!GeoP.is_finite())
+    if(!NormP_.load(path+"\\NormP.fvec.arma"))return false;
+    if(!NormP_.is_finite())
     {
-        std::cerr<<"Infinite in GeoP"<<std::endl;
+        std::cerr<<"Infinite in NormP"<<std::endl;
     }
-    GeoP_ = arma::conv_to<std::vector<float>>::from(GeoP);
+    if(!DistP_.load(path+"\\DistP.fvec.arma"))return false;
+    if(!DistP_.is_finite())
+    {
+        std::cerr<<"Infinite in DistP"<<std::endl;
+    }
     //loading Ts;
     arma::uvec T_indices;
     if(!T_indices.load(path+"\\T_indices.uvec.arma"))return false;

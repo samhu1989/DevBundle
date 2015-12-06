@@ -18,6 +18,7 @@ public:
     ~ObjectView();
 protected slots:
     void view_color_weight(bool);
+    void view_normal_weight(bool);
     void view_spatial_weight(bool);
     void view_original_color(bool);
 private:

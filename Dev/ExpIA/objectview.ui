@@ -88,6 +88,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QRadioButton" name="norm_w">
+       <property name="text">
+        <string>Normal Weight</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QRadioButton" name="spatial_w">
        <property name="text">
         <string>Spatial Weight</string>

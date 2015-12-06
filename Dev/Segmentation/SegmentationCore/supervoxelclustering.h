@@ -155,6 +155,7 @@ public:
     void getCentroids(M&cmesh);
     void getCentroids(arma::fmat&);
     void getCentroidColors(arma::Mat<uint8_t>&);
+    void getCentroidNormals(arma::fmat&);
     void getSizes(arma::uvec&);
 
 public:

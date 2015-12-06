@@ -111,6 +111,7 @@
 #define __ENERGY_H__
 
 #include <assert.h>
+#include <iostream>
 #include "graph.h"
 
 class Energy : Graph
@@ -242,10 +243,9 @@ inline void Energy::add_term2(Var x, Var y,
                               Value C, Value D)
 {
     /*  Added "truncation" code below to ensure regularity / submodularity */
-    if ( A+D > C+B) {
+    if ( (A+D) > (C+B) ) {
 	Value delta = A+D-C-B;
         Value subtrA = delta/3;
-
         A = A-subtrA;
         C = C+subtrA;
         B = B+(delta-subtrA*2);
@@ -270,7 +270,17 @@ inline void Energy::add_term2(Var x, Var y,
        C 0
     */
 
+    if( (B + C) < 0)
+    {
+        std::cerr<<"ABCD:"<<std::endl;
+        std::cerr<<A<<std::endl;
+        std::cerr<<B<<std::endl;
+        std::cerr<<C<<std::endl;
+        std::cerr<<D<<std::endl;
+    }
+
     assert(B + C >= 0); /* check regularity */
+
     if (B < 0)
     {
         /* Write it as

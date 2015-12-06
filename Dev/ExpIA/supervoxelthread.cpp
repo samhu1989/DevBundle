@@ -34,6 +34,7 @@ void SupervoxelThread::run(void)
         input->custom_color_.fromlabel(input->graph_.voxel_label);
         svc.getCentroids(input->graph_.voxel_centers);
         svc.getCentroidColors(input->graph_.voxel_colors);
+        svc.getCentroidNormals(input->graph_.voxel_normals);
         svc.getSizes(input->graph_.voxel_size);
         svc.getSupervoxelAdjacency(input->graph_.voxel_neighbors);
     }

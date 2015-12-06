@@ -52,3 +52,4 @@ void MeshColor<M>::fromlabel(const arma::uvec&label)
         ++ptr;
     }
 }
+

@@ -114,6 +114,7 @@ void UpdateObjectModel::extract_patches()
 
 void UpdateObjectModel::update_objects()
 {
+    std::cerr<<"update objects"<<std::endl;
     if(geo_thread_)
     {
         JRMPC_Thread* th = qobject_cast<JRMPC_Thread*>(geo_thread_);
@@ -129,7 +130,7 @@ void UpdateObjectModel::update_objects()
 
             std::vector<arma::uword>::iterator iter;
             obj_ptr->GeoT_.resize(inputs_.size());
-            //update transformation
+            std::cerr<<"update transform"<<std::endl;
             arma::uword index = 0;
             for(iter=valid_patches_.begin();iter!=valid_patches_.end();++iter)
             {
@@ -141,7 +142,7 @@ void UpdateObjectModel::update_objects()
                 t = *(r->ts[index]);
                 ++index;
             }
-            //update geometry object
+            std::cerr<<"update geometry object"<<std::endl;
             std::vector<MeshBundle<DefaultMesh>::Ptr>& patch_list_ = geo_view_->list();
             PatchList::reverse_iterator piter=patch_list_.rbegin();
             piter++;//avoid the patch of registration gaussian center
@@ -154,6 +155,7 @@ void UpdateObjectModel::update_objects()
                 obj_ptr->updateColor(patch_ptr);
             }
             obj_ptr->finishColor();
+            std::cerr<<"update weight"<<std::endl;
             piter=patch_list_.rbegin();
             piter++;
             for( ;piter!=patch_list_.rend();++piter)
@@ -164,6 +166,7 @@ void UpdateObjectModel::update_objects()
                 obj_ptr->updateWeight(patch_ptr);
             }
             obj_ptr->finishWeight();
+            std::cerr<<"compute layout"<<std::endl;
             obj_ptr->computeLayout();
         }
     }
@@ -236,6 +239,7 @@ void UpdateObjectModel::finish_current()
                 QApplication::processEvents();
             }
             update_objects();
+            std::cerr<<"done update objects"<<std::endl;
             show_layouts();
             done_align_ = true;
             geo_thread_->deleteLater();

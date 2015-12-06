@@ -29,14 +29,16 @@ protected:
     void run(void);
     void showMatch(size_t,DefaultMesh&);
     void showData(size_t);
+    void showSmooth();
 
     bool prepareDataTerm();
     void prepareDataForLabel(
             uint32_t l,
             VoxelGraph<DefaultMesh>& graph,
             DefaultMesh& obj,
-            std::vector<float> &geo_score,
-            std::vector<float> &color_score
+            arma::fvec &dist_score,
+            arma::fvec &norm_score,
+            arma::fvec &color_score
             );
     void prepareDataForUnknown();
     void normalizeData();

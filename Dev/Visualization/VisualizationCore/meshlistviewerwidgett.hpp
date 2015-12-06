@@ -595,24 +595,28 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 //    setDefaultMaterial();
 //  }
 
-//  if (show_vnormals_)
-//  {
-//    typename Mesh::VertexIter vit;
-//    glDisable(GL_LIGHTING);
-//    glBegin(GL_LINES);
-//    glColor3f(1.000f, 0.803f, 0.027f); // orange
-//    for(vit=first_->mesh_.vertices_begin(); vit!=first_->mesh_.vertices_end(); ++vit)
-//    {
-//      glVertex( first_->mesh_ , *vit );
-//      glVertex( first_->mesh_.point( *vit ) + normal_scale_*first_->mesh_.normal( *vit ) );
-//    }
-//    for(vit=second_->mesh_.vertices_begin(); vit!=second_->mesh_.vertices_end(); ++vit)
-//    {
-//      glVertex( second_->mesh_ , *vit );
-//      glVertex( second_->mesh_.point( *vit ) + normal_scale_*second_->mesh_.normal( *vit ) );
-//    }
-//    glEnd();
-//  }
+  if (show_vnormals_)
+  {
+    typename Mesh::VertexIter vit;
+    glDisable(GL_LIGHTING);
+    glBegin(GL_LINES);
+    glColor3f(1.000f, 0.803f, 0.027f); // orange
+    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+    int cnt = 0;
+    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+    {
+        if((*iter)->mesh_.n_vertices())
+        for(vit=(*iter)->mesh_.vertices_begin(); vit!=(*iter)->mesh_.vertices_end(); ++vit)
+        {
+          glVertex( (*iter)->mesh_ , *vit );
+          glVertex( (*iter)->mesh_.point( *vit ) + normal_scale_*(*iter)->mesh_.normal( *vit ) );
+        }
+        ++cnt;
+        ++iter;
+        if(iter==mesh_list_.end())iter=mesh_list_.begin();
+    }
+    glEnd();
+  }
 
 //  if (show_fnormals_)
 //  {
@@ -812,6 +816,7 @@ void MeshListViewerWidgetT<M>::set_center_at_mesh(const Mesh& mesh_)
     set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
     // for normal display
     normal_scale_ = (bbMax-bbMin).min()*0.05f;
+    std::cerr<<"normal scale:"<<normal_scale_<<std::endl;
 }
 
 #endif // MESHLISTVIEWERWIDGETT_HPP

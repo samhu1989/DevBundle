@@ -49,6 +49,7 @@ protected slots:
 
     void showLab();
     void viewObj();
+    void showSVColor();
 private:
     Ui::MainWindow *ui;
     std::vector<WidgetPtr> mesh_views_;

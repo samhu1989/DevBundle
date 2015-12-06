@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
+    connect(ui->actionSupervoxel_Color,SIGNAL(triggered(bool)),this,SLOT(showSVColor()));
 
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
@@ -642,6 +643,26 @@ void MainWindow::viewObj()
     connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));
     s->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     v->show();
+}
+
+void MainWindow::showSVColor()
+{
+    if(inputs_.empty())return;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter;
+    for(iter=inputs_.begin();iter!=inputs_.end();++iter)
+    {
+        if(!*iter||0==(*iter).use_count())return;
+        MeshBundle<DefaultMesh>& m = **iter;
+        if(m.graph_.voxel_colors.size()==0)return;
+        arma::Mat<uint8_t> cmat(
+                    (uint8_t*)m.custom_color_.vertex_colors(),
+                    4,
+                    m.mesh_.n_vertices(),
+                    false,
+                    true
+        );
+        m.graph_.sv2pix(m.graph_.voxel_colors,cmat);
+    }
 }
 
 MainWindow::~MainWindow()

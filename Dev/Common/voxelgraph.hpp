@@ -6,6 +6,7 @@ template <typename M>
 bool VoxelGraph<M>::save(const std::string&path)
 {
     if(!voxel_centers.save(path+"\\centers.fvec.arma",arma::arma_binary))return false;
+    if(!voxel_normals.save(path+"\\normals.fvec.arma",arma::arma_binary))return false;
     if(!voxel_colors.save(path+"\\colors.Mat_uint8_t.arma",arma::arma_binary))return false;
     if(!voxel_size.save(path+"\\sizes.uvec.arma",arma::arma_binary))return false;
     if(!voxel_neighbors.save(path+"\\neighbors.Mat_uint16_t.arma",arma::arma_binary))return false;
@@ -17,12 +18,14 @@ template <typename M>
 bool VoxelGraph<M>::load(const std::string&path)
 {
     if(!voxel_centers.load(path+"\\centers.fvec.arma"))return false;
+    if(!voxel_normals.load(path+"\\normals.fvec.arma"))return false;
     if(!voxel_colors.load(path+"\\colors.Mat_uint8_t.arma"))return false;
     if(!voxel_size.load(path+"\\sizes.uvec.arma"))return false;
     if(!voxel_neighbors.load(path+"\\neighbors.Mat_uint16_t.arma"))return false;
     if(!voxel_label.load(path+"\\labels.uvec.arma"))return false;
     if(voxel_centers.n_cols!=voxel_size.size())return false;
     if(voxel_centers.n_cols!=voxel_colors.n_cols)return false;
+    if(voxel_centers.n_cols!=voxel_normals.n_cols)return false;
     return true;
 }
 
@@ -52,13 +55,25 @@ void VoxelGraph<M>::sv2pix(arma::Col<uint32_t>&sv,arma::Col<uint32_t>&pix)
     if(pix.size()!=vl.size())std::logic_error("pix.size()!=vl.size()");
     pix = sv(vl);
 }
+template <typename M>
+void VoxelGraph<M>::sv2pix(arma::Mat<uint8_t>&sv,arma::Mat<uint8_t>&pix)
+{
+    arma::uvec vl = voxel_label;
+    vl -= arma::uvec(vl.size(),arma::fill::ones);
+    arma::uvec out_of_bounds = arma::find( vl >= sv.size() || vl < 0 );
+    if(!out_of_bounds.is_empty())std::logic_error("!out_of_bounds.is_empty()");
+    if(pix.size()!=vl.size())std::logic_error("pix.size()!=vl.size()");
+    pix.rows(0,2) = sv.cols(vl);
+    pix.row(3).fill(255);
+}
 
 using namespace nanoflann;
 template <typename M>
 void VoxelGraph<M>::match(
         M&mesh,
-        std::vector<float>&gscore,
-        std::vector<float>&cscore,
+        arma::fvec&gscore,
+        arma::fvec&nscore,
+        arma::fvec&cscore,
         arma::vec&score,
         double dist_th,
         double color_var
@@ -77,12 +92,15 @@ void VoxelGraph<M>::match(
 
     arma::vec sv_match_score(sv_N,arma::fill::zeros);
     arma::vec sv_geo_score(sv_N,arma::fill::zeros);
+    arma::vec sv_norm_score(sv_N,arma::fill::zeros);
     arma::vec sv_color_score(sv_N,arma::fill::zeros);
     score.resize(sv_N);
 
     float* pts = (float*)Ref_.points();
     arma::Mat<uint8_t> ref_c_mat((uint8_t*)Ref_.vertex_colors(),3,Ref_.n_vertices(),false,true);
     arma::Mat<uint8_t> m_c_mat((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
+    arma::fmat ref_n_mat((float*)Ref_.vertex_normals(),3,Ref_.n_vertices(),false,true);
+    arma::fmat m_n_mat((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
     double min_dist = std::numeric_limits<double>::max();
     for( size_t p_i = 0 ; p_i < Ref_.n_vertices() ; ++ p_i )
     {
@@ -99,19 +117,30 @@ void VoxelGraph<M>::match(
         arma::uword match_idx = search_idx(min_idx);
         if(match_idx>gscore.size())std::logic_error("match_idx>gscore.size()");
         if(match_idx>cscore.size())std::logic_error("match_idx>cscore.size()");
+        arma::fvec current_n = ref_n_mat.col(p_i);
+        arma::fvec nearest_n = m_n_mat.col(match_idx);
         if( search_dist(min_idx) < dist_th )
         {
-            sv_match_score(sv_idx) += 1.0/(1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)/color_var));
+//            sv_match_score(sv_idx) += 1.0/(1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)/color_var));
+//            sv_match_score(sv_idx) += 1.0/(1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
+            if(current_n.is_finite()&&nearest_n.is_finite())
+            {
+                sv_match_score(sv_idx) += std::abs(arma::dot(current_n,nearest_n)) / (1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
+            }
+            else sv_match_score(sv_idx) += 1.0 / (1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
         }
         if( min_dist > search_dist(min_idx) ) min_dist = search_dist(min_idx);
         sv_geo_score(sv_idx) += gscore[match_idx];
+        sv_norm_score(sv_idx) += nscore[match_idx];
         sv_color_score(sv_idx) += cscore[match_idx];
     }
     if( min_dist > dist_th )std::cerr<<"min_dist:"<<min_dist<<std::endl;
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
     {
+        assert(voxel_size(sv_i)>0);
         sv_match_score(sv_i) /= voxel_size(sv_i);
         sv_geo_score(sv_i) /= voxel_size(sv_i);
+        sv_norm_score(sv_i) /= voxel_size(sv_i);
         sv_color_score(sv_i) /= voxel_size(sv_i);
     }
 //    double match_max = arma::max(sv_match_score);
@@ -124,7 +153,8 @@ void VoxelGraph<M>::match(
     if(!sv_match_score.is_finite())std::cerr<<"Infinite in sv_match_score"<<std::endl;
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
     {
-        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i)*sv_color_score(sv_i);
+        if(sv_norm_score(sv_i)<0)std::logic_error("sv_norm_score(sv_i)<0");
+        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i)*sv_norm_score(sv_i)*sv_color_score(sv_i);
     }
 }
 
@@ -167,11 +197,23 @@ double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2,double dist_th,double
     }
     double color_dist;
     arma::fvec Lab1;
+    arma::fvec ab1(2);
     ColorArray::RGB2Lab(voxel_colors.col(v1),Lab1);
+    ab1(0) = Lab1(1);ab1(1) = Lab1(2);
     arma::fvec Lab2;
+    arma::fvec ab2(2);
     ColorArray::RGB2Lab(voxel_colors.col(v2),Lab2);
-    color_dist = arma::norm( Lab1 - Lab2 );
-    return std::exp( -( color_dist / color_var ) )*std::exp( -spatial_dist );
+    ab2(0) = Lab2(1);ab2(1) = Lab2(2);
+    color_dist = arma::norm( ab1 - ab2 );
+
+    arma::fvec norm1 = voxel_normals.col(v1);
+    arma::fvec norm2 = voxel_normals.col(v2);
+    double normal_sim = 1.0;
+    if(norm1.is_finite()&&norm2.is_finite())
+    {
+        normal_sim = std::abs(arma::dot(norm1,norm2));
+    }
+    return normal_sim / (1.0+spatial_dist) / (1.0+color_dist);
 }
 
 template <typename M>
