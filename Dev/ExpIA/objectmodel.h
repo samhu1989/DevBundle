@@ -19,15 +19,23 @@ struct ObjModel
     void computeLayout();
     bool transform(DefaultMesh&,uint32_t);
     bool transform(DefaultMesh&,arma::fmat&,arma::fvec&);
+
     bool save(const std::string& path);
     bool load(const std::string& path);
+
+    void fullLayout(std::string&,int32_t);
+    void fullModel(DefaultMesh&,int32_t);
+
     MeshBundle<DefaultMesh>::Ptr GeoM_;
     MeshBundle<DefaultMesh>::Ptr GeoLayout_;
+
     std::vector<T::Ptr> GeoT_;
     arma::fvec DistP_;
     arma::fvec ColorP_;
     arma::fvec NormP_;
 private:
+    DefaultMesh FullM_;
+    DefaultMesh FullLayout_;
     arma::mat accu_color_;
     arma::uword accu_count_;
 };

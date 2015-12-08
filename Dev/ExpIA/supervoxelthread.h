@@ -4,6 +4,7 @@
 #include <QThread>
 #include "segmentationcore.h"
 #include "voxelgraph.h"
+#include <QTime>
 class SupervoxelThread:public QThread
 {
     Q_OBJECT
@@ -23,7 +24,7 @@ private:
     Segmentation::DefaultVoxelDistFunctor<DefaultMesh> vox_dist_;
     std::vector<MeshBundle<DefaultMesh>::Ptr>& inputs_;
     Config::Ptr config_;
-
+    QTime timer_;
 };
 
 #endif // SUPERVOXELTHREAD_H

@@ -55,7 +55,7 @@ bool UpdateObjectModel::configure(Config::Ptr config)
 
 void UpdateObjectModel::startLater()
 {
-    timer_.start(10);
+    timer_.start(1);
 }
 
 UpdateObjectModel::~UpdateObjectModel()
@@ -174,6 +174,10 @@ void UpdateObjectModel::update_objects()
 
 void UpdateObjectModel::start_align()
 {
+    if( current_label_ <= 1 ){
+        alg_timer.restart();
+        std::cerr<<"Timing registration"<<std::endl;
+    }
     if( current_label_ > max_label_)return;
     if(geo_thread_)
     {
@@ -197,7 +201,7 @@ void UpdateObjectModel::start_align()
     QString name;
     name = name.sprintf("Align L%d",current_label_);
     geo_thread_->setObjectName(name);
-    emit message("Start "+name,2000);
+    emit message(name,0);
     geo_thread_->start(QThread::HighestPriority);
 }
 
@@ -264,6 +268,15 @@ void UpdateObjectModel::finish_current()
         else{
             QString msg = "All Objects are Updated";
             QMessageBox::information( NULL, windowTitle(), msg);
+            int ms = alg_timer.elapsed();
+            int s = ms/1000;
+            ms -= s*1000;
+            int m = s/60;
+            s -= m*60;
+            int h = m/60;
+            m -= h*60;
+            msg = msg.sprintf("Time Used of Registration:%2u:%2u:%2u.%3u",h,m,s,ms);
+            emit message(msg,0);
             emit closeInMdi(parentWidget());
         }
     }

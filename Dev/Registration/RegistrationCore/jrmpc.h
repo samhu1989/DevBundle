@@ -41,8 +41,8 @@ namespace Registration {
         typedef std::shared_ptr<arma::fmat> MatPtr;
     public:
         JRMPC();
-        bool configure(Config::Ptr&,InfoPtr&);
-        ResPtr result(void){return res_ptr;}
+        virtual bool configure(Config::Ptr&,InfoPtr&);
+        virtual ResPtr result(void){return res_ptr;}
 
         virtual bool initForThread(void *meshlistptr,InfoPtr info);
         virtual bool initForThread(void *meshlistptr,std::vector<arma::uword>&valid_index,InfoPtr info);

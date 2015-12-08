@@ -5,6 +5,7 @@
 #include "graphcut.h"
 #include "common.h"
 #include <typeinfo>
+#include <QTime>
 class GraphCutThread:public QThread
 {
     Q_OBJECT
@@ -62,6 +63,7 @@ private:
     std::vector<ObjModel::Ptr>& objects_;
     std::vector<arma::uvec>& outputs_;
     Config::Ptr config_;
+    QTime timer;
 };
 
 #endif // GRAPHCUTTHREAD_H

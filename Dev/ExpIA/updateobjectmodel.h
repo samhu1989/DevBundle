@@ -3,6 +3,7 @@
 #include <QFrame>
 #include <armadillo>
 #include <QTimer>
+#include <QTime>
 #include "common.h"
 #include "objectmodel.h"
 #include "MeshListViewerWidget.h"
@@ -47,6 +48,7 @@ private:
     ILabelList& labels_;
     OModelList& outputs_;
 
+    QTime alg_timer;
     QTimer timer_;
     QTimer gl_timer;
     QThread* geo_thread_;

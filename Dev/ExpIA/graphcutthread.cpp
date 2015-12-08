@@ -30,6 +30,7 @@ void GraphCutThread::run(void)
     current_frame_ = 0;
     while( current_frame_ < meshes_.size() )
     {
+        timer.restart();
         MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
         label_number_ = 1 + objects_.size();
         pix_number_ = m.graph_.voxel_centers.n_cols;
@@ -60,6 +61,9 @@ void GraphCutThread::run(void)
         gc.getAnswer(sv_label);
         m.graph_.sv2pix(sv_label,outputs_[current_frame_]);
         m.custom_color_.fromlabel(outputs_[current_frame_]);
+        QString msg;
+        msg = msg.sprintf("%u ms for F %u",timer.elapsed(),current_frame_);
+        emit message(msg,0);
         ++current_frame_;
     }
 }
@@ -136,8 +140,6 @@ void GraphCutThread::showSmooth()
     }
     m.graph_.sv2pix(cv,cmat);
 }
-
-
 
 bool GraphCutThread::prepareDataTerm()
 {

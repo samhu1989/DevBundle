@@ -168,6 +168,57 @@ void ObjModel::computeLayout()
     box.each_col() += t;
 }
 
+void ObjModel::fullLayout(std::string& object_str,int32_t t_index)
+{
+    arma::fmat layout_mat((float*)FullLayout_.points(),3,FullLayout_.n_vertices(),true,true);
+    ObjModel::T::Ptr t_ptr;
+    if(t_index>=0&&t_index<GeoT_.size())
+    {
+        t_ptr = GeoT_[t_index];
+        if(t_ptr&&0!=t_ptr.use_count())
+        {
+            arma::fmat R(t_ptr->R,3,3,false,true);
+            arma::fvec t(t_ptr->t,3,false,true);
+            layout_mat.each_col() -= t;
+            layout_mat = arma::inv(R)*layout_mat;
+        }
+    }
+    std::stringstream layout_stream;
+    size_t cnt = 1;
+    for(size_t c=0;c<layout_mat.n_cols;++c)
+    {
+        layout_stream<<"v "<<layout_mat(0,c)
+                   <<" "<<layout_mat(1,c)
+                   <<" "<<layout_mat(2,c)
+                   <<std::endl;
+    }
+    layout_stream<<"f "<<cnt+0<<" "<<cnt+1<<" "<<cnt+2<<" "<<cnt+3<<std::endl;
+    layout_stream<<"f "<<cnt+4<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+7<<std::endl;
+    layout_stream<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
+    layout_stream<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+5<<" "<<cnt+1<<std::endl;
+    layout_stream<<"f "<<cnt+1<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+2<<std::endl;
+    layout_stream<<"f "<<cnt+2<<" "<<cnt+6<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
+    object_str = layout_stream.str();
+}
+
+void ObjModel::fullModel(DefaultMesh& object_mesh,int32_t t_index)
+{
+    object_mesh = FullM_;
+    arma::fmat model_mat((float*)object_mesh.points(),3,object_mesh.n_vertices(),false,true);
+    ObjModel::T::Ptr t_ptr;
+    if(t_index>=0&&t_index<GeoT_.size())
+    {
+        t_ptr = GeoT_[t_index];
+        if(t_ptr&&0!=t_ptr.use_count())
+        {
+            arma::fmat R(t_ptr->R,3,3,false,true);
+            arma::fvec t(t_ptr->t,3,false,true);
+            model_mat.each_col() -= t;
+            model_mat = arma::inv(R)*model_mat;
+        }
+    }
+}
+
 bool ObjModel::transform(DefaultMesh& m,uint32_t T_index)
 {
     ObjModel::T::Ptr& T_ptr = GeoT_[T_index];

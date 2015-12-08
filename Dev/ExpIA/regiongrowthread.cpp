@@ -18,10 +18,12 @@ void RegionGrowThread::run()
     seg.setCurvatureThreshold(std::numeric_limits<float>::max());
 
     oiter = labels_.begin();
+    timer_.restart();
     for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
     {
+
         MeshBundle<DefaultMesh>& input = **iiter;
-        emit message("Region Growing On: "+QString::fromStdString(input.name_),1000);
+        emit message("Region Growing On: "+QString::fromStdString(input.name_),0);
         std::shared_ptr<float> curvature;
         Feature::computePointNormal(input.mesh_,curvature,0.0,config_->getInt("NormalEstimation_k"));
         seg.setInputMesh(&input.mesh_);
@@ -32,6 +34,16 @@ void RegionGrowThread::run()
         input.custom_color_.fromlabel(*oiter);
         ++oiter;
     }
+    QString msg;
+    int ms = timer_.elapsed();
+    int s = ms/1000;
+    ms -= s*1000;
+    int m = s/60;
+    s -= m*60;
+    int h = m/60;
+    m -= h*60;
+    msg = msg.sprintf("Time Used of Region Grow:%2u:%2u:%2u.%3u",h,m,s,ms);
+    emit message(msg,0);
 }
 
 bool RegionGrowThread::configure(Config::Ptr config)

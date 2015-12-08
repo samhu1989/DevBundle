@@ -17,6 +17,7 @@
 #include "graphcutthread.h"
 #include "objectview.h"
 #include <typeinfo>
+#include <fstream>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -34,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Segments,SIGNAL(triggered(bool)),this,SLOT(load_labels()));
     connect(ui->actionSave_Object_Model,SIGNAL(triggered(bool)),this,SLOT(save_objects()));
     connect(ui->actionLoad_Objects,SIGNAL(triggered(bool)),this,SLOT(load_objects()));
+    connect(ui->actionSave_Scenes,SIGNAL(triggered(bool)),this,SLOT(save_scenes()));
 
     connect(ui->actionSupervoxel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -72,10 +74,11 @@ void MainWindow::open_inputs()
     QStringList fileNames = QFileDialog::getOpenFileNames(this,
         tr("Open Source file"),
         tr("../Dev_Data/"),
-        tr("OBJ Files (*.obj);;"
+        tr(
+        "PLY Files (*.ply);;"
+        "OBJ Files (*.obj);;"
         "OFF Files (*.off);;"
         "STL Files (*.stl);;"
-        "PLY Files (*.ply);;"
         "All Files (*)"));
     if (!fileNames.isEmpty())
     {
@@ -455,6 +458,41 @@ void MainWindow::load_supervoxels()
         }
         ptr->custom_color_.fromlabel(ptr->graph_.voxel_label);
     }
+}
+
+void MainWindow::save_scenes()
+{
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save Scenes"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    if(inputs_.empty())return;
+    if(labels_.empty())return;
+    if(objects_.empty())return;
+    //object layouts
+    std::fstream objfile;
+    std::stringstream stream("");
+    std::string objfilename;
+    size_t index = 0;
+    std::vector<ObjModel::Ptr>::iterator iter;
+    for(iter=objects_.begin();iter!=objects_.end();++iter)
+    {
+        ObjModel::Ptr obj_ptr = *iter;
+        stream.clear();
+        stream<<dirName.toStdString()<<"\\layouts\\obj_box"<<index<<".obj";
+        stream>>objfilename;
+        objfile.open(objfilename,objfile.out);
+        std::cerr<<objfilename<<std::endl;
+        objfile<<"#obj "<<index<<std::endl;
+        std::string layout_str;
+        obj_ptr->fullLayout(layout_str,-1);
+        objfile<<layout_str;
+        objfile.close();
+        ++index;
+    }
+    //scene layouts
 }
 
 void MainWindow::showInMdi(QWidget* w,Qt::WindowFlags flag)

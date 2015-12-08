@@ -44,6 +44,8 @@ protected slots:
     void save_supervoxels();
     void load_supervoxels();
 
+    void save_scenes();
+
     void start_editing();
     void finish_editing();
 

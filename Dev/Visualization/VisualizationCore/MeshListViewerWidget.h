@@ -45,7 +45,8 @@ public:
         t.stop();
         std::cout << "Saved mesh to ~" << t.as_string() << std::endl;
     }
-
+    uint32_t current_mesh_start(){return current_mesh_start_;}
+    uint32_t current_visible_num(){return current_visible_num_;}
 public slots:
 
     void query_open_file() {
@@ -85,6 +86,7 @@ public slots:
     }
 
     void use_custom(bool use){custom_color_=use;}
+
 private:
     OpenMesh::IO::Options _options;
 };

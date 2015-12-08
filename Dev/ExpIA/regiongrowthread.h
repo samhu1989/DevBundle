@@ -3,6 +3,7 @@
 #include <QThread>
 #include <armadillo>
 #include "common.h"
+#include <QTime>
 class RegionGrowThread:public QThread
 {
     Q_OBJECT
@@ -25,6 +26,7 @@ private:
     std::vector<MeshBundle<DefaultMesh>::Ptr>& inputs_;
     std::vector<arma::uvec>& labels_;
     Config::Ptr config_;
+    QTime timer_;
 };
 
 #endif // REGIONGROWTHREAD_H

@@ -25,6 +25,7 @@ void SupervoxelThread::run(void)
                 svc.getSeedResolution()
                 );
     svc.setDistFunctor(dist);
+    timer_.restart();
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
@@ -38,6 +39,16 @@ void SupervoxelThread::run(void)
         svc.getSizes(input->graph_.voxel_size);
         svc.getSupervoxelAdjacency(input->graph_.voxel_neighbors);
     }
+    QString msg;
+    int ms = timer_.elapsed();
+    int s = ms/1000;
+    ms -= s*1000;
+    int m = s/60;
+    s -= m*60;
+    int h = m/60;
+    m -= h*60;
+    msg = msg.sprintf("Time Used of Region Grow:%2u:%2u:%2u.%3u",h,m,s,ms);
+    emit message(msg,0);
 }
 
 
