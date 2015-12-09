@@ -152,6 +152,7 @@ void UpdateObjectModel::update_objects()
                 MeshBundle<DefaultMesh>::Ptr& patch_ptr = *piter;
                 if(!patch_ptr||0==patch_ptr.use_count())continue;
                 if(0==patch_ptr->mesh_.n_vertices())continue;
+                obj_ptr->updateFullModel(patch_ptr);
                 obj_ptr->updateColor(patch_ptr);
             }
             obj_ptr->finishColor();
@@ -166,8 +167,8 @@ void UpdateObjectModel::update_objects()
                 obj_ptr->updateWeight(patch_ptr);
             }
             obj_ptr->finishWeight();
-            std::cerr<<"compute layout"<<std::endl;
             obj_ptr->computeLayout();
+            obj_ptr->computeFullLayout();
         }
     }
 }

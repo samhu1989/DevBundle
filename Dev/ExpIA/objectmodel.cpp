@@ -30,6 +30,68 @@ void ObjModel::init(arma::fmat&X)
     }
 }
 
+void ObjModel::updateFullModel(MeshBundle<DefaultMesh>::Ptr input)
+{
+    if(0==FullM_.n_vertices())
+    {
+        FullM_ = input->mesh_;
+    }
+    //evaluate local density of current input
+    arma::fvec space_density_(input->mesh_.n_vertices());
+    arma::fvec color_density_(input->mesh_.n_vertices());
+    MeshKDTreeInterface<DefaultMesh> points(input->mesh_);
+    KDTreeSingleIndexAdaptor<
+            L2_Simple_Adaptor<float,MeshKDTreeInterface<DefaultMesh>>,
+            MeshKDTreeInterface<DefaultMesh>,
+            3,arma::uword>
+            kdtree(3,points,KDTreeSingleIndexAdaptorParams(9));
+    kdtree.buildIndex();
+    arma::uvec indices(8);
+    arma::fvec dists(8);
+    arma::frowvec color_dists(8);
+    arma::fmat neighbor_color;
+    arma::fvec current_color;
+    float* pdata = (float*)input->mesh_.points();
+    uint8_t* cdata = (uint8_t*)input->mesh_.vertex_colors();
+    arma::Mat<uint8_t> cmat(cdata,3,input->mesh_.n_vertices(),false,true);
+    for(size_t index=0;index<input->mesh_.n_vertices();++index)
+    {
+        kdtree.knnSearch(&(pdata[3*index]),8,indices.memptr(),dists.memptr());
+        space_density_(index) = dists(1);
+        ColorArray::RGB2Lab(cmat.cols(indices),neighbor_color);
+        ColorArray::RGB2Lab(cmat.col(index),current_color);
+        neighbor_color.each_col() -= current_color;
+        color_dists = arma::sum(arma::square(neighbor_color));
+        arma::frowvec tmp = arma::sort(color_dists);
+        color_density_(index) = tmp(1);
+    }
+    //merge a point to current model
+    //if it is within the local density range;
+    //and add one to confidence( also counts )
+    //add a point to current model
+    //if it is not within the local density range;
+    MeshKDTreeInterface<DefaultMesh> pts(FullM_);
+    KDTreeSingleIndexAdaptor<
+            L2_Simple_Adaptor<float,MeshKDTreeInterface<DefaultMesh>>,
+            MeshKDTreeInterface<DefaultMesh>,
+            3,arma::uword>
+            mkdtree(3,pts,KDTreeSingleIndexAdaptorParams(3));
+    mkdtree.buildIndex();
+    size_t index = 0;
+    for (DefaultMesh::VertexIter v_it = input->mesh_.vertices_begin();
+         v_it != input->mesh_.vertices_end(); ++v_it)
+    {
+        mkdtree.knnSearch(&(pdata[3*index]),1,indices.memptr(),dists.memptr());
+        float space_dist = dists(0);
+        if( space_dist >= space_density_(index) )
+        {
+            DefaultMesh::VertexHandle new_v = FullM_.add_vertex(input->mesh_.point(*v_it));
+            FullM_.set_color( new_v ,input->mesh_.color(*v_it));
+        }
+        ++index;
+    }
+}
+
 void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input)
 {
     MeshKDTreeInterface<DefaultMesh> points(input->mesh_);
@@ -140,9 +202,9 @@ void ObjModel::computeLayout()
     arma::fmat box((float*)GeoLayout_->mesh_.points(),3,8,false,true);
     arma::fmat pts((float*)GeoM_->mesh_.points(),3,GeoM_->mesh_.n_vertices(),false,true);
     arma::uvec indices;
-    float dm = arma::median(DistP_);
-    float cm = arma::median(ColorP_);
-    float nm = arma::median(NormP_);
+    float dm = arma::mean(DistP_);
+    float cm = arma::mean(ColorP_);
+    float nm = arma::mean(NormP_);
     indices = arma::find( ( DistP_ >= dm ) && ( ColorP_ >= cm ) && ( NormP_ >= nm ) );
     if(indices.is_empty())
     {
@@ -168,9 +230,33 @@ void ObjModel::computeLayout()
     box.each_col() += t;
 }
 
-void ObjModel::fullLayout(std::string& object_str,int32_t t_index)
+void ObjModel::computeFullLayout()
 {
-    arma::fmat layout_mat((float*)FullLayout_.points(),3,FullLayout_.n_vertices(),true,true);
+    buildBB(FullLayout_);
+    arma::fmat box((float*)FullLayout_.points(),3,8,false,true);
+    arma::fmat pts((float*)FullM_.points(),3,FullM_.n_vertices(),true,true);
+    arma::fmat R;
+    arma::fvec t;
+    std::vector<ObjModel::T::Ptr>::iterator iter;
+    for(iter=GeoT_.begin();iter!=GeoT_.end();++iter)
+    {
+        if((*iter)&&0!=iter->use_count())
+        {
+            R = arma::fmat((*iter)->R,3,3,false,true);
+            t = arma::fvec((*iter)->t,3,false,true);
+            break;
+        }
+    }
+    pts.each_col() -= t;
+    pts = arma::inv(R)*pts;
+    get3DMBB(pts,2,box);
+    box = R*box ;
+    box.each_col() += t;
+}
+
+bool ObjModel::fullLayout(arma::fmat& object_layout,int32_t t_index)
+{
+    object_layout = arma::fmat((float*)FullLayout_.points(),3,FullLayout_.n_vertices(),true,true);
     ObjModel::T::Ptr t_ptr;
     if(t_index>=0&&t_index<GeoT_.size())
     {
@@ -179,29 +265,14 @@ void ObjModel::fullLayout(std::string& object_str,int32_t t_index)
         {
             arma::fmat R(t_ptr->R,3,3,false,true);
             arma::fvec t(t_ptr->t,3,false,true);
-            layout_mat.each_col() -= t;
-            layout_mat = arma::inv(R)*layout_mat;
-        }
+            object_layout.each_col() -= t;
+            object_layout = arma::inv(R)*object_layout;
+        }else return false;
     }
-    std::stringstream layout_stream;
-    size_t cnt = 1;
-    for(size_t c=0;c<layout_mat.n_cols;++c)
-    {
-        layout_stream<<"v "<<layout_mat(0,c)
-                   <<" "<<layout_mat(1,c)
-                   <<" "<<layout_mat(2,c)
-                   <<std::endl;
-    }
-    layout_stream<<"f "<<cnt+0<<" "<<cnt+1<<" "<<cnt+2<<" "<<cnt+3<<std::endl;
-    layout_stream<<"f "<<cnt+4<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+7<<std::endl;
-    layout_stream<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
-    layout_stream<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+5<<" "<<cnt+1<<std::endl;
-    layout_stream<<"f "<<cnt+1<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+2<<std::endl;
-    layout_stream<<"f "<<cnt+2<<" "<<cnt+6<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
-    object_str = layout_stream.str();
+    return true;
 }
 
-void ObjModel::fullModel(DefaultMesh& object_mesh,int32_t t_index)
+bool ObjModel::fullModel(DefaultMesh& object_mesh,int32_t t_index)
 {
     object_mesh = FullM_;
     arma::fmat model_mat((float*)object_mesh.points(),3,object_mesh.n_vertices(),false,true);
@@ -215,8 +286,9 @@ void ObjModel::fullModel(DefaultMesh& object_mesh,int32_t t_index)
             arma::fvec t(t_ptr->t,3,false,true);
             model_mat.each_col() -= t;
             model_mat = arma::inv(R)*model_mat;
-        }
+        }else return false;
     }
+    return true;
 }
 
 bool ObjModel::transform(DefaultMesh& m,uint32_t T_index)
@@ -254,10 +326,18 @@ bool ObjModel::save(const std::string& path)
         std::cerr<<"can't save to:"<<path+"\\GeoM.ply"<<std::endl;
         return false;
     }
+    if(!OpenMesh::IO::write_mesh(FullM_,path+"\\FullM.ply",opt,10)){
+        std::cerr<<"can't save to:"<<path+"\\FullM.ply"<<std::endl;
+        return false;
+    }
     opt-=OpenMesh::IO::Options::VertexColor;
     opt-=OpenMesh::IO::Options::VertexNormal;
     if(!OpenMesh::IO::write_mesh(GeoLayout_->mesh_,path+"\\GeoLayout.ply",opt,10)){
         std::cerr<<"can't save to:"<<path+"\\GeoLayout.ply"<<std::endl;
+        return false;
+    }
+    if(!OpenMesh::IO::write_mesh(FullLayout_,path+"\\FullLayout.ply",opt,10)){
+        std::cerr<<"can't save to:"<<path+"\\FullLayout.ply"<<std::endl;
         return false;
     }
     if(!ColorP_.save(path+"\\ColorP.fvec.arma",arma::arma_binary))return false;
@@ -305,9 +385,15 @@ bool ObjModel::load(const std::string& path)
     GeoM_->mesh_.request_vertex_normals();
     GeoM_->mesh_.request_vertex_colors();
     if(!OpenMesh::IO::read_mesh(GeoM_->mesh_,path+"\\GeoM.ply",opt))return false;
+    FullM_.request_vertex_normals();
+    FullM_.request_vertex_colors();
+    if(!OpenMesh::IO::read_mesh(FullM_,path+"\\FullM.ply",opt))return false;
     GeoLayout_->mesh_.request_vertex_normals();
     GeoLayout_->mesh_.request_vertex_colors();
     if(!OpenMesh::IO::read_mesh(GeoLayout_->mesh_,path+"\\GeoLayout.ply",opt))return false;
+    FullLayout_.request_vertex_normals();
+    FullLayout_.request_vertex_colors();
+    if(!OpenMesh::IO::read_mesh(FullLayout_,path+"\\FullLayout.ply",opt))return false;
     if(!ColorP_.load(path+"\\ColorP.fvec.arma"))return false;
     if(!ColorP_.is_finite())
     {

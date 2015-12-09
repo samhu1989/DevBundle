@@ -18,6 +18,7 @@
 #include "objectview.h"
 #include <typeinfo>
 #include <fstream>
+#include <strstream>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -469,30 +470,154 @@ void MainWindow::save_scenes()
                 );
     if(dirName.isEmpty())return;
     if(inputs_.empty())return;
-    if(labels_.empty())return;
     if(objects_.empty())return;
+    if(!config_->has("O_model_suffix")){
+        QMessageBox::information( this, windowTitle(), tr("Missing Config \"O_model_suffix\" "));
+        return;
+    }
+    QDir dir;
+    dir.setPath(dirName+"/"+QString::fromStdString("layouts/"));
+    if(!dir.exists())
+    {
+        if(!dir.mkdir(dirName+"/"+QString::fromStdString("layouts/")))
+        {
+            QString msg = "Failed to make "+dir.absolutePath()+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+    }
     //object layouts
+    save_object_layout(dirName.toStdString());
+    //scene layouts
+    save_scene_layout(dirName.toStdString());
+    //scene model
+    dir.setPath(dirName+"/"+QString::fromStdString("models/"));
+    if(!dir.exists())
+    {
+        if(!dir.mkdir(dirName+"/"+QString::fromStdString("models/")))
+        {
+            QString msg = "Failed to make "+dir.absolutePath()+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+    }
+    save_scene_model(dirName.toStdString());
+}
+
+void MainWindow::save_object_layout(const std::string&path)
+{
     std::fstream objfile;
     std::stringstream stream("");
+    std::stringstream layout_stream("");
     std::string objfilename;
-    size_t index = 0;
+    size_t index = 1;
     std::vector<ObjModel::Ptr>::iterator iter;
     for(iter=objects_.begin();iter!=objects_.end();++iter)
     {
         ObjModel::Ptr obj_ptr = *iter;
         stream.clear();
-        stream<<dirName.toStdString()<<"\\layouts\\obj_box"<<index<<".obj";
+        stream<<path<<"/layouts/obj_box"<<index<<".obj";
         stream>>objfilename;
         objfile.open(objfilename,objfile.out);
-        std::cerr<<objfilename<<std::endl;
+        if(!objfile.is_open())
+        {
+            std::cerr<<"Failed to Open:"<<objfilename<<std::endl;
+        }
         objfile<<"#obj "<<index<<std::endl;
-        std::string layout_str;
-        obj_ptr->fullLayout(layout_str,-1);
-        objfile<<layout_str;
-        objfile.close();
+        arma::fmat layout_mat;
+        if(obj_ptr->fullLayout(layout_mat,-1));
+        {
+            layout_stream.clear();
+            size_t cnt = 1;
+            for(size_t c=0;c<layout_mat.n_cols;++c)
+            {
+                layout_stream<<"v "<<layout_mat(0,c)
+                            <<" "<<layout_mat(1,c)
+                           <<" "<<layout_mat(2,c)
+                          <<std::endl;
+            }
+            layout_stream<<"f "<<cnt+0<<" "<<cnt+1<<" "<<cnt+2<<" "<<cnt+3<<std::endl;
+            layout_stream<<"f "<<cnt+4<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+7<<std::endl;
+            layout_stream<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
+            layout_stream<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+5<<" "<<cnt+1<<std::endl;
+            layout_stream<<"f "<<cnt+1<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+2<<std::endl;
+            layout_stream<<"f "<<cnt+2<<" "<<cnt+6<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
+            objfile << layout_stream.str();
+            objfile.close();
+        }
         ++index;
     }
-    //scene layouts
+}
+
+void MainWindow::save_scene_layout(const std::string&path)
+{
+    std::fstream objfile;
+    std::stringstream stream("");
+    std::string objfilename;
+    for(size_t fIndex = 0 ; fIndex < inputs_.size() ; ++fIndex )
+    {
+        stream.clear();
+        stream.str("");
+        stream<<path<<"/layouts/scene_"<<fIndex<<".obj";
+        stream>>objfilename;
+        objfile.open(objfilename,objfile.out);
+        if(!objfile.is_open())
+        {
+            std::cerr<<"Failed to Open:"<<objfilename<<std::endl;
+        }
+        size_t cnt = 1;
+        std::vector<ObjModel::Ptr>::iterator iter;
+        size_t oIndex = 1;
+        for(iter=objects_.begin();iter!=objects_.end();++iter)
+        {
+            objfile<<"#obj "<<oIndex<<std::endl;
+            arma::fmat layout_mat;
+            if((*iter)->fullLayout(layout_mat,fIndex));
+            {
+                for(size_t c=0;c<layout_mat.n_cols;++c)
+                {
+                    objfile<<"v "<<layout_mat(0,c)
+                          <<" "<<layout_mat(1,c)
+                         <<" "<<layout_mat(2,c)
+                        <<std::endl;
+                }
+                objfile<<"f "<<cnt+0<<" "<<cnt+1<<" "<<cnt+2<<" "<<cnt+3<<std::endl;
+                objfile<<"f "<<cnt+4<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+7<<std::endl;
+                objfile<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
+                objfile<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+5<<" "<<cnt+1<<std::endl;
+                objfile<<"f "<<cnt+1<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+2<<std::endl;
+                objfile<<"f "<<cnt+2<<" "<<cnt+6<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
+                cnt+=8;
+            }
+            ++oIndex;
+        }
+        objfile.close();
+    }
+}
+
+void MainWindow::save_scene_model(const std::string&path)
+{
+    size_t index = 1;
+    std::stringstream obj_stream("");
+    OpenMesh::IO::Options opt;
+    opt+=OpenMesh::IO::Options::Binary;
+    opt+=OpenMesh::IO::Options::VertexColor;
+    opt+=OpenMesh::IO::Options::VertexNormal;
+    std::vector<ObjModel::Ptr>::iterator iter;
+    for(iter=objects_.begin();iter!=objects_.end();++iter)
+    {
+        ObjModel::Ptr obj_ptr = *iter;
+        DefaultMesh m;
+        obj_ptr->fullModel(m,-1);
+        obj_stream.clear();
+        obj_stream.str("");
+        obj_stream<<path+"/models/obj"<<index<<config_->getString("O_model_suffix");
+        if(!OpenMesh::IO::write_mesh(m,obj_stream.str(),opt,10)){
+            std::cerr<<"can't save to:"<<obj_stream.str()<<std::endl;
+            return;
+        }
+        ++index;
+    }
 }
 
 void MainWindow::showInMdi(QWidget* w,Qt::WindowFlags flag)

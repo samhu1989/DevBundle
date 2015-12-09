@@ -18,6 +18,7 @@ public slots:
     void computeSuperVoxel();
     void computeVertexNormal();
     void computeOctree();
+    void computeDownSample();
 private:
     Ui::MainWindow *ui;
 };

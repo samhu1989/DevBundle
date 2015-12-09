@@ -45,6 +45,9 @@ protected slots:
     void load_supervoxels();
 
     void save_scenes();
+    void save_object_layout(const std::string&);
+    void save_scene_layout(const std::string&);
+    void save_scene_model(const std::string&);
 
     void start_editing();
     void finish_editing();

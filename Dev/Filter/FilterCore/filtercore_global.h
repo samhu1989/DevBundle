@@ -1,0 +1,12 @@
+#ifndef FILTERCORE_GLOBAL_H
+#define FILTERCORE_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(FILTERCORE_LIBRARY)
+#  define FILTERCORESHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define FILTERCORESHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // FILTERCORE_GLOBAL_H

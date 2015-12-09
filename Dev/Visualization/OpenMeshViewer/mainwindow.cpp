@@ -4,6 +4,7 @@
 #include "computenormalthread.h"
 #include "computeoctreethread.h"
 #include "computesupervoxelthread.h"
+#include "downsamplethread.h"
 #include "QMessageBox"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -53,6 +54,20 @@ void MainWindow::computeSuperVoxel()
         QApplication::processEvents();
     }
     QString msg = "Done Compute SuperVoxel:\n '";
+    QMessageBox::information( this, windowTitle(), msg );
+}
+
+void MainWindow::computeDownSample()
+{
+    MeshPairViewerWidget* v = qobject_cast<MeshPairViewerWidget*>(centralWidget());
+    if(!v)return;
+    DownSampleThread th(v->first_ptr());
+    th.start(QThread::HighestPriority);
+    while(!th.wait(30))
+    {
+        QApplication::processEvents();
+    }
+    QString msg = "Done Down Sample:\n '";
     QMessageBox::information( this, windowTitle(), msg );
 }
 

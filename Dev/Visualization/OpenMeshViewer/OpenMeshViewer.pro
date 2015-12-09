@@ -19,13 +19,15 @@ SOURCES += \
     mainwindow.cpp \
     computenormalthread.cpp \
     computeoctreethread.cpp \
-    computesupervoxelthread.cpp
+    computesupervoxelthread.cpp \
+    downsamplethread.cpp
 
 HEADERS  += \
     mainwindow.h \
     computenormalthread.h \
     computeoctreethread.h \
-    computesupervoxelthread.h
+    computesupervoxelthread.h \
+    downsamplethread.h
 
 FORMS    += \
     mainwindow.ui
@@ -95,3 +97,8 @@ DEPENDPATH += $$PWD/../../Segmentation/SegmentationCore
 
 INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
 DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include
+
+win32: LIBS += -L$$DESTDIR/ -lFilterCore
+
+INCLUDEPATH += $$PWD/../../Filter/FilterCore
+DEPENDPATH += $$PWD/../../Filter/FilterCore

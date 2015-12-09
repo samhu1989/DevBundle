@@ -12,19 +12,21 @@ struct ObjModel
     }T;
     ObjModel();
     void init(arma::fmat&X);
+    void updateFullModel(MeshBundle<DefaultMesh>::Ptr);
     void updateColor(MeshBundle<DefaultMesh>::Ptr);
     void finishColor();
     void updateWeight(MeshBundle<DefaultMesh>::Ptr);
     void finishWeight();
     void computeLayout();
+    void computeFullLayout();
     bool transform(DefaultMesh&,uint32_t);
     bool transform(DefaultMesh&,arma::fmat&,arma::fvec&);
 
     bool save(const std::string& path);
     bool load(const std::string& path);
 
-    void fullLayout(std::string&,int32_t);
-    void fullModel(DefaultMesh&,int32_t);
+    bool fullLayout(arma::fmat&,int32_t);
+    bool fullModel(DefaultMesh&,int32_t);
 
     MeshBundle<DefaultMesh>::Ptr GeoM_;
     MeshBundle<DefaultMesh>::Ptr GeoLayout_;

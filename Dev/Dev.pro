@@ -6,4 +6,5 @@ SUBDIRS += \
     Common \
     Segmentation \
     Feature \
-    ExpIA
+    ExpIA \
+    Filter

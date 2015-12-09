@@ -182,6 +182,11 @@ void create_menu(MainWindow &w)
     QObject::connect(svAct, SIGNAL(triggered()), &w, SLOT(computeSuperVoxel()));
     editMenu->addAction(svAct);
 
+    QAction* dsAct = new QAction(w.tr("&Down Sample"), &w);
+    dsAct->setStatusTip(w.tr("Down Sample"));
+    QObject::connect(dsAct, SIGNAL(triggered()), &w, SLOT(computeDownSample()));
+    editMenu->addAction(dsAct);
+
     QMenu *viewMenu = w.menuBar()->addMenu(w.tr("&View"));
 
     QAction* customcolorAct = new QAction(w.tr("&Show Custom Color"), &w);
