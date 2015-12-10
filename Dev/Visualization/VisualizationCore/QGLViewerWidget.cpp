@@ -265,6 +265,7 @@ QGLViewerWidget::paintGL()
   {
     assert(draw_mode_ <= n_draw_modes_);
     draw_scene(draw_mode_names_[draw_mode_-1]);
+    if(!selections_.empty())processSelections();
   }
 }
 
@@ -304,12 +305,24 @@ void
 QGLViewerWidget::mousePressEvent( QMouseEvent* _event )
 {
   // popup menu
-  if (_event->button() == RightButton && _event->buttons()== RightButton )
+  if(_event->button() == RightButton && _event->buttons()== RightButton )
   {
-    popup_menu_->exec(QCursor::pos());
+     popup_menu_->exec(QCursor::pos());
   }
-
-  else 
+  else if(_event->button() == LeftButton && _event->modifiers() == ShiftModifier)
+  {
+      Vec3f  newPoint3D;
+      map_to_far(_event->pos(), newPoint3D );
+      arma::fvec p0(3,arma::fill::zeros);
+      arma::fvec p1(3);
+      p1(0) = newPoint3D[0];
+      p1(1) = newPoint3D[1];
+      p1(2) = newPoint3D[2];
+      arma::fvec w0,w1;
+      map_to_world(p0,w0);
+      map_to_world(p1,w1);
+      selections_.emplace_back(new RayPointSelection(w0,w1));
+  }else
   {
     last_point_ok_ = map_to_sphere( last_point_2D_=_event->pos(),
 				    last_point_3D_ );
@@ -520,9 +533,12 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
   _event->ignore();
 }
 
+void QGLViewerWidget::processSelections()
+{
+    selections_.debugSelections();
+}
 
 //----------------------------------------------------------------------------
-
 
 void
 QGLViewerWidget::translate( const OpenMesh::Vec3f& _trans )
@@ -593,7 +609,37 @@ QGLViewerWidget::map_to_sphere( const QPoint& _v2D, OpenMesh::Vec3f& _v3D )
     }
     
     return true;
-  }
+}
+//----------------------------------------------------------------------------
+
+bool
+QGLViewerWidget::map_to_far(const QPoint& _v2D, OpenMesh::Vec3f& _v3D)
+{
+    double x =  (2.0*_v2D.x() - width())/width();
+    double y = -(2.0*_v2D.y() - height())/height();
+    double xval = x;
+    double yval = y;
+    _v3D[0] = xval;
+    _v3D[1] = yval;
+    _v3D[2] = 1.0;
+    return true;
+}
+
+void
+QGLViewerWidget::map_to_world(const arma::fvec& nds,arma::fvec& w)
+{
+    arma::vec clip(4);
+    clip.head(3) = arma::conv_to<arma::vec>::from(nds);
+    clip(3) = 1.0;
+    arma::mat proj(&projection_matrix_[0],4,4,false,true);
+    arma::vec eye = arma::inv(proj)*clip;
+    arma::mat mv(&modelview_matrix_[0],4,4,false,true);
+    arma::vec world = arma::inv(mv)*eye;
+    w = arma::fvec(3);
+    w(0) = world(0)/world(3);
+    w(1) = world(1)/world(3);
+    w(2) = world(2)/world(3);
+}
 
 
 //----------------------------------------------------------------------------
@@ -613,7 +659,6 @@ QGLViewerWidget::update_projection_matrix()
 
 
 //----------------------------------------------------------------------------
-
 
 void
 QGLViewerWidget::view_all()
@@ -635,7 +680,6 @@ QGLViewerWidget::view_all()
 
 
 //----------------------------------------------------------------------------
-
 
 void
 QGLViewerWidget::set_scene_pos( const OpenMesh::Vec3f& _cog, float _radius )

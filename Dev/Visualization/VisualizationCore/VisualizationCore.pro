@@ -15,7 +15,8 @@ DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
 SOURCES += visualizationcore.cpp \
     QGLViewerWidget.cpp \
-    labspace.cpp
+    labspace.cpp \
+    qglpointselection.cpp
 
 HEADERS += visualizationcore.h\
         visualizationcore_global.h \
@@ -29,7 +30,9 @@ HEADERS += visualizationcore.h\
     MeshListViewerWidget.h \
     MeshListViewerWidgetT.h \
     MeshListViewerWidgetT.hpp \
-    labspace.h
+    labspace.h \
+    qglpointselection.h \
+    qglpointselection.hpp
 
 unix {
     target.path = /usr/lib

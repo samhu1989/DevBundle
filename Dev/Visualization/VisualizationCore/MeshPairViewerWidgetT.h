@@ -126,7 +126,8 @@ protected: // Strip support
 protected: // inherited
 
   virtual void keyPressEvent( QKeyEvent* _event);
-
+  virtual void processSelections();
+  std::vector<arma::uword> first_selected_;
 protected:
 
   bool                   f_strips_; // enable/disable strip usage

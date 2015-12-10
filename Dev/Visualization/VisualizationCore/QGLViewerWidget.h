@@ -59,6 +59,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <armadillo>
+#include "qglpointselection.h"
 
 
 //== FORWARD DECLARATIONS =====================================================
@@ -165,6 +167,10 @@ protected:
   virtual void wheelEvent( QWheelEvent* );
   virtual void keyPressEvent( QKeyEvent* );
 
+protected:
+  virtual void processSelections();
+  PointSelections selections_;
+
 private:
    
   // updates projection matrix
@@ -197,6 +203,8 @@ private:
 
   // virtual trackball: map 2D screen point to unit sphere
   bool map_to_sphere(const QPoint& _point, OpenMesh::Vec3f& _result);
+  bool map_to_far(const QPoint& _point, OpenMesh::Vec3f& _result);
+  void map_to_world(const arma::fvec&,arma::fvec&);
 
   QPoint           last_point_2D_;
   OpenMesh::Vec3f  last_point_3D_;

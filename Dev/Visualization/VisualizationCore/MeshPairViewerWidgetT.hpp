@@ -738,6 +738,17 @@ MeshPairViewerWidgetT<M>::disable_strips()
   }
 }
 
+template <typename M>
+void
+MeshPairViewerWidgetT<M>::processSelections()
+{
+    arma::uvec new_selected;
+    selections_.selectAll<M>(first_->mesh_,new_selected);
+    for(size_t i=0;i<new_selected.size();++i)
+    {
+        first_selected_.push_back(new_selected(i));
+    }
+}
 
 //-----------------------------------------------------------------------------
 
@@ -816,7 +827,6 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       this->QGLViewerWidget::keyPressEvent( _event );
   }
 }
-
 #undef TEXMODE
 #endif
 //=============================================================================
