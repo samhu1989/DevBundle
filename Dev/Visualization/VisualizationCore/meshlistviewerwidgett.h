@@ -80,6 +80,7 @@ protected:
 
   /// draw the mesh
   virtual void draw_openmesh(MeshBundle<Mesh>& b ,const std::string& _drawmode);
+  virtual void draw_selected();
 
   void glVertex( const Mesh& m,  const typename Mesh::VertexHandle _vh)
   { glVertex3fv( &m.point( _vh )[0] ); }
@@ -128,6 +129,8 @@ protected: // Strip support
 protected: // inherited
 
   virtual void keyPressEvent( QKeyEvent* _event);
+  virtual void processSelections();
+  std::vector<arma::uword> current_selected_;
 
 protected:
 

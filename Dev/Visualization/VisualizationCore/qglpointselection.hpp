@@ -63,16 +63,18 @@ void RayPointSelection::select(Mesh& m,arma::uvec& indices )
     arma::fvec dir = toward_ - from_;
     dir = arma::normalise(dir);
     p.each_col() -= from_;
-    arma::frowvec dists = arma::sum(arma::square(p));
+    arma::frowvec distsa = arma::sum(arma::square(p));
+    arma::frowvec distsb = arma::square( dir.t()*p );
+    arma::frowvec dists = arma::sqrt( distsa - distsb );
     p*=-1.0;
     p = arma::normalise(p);
     arma::frowvec vars = dir.t()*p;
-    arma::uvec within = arma::find( arma::abs(vars) > std::abs( std::cos( 5.0 * M_PI / 180.0 ) ) );
+    arma::uvec within = arma::find( dists < 0.05 );
     if(within.is_empty())return;
     arma::uword select;
-    dists(indices).min(select);
+    vars(within).min(select);
     indices = arma::uvec(1);
-    indices(0) = select;
+    indices(0) = within(select);
 }
 
 #endif // QGLPOINTSELECTION_HPP

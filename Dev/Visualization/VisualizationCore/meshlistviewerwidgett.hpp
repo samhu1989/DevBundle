@@ -481,7 +481,22 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
 }
 
 //-----------------------------------------------------------------------------
-
+template <typename M>
+void MeshListViewerWidgetT<M>::draw_selected()
+{
+    if(current_selected_.empty())return;
+    glDisable(GL_LIGHTING);
+    glPointSize(8.0);
+    glBegin(GL_POINTS);
+    glColor3f(1.0f,0.0f,0.0f); // greenish
+    float* p = (float*)mesh_list_[current_mesh_start_]->mesh_.points();
+    std::vector<arma::uword>::iterator iter;
+    for(iter=current_selected_.begin();iter!=current_selected_.end();++iter)
+    {
+        glVertex3fv(&p[3*(*iter)]);
+    }
+    glEnd();
+}
 
 //-----------------------------------------------------------------------------
 
@@ -638,6 +653,7 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 //    }
 //    glEnd();
 //  }
+    draw_selected();
 }
 
 
@@ -669,7 +685,17 @@ MeshListViewerWidgetT<M>::disable_strips()
   }
 }
 
-
+template <typename M>
+void
+MeshListViewerWidgetT<M>::processSelections()
+{
+    arma::uvec new_selected;
+    selections_.selectAll<M>(mesh_list_[current_mesh_start_]->mesh_,new_selected);
+    for(size_t i=0;i<new_selected.size();++i)
+    {
+        current_selected_.push_back(new_selected(i));
+    }
+}
 //-----------------------------------------------------------------------------
 
 #define TEXMODE( Mode ) \
@@ -760,6 +786,7 @@ MeshListViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       {
           if( current_mesh_start_==0 )current_mesh_start_= mesh_list_.size() - 1 ;
           else current_mesh_start_ -- ;
+          current_selected_.clear();
           updateGL();
       }
       break;
@@ -768,8 +795,13 @@ MeshListViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       {
           if(current_mesh_start_ == mesh_list_.size()-1)current_mesh_start_=0;
           else current_mesh_start_ ++ ;
+          current_selected_.clear();
           updateGL();
       }
+      break;
+  case Key_Delete:
+      current_selected_.pop_back();
+      updateGL();
       break;
     default:
       this->QGLViewerWidget::keyPressEvent( _event );

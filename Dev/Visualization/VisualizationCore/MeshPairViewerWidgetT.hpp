@@ -252,6 +252,22 @@ bool MeshPairViewerWidgetT<M>::set_texture( QImage& _texsrc )
 
 
 //-----------------------------------------------------------------------------
+template <typename M>
+void MeshPairViewerWidgetT<M>::draw_selected()
+{
+    if(first_selected_.empty())return;
+    glDisable(GL_LIGHTING);
+    glPointSize(8.0);
+    glBegin(GL_POINTS);
+    glColor3f(1.0f,0.0f,0.0f); // greenish
+    float* p = (float*)first_->mesh_.points();
+    std::vector<arma::uword>::iterator iter;
+    for(iter=first_selected_.begin();iter!=first_selected_.end();++iter)
+    {
+        glVertex3fv(&p[3*(*iter)]);
+    }
+    glEnd();
+}
 
 template <typename M>
 void
@@ -692,7 +708,6 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     }
     glEnd();
   }
-
   if (show_fnormals_)
   {
     typename Mesh::FaceIter fit;
@@ -707,6 +722,7 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     }
     glEnd();
   }
+  draw_selected();
 }
 
 
@@ -822,7 +838,10 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       }
       updateGL();
       break;
-
+  case Key_Delete:
+      first_selected_.pop_back();
+      updateGL();
+      break;
     default:
       this->QGLViewerWidget::keyPressEvent( _event );
   }
