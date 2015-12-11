@@ -31,6 +31,7 @@ protected slots:
 
     void open_inputs();
     void open_inputs(QStringList&);
+    void save_aligned();
     bool open_mesh(DefaultMesh&,const std::string&);
     void view_inputs();
     void removeView();

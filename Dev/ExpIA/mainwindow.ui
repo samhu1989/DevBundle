@@ -49,6 +49,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_Inputs"/>
+    <addaction name="actionSave_Aligned"/>
     <addaction name="actionSave_Supervoxels"/>
     <addaction name="actionLoad_Supervoxels"/>
     <addaction name="actionSave_Segments"/>
@@ -70,6 +71,7 @@
      <addaction name="actionUse_Color_and_Size"/>
      <addaction name="actionMannually"/>
     </widget>
+    <addaction name="actionGlobal_Align"/>
     <addaction name="actionSupervoxel"/>
     <addaction name="actionRegionGrow"/>
     <addaction name="menuUnify_Label"/>
@@ -198,6 +200,16 @@
   <action name="actionSupervoxel_Color">
    <property name="text">
     <string>Supervoxel Color</string>
+   </property>
+  </action>
+  <action name="actionGlobal_Align">
+   <property name="text">
+    <string>Global Align</string>
+   </property>
+  </action>
+  <action name="actionSave_Aligned">
+   <property name="text">
+    <string>Save Aligned</string>
    </property>
   </action>
  </widget>

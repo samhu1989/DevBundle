@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     objectmodel.cpp \
     supervoxelthread.cpp \
     graphcutthread.cpp \
-    objectview.cpp
+    objectview.cpp \
+    globalalign.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -35,13 +36,15 @@ HEADERS  += mainwindow.h \
     objectmodel.h \
     supervoxelthread.h \
     graphcutthread.h \
-    objectview.h
+    objectview.h \
+    globalalign.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
     patchpairview.ui \
     updateobjectmodel.ui \
-    objectview.ui
+    objectview.ui \
+    globalalign.ui
 
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 
@@ -106,3 +109,8 @@ win32: LIBS += -L$$DESTDIR/ -lRegistrationCore
 
 INCLUDEPATH += $$PWD/../Registration/RegistrationCore
 DEPENDPATH += $$PWD/../Registration/RegistrationCore
+
+win32: LIBS += -L$$DESTDIR/ -lFilterCore
+
+INCLUDEPATH += $$PWD/../Filter/FilterCore
+DEPENDPATH += $$PWD/../Filter/FilterCore

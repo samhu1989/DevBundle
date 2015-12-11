@@ -16,6 +16,7 @@
 #include "supervoxelthread.h"
 #include "graphcutthread.h"
 #include "objectview.h"
+#include "globalalign.h"
 #include <typeinfo>
 #include <fstream>
 #include <strstream>
@@ -30,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionConfigure,SIGNAL(triggered(bool)),this,SLOT(configure()));
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(open_inputs()));
+    connect(ui->actionSave_Aligned,SIGNAL(triggered(bool)),this,SLOT(save_aligned()));
     connect(ui->actionSave_Supervoxels,SIGNAL(triggered(bool)),this,SLOT(save_supervoxels()));
     connect(ui->actionLoad_Supervoxels,SIGNAL(triggered(bool)),this,SLOT(load_supervoxels()));
     connect(ui->actionSave_Segments,SIGNAL(triggered(bool)),this,SLOT(save_labels()));
@@ -38,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Objects,SIGNAL(triggered(bool)),this,SLOT(load_objects()));
     connect(ui->actionSave_Scenes,SIGNAL(triggered(bool)),this,SLOT(save_scenes()));
 
+    connect(ui->actionGlobal_Align,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSupervoxel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -101,6 +104,30 @@ void MainWindow::open_inputs(QStringList&fileNames)
         inputs_.back()->name_ = info.completeBaseName().toStdString();
         labels_.emplace_back(inputs_.back()->mesh_.n_vertices(),arma::fill::zeros);
         QApplication::processEvents();
+    }
+}
+
+void MainWindow::save_aligned()
+{
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Export Aligned Inputs"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    OpenMesh::IO::Options opt;
+    opt+=OpenMesh::IO::Options::Binary;
+    opt+=OpenMesh::IO::Options::VertexColor;
+    opt+=OpenMesh::IO::Options::VertexNormal;
+    std::string path = dirName.toStdString();
+    MeshBundle<DefaultMesh>::PtrList::iterator iter;
+    for(iter=inputs_.begin();iter!=inputs_.end();++iter)
+    {
+        MeshBundle<DefaultMesh>::Ptr ptr = *iter;
+        if(!OpenMesh::IO::write_mesh(ptr->mesh_,path+"\\"+ptr->name_+"_aligned.ply",opt,13)){
+            std::cerr<<"can't save to:"<<path+"\\"+ptr->name_+"_aligned.ply"<<std::endl;
+            return;
+        }
     }
 }
 
@@ -752,6 +779,20 @@ void MainWindow::start_editing()
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
         s->show();
         w->startLater();
+    }
+    if(edit==ui->actionGlobal_Align)
+    {
+        GlobalAlign* w = new GlobalAlign(inputs_);
+        if(!w->configure(config_)){
+            QString msg = "You probably should open inputs first\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        s->show();
     }
     if(edit==ui->actionUpdate_Label)
     {

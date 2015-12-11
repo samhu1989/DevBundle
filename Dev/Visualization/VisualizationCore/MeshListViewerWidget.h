@@ -47,6 +47,7 @@ public:
     }
     uint32_t current_mesh_start(){return current_mesh_start_;}
     uint32_t current_visible_num(){return current_visible_num_;}
+    std::vector<arma::uword>& current_selected(){return current_selected_;}
 public slots:
 
     void query_open_file() {
