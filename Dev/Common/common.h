@@ -20,4 +20,5 @@ template class COMMONSHARED_EXPORT MeshBundle<DefaultMesh>;
 typedef MeshOctreeContainer<DefaultMesh> DefaultOctreeContainer;
 template class COMMONSHARED_EXPORT unibn::Octree<arma::fvec,DefaultOctreeContainer>;
 typedef unibn::Octree<arma::fvec,DefaultOctreeContainer> DefaultOctree;
+void COMMONSHARED_EXPORT getRotationFromTwoUnitVectors(const arma::fvec&,const arma::fvec&,arma::fmat&);
 #endif // COMMON_H

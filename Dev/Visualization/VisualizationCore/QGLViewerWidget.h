@@ -168,6 +168,7 @@ protected:
   virtual void keyPressEvent( QKeyEvent* );
 
 protected:
+  void draw_coordinate();
   virtual void processSelections();
   PointSelections selections_;
 
@@ -209,7 +210,11 @@ private:
   QPoint           last_point_2D_;
   OpenMesh::Vec3f  last_point_3D_;
   bool             last_point_ok_;
+  bool             show_coordinates_;
 
+  float coord_[18];
+  GLushort coord_index_[6];
+  uint8_t coord_color_[18];
 };
 
 

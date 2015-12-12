@@ -116,8 +116,16 @@ QGLViewerWidget::init(void)
   setFocusPolicy(Qt::ClickFocus);
   setAcceptDrops( true );  
   setCursor(PointingHandCursor);
-
-
+  // init coordinates
+  arma::fmat coordinates(&coord_[0],6,3,false,true);
+  coordinates.rows(0,2).fill(0.0);
+  coordinates.rows(3,5) = 0.3*radius_*arma::eye<arma::fmat>(3,3);
+  arma::Mat<uint8_t> coord_color(&coord_color_[0],6,3,false,true);
+  coord_color.rows(0,2) = arma::eye< arma::Mat<uint8_t> >(3,3);
+  coord_color.rows(3,5) = arma::eye< arma::Mat<uint8_t> >(3,3);
+  coord_color *= 255;
+  arma::Col<GLushort> coord_index(&coord_index_[0],6,false,true);
+  coord_index = arma::linspace<arma::Col<GLushort>>(0,5,6);
   // popup menu
 
   popup_menu_ = new QMenu(this);
@@ -264,9 +272,12 @@ QGLViewerWidget::paintGL()
   if (draw_mode_)
   {
     assert(draw_mode_ <= n_draw_modes_);
+    draw_coordinate();
     draw_scene(draw_mode_names_[draw_mode_-1]);
     if(!selections_.empty())processSelections();
+
   }
+
 }
 
 
@@ -540,6 +551,20 @@ void QGLViewerWidget::processSelections()
 
 //----------------------------------------------------------------------------
 
+void QGLViewerWidget::draw_coordinate()
+{
+    glDisable(GL_LIGHTING);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, &coord_[0]);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(3, GL_UNSIGNED_BYTE, 0, &coord_color_[0]);
+    glLineWidth(6.0);
+    glDrawElements(GL_LINES,6,GL_UNSIGNED_SHORT,&coord_index_[0]);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+}
+//----------------------------------------------------------------------------
+
 void
 QGLViewerWidget::translate( const OpenMesh::Vec3f& _trans )
 {
@@ -655,6 +680,8 @@ QGLViewerWidget::update_projection_matrix()
 		 0.01*radius_, 100.0*radius_);
   glGetDoublev( GL_PROJECTION_MATRIX, projection_matrix_);
   glMatrixMode( GL_MODELVIEW );
+  arma::fmat coordinates(&coord_[0],6,3,false,true);
+  coordinates.rows(3,5) = 0.3*radius_*arma::eye<arma::fmat>(3,3);
 }
 
 
@@ -866,9 +893,7 @@ QGLViewerWidget::slotSnapshot( void )
   try
   {
     image = QImage(w, h, QImage::Format_RGB32);
-  
     std::vector<GLubyte> fbuffer(3*w*h);
-
     qApp->processEvents();
     makeCurrent();
     updateGL();

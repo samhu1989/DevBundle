@@ -28,4 +28,19 @@ uint8_t v_ = 255.0*v;
     }
 }
 
+void getRotationFromTwoUnitVectors(
+        const arma::fvec& from,
+        const arma::fvec& toward,
+        arma::fmat& transformation
+        )
+{
+    arma::fvec tmp0 = arma::normalise(arma::cross(from,toward));
+    arma::fvec tmp1 = arma::normalise(arma::cross(toward,tmp0));
+    arma::fvec tmp2 = arma::normalise(toward);
+    transformation = arma::fmat(3,3);
+    transformation(0,0)=tmp0[0]; transformation(0,1)=tmp0[1]; transformation(0,2)=tmp0[2];
+    transformation(1,0)=tmp1[0]; transformation(1,1)=tmp1[1]; transformation(1,2)=tmp1[2];
+    transformation(2,0)=tmp2[0]; transformation(2,1)=tmp2[1]; transformation(2,2)=tmp2[2];
+}
+
 
