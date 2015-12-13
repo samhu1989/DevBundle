@@ -72,6 +72,8 @@
      <addaction name="actionMannually"/>
     </widget>
     <addaction name="actionGlobal_Align"/>
+    <addaction name="actionExtract_Background"/>
+    <addaction name="actionRemove_Zero_Label"/>
     <addaction name="actionSupervoxel"/>
     <addaction name="actionRegionGrow"/>
     <addaction name="menuUnify_Label"/>
@@ -210,6 +212,16 @@
   <action name="actionSave_Aligned">
    <property name="text">
     <string>Save Aligned</string>
+   </property>
+  </action>
+  <action name="actionExtract_Background">
+   <property name="text">
+    <string>Extract Background</string>
+   </property>
+  </action>
+  <action name="actionRemove_Zero_Label">
+   <property name="text">
+    <string>Remove Zero Label</string>
    </property>
   </action>
  </widget>

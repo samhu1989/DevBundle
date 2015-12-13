@@ -5,6 +5,7 @@
 #include <common.h>
 #include "objectmodel.h"
 #include "voxelgraph.h"
+#include <QTimer>
 using namespace OpenMesh;
 namespace Ui {
 class MainWindow;
@@ -53,6 +54,8 @@ protected slots:
     void start_editing();
     void finish_editing();
 
+    void remove_zero_label();
+
     void showLab();
     void viewObj();
     void showSVColor();
@@ -66,6 +69,7 @@ private:
     IO::Options io_opt_;
     Config::Ptr config_;
     QThread* edit_thread_;
+    QTimer gl_timer;
 };
 
 #endif // MAINWINDOW_H

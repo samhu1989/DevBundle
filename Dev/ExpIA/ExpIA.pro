@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     supervoxelthread.cpp \
     graphcutthread.cpp \
     objectview.cpp \
-    globalalign.cpp
+    globalalign.cpp \
+    extractbackground.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -37,14 +38,16 @@ HEADERS  += mainwindow.h \
     supervoxelthread.h \
     graphcutthread.h \
     objectview.h \
-    globalalign.h
+    globalalign.h \
+    extractbackground.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
     patchpairview.ui \
     updateobjectmodel.ui \
     objectview.ui \
-    globalalign.ui
+    globalalign.ui \
+    extractbackground.ui
 
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 

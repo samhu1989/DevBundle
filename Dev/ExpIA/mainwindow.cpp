@@ -17,6 +17,7 @@
 #include "graphcutthread.h"
 #include "objectview.h"
 #include "globalalign.h"
+#include "extractbackground.h"
 #include <typeinfo>
 #include <fstream>
 #include <strstream>
@@ -27,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    gl_timer.stop();
     if(!config_->has("Configure"))config_->reload("../Default.config");
 
     connect(ui->actionConfigure,SIGNAL(triggered(bool)),this,SLOT(configure()));
@@ -41,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSave_Scenes,SIGNAL(triggered(bool)),this,SLOT(save_scenes()));
 
     connect(ui->actionGlobal_Align,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionExtract_Background,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionRemove_Zero_Label,SIGNAL(triggered(bool)),this,SLOT(remove_zero_label()));
     connect(ui->actionSupervoxel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -209,6 +213,7 @@ bool MainWindow::open_mesh(DefaultMesh& mesh_,const std::string&_filename)
 
 void MainWindow::view_inputs()
 {
+    gl_timer.stop();
     ui->mdiArea->closeAllSubWindows();
     mesh_views_.clear();
     ui->actionCustom_Color->setChecked(false);
@@ -222,9 +227,11 @@ void MainWindow::view_inputs()
         widget->set_center_at_mesh(bundle_ptr->mesh_);
         widget->setWindowTitle(QString::fromStdString(bundle_ptr->name_));
         connect(ui->actionCustom_Color,SIGNAL(toggled(bool)),widget,SLOT(use_custom_color(bool)));
+        connect(&gl_timer,SIGNAL(timeout()),widget,SLOT(updateGL()));
         mesh_views_.push_back(WidgetPtr(widget));
         showInMdi((QWidget*)widget,Qt::Widget|Qt::WindowMinMaxButtonsHint);
     }
+    gl_timer.start(100);
 }
 
 void MainWindow::save_labels()
@@ -794,6 +801,20 @@ void MainWindow::start_editing()
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         s->show();
     }
+    if(edit==ui->actionExtract_Background)
+    {
+        ExtractBackground* w = new ExtractBackground(mesh_views_,gl_timer,labels_);
+        if(!w->configure(config_)){
+            QString msg = "You probably should open inputs first\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        s->show();
+    }
     if(edit==ui->actionUpdate_Label)
     {
         GraphCutThread* th = new GraphCutThread(inputs_,objects_,labels_);
@@ -827,6 +848,39 @@ void MainWindow::finish_editing()
         edit_thread_ = NULL;
     }
     QMessageBox::information( this, windowTitle(), msg);
+}
+
+void MainWindow::remove_zero_label()
+{
+    MeshBundle<DefaultMesh>::PtrList::iterator iter;
+    std::vector<arma::uvec>::iterator liter = labels_.begin();
+    size_t mindex = 0;
+    for(iter=inputs_.begin();iter!=inputs_.end();++iter)
+    {
+        MeshPairViewerWidget* w =  (MeshPairViewerWidget*)mesh_views_[mindex];
+        disconnect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
+        DefaultMesh mesh;
+        mesh.request_vertex_colors();
+        MeshBundle<DefaultMesh>::Ptr ptr = (*iter);
+        arma::uvec& label = (*liter);
+        long long index = -1;
+        for (DefaultMesh::VertexIter v_it = ptr->mesh_.vertices_begin();v_it != ptr->mesh_.vertices_end();++v_it)
+        {
+            ++index;
+            if(0==label(index))continue;
+            DefaultMesh::VertexHandle new_it = mesh.add_vertex(ptr->mesh_.point(*v_it));
+            mesh.set_color(new_it,ptr->mesh_.color(*v_it));
+        }
+        ptr->mesh_ = mesh;
+        arma::uvec label_indices = arma::find( label != 0 );
+        label = label(label_indices);
+        ptr->custom_color_.fromlabel(label);
+        connect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
+        ++liter;
+        ++mindex;
+        if(liter==labels_.end())break;
+        QApplication::processEvents();
+    }
 }
 
 void MainWindow::showLab()
