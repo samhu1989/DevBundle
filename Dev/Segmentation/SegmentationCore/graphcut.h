@@ -37,7 +37,6 @@ private:
     std::shared_ptr<MRF> mrf_;
     std::string info_;
 };
-
 }
 
 #endif // GRAPHCUT_H

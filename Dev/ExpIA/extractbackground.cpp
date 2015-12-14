@@ -18,6 +18,8 @@ ExtractBackground::ExtractBackground(
 
 bool ExtractBackground::configure(Config::Ptr)
 {
+    if(inputs_.empty())return false;
+    if(labels_.size()!=inputs_.size())return false;
     return true;
 }
 

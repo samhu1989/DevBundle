@@ -22,7 +22,9 @@ SOURCES += segmentationcore.cpp \
     MRF/src/MaxProdBP.cpp \
     MRF/src/mrf.cpp \
     MRF/src/regions-maxprod.cpp \
-    MRF/src/TRW-S.cpp
+    MRF/src/TRW-S.cpp \
+    SAC/sac_plane.cpp \
+    sac_segmentation.cpp
 
 HEADERS += segmentationcore.h\
         segmentationcore_global.h \
@@ -43,7 +45,10 @@ HEADERS += segmentationcore.h\
     MRF/include/mrf.h \
     MRF/include/regions-new.h \
     MRF/include/TRW-S.h \
-    MRF/include/typeTruncatedQuadratic2D.h
+    MRF/include/typeTruncatedQuadratic2D.h \
+    sac_segmentation.h \
+    SAC/sac_model.h \
+    SAC/sac_plane.h
 
 unix {
     target.path = /usr/lib

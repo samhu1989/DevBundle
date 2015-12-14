@@ -25,11 +25,11 @@ class PointSelections:public std::vector<PointSelectionBase::Ptr>
 {
 public:
     template<typename Mesh>
-    inline void selectAll(Mesh&,arma::uvec&);
+    inline void selectAll(Mesh&,arma::uvec&,double);
     template<typename Mesh>
-    inline void selectAt(size_t,Mesh&,arma::uvec&);
+    inline void selectAt(size_t,Mesh&,arma::uvec&,double);
     template<typename Mesh>
-    inline void selectAt(PointSelections::iterator,Mesh&,arma::uvec&);
+    inline void selectAt(PointSelections::iterator,Mesh&,arma::uvec&,double);
     void debugSelections();
 };
 
@@ -42,7 +42,7 @@ public:
     {
     }
     template<typename Mesh>
-    inline void select(Mesh&,arma::uvec&);
+    inline void select(Mesh&,arma::uvec&,double);
     virtual void debugSelection();
 private:
     arma::fvec from_;

@@ -66,6 +66,7 @@
 #include "MeshPairViewerWidget.h"
 #include <iomanip>
 #include "mainwindow.h"
+#include <QTimer>
 
 void create_menu(MainWindow &w);
 void usage_and_exit(int xcode);
@@ -114,6 +115,9 @@ int main(int argc, char **argv)
   // create widget
   MainWindow mainWin;
   MeshPairViewerWidget w(&mainWin);
+  QTimer gl_timer;
+  gl_timer.setSingleShot(false);
+  QObject::connect(&gl_timer,SIGNAL(timeout()),&w,SLOT(updateGL()));
   w.setOptions(opt);
   mainWin.setCentralWidget(&w);
 
@@ -136,15 +140,7 @@ int main(int argc, char **argv)
 //      w.open_texture_gui(argv[optind]);
 //  }
 
-  ColorArray::RGB64 rgb64;
-  rgb64.rgba.r0 = 0;
-  rgb64.rgba.g0 = 0;
-  rgb64.rgba.b0 = 0;
-  rgb64.rgba.a0 = 255;
-  rgb64.rgba.r1 = 0;
-  rgb64.rgba.g1 = 0;
-  rgb64.rgba.b1 = 0;
-  rgb64.rgba.a1 = 255;
+  gl_timer.start(100);
   return app.exec();
 }
 

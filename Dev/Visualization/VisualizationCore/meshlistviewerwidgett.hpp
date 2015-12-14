@@ -690,7 +690,7 @@ void
 MeshListViewerWidgetT<M>::processSelections()
 {
     arma::uvec new_selected;
-    selections_.selectAll<M>(mesh_list_[current_mesh_start_]->mesh_,new_selected);
+    selections_.selectAll<M>(mesh_list_[current_mesh_start_]->mesh_,new_selected,radius_);
     for(size_t i=0;i<new_selected.size();++i)
     {
         current_selected_.push_back(new_selected(i));

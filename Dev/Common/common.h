@@ -21,4 +21,27 @@ typedef MeshOctreeContainer<DefaultMesh> DefaultOctreeContainer;
 template class COMMONSHARED_EXPORT unibn::Octree<arma::fvec,DefaultOctreeContainer>;
 typedef unibn::Octree<arma::fvec,DefaultOctreeContainer> DefaultOctree;
 void COMMONSHARED_EXPORT getRotationFromTwoUnitVectors(const arma::fvec&,const arma::fvec&,arma::fmat&);
+inline void fitPlane(
+        arma::fvec &center,
+        arma::fmat &neighbor,
+        arma::fvec &normal,
+        float &curvature,
+        float& distToOrigin)
+{
+    neighbor.each_col() -= center;
+    arma::fmat c = arma::cov( neighbor.t() );
+    arma::fmat U,V;
+    arma::fvec s;
+    if(!arma::svd(U,s,V,c,"std"))
+    {
+        normal.fill(std::numeric_limits<float>::quiet_NaN());
+        distToOrigin = std::numeric_limits<float>::quiet_NaN();
+        curvature = std::numeric_limits<float>::quiet_NaN();
+    }else{
+        arma::uword minidx;
+        curvature = s.min(minidx);
+        normal = U.col(minidx);
+        distToOrigin = - arma::dot(normal,center);
+    }
+}
 #endif // COMMON_H

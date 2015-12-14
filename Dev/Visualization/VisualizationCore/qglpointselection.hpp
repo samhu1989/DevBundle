@@ -3,19 +3,19 @@
 #include "qglpointselection.h"
 #include "common.h"
 template<typename Mesh>
-inline void PointSelections::selectAll(Mesh&m,arma::uvec&indices)
+inline void PointSelections::selectAll(Mesh&m,arma::uvec&indices,double radius)
 {
     for(iterator iter=begin();iter!=end();++iter)
     {
         arma::uvec result;
-        selectAt(iter,m,result);
+        selectAt(iter,m,result,radius);
         indices = arma::join_cols(indices,result);
     }
     clear();
 }
 
 template<typename Mesh>
-inline void PointSelections::selectAt(size_t index,Mesh&m,arma::uvec&indices)
+inline void PointSelections::selectAt(size_t index,Mesh&m,arma::uvec&indices,double radius)
 {
     PointSelectionBase::Ptr ptr = (*this)[index];
     if(ptr&&0!=ptr.use_count())
@@ -25,7 +25,7 @@ inline void PointSelections::selectAt(size_t index,Mesh&m,arma::uvec&indices)
         case PointSelectionBase::RayPoint:
             {
                 RayPointSelection::Ptr p = std::dynamic_pointer_cast<RayPointSelection>(ptr);
-                p->select<Mesh>(m,indices);
+                p->select<Mesh>(m,indices,radius);
             }
             break;
         default:
@@ -35,7 +35,7 @@ inline void PointSelections::selectAt(size_t index,Mesh&m,arma::uvec&indices)
 }
 
 template<typename Mesh>
-inline void PointSelections::selectAt(PointSelections::iterator iter,Mesh&m,arma::uvec&indices)
+inline void PointSelections::selectAt(PointSelections::iterator iter,Mesh&m,arma::uvec&indices,double radius)
 {
     PointSelectionBase::Ptr ptr = *iter;
     if(ptr&&0!=ptr.use_count())
@@ -45,7 +45,7 @@ inline void PointSelections::selectAt(PointSelections::iterator iter,Mesh&m,arma
         case PointSelectionBase::RayPoint:
             {
                 RayPointSelection::Ptr p = std::dynamic_pointer_cast<RayPointSelection>(ptr);
-                p->select<Mesh>(m,indices);
+                p->select<Mesh>(m,indices,radius);
             }
             break;
         default:
@@ -56,7 +56,7 @@ inline void PointSelections::selectAt(PointSelections::iterator iter,Mesh&m,arma
 
 
 template<typename Mesh>
-void RayPointSelection::select(Mesh& m,arma::uvec& indices )
+void RayPointSelection::select(Mesh& m,arma::uvec& indices,double radius )
 {
     indices.reset();
     arma::fmat p((float*)m.points(),3,m.n_vertices(),true,true);
@@ -69,7 +69,7 @@ void RayPointSelection::select(Mesh& m,arma::uvec& indices )
     p*=-1.0;
     p = arma::normalise(p);
     arma::frowvec vars = dir.t()*p;
-    arma::uvec within = arma::find( dists < 0.05 );
+    arma::uvec within = arma::find( dists < 0.05*radius );
     if(within.is_empty())return;
     arma::uword select;
     vars(within).min(select);

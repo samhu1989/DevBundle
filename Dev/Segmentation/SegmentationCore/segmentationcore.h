@@ -5,6 +5,7 @@
 #include <armadillo>
 #include <stdint.h>
 #include "segmentationcore_global.h"
+#include "sac_segmentation.h"
 #include "graphcut.h"
 namespace Segmentation
 {

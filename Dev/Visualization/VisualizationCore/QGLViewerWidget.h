@@ -171,7 +171,7 @@ protected:
   void draw_coordinate();
   virtual void processSelections();
   PointSelections selections_;
-
+  float            radius_;
 private:
    
   // updates projection matrix
@@ -184,7 +184,6 @@ private:
   void rotate(const OpenMesh::Vec3f& _axis, float _angle);
 
   OpenMesh::Vec3f  center_;
-  float            radius_;
 	      
   GLdouble    projection_matrix_[16],
               modelview_matrix_[16];

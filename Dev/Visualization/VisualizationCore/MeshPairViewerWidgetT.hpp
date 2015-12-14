@@ -259,7 +259,7 @@ void MeshPairViewerWidgetT<M>::draw_selected()
     glDisable(GL_LIGHTING);
     glPointSize(8.0);
     glBegin(GL_POINTS);
-    glColor3f(1.0f,0.0f,0.0f); // greenish
+    glColor3f(1.0f,0.0f,0.0f); // red
     float* p = (float*)first_->mesh_.points();
     std::vector<arma::uword>::iterator iter;
     for(iter=first_selected_.begin();iter!=first_selected_.end();++iter)
@@ -316,7 +316,9 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
   {
      for (; fIt!=fEnd; ++fIt)
      {
+        glLineWidth(2.0);
         glBegin(GL_POLYGON);
+        glColor3f(1.0,1.0,1.0);
         for(fvIt=mesh_.cfv_begin(*fIt);fvIt!=mesh_.cfv_end(*fIt);++fvIt)
         {
             glVertex3fv( &mesh_.point(*fvIt)[0] );
@@ -500,7 +502,6 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   }
-
 
   else if (_draw_mode == "Show Strips" && strips_.is_valid() ) // -------------
   {
@@ -759,7 +760,7 @@ void
 MeshPairViewerWidgetT<M>::processSelections()
 {
     arma::uvec new_selected;
-    selections_.selectAll<M>(first_->mesh_,new_selected);
+    selections_.selectAll<M>(first_->mesh_,new_selected,radius_);
     for(size_t i=0;i<new_selected.size();++i)
     {
         first_selected_.push_back(new_selected(i));

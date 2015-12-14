@@ -54,7 +54,8 @@ void computePointNormal(M& mesh,float r,int k)
             normal.fill(std::numeric_limits<float>::quiet_NaN());
         }else{
             float d2o;//distance to origin
-            fitPlane(center,neighborMat,normal,d2o);
+            float curvature;
+            fitPlane(center,neighborMat,normal,curvature,d2o);
         }
         point_ptr+=3;
         normal_ptr+=3;
