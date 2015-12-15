@@ -38,6 +38,7 @@ public:
         if(input_indices_.is_empty())label(inliers_).fill(0);
         else label(input_indices_(inliers_)).fill(0);
     }
+    inline void setThreshold(const float& th){threshold_=th;}
     inline void setAxis(const arma::fvec&axis){sac_model_->setAxis(axis);}
     inline void setEpsAngle(const float&eps){sac_model_->setEpsAngle(eps);}
 protected:
