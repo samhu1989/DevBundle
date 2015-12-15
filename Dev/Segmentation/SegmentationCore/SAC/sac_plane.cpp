@@ -23,9 +23,9 @@ bool SAC_Plane::isModelValid (const arma::vec& coeff)
 }
 bool SAC_Plane::computeModel(arma::uvec&inliers,arma::vec& coeff)
 {
-    if( inliers.n_cols != 3)
+    if( inliers.size() != 3)
     {
-        std::cerr<<"Invalid set of samples given"<<inliers.n_cols<<std::endl;
+        std::cerr<<"Invalid set of samples given"<<inliers.size()<<std::endl;
         return (false);
     }
 
@@ -52,27 +52,31 @@ bool SAC_Plane::computeModel(arma::uvec&inliers,arma::vec& coeff)
     coeff[3] = 0;
 
     // Normalize
-    arma::normalise(coeff);
+    coeff.head(3) = arma::normalise(coeff.head(3));
 
     // ... + d = 0
     coeff[3] = -1 * (arma::dot(coeff.head(3),arma::conv_to<arma::vec>::from(p0)));
 
+    if(!isModelValid(coeff))
+    {
+        return false;
+    }
     return (true);
 }
 void SAC_Plane::optimizeModel(const arma::uvec&inliers,
                            const arma::vec& coeff,
                            arma::vec& optimized_coeff)
 {
-    // Needs a valid set of model coefficients
+    std::cerr<<"Needs a valid set of model coefficients"<<std::endl;
     if (coeff.size () != 4)
     {
-      std::cerr<<"Invalid number of model coefficients given"<<coeff.size ()<<std::endl;
+      std::cerr<<"Invalid number of model coefficients given "<<coeff.size ()<<std::endl;
       optimized_coeff = coeff;
       return ;
     }
 
-    // Need at least 3 points to estimate a plane
-    if (inliers.size () < 3)
+    std::cerr<<"Need at least 3 points to estimate a plane"<<std::endl;
+    if (inliers.size() < 3)
     {
       std::cerr<<"Not enough inliers found to support a model"<<inliers.size ()<<"! Returning the same coefficients.\n"<<std::endl;
       optimized_coeff = coeff;
@@ -82,21 +86,20 @@ void SAC_Plane::optimizeModel(const arma::uvec&inliers,
     arma::fvec plane_normal;
     float plane_dist;
     float curvature;
-    // Use Least-Squares to fit the plane through all the given sample points and find out its coefficients
+    std::cerr<<"Use Least-Squares to fit the plane through all the given sample points and find out its coefficients"<<std::endl;
 
     arma::fmat neighborhood = inputs_.cols(inliers);
-    arma::fvec xyz_centroid = arma::mean(neighborhood);
+    arma::fvec xyz_centroid = arma::mean(neighborhood,1);
     fitPlane(xyz_centroid,neighborhood,plane_normal,curvature,plane_dist);
 
-    // Hessian form (D = nc . p_plane (centroid here) + p)
+    std::cerr<<"Hessian form (D = nc . p_plane (centroid here) + p)"<<std::endl;
     optimized_coeff.resize (4);
     optimized_coeff[0] = plane_normal [0];
     optimized_coeff[1] = plane_normal [1];
     optimized_coeff[2] = plane_normal [2];
-    optimized_coeff[3] = 0;
-    optimized_coeff[3] = -1 * arma::dot(optimized_coeff,xyz_centroid);
+    optimized_coeff[3] = plane_dist;
 
-    // Make sure it results in a valid model
+    std::cerr<<"Make sure it results in a valid model"<<std::endl;
     if (!isModelValid (optimized_coeff))
     {
       optimized_coeff = coeff;

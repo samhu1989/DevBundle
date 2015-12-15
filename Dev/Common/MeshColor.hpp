@@ -38,7 +38,10 @@ template<typename M>
 void MeshColor<M>::fromlabel(const arma::uvec&label)
 {
     uint32_t* ptr = (uint32_t*)vertex_colors();
-    if( label.size() < v_colors.size_ )return;
+    if( label.size() < v_colors.size_ ){
+        std::cerr<<"label.size() < v_colors.size_"<<std::endl;
+        return;
+    }
     int index;
     for(int i = 0 ; i < v_colors.size_ ; ++i )
     {

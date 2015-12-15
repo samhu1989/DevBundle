@@ -6,6 +6,7 @@
 #include "computesupervoxelthread.h"
 #include "downsamplethread.h"
 #include "QMessageBox"
+#include "extractplanethread.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -68,6 +69,20 @@ void MainWindow::computeDownSample()
         QApplication::processEvents();
     }
     QString msg = "Done Down Sample:\n '";
+    QMessageBox::information( this, windowTitle(), msg );
+}
+
+void MainWindow::computeExtractPlane()
+{
+    MeshPairViewerWidget* v = qobject_cast<MeshPairViewerWidget*>(centralWidget());
+    if(!v)return;
+    ExtractPlaneThread th(v->first_ptr());
+    th.start(QThread::HighestPriority);
+    while(!th.wait(30))
+    {
+        QApplication::processEvents();
+    }
+    QString msg = "Done Extract Plane:\n '";
     QMessageBox::information( this, windowTitle(), msg );
 }
 

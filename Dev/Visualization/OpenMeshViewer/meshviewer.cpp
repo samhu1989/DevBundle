@@ -183,6 +183,11 @@ void create_menu(MainWindow &w)
     QObject::connect(dsAct, SIGNAL(triggered()), &w, SLOT(computeDownSample()));
     editMenu->addAction(dsAct);
 
+    QAction* epAct = new QAction(w.tr("&Extract Plane"), &w);
+    epAct->setStatusTip(w.tr("Extract Plane"));
+    QObject::connect(epAct, SIGNAL(triggered()), &w, SLOT(computeExtractPlane()));
+    editMenu->addAction(epAct);
+
     QMenu *viewMenu = w.menuBar()->addMenu(w.tr("&View"));
 
     QAction* customcolorAct = new QAction(w.tr("&Show Custom Color"), &w);

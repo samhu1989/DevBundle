@@ -19,6 +19,7 @@ public slots:
     void computeVertexNormal();
     void computeOctree();
     void computeDownSample();
+    void computeExtractPlane();
 private:
     Ui::MainWindow *ui;
 };

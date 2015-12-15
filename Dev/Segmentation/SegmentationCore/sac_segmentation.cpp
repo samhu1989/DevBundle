@@ -1,5 +1,7 @@
 #include "sac_segmentation.h"
 #include "SAC/sac_plane.h"
+#include "SAC/sac_parallel_plane.h"
+#include "SAC/sac_perpendicular_plane.h"
 namespace Segmentation{
 SegmentationRANSAC::SegmentationRANSAC(SAC_Model::Model m):
     SegmentationBase(),
@@ -13,13 +15,13 @@ SegmentationRANSAC::SegmentationRANSAC(SAC_Model::Model m):
     case SAC_Model::PLANE:
         sac_model_.reset(new SAC_Plane());
         break;
+    case SAC_Model::PARALLEL_PLANE:
+        sac_model_.reset(new SAC_Parallel_Plane());
+        break;
+    case SAC_Model::PERPENDICULLAR_PLANE:
+        sac_model_.reset(new SAC_Perpendicular_Plane());
+        break;
     }
-}
-void SegmentationRANSAC::extract(arma::uvec &labels)
-{
-    computeModel();
-    sac_model_->optimizeModel(inliers_,model_coefficients_,model_coefficients_);
-    sac_model_->selectWithinDistance(model_coefficients_,threshold_,labels);
 }
 bool SegmentationRANSAC::computeModel(void)
 {
@@ -43,20 +45,19 @@ bool SegmentationRANSAC::computeModel(void)
     unsigned skipped_count = 0;
     // supress infinite loops by just allowing 10 x maximum allowed iterations for invalid model parameters!
     const unsigned max_skip = max_iterations_ * 10;
-
-    // Iterate
+    std::cerr<<"Iterate"<<std::endl;
     while (iterations_ < k && skipped_count < max_skip)
     {
-      // Get X samples which satisfy the model criteria
+      std::cerr<<"Get X samples which satisfy the model criteria"<<std::endl;
       sac_model_->getSamples (iterations_, selection);
 
-      if (selection.empty ())
+      if (selection.is_empty ())
       {
         std::cerr<<"No samples could be selected!"<<std::endl;
         break;
       }
 
-      // Search for inliers in the point cloud for the current plane model M
+      std::cerr<<"Search for inliers in the point cloud for the current plane model M"<<std::endl;
       if (!sac_model_->computeModel (selection, model_coefficients))
       {
         //++iterations_;
@@ -76,11 +77,11 @@ bool SegmentationRANSAC::computeModel(void)
       {
         n_best_inliers_count = n_inliers_count;
 
-        // Save the current model/inlier/coefficients selection as being the best so far
+        std::cerr<<"Save the current model/inlier/coefficients selection as being the best so far"<<std::endl;
         model_              = selection;
         model_coefficients_ = model_coefficients;
 
-        // Compute the k parameter (k=log(z)/log(1-w^n))
+        std::cerr<<"Compute the k parameter (k=log(z)/log(1-w^n))"<<std::endl;
         double w = static_cast<double> (n_best_inliers_count) * one_over_indices;
         double p_no_outliers = 1.0 - pow (w, static_cast<double> (selection.size ()));
         p_no_outliers = (std::max) (std::numeric_limits<double>::epsilon (), p_no_outliers);       // Avoid division by -Inf
@@ -100,9 +101,10 @@ bool SegmentationRANSAC::computeModel(void)
       inliers_.clear ();
       return (false);
     }
-
-    // Get the set of inliers that correspond to the best model found so far
+    std::cerr<<"Get the set of inliers that correspond to the best model found so far"<<std::endl;
+    std::cerr<<"n_best_inliers_count:"<<n_best_inliers_count<<std::endl;
     sac_model_->selectWithinDistance (model_coefficients_, threshold_, inliers_);
+    std::cerr<<"Inliers:"<<inliers_.size()<<std::endl;
     return (true);
 }
 }

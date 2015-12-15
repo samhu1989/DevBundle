@@ -13,7 +13,9 @@ class SEGMENTATIONCORESHARED_EXPORT SAC_Model
 {
 public:
     typedef enum{
-        PLANE
+        PLANE,
+        PARALLEL_PLANE,
+        PERPENDICULLAR_PLANE
     }Model;
     typedef std::shared_ptr<SAC_Model> Ptr;
     typedef KDTreeSingleIndexAdaptor<
@@ -25,26 +27,32 @@ public:
     SAC_Model():
         rnd_gen_(rnd_d_()),
         rnd_dist_(0,std::numeric_limits<int>::max())
-    {}
+    {
+    }
     virtual ~SAC_Model(){}
     inline void input(const arma::fmat& inputs)
     {
         inputs_ = inputs;
+        arma::uvec indices = arma::linspace<arma::uvec>(0,inputs_.n_cols-1,inputs_.n_cols);
+        shuffled_indices_ = arma::shuffle(indices);
     }
+    virtual inline void setAxis(const arma::fvec&){std::cerr<<"not implemented setAxis"<<std::endl;}
+    virtual inline void setEpsAngle(const float&){std::cerr<<"not implemented setEpsAngle(float&)"<<std::endl;}
     inline uint64_t getInputSize(){
         return inputs_.n_cols;
     }
     inline void
     drawIndexSample (std::vector<int> &sample)
     {
+      std::cerr<<"drawIndexSample(std::vector<int> &sample)"<<std::endl;
       size_t sample_size = sample.size ();
       size_t index_size = shuffled_indices_.size ();
+      std::cerr<<"sample_size:"<<sample_size<<std::endl;
+      std::cerr<<"index_size:"<<index_size<<std::endl;
       for (unsigned int i = 0; i < sample_size; ++i)
-        // The 1/(RAND_MAX+1.0) trick is when the random numbers are not uniformly distributed and for small modulo
-        // elements, that does not matter (and nowadays, random number generators are good)
-        //std::swap (shuffled_indices_[i], shuffled_indices_[i + (rand () % (index_size - i))]);
-        std::swap (shuffled_indices_[i], shuffled_indices_[i + (rnd () % (index_size - i))]);
-        std::copy (shuffled_indices_.begin (), shuffled_indices_.begin () + sample_size, sample.begin ());
+        shuffled_indices_.swap_rows(i,i + ( rnd() % (index_size - i)));
+      std::cerr<<"copy to sample"<<std::endl;
+        std::copy (shuffled_indices_.begin(), shuffled_indices_.begin()+sample_size, sample.begin() );
     }
     inline void
     drawIndexSampleRadius (std::vector<int> &sample)
@@ -98,19 +106,25 @@ public:
         }
         std::vector<int> samplesvec;
         samplesvec.resize(getSampleSize());
-        // Get a second point which is different than the first
+        std::cerr<<"Get a second point which is different than the first"<<std::endl;
         for (unsigned int iter = 0; iter < max_sample_checks_; ++iter)
         {
-          // Choose the random indices
+          std::cerr<<"Choose the random indices"<<std::endl;
           if (samples_radius_ < std::numeric_limits<double>::epsilon ())
-              drawIndexSample (samplesvec);
+          {
+              std::cerr<<"drawIndexSample"<<std::endl;
+              drawIndexSample(samplesvec);
+          }
           else
+          {
+              std::cerr<<"drawIndexSampleRadius"<<std::endl;
               drawIndexSampleRadius(samplesvec);
+          }
 
-          // If it's a good sample, stop here
+          std::cerr<<"If it's a good sample, stop here"<<std::endl;
           if (isSampleGood (samplesvec))
           {
-            std::clog<<"Selected %lu samples"<<samplesvec.size ()<<std::endl;
+            std::clog<<"Selected "<<samplesvec.size()<<" samples"<<std::endl;
             samples = arma::conv_to<arma::uvec>::from(samplesvec);
             return;
           }
@@ -136,8 +150,8 @@ protected:
     std::mt19937 rnd_gen_;
     std::uniform_int_distribution<> rnd_dist_;
     float samples_radius_;
-    int max_sample_checks_;
     SearchPtr samples_radius_search_;
+    static const unsigned int max_sample_checks_ = 1000;
 };
 }
 #endif

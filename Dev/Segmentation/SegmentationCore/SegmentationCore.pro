@@ -24,7 +24,9 @@ SOURCES += segmentationcore.cpp \
     MRF/src/regions-maxprod.cpp \
     MRF/src/TRW-S.cpp \
     SAC/sac_plane.cpp \
-    sac_segmentation.cpp
+    sac_segmentation.cpp \
+    SAC/sac_parallel_plane.cpp \
+    SAC/sac_perpendicular_plane.cpp
 
 HEADERS += segmentationcore.h\
         segmentationcore_global.h \
@@ -48,7 +50,9 @@ HEADERS += segmentationcore.h\
     MRF/include/typeTruncatedQuadratic2D.h \
     sac_segmentation.h \
     SAC/sac_model.h \
-    SAC/sac_plane.h
+    SAC/sac_plane.h \
+    SAC/sac_parallel_plane.h \
+    SAC/sac_perpendicular_plane.h
 
 unix {
     target.path = /usr/lib

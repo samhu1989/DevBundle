@@ -20,14 +20,16 @@ SOURCES += \
     computenormalthread.cpp \
     computeoctreethread.cpp \
     computesupervoxelthread.cpp \
-    downsamplethread.cpp
+    downsamplethread.cpp \
+    extractplanethread.cpp
 
 HEADERS  += \
     mainwindow.h \
     computenormalthread.h \
     computeoctreethread.h \
     computesupervoxelthread.h \
-    downsamplethread.h
+    downsamplethread.h \
+    extractplanethread.h
 
 FORMS    += \
     mainwindow.ui
