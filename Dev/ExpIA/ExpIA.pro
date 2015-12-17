@@ -17,7 +17,6 @@ LIBS += -lgomp -lpthread
 SOURCES += main.cpp\
         mainwindow.cpp \
     regiongrowthread.cpp \
-    unifylabelcolorsizethread.cpp \
     unifylabelmannual.cpp \
     patchpairview.cpp \
     updateobjectmodel.cpp \
@@ -26,11 +25,12 @@ SOURCES += main.cpp\
     graphcutthread.cpp \
     objectview.cpp \
     globalalign.cpp \
-    extractbackground.cpp
+    extractbackground.cpp \
+    extractplanethread.cpp \
+    unifylabelthread.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
-    unifylabelcolorsizethread.h \
     unifylabelmannual.h \
     patchpairview.h \
     updateobjectmodel.h \
@@ -39,7 +39,9 @@ HEADERS  += mainwindow.h \
     graphcutthread.h \
     objectview.h \
     globalalign.h \
-    extractbackground.h
+    extractbackground.h \
+    extractplanethread.h \
+    unifylabelthread.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

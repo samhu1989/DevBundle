@@ -1,5 +1,9 @@
 #include "MeshColor.h"
 #include "common_global.h"
+const float ColorArray::Lab_L_min = 0;
+const float ColorArray::Lab_L_max = 100;
+const float ColorArray::Lab_ab_min = -120;
+const float ColorArray::Lab_ab_max = 120;
 
 void COMMONSHARED_EXPORT ColorArray::RGBArray::reset(long size, uint8_t r, uint8_t g, uint8_t b)
 {

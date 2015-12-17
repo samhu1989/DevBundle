@@ -22,19 +22,19 @@ public:
         input_full_size_ = inputs.n_cols;
         input_indices_   = indices;
     }
-    inline void extract(arma::uvec &labels)
+    void extract(arma::uvec &labels)
     {
         computeModel();
         sac_model_->optimizeModel(inliers_,model_coefficients_,model_coefficients_);
-        std::cerr<<model_coefficients_<<std::endl;
         sac_model_->selectWithinDistance(model_coefficients_,threshold_,inliers_);
         getInliersByLabel(labels);
-
     }
     inline void get_model(arma::vec& coeff){coeff=model_coefficients_;}
-    inline void getInliersByLabel(arma::uvec& label)
+    void getInliersByLabel(arma::uvec& label)
     {
         if(label.is_empty())label = arma::uvec(input_full_size_,arma::fill::ones);
+        arma::uvec extracted = arma::find(0==label);
+        if(extracted.size()==label.size())label.fill(1);
         if(input_indices_.is_empty())label(inliers_).fill(0);
         else label(input_indices_(inliers_)).fill(0);
     }

@@ -11,7 +11,6 @@ class ExtractBackground;
 class ExtractBackground : public QFrame
 {
     Q_OBJECT
-
 public:
     explicit ExtractBackground(
             std::vector<QWidget*>&inputs,
@@ -21,12 +20,19 @@ public:
             );
     bool configure(Config::Ptr);
     ~ExtractBackground();
+signals:
+    void message(QString,int);
+protected:
+    uint64_t current_frame_;
 protected slots:
-    void extract_planes();
+    void reset_extract_planes(){current_frame_=0;}
+    void start_extract_planes();
+    void finish_extract_planes();
+
     void extract_points();
     void unextract_points();
 protected:
-    void extract_planes(DefaultMesh&mesh,uint32_t k,arma::uvec&labels);
+
 private:
     Ui::ExtractBackground *ui;
     std::vector<QWidget*>&inputs_;

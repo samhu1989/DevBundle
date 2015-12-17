@@ -6,7 +6,7 @@
 #include <OpenMesh/Tools/Utils/Timer.hh>
 #include "MeshPairViewerWidget.h"
 #include "regiongrowthread.h"
-#include "unifylabelcolorsizethread.h"
+#include "unifylabelthread.h"
 #include "unifylabelmannual.h"
 #include "updateobjectmodel.h"
 #include "labspace.h"
@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionRemove_Zero_Label,SIGNAL(triggered(bool)),this,SLOT(remove_zero_label()));
     connect(ui->actionSupervoxel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
-    connect(ui->actionUse_Color_and_Size,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionAutomatically,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUpdateObjModel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUpdate_Label,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -741,9 +741,9 @@ void MainWindow::start_editing()
         connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         edit_thread_ = th;
     }
-    if(edit==ui->actionUse_Color_and_Size)
+    if(edit==ui->actionAutomatically)
     {
-        UnifyLabelColorSizeThread* th = new UnifyLabelColorSizeThread(inputs_,labels_);
+        UnifyLabelThread* th = new UnifyLabelThread(inputs_,labels_);
         if(!th->configure(config_)){
             th->deleteLater();
             QString msg = "Missing Some Configure\n";

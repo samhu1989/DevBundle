@@ -67,7 +67,7 @@ void SAC_Plane::optimizeModel(const arma::uvec&inliers,
                            const arma::vec& coeff,
                            arma::vec& optimized_coeff)
 {
-    std::cerr<<"Needs a valid set of model coefficients"<<std::endl;
+//    std::cerr<<"Needs a valid set of model coefficients"<<std::endl;
     if (coeff.size () != 4)
     {
       std::cerr<<"Invalid number of model coefficients given "<<coeff.size ()<<std::endl;
@@ -75,7 +75,7 @@ void SAC_Plane::optimizeModel(const arma::uvec&inliers,
       return ;
     }
 
-    std::cerr<<"Need at least 3 points to estimate a plane"<<std::endl;
+//    std::cerr<<"Need at least 3 points to estimate a plane"<<std::endl;
     if (inliers.size() < 3)
     {
       std::cerr<<"Not enough inliers found to support a model"<<inliers.size ()<<"! Returning the same coefficients.\n"<<std::endl;
@@ -86,20 +86,20 @@ void SAC_Plane::optimizeModel(const arma::uvec&inliers,
     arma::fvec plane_normal;
     float plane_dist;
     float curvature;
-    std::cerr<<"Use Least-Squares to fit the plane through all the given sample points and find out its coefficients"<<std::endl;
+//    std::cerr<<"Use Least-Squares to fit the plane through all the given sample points and find out its coefficients"<<std::endl;
 
     arma::fmat neighborhood = inputs_.cols(inliers);
     arma::fvec xyz_centroid = arma::mean(neighborhood,1);
     fitPlane(xyz_centroid,neighborhood,plane_normal,curvature,plane_dist);
 
-    std::cerr<<"Hessian form (D = nc . p_plane (centroid here) + p)"<<std::endl;
+//    std::cerr<<"Hessian form (D = nc . p_plane (centroid here) + p)"<<std::endl;
     optimized_coeff.resize (4);
     optimized_coeff[0] = plane_normal [0];
     optimized_coeff[1] = plane_normal [1];
     optimized_coeff[2] = plane_normal [2];
     optimized_coeff[3] = plane_dist;
 
-    std::cerr<<"Make sure it results in a valid model"<<std::endl;
+//    std::cerr<<"Make sure it results in a valid model"<<std::endl;
     if (!isModelValid (optimized_coeff))
     {
       optimized_coeff = coeff;

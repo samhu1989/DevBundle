@@ -17,7 +17,11 @@ SOURCES += featurecore.cpp \
 HEADERS += featurecore.h\
         featurecore_global.h \
     pointnormal.h \
-    pointnormal.hpp
+    pointnormal.hpp \
+    colorhistogram.h \
+    normalhistogram.h \
+    colorhistogram.hpp \
+    normalhistogram.hpp
 
 unix {
     target.path = /usr/lib

@@ -1,6 +1,8 @@
 #include "extractbackground.h"
 #include "ui_extractbackground.h"
 #include "MeshPairViewerWidget.h"
+#include "segmentationcore.h"
+#include "extractplanethread.h"
 ExtractBackground::ExtractBackground(
         std::vector<QWidget*>&inputs,
         QTimer& gl_timer,
@@ -14,6 +16,8 @@ ExtractBackground::ExtractBackground(
     ui(new Ui::ExtractBackground)
 {
     ui->setupUi(this);
+    connect(ui->extract_n_plane,SIGNAL(clicked(bool)),this,SLOT(reset_extract_planes()));
+    connect(ui->extract_n_plane,SIGNAL(clicked(bool)),this,SLOT(start_extract_planes()));
 }
 
 bool ExtractBackground::configure(Config::Ptr)
@@ -28,20 +32,27 @@ ExtractBackground::~ExtractBackground()
     delete ui;
 }
 
-void ExtractBackground::extract_planes()
+void ExtractBackground::start_extract_planes()
 {
-    std::vector<QWidget*>::iterator iter;
-    size_t index =0;
-    for(iter = inputs_.begin();iter!=inputs_.end();++iter)
-    {
-        MeshPairViewerWidget* w = (MeshPairViewerWidget*)(*iter);
-        extract_planes(w->first().mesh_,ui->n_planes->value(),labels_[index]);
-    }
+    MeshPairViewerWidget* w = (MeshPairViewerWidget*)(inputs_[current_frame_]);
+    ExtractPlaneThread* th = new ExtractPlaneThread(w->first_ptr(),labels_[current_frame_]);
+    th->setPlaneNumber(ui->n_planes->value());
+    connect(th,SIGNAL(finished()),this,SLOT(finish_extract_planes()));
+    th->start(QThread::NormalPriority);
 }
 
-void ExtractBackground::extract_planes(DefaultMesh&mesh,uint32_t k,arma::uvec&labels)
+void ExtractBackground::finish_extract_planes()
 {
-    ;
+    ExtractPlaneThread* th = qobject_cast<ExtractPlaneThread*>(sender());
+    if(!th)std::cerr<<"called by unknown object"<<std::endl;
+    else{
+       th->deleteLater();
+    }
+    ++current_frame_;
+    if(current_frame_<inputs_.size())
+    {
+        start_extract_planes();
+    }
 }
 
 void ExtractBackground::extract_points()

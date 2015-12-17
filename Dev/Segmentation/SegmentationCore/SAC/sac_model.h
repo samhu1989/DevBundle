@@ -26,7 +26,8 @@ public:
     typedef std::shared_ptr<Search> SearchPtr;
     SAC_Model():
         rnd_gen_(rnd_d_()),
-        rnd_dist_(0,std::numeric_limits<int>::max())
+        rnd_dist_(0,std::numeric_limits<int>::max()),
+        samples_radius_(0.0)
     {
     }
     virtual ~SAC_Model(){}
@@ -44,14 +45,14 @@ public:
     inline void
     drawIndexSample (std::vector<int> &sample)
     {
-      std::cerr<<"drawIndexSample(std::vector<int> &sample)"<<std::endl;
+//      std::cerr<<"drawIndexSample(std::vector<int> &sample)"<<std::endl;
       size_t sample_size = sample.size ();
       size_t index_size = shuffled_indices_.size ();
-      std::cerr<<"sample_size:"<<sample_size<<std::endl;
-      std::cerr<<"index_size:"<<index_size<<std::endl;
+//      std::cerr<<"sample_size:"<<sample_size<<std::endl;
+//      std::cerr<<"index_size:"<<index_size<<std::endl;
       for (unsigned int i = 0; i < sample_size; ++i)
         shuffled_indices_.swap_rows(i,i + ( rnd() % (index_size - i)));
-      std::cerr<<"copy to sample"<<std::endl;
+//      std::cerr<<"copy to sample"<<std::endl;
         std::copy (shuffled_indices_.begin(), shuffled_indices_.begin()+sample_size, sample.begin() );
     }
     inline void
@@ -70,10 +71,15 @@ public:
       // first parameter. This can't be determined efficiently, so we use
       // the point instead of the index.
       // Returned indices are converted automatically.
-      samples_radius_search_->radiusSearch(&pts[shuffled_indices_[0]],
+      if(samples_radius_search_&&0!=samples_radius_search_.use_count())
+          samples_radius_search_->radiusSearch(&pts[shuffled_indices_[0]],
                                             samples_radius_, results,SearchParams());
+      else{
+          drawIndexSample(sample);
+          return;
+      }
 
-      if (inputs_.n_cols < sample_size - 1)
+      if ( results.size() < sample_size - 1)
       {
         // radius search failed, make an invalid model
         for(unsigned int i = 1; i < sample_size; ++i)
@@ -89,10 +95,10 @@ public:
       }
       std::copy (shuffled_indices_.begin (), shuffled_indices_.begin () + sample_size, sample.begin ());
     }
-    inline int
+    inline uint64_t
     rnd ()
     {
-      return rnd_dist_(rnd_gen_);
+      return uint64_t(rnd_dist_(rnd_gen_));
     }
     virtual void getSamples(uint64_t iterations,arma::uvec&samples)
     {
@@ -106,25 +112,25 @@ public:
         }
         std::vector<int> samplesvec;
         samplesvec.resize(getSampleSize());
-        std::cerr<<"Get a second point which is different than the first"<<std::endl;
+//        std::cerr<<"Get a second point which is different than the first"<<std::endl;
         for (unsigned int iter = 0; iter < max_sample_checks_; ++iter)
         {
-          std::cerr<<"Choose the random indices"<<std::endl;
+//          std::cerr<<"Choose the random indices"<<std::endl;
           if (samples_radius_ < std::numeric_limits<double>::epsilon ())
           {
-              std::cerr<<"drawIndexSample"<<std::endl;
+//              std::cerr<<"drawIndexSample"<<std::endl;
               drawIndexSample(samplesvec);
           }
           else
           {
-              std::cerr<<"drawIndexSampleRadius"<<std::endl;
+//              std::cerr<<"drawIndexSampleRadius"<<std::endl;
               drawIndexSampleRadius(samplesvec);
           }
 
-          std::cerr<<"If it's a good sample, stop here"<<std::endl;
+//          std::cerr<<"If it's a good sample, stop here"<<std::endl;
           if (isSampleGood (samplesvec))
           {
-            std::clog<<"Selected "<<samplesvec.size()<<" samples"<<std::endl;
+//            std::clog<<"Selected "<<samplesvec.size()<<" samples"<<std::endl;
             samples = arma::conv_to<arma::uvec>::from(samplesvec);
             return;
           }

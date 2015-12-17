@@ -68,7 +68,7 @@
      <property name="title">
       <string>Unify Label</string>
      </property>
-     <addaction name="actionUse_Color_and_Size"/>
+     <addaction name="actionAutomatically"/>
      <addaction name="actionMannually"/>
     </widget>
     <addaction name="actionGlobal_Align"/>
@@ -136,9 +136,9 @@
     <string>Update Color Model</string>
    </property>
   </action>
-  <action name="actionUse_Color_and_Size">
+  <action name="actionAutomatically">
    <property name="text">
-    <string>Use Color and Size</string>
+    <string>Automatically</string>
    </property>
   </action>
   <action name="actionMannually">

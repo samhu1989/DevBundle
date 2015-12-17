@@ -48,6 +48,11 @@ namespace ColorArray
     void COMMONSHARED_EXPORT Lab2BGR(const arma::fmat& Lab, arma::Mat<uint8_t>& rgb);
     void COMMONSHARED_EXPORT BGR2Lab(const arma::Mat<uint8_t>& rgb, arma::fmat& Lab);
     void COMMONSHARED_EXPORT BGR2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab);
+
+    extern const float COMMONSHARED_EXPORT Lab_L_min;
+    extern const float COMMONSHARED_EXPORT Lab_L_max;
+    extern const float COMMONSHARED_EXPORT Lab_ab_min;
+    extern const float COMMONSHARED_EXPORT Lab_ab_max;
 }
 
 template <typename M>
