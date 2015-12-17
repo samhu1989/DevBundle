@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ExpIA
 TEMPLATE = app
 CONFIG += c++11
+CONFIG += console
+CONFIG -= app_bundle
 QMAKE_CXXFLAGS += -fopenmp
 LIBS += -lgomp -lpthread
 
