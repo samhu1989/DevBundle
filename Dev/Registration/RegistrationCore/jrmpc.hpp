@@ -163,6 +163,7 @@ void JRMPC<M>::reset(
     res_ptr = ResPtr(new Result);
     std::vector<std::shared_ptr<arma::fmat>>::iterator VIter;
     arma::fvec meanX = arma::mean(*X_ptr,1);
+    arma::fmat& v0 = **V_ptrs.begin();
     for( VIter = V_ptrs.begin() ; VIter != V_ptrs.end() ; ++VIter )
     {
         arma::fmat&v = **VIter;
@@ -170,6 +171,12 @@ void JRMPC<M>::reset(
         res_ptr->Rs.emplace_back(new arma::fmat(3,3,arma::fill::eye));
         res_ptr->ts.emplace_back(new arma::fvec(meanX-meanV));
         v.each_col() += *(res_ptr->ts.back());
+        if(VIter!=V_ptrs.begin())
+        {
+            alignAroundZ(v0,v,*res_ptr->Rs.back());
+            v = (*res_ptr->Rs.back())*v;
+            (*res_ptr->ts.back()) = *res_ptr->Rs.back()*(*res_ptr->ts.back());
+        }
     }
     info_ptr ->result = (void*)(res_ptr.get());
 

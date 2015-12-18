@@ -29,8 +29,28 @@ protected slots:
     void start_extract_planes();
     void finish_extract_planes();
 
+    void reset_extract();
+
+    void extract_plane();
+    void extract_plane(
+            MeshBundle<DefaultMesh>::Ptr ptr,
+            const std::vector<arma::uword>&,
+            arma::uvec&label
+            );
+
     void extract_points();
+    void extract_points(
+            MeshBundle<DefaultMesh>::Ptr ptr,
+            const std::vector<arma::uword>&,
+            arma::uvec&label
+            );
     void unextract_points();
+    void unextract_points(
+            MeshBundle<DefaultMesh>::Ptr ptr,
+            const std::vector<arma::uword>&,
+            arma::uvec&label
+            );
+
 protected:
 
 private:

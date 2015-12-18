@@ -28,19 +28,36 @@ uint8_t v_ = 255.0*v;
     }
 }
 
-void getRotationFromTwoUnitVectors(
-        const arma::fvec& from,
-        const arma::fvec& toward,
+void getRotationFromZY(
+        const arma::fvec& z_axis,
+        const arma::fvec& y_direction,
         arma::fmat& transformation
         )
 {
-    arma::fvec tmp0 = arma::normalise(arma::cross(from,toward));
-    arma::fvec tmp1 = arma::normalise(arma::cross(toward,tmp0));
-    arma::fvec tmp2 = arma::normalise(toward);
+    arma::fvec tmp0 = arma::normalise(arma::cross(y_direction,z_axis));
+    arma::fvec tmp1 = arma::normalise(arma::cross(z_axis,tmp0));
+    arma::fvec tmp2 = arma::normalise(z_axis);
     transformation = arma::fmat(3,3);
     transformation(0,0)=tmp0[0]; transformation(0,1)=tmp0[1]; transformation(0,2)=tmp0[2];
     transformation(1,0)=tmp1[0]; transformation(1,1)=tmp1[1]; transformation(1,2)=tmp1[2];
     transformation(2,0)=tmp2[0]; transformation(2,1)=tmp2[1]; transformation(2,2)=tmp2[2];
 }
+
+void getRotationFromXY(
+        const arma::fvec& x_axis,
+        const arma::fvec& y_direction,
+        arma::fmat& transformation
+        )
+{
+    arma::fvec tmp2 = arma::normalise(arma::cross(x_axis,y_direction));
+    arma::fvec tmp1 = arma::normalise(arma::cross(tmp2,x_axis));
+    arma::fvec tmp0 = arma::normalise(x_axis);
+    transformation = arma::fmat(3,3);
+    transformation(0,0)=tmp0[0]; transformation(0,1)=tmp0[1]; transformation(0,2)=tmp0[2];
+    transformation(1,0)=tmp1[0]; transformation(1,1)=tmp1[1]; transformation(1,2)=tmp1[2];
+    transformation(2,0)=tmp2[0]; transformation(2,1)=tmp2[1]; transformation(2,2)=tmp2[2];
+}
+
+
 
 

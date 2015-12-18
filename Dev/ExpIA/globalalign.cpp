@@ -16,6 +16,7 @@ GlobalAlign::GlobalAlign(GlobalAlign::IMeshList& input,QWidget* parent) :
     connect(ui->load_down_sampled,SIGNAL(clicked(bool)),this,SLOT(loadDownSampled()));
     connect(ui->align_each_other,SIGNAL(clicked(bool)),this,SLOT(start_AlignEachOther()));
     connect(ui->align_up,SIGNAL(clicked(bool)),this,SLOT(alignUptoZ()));
+    connect(ui->align_all,SIGNAL(clicked(bool)),this,SLOT(alignAllUptoZ()));
 
     gl_timer.setSingleShot(false);
     connect(&gl_timer,SIGNAL(timeout()),geo_view_,SLOT(updateGL()));
@@ -119,22 +120,60 @@ void GlobalAlign::alignUptoZ(void)
     arma::fmat points(pdata,3,N,false,true);
     arma::fmat picked = points.cols(selected);
     arma::fvec t = arma::mean(picked.cols(0,2),1);
-    arma::fvec zUp(3,arma::fill::zeros);
-    zUp(2) = 1.0;
-    arma::fvec norm = arma::cross( picked.col(1) - picked.col(0) , picked.col(2) - picked.col(0) );
-    arma::fvec tmp = picked.col(3) - t;
-    if( std::abs(arma::dot( norm , tmp )) < 0 )norm*=-1.0;
-    norm = arma::normalise(norm);
+
+    arma::fvec z_axis = arma::cross( picked.col(1) - picked.col(0) , picked.col(2) - picked.col(0) );
+    arma::fvec tmp = picked.col(3) - t ;
+    if( arma::dot( z_axis , tmp ) < 0 )z_axis*=-1.0;
+    z_axis = arma::normalise(z_axis);
+
+    arma::fvec y_axis = picked.col(2) - picked.col(1);
+    y_axis = arma::normalise(y_axis);
     arma::fmat R(3,3);
-    getRotationFromTwoUnitVectors(zUp,norm,R);
+    getRotationFromZY(z_axis,y_axis,R);
+    //transform downsampled
+    IMeshList::iterator iter;
+    IMeshList::iterator b = geo_view_->list().begin();
+    iter = b + geo_view_->current_mesh_start();
+    pdata = (float*)(*iter)->mesh_.points();
+    arma::fmat pts(pdata,3,(*iter)->mesh_.n_vertices(),false,true);
+    pts.each_col() -= t;
+    pts = R*pts;
+    //transform inputs
+    iter = inputs_.begin() + geo_view_->current_mesh_start();
+    pdata = (float*)(*iter)->mesh_.points();
+    arma::fmat ipts(pdata,3,(*iter)->mesh_.n_vertices(),false,true);
+    ipts.each_col() -= t;
+    ipts = R*ipts;
+    geo_view_->current_selected().clear();
+}
+
+void GlobalAlign::alignAllUptoZ(void)
+{
+    if(geo_view_->current_visible_num()!=1)return;
+    if( 4 != geo_view_->current_selected().size() )return;
+    arma::uvec selected(geo_view_->current_selected());
+    float* pdata = (float*)geo_view_->list()[geo_view_->current_mesh_start()]->mesh_.points();
+    uint32_t N = geo_view_->list()[geo_view_->current_mesh_start()]->mesh_.n_vertices();
+    arma::fmat points(pdata,3,N,false,true);
+    arma::fmat picked = points.cols(selected);
+    arma::fvec t = arma::mean(picked.cols(0,2),1);
+
+    arma::fvec z_axis = arma::cross( picked.col(1) - picked.col(0) , picked.col(2) - picked.col(0) );
+    arma::fvec tmp = picked.col(3) - t ;
+    if( arma::dot( z_axis , tmp ) < 0 )z_axis*=-1.0;
+    z_axis = arma::normalise(z_axis);
+
+    arma::fvec y_axis = picked.col(2) - picked.col(1);
+    y_axis = arma::normalise(y_axis);
+    arma::fmat R(3,3);
+    getRotationFromZY(z_axis,y_axis,R);
     //transform downsampled
     IMeshList::iterator iter;
     IMeshList::iterator b = geo_view_->list().begin();
     IMeshList::iterator e = geo_view_->list().end();
-    e--;//avoid last one
     for(iter=b;iter!=e;++iter)
     {
-        float* pdata = (float*)(*iter)->mesh_.points();
+        pdata = (float*)(*iter)->mesh_.points();
         arma::fmat pts(pdata,3,(*iter)->mesh_.n_vertices(),false,true);
         pts.each_col() -= t;
         pts = R*pts;
@@ -142,11 +181,12 @@ void GlobalAlign::alignUptoZ(void)
     //transform inputs
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
-        float* pdata = (float*)(*iter)->mesh_.points();
-        arma::fmat pts(pdata,3,(*iter)->mesh_.n_vertices(),false,true);
-        pts.each_col() -= t;
-        pts = R*pts;
+        pdata = (float*)(*iter)->mesh_.points();
+        arma::fmat ipts(pdata,3,(*iter)->mesh_.n_vertices(),false,true);
+        ipts.each_col() -= t;
+        ipts = R*ipts;
     }
+
     geo_view_->current_selected().clear();
 }
 

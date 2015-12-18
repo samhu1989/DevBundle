@@ -14,7 +14,8 @@ LIBS += -lgomp -lpthread
 DEFINES += REGISTRATIONCORE_LIBRARY
 
 SOURCES += registrationcore.cpp \
-    coherentpointdrift.cpp
+    coherentpointdrift.cpp \
+    RegistrationBase.cpp
 
 HEADERS += registrationcore.h\
         registrationcore_global.h \

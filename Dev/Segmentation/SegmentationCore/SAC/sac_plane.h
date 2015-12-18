@@ -1,9 +1,10 @@
 #ifndef SAC_PLANE_H
 #define SAC_PLANE_H
 #include "sac_model.h"
+#include "segmentationcore_global.h"
 #include <memory>
 namespace Segmentation {
-class SAC_Plane:public SAC_Model
+class SEGMENTATIONCORESHARED_EXPORT SAC_Plane:public SAC_Model
 {
 public:
     using SAC_Model::inputs_;

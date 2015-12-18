@@ -13,6 +13,7 @@ void ExtractPlaneThread::run(void)
 
     ransac->setAxis(axis);
     ransac->setEpsAngle(eps);
+    ransac->setThreshold(threshold_);
 
     arma::uvec remained = arma::find(labels!=0);
     if(remained.is_empty())labels.fill(1);
@@ -25,6 +26,7 @@ void ExtractPlaneThread::run(void)
     ransac = std::make_shared<Segmentation::SegmentationRANSAC>(Segmentation::SAC_Model::PARALLEL_PLANE);
     ransac->setAxis(axis);
     ransac->setEpsAngle(eps);
+    ransac->setThreshold(threshold_);
 
     for( size_t index = 0 ; index < k_ - 1 ; ++index )
     {

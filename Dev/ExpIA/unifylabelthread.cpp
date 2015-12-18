@@ -1,6 +1,7 @@
 #include "unifylabelthread.h"
 #include "featurecore.h"
 #include "mbb.h"
+#include <QTime>
 bool UnifyLabelThread::configure(Config::Ptr config)
 {
     config_ = config;
@@ -20,13 +21,24 @@ bool UnifyLabelThread::configure(Config::Ptr config)
 
 void UnifyLabelThread::run()
 {
+    QTime timer;
+    timer.restart();
     emit message(QString("Extracting Feature"),0);
     extract_patch_features();
     emit message(QString("Learning GMM model"),0);
     learn();
     emit message(QString("Assigning Patch Label"),0);
     assign();
-    emit message(QString("Done Unify Label"),0);
+    QString msg;
+    int ms = timer.elapsed();
+    int s = ms/1000;
+    ms -= s*1000;
+    int m = s/60;
+    s -= m*60;
+    int h = m/60;
+    m -= h*60;
+    msg = msg.sprintf("Time Used of Unify Label:%2u:%2u:%2u.%3u",h,m,s,ms);
+    emit message(msg,0);
 }
 
 void UnifyLabelThread::extract_patch_features()

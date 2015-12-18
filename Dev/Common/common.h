@@ -20,7 +20,16 @@ template class COMMONSHARED_EXPORT MeshBundle<DefaultMesh>;
 typedef MeshOctreeContainer<DefaultMesh> DefaultOctreeContainer;
 template class COMMONSHARED_EXPORT unibn::Octree<arma::fvec,DefaultOctreeContainer>;
 typedef unibn::Octree<arma::fvec,DefaultOctreeContainer> DefaultOctree;
-void COMMONSHARED_EXPORT getRotationFromTwoUnitVectors(const arma::fvec&,const arma::fvec&,arma::fmat&);
+void COMMONSHARED_EXPORT getRotationFromZY(const arma::fvec&,const arma::fvec&,arma::fmat&);
+void COMMONSHARED_EXPORT getRotationFromXY(const arma::fvec&,const arma::fvec&,arma::fmat&);
+inline void getRotation(float x, float y, float z, float roll, float pitch, float yaw,arma::fmat& t)
+{
+   float A=cosf(yaw),  B=sinf(yaw),  C=cosf(pitch), D=sinf(pitch),
+         E=cosf(roll), F=sinf(roll), DE=D*E,        DF=D*F;
+   t(0,0) = A*C;  t(0,1) = A*DF - B*E;  t(0,2) = B*F + A*DE;
+   t(1,0) = B*C;  t(1,1) = A*E + B*DF;  t(1,2) = B*DE - A*F;
+   t(2,0) = -D;   t(2,1) = C*F;         t(2,2) = C*E;
+}
 inline void fitPlane(
         arma::fvec &center,
         arma::fmat &neighbor,

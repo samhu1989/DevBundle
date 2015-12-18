@@ -12,12 +12,14 @@ public:
             QObject*parent=0
             ):QThread(parent),input_(input),output_(label){}
     inline void setPlaneNumber(uint64_t k){k_=k;}
+    inline void setThreshold(float th){threshold_=th;}
 protected:
     void run(void);
 private:
     MeshBundle<DefaultMesh>::Ptr input_;
     arma::uvec& output_;
     uint64_t k_;
+    float threshold_;
 };
 
 #endif // EXTRACTPLANETHREAD_H

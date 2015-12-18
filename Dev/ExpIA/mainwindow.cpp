@@ -128,8 +128,8 @@ void MainWindow::save_aligned()
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         MeshBundle<DefaultMesh>::Ptr ptr = *iter;
-        if(!OpenMesh::IO::write_mesh(ptr->mesh_,path+"\\"+ptr->name_+"_aligned.ply",opt,13)){
-            std::cerr<<"can't save to:"<<path+"\\"+ptr->name_+"_aligned.ply"<<std::endl;
+        if(!OpenMesh::IO::write_mesh(ptr->mesh_,path+"/"+ptr->name_+"_aligned.ply",opt,13)){
+            std::cerr<<"can't save to:"<<path+"/"+ptr->name_+"_aligned.ply"<<std::endl;
             return;
         }
     }
@@ -861,6 +861,7 @@ void MainWindow::remove_zero_label()
         disconnect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
         DefaultMesh mesh;
         mesh.request_vertex_colors();
+        mesh.request_vertex_normals();
         MeshBundle<DefaultMesh>::Ptr ptr = (*iter);
         arma::uvec& label = (*liter);
         long long index = -1;
@@ -870,6 +871,7 @@ void MainWindow::remove_zero_label()
             if(0==label(index))continue;
             DefaultMesh::VertexHandle new_it = mesh.add_vertex(ptr->mesh_.point(*v_it));
             mesh.set_color(new_it,ptr->mesh_.color(*v_it));
+            mesh.set_normal(new_it,ptr->mesh_.normal(*v_it));
         }
         ptr->mesh_ = mesh;
         arma::uvec label_indices = arma::find( label != 0 );

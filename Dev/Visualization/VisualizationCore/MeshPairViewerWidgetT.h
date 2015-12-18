@@ -69,6 +69,8 @@ public:
   std::shared_ptr<MeshBundle<Mesh>>& first_ptr() { return first_; }
   std::shared_ptr<MeshBundle<Mesh>>& second_ptr() { return second_; }
 
+  std::vector<arma::uword> &first_selected(){return first_selected_;}
+
 protected:
 
   /// inherited drawing method

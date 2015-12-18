@@ -1,6 +1,7 @@
 #include "updateobjectmodel.h"
 #include "ui_updateobjectmodel.h"
 #include "registrationcore.h"
+#include "filter.h"
 UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OModelList &outputs, QWidget *parent) :
     QFrame(parent),
     inputs_(inputs),
@@ -36,7 +37,7 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
     }
     current_label_ = 0;
     current_patches_.resize(inputs_.size());
-    gl_timer.start(90);
+    gl_timer.start(100);
 }
 
 bool UpdateObjectModel::configure(Config::Ptr config)
@@ -44,6 +45,8 @@ bool UpdateObjectModel::configure(Config::Ptr config)
     if(labels_.empty())return false;
     if(max_label_==0)return false;
     config_ = config;
+    if(!config_->has("Align_Down_Sample_Threshold"))return false;
+    if(!config_->has("Align_Down_Sample_Ratio"))return false;
     if(config_->has("Align_Max_Iter")){
         std::cerr<<"Align_Max_Iter:"<<config_->getInt("Align_Max_Iter")<<std::endl;
     }
@@ -80,7 +83,39 @@ void UpdateObjectModel::prepare_for_next()
     {
         prepare_for_next();
     }
-    geo_view_->list() = current_patches_;
+    gl_timer.stop();
+    geo_view_->list().clear();
+    Filter::OctreeGrid<DefaultMesh> octree_grid;
+    MeshBundle<DefaultMesh>::PtrList::iterator iter;
+    for(iter=current_patches_.begin();iter!=current_patches_.end();++iter)
+    {
+        MeshBundle<DefaultMesh>::Ptr ptr = *iter;
+        if( ptr && 0!=ptr.use_count() )
+        {
+            geo_view_->list().emplace_back(new MeshBundle<DefaultMesh>);
+            DefaultMesh& m = geo_view_->list().back()->mesh_;
+            m.request_vertex_colors();
+            m.request_vertex_normals();
+            m = ptr->mesh_;
+            //down sampling
+            if(m.n_vertices() > config_->getInt("Align_Down_Sample_Threshold"))
+            {
+                arma::fmat pts((float*)m.points(),3,m.n_vertices(),false,true);
+                arma::fmat box;
+                get3DMBB(pts,2,box);
+                arma::fvec lwh(3);//length width height
+                lwh(0) = arma::norm( box.col(0) - box.col(1) );
+                lwh(1) = arma::norm( box.col(0) - box.col(3) );
+                lwh(2) = arma::norm( box.col(0) - box.col(4) );
+                double min_size = arma::min(lwh);
+                octree_grid.set_seed_resolution(min_size*config_->getDouble("Align_Down_Sample_Ratio"));
+                octree_grid.extract(m);
+            }
+        }else{
+            geo_view_->list().push_back(*iter);
+        }
+    }
+    gl_timer.start(100);
 }
 
 void UpdateObjectModel::extract_patches()
@@ -140,12 +175,15 @@ void UpdateObjectModel::update_objects()
                 arma::fvec t(t_ptr->t,3,false,true);
                 R = *(r->Rs[index]);
                 t = *(r->ts[index]);
+                DefaultMesh& m = current_patches_[*iter]->mesh_;
+                arma::fmat V((float*)m.points(),3,m.n_vertices(),false,true);
+                V = R*V;
+                V.each_col() += t;
                 ++index;
             }
             std::cerr<<"update geometry object"<<std::endl;
-            std::vector<MeshBundle<DefaultMesh>::Ptr>& patch_list_ = geo_view_->list();
+            std::vector<MeshBundle<DefaultMesh>::Ptr>& patch_list_ = current_patches_;
             PatchList::reverse_iterator piter=patch_list_.rbegin();
-            piter++;//avoid the patch of registration gaussian center
             obj_ptr->init(*(r->X));
             for( ;piter!=patch_list_.rend();++piter)
             {
@@ -158,7 +196,6 @@ void UpdateObjectModel::update_objects()
             obj_ptr->finishColor();
             std::cerr<<"update weight"<<std::endl;
             piter=patch_list_.rbegin();
-            piter++;
             for( ;piter!=patch_list_.rend();++piter)
             {
                 MeshBundle<DefaultMesh>::Ptr& patch_ptr = *piter;

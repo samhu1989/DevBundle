@@ -24,6 +24,7 @@ protected slots:
     void start_AlignEachOther(void);
     void finish_AlignEachOther(void);
     void alignUptoZ(void);
+    void alignAllUptoZ(void);
 private:
     MeshListViewerWidget* geo_view_;
     Ui::GlobalAlign *ui;
