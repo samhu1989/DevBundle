@@ -236,7 +236,11 @@ void GraphCutThread::normalizeData()
     arma::uvec sorted_i = arma::sort_index(unknown_data);
     arma::uvec choosen_i = sorted_i.head(unknown_num);
     unknown_data(choosen_i).fill(1.0);
+    data.row(0) = unknown_data;
     data = arma::mat(label_number_,pix_number_,arma::fill::ones) - data;
+    unknown_data = data.row(0);
+    unknown_data(choosen_i).fill(std::numeric_limits<double>::max());
+    data.row(0) = unknown_data;
     data *= config_->getDouble("GC_data_weight");
     if(!data.is_finite())
     {

@@ -28,7 +28,8 @@ HEADERS += common.h\
     configure.h \
     mbb.h \
     voxelgraph.h \
-    voxelgraph.hpp
+    voxelgraph.hpp \
+    extractmesh.hpp
 
 unix {
     target.path = /usr/lib

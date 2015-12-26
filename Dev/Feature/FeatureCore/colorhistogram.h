@@ -12,8 +12,8 @@ public:
             uint64_t Na,
             uint64_t Nb
             );
-    void extract(Mesh&,arma::vec&);
-    void extract(Mesh&,arma::fvec&);
+    void extract(const Mesh&,arma::vec&);
+    void extract(const Mesh&,arma::fvec&);
 protected:
     inline uint64_t indexL(float L)
     {
@@ -44,8 +44,8 @@ public:
             uint64_t Ng,
             uint64_t Nb
             );
-    void extract(Mesh&,arma::vec&);
-    void extract(Mesh&,arma::fvec&);
+    void extract(const Mesh&,arma::vec&);
+    void extract(const Mesh&,arma::fvec&);
 protected:
     inline uint64_t indexr(float r)
     {

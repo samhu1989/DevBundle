@@ -71,6 +71,13 @@
      <addaction name="actionAutomatically"/>
      <addaction name="actionMannually"/>
     </widget>
+    <widget class="QMenu" name="menuUpdate_Label">
+     <property name="title">
+      <string>Update Label</string>
+     </property>
+     <addaction name="actionGlobal_Graph_Cut"/>
+     <addaction name="actionIn_Patch_Graph_Cut"/>
+    </widget>
     <addaction name="actionGlobal_Align"/>
     <addaction name="actionExtract_Background"/>
     <addaction name="actionRemove_Zero_Label"/>
@@ -78,7 +85,7 @@
     <addaction name="actionRegionGrow"/>
     <addaction name="menuUnify_Label"/>
     <addaction name="actionUpdateObjModel"/>
-    <addaction name="actionUpdate_Label"/>
+    <addaction name="menuUpdate_Label"/>
     <addaction name="separator"/>
     <addaction name="actionIterate"/>
    </widget>
@@ -90,6 +97,7 @@
     <addaction name="actionLab_Color_Space"/>
     <addaction name="actionObject_View"/>
     <addaction name="actionSupervoxel_Color"/>
+    <addaction name="actionFeature_View"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -109,11 +117,6 @@
   <action name="actionRegionGrow">
    <property name="text">
     <string>RegionGrow</string>
-   </property>
-  </action>
-  <action name="actionUpdate_Label">
-   <property name="text">
-    <string>Update Label</string>
    </property>
   </action>
   <action name="actionIterate">
@@ -222,6 +225,21 @@
   <action name="actionRemove_Zero_Label">
    <property name="text">
     <string>Remove Zero Label</string>
+   </property>
+  </action>
+  <action name="actionFeature_View">
+   <property name="text">
+    <string>Feature View</string>
+   </property>
+  </action>
+  <action name="actionGlobal_Graph_Cut">
+   <property name="text">
+    <string>Global Graph Cut</string>
+   </property>
+  </action>
+  <action name="actionIn_Patch_Graph_Cut">
+   <property name="text">
+    <string>In-Patch Graph Cut</string>
    </property>
   </action>
  </widget>

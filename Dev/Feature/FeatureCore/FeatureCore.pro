@@ -21,7 +21,9 @@ HEADERS += featurecore.h\
     colorhistogram.h \
     normalhistogram.h \
     colorhistogram.hpp \
-    normalhistogram.hpp
+    normalhistogram.hpp \
+    blockbasedfeature.h \
+    blockbasedfeature.hpp
 
 unix {
     target.path = /usr/lib

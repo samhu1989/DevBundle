@@ -2,6 +2,7 @@
 #include <nanoflann.hpp>
 #include "common.h"
 #include "featurecore.h"
+#include "filter.h"
 using namespace nanoflann;
 ObjModel::ObjModel():
     GeoM_(new MeshBundle<DefaultMesh>),
@@ -12,22 +13,9 @@ ObjModel::ObjModel():
 
 void ObjModel::init(arma::fmat&X)
 {
-    if(0==GeoM_->mesh_.n_vertices()){
-        //init on first update
-        accu_color_ = arma::mat(3,X.n_cols,arma::fill::zeros);
-        accu_count_ = 0;
-        DistP_  = arma::fvec(X.n_cols,arma::fill::zeros);
-        ColorP_ = arma::fvec(X.n_cols,arma::fill::zeros);
-        NormP_ = arma::fvec(X.n_cols,arma::fill::zeros);
-        GeoM_->mesh_.request_vertex_colors();
-        GeoM_->mesh_.request_vertex_normals();
-        for( size_t i = 0 ; i < X.n_cols ; ++ i )
-        {
-            GeoM_->mesh_.add_vertex(DefaultMesh::Point(X(0,i),X(1,i),X(2,i)));
-        }
-        Feature::computePointNormal<DefaultMesh>(GeoM_->mesh_,0.0,10);
-        return;
-    }
+    initX_ = X;
+    GeoM_->mesh_.request_vertex_colors();
+    GeoM_->mesh_.request_vertex_normals();
 }
 
 void ObjModel::updateFullModel(MeshBundle<DefaultMesh>::Ptr input)
@@ -46,9 +34,10 @@ void ObjModel::updateFullModel(MeshBundle<DefaultMesh>::Ptr input)
             3,arma::uword>
             kdtree(3,points,KDTreeSingleIndexAdaptorParams(9));
     kdtree.buildIndex();
-    arma::uvec indices(8);
-    arma::fvec dists(8);
-    arma::frowvec color_dists(8);
+    size_t k = std::min(size_t(8),input->mesh_.n_vertices());
+    arma::uvec indices(k);
+    arma::fvec dists(k);
+    arma::frowvec color_dists;
     arma::fmat neighbor_color;
     arma::fvec current_color;
     float* pdata = (float*)input->mesh_.points();
@@ -56,10 +45,10 @@ void ObjModel::updateFullModel(MeshBundle<DefaultMesh>::Ptr input)
     arma::Mat<uint8_t> cmat(cdata,3,input->mesh_.n_vertices(),false,true);
     for(size_t index=0;index<input->mesh_.n_vertices();++index)
     {
-        kdtree.knnSearch(&(pdata[3*index]),8,indices.memptr(),dists.memptr());
+        kdtree.knnSearch(&(pdata[3*index]),k,indices.memptr(),dists.memptr());
         space_density_(index) = dists(1);
-        ColorArray::RGB2Lab(cmat.cols(indices),neighbor_color);
-        ColorArray::RGB2Lab(cmat.col(index),current_color);
+        neighbor_color = arma::conv_to<arma::fmat>::from(cmat.cols(indices));
+        current_color = arma::conv_to<arma::fvec>::from(cmat.col(index));
         neighbor_color.each_col() -= current_color;
         color_dists = arma::sum(arma::square(neighbor_color));
         arma::frowvec tmp = arma::sort(color_dists);
@@ -92,6 +81,51 @@ void ObjModel::updateFullModel(MeshBundle<DefaultMesh>::Ptr input)
     }
 }
 
+void ObjModel::updateModel(MeshBundle<DefaultMesh>::Ptr input)
+{
+    MeshKDTreeInterface<DefaultMesh> points(input->mesh_);
+    KDTreeSingleIndexAdaptor<
+            L2_Simple_Adaptor<float,MeshKDTreeInterface<DefaultMesh>>,
+            MeshKDTreeInterface<DefaultMesh>,
+            3,arma::uword>
+            kdtree(3,points,KDTreeSingleIndexAdaptorParams(3));
+    kdtree.buildIndex();
+
+    size_t N = initX_.n_cols;
+    float* pdata = (float*)initX_.memptr();
+    float* idata = (float*)input->mesh_.points();
+    size_t k = std::min(size_t(6),input->mesh_.n_vertices());
+    arma::uvec indices(k);
+    arma::fvec dists(k);
+    //init on first update
+    for( size_t index = 0 ; index < N ; ++ index )
+    {
+        kdtree.knnSearch(&(pdata[3*index]),k,indices.memptr(),dists.memptr());
+        for(size_t ii=0;ii<k;++ii)
+        {
+            GeoM_->mesh_.add_vertex(
+                    DefaultMesh::Point(
+                        idata[3*indices(ii)],
+                        idata[3*indices(ii)+1],
+                        idata[3*indices(ii)+2])
+                );
+        }
+    }
+}
+
+void ObjModel::finishModel()
+{
+    Filter::OctreeGrid<DefaultMesh> filter;
+    filter.set_seed_resolution(0.02);
+    filter.extract(GeoM_->mesh_);
+    Feature::computePointNormal<DefaultMesh>(GeoM_->mesh_,0.0,10);
+    accu_color_ = arma::mat(3,GeoM_->mesh_.n_vertices(),arma::fill::zeros);
+    accu_count_ = 0;
+    DistP_  = arma::fvec(GeoM_->mesh_.n_vertices(),arma::fill::zeros);
+    ColorP_ = arma::fvec(GeoM_->mesh_.n_vertices(),arma::fill::zeros);
+    NormP_ = arma::fvec(GeoM_->mesh_.n_vertices(),arma::fill::zeros);
+}
+
 void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input)
 {
     MeshKDTreeInterface<DefaultMesh> points(input->mesh_);
@@ -104,7 +138,6 @@ void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input)
     arma::uvec indices(1);
     arma::fvec dists(1);
     arma::fvec current_color;
-    arma::fvec current_normal;
     float* pdata = (float*)GeoM_->mesh_.points();
     uint8_t* cdata = (uint8_t*)input->mesh_.vertex_colors();
     arma::Mat<uint8_t> cmat(cdata,3,input->mesh_.n_vertices(),false,true);
@@ -166,8 +199,8 @@ void ObjModel::updateWeight(MeshBundle<DefaultMesh>::Ptr input)
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
         kdtree.knnSearch(&(pdata[3*index]),1,indices.memptr(),dists.memptr());
-        ColorArray::RGB2Lab(cmat.col(indices(0)),current_color);
-        ColorArray::RGB2Lab(mcmat.col(index),neighbor_color);
+        current_color = arma::conv_to<arma::fvec>::from(cmat.col(indices(0)));
+        neighbor_color = arma::conv_to<arma::fvec>::from(mcmat.col(index));
         current_normal = nmat.col(indices(0));
         neighbor_normal = mnmat.col(index);
         double color_dist = arma::norm(current_color - neighbor_color);

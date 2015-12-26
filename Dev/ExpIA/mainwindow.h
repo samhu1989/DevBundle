@@ -65,6 +65,7 @@ private:
     MeshBundle<DefaultMesh>::PtrList inputs_;
     std::vector<arma::uvec> labels_;
     std::vector<ObjModel::Ptr> objects_;
+    arma::mat feature_base_;
 
     IO::Options io_opt_;
     Config::Ptr config_;

@@ -2,7 +2,7 @@
 #include "common_global.h"
 #include "MeshType.h"
 #include "MeshColor.h"
-
+#include "voxelgraph.hpp"
 void ColorArray::hsv2rgb(float h,float s,float v,RGB32&rgba)
 {
 int hi = (int(h) / 60) % 6;

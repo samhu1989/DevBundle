@@ -15,7 +15,6 @@ UnifyLabelMannual::UnifyLabelMannual(
     ui(new Ui::UnifyLabelMannual)
 {
     ui->setupUi(this);
-    reloadFrame();
     connect(&timer,SIGNAL(timeout()),this,SLOT(init()));
     timer.setSingleShot(true);
 }
@@ -31,11 +30,17 @@ bool UnifyLabelMannual::configure(Config::Ptr config)
             return false;
         }
     }
+    if(config_->has("Mannual_init_frame")){
+        current_frame_ = config_->getInt("Mannual_init_frame");
+        QString msg;
+        emit message(msg.sprintf("Current Frame: %d",current_frame_),0);
+    }
     return true;
 }
 
 void UnifyLabelMannual::init(void)
 {
+    reloadFrame();
     showPatches();
 }
 

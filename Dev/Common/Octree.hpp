@@ -43,7 +43,7 @@ public:
     {}
     inline uint32_t size()const{return points_->n_cols;}
     inline arma::fvec operator[](const uint64_t& k)const{return points_->col(k);}
-    inline void add(float*p){mesh_.add_vertex(DefaultMesh::Point(p[0],p[1],p[2]));}
+    inline void add(float*p){mesh_.add_vertex(typename M::Point(p[0],p[1],p[2]));}
 private:
     std::shared_ptr<arma::fmat> points_;
     M& mesh_;

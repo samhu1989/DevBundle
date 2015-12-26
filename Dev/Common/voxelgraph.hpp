@@ -1,7 +1,11 @@
 #include "voxelgraph.h"
-#include "KDtree.hpp"
+#include "common.h"
 #include "nanoflann.hpp"
-#include "MeshColor.h"
+#include "KDtree.hpp"
+#include "extractmesh.hpp"
+#include "MeshType.h"
+#include <hash_fun.h>
+#include <ext/hash_map>
 template <typename M>
 bool VoxelGraph<M>::save(const std::string&path)
 {
@@ -30,7 +34,7 @@ bool VoxelGraph<M>::load(const std::string&path)
 }
 
 template <typename M>
-void VoxelGraph<M>::sv2pix(arma::uvec& sv,arma::uvec& pix)
+void VoxelGraph<M>::sv2pix(const arma::uvec& sv,arma::uvec& pix)
 {
     if(sv.size()!=voxel_centers.n_cols){
         std::cerr<<"Can't translate a supervoxel label that was not based on this graph"<<std::endl;
@@ -65,6 +69,78 @@ void VoxelGraph<M>::sv2pix(arma::Mat<uint8_t>&sv,arma::Mat<uint8_t>&pix)
     if(pix.size()!=vl.size())std::logic_error("pix.size()!=vl.size()");
     pix.rows(0,2) = sv.cols(vl);
     pix.row(3).fill(255);
+}
+
+template <typename M>
+typename VoxelGraph<M>::Ptr VoxelGraph<M>::getSubGraphPtr(const VoxelGraph& parent_graph,const arma::uvec& indices,Mesh& sub_mesh)
+{
+    extractMesh<M,M>(parent_graph.Ref_,indices,sub_mesh);
+    typename VoxelGraph<M>::Ptr sub_graph(new VoxelGraph<M>(sub_mesh));
+    size_t Nsv = parent_graph.voxel_centers.n_cols;
+    arma::sp_umat neighborhood(Nsv,Nsv);
+    for(size_t i = 0 ; i < parent_graph.voxel_neighbors.n_cols ; ++i)
+    {
+        assert(parent_graph.voxel_neighbors(0,i)<Nsv);
+        assert(parent_graph.voxel_neighbors(1,i)<Nsv);
+        if(parent_graph.voxel_neighbors(0,i) <= parent_graph.voxel_neighbors(1,i))neighborhood( parent_graph.voxel_neighbors(0,i) , parent_graph.voxel_neighbors(1,i) ) = 1;
+        else neighborhood(parent_graph.voxel_neighbors(1,i),parent_graph.voxel_neighbors(0,i)) = 1;
+    }
+    __gnu_cxx::hash_map<int,int> voxel_map;
+    std::vector<size_t> voxel_added;
+    sub_graph->voxel_label = arma::uvec(indices.size());
+    for(size_t i = 0 ; i < indices.size() ; ++ i )
+    {
+        size_t c = indices(i);
+        size_t sv = parent_graph.voxel_label(c) - 1;
+        if(voxel_map.find(sv)==voxel_map.end())
+        {
+            size_t N = sub_graph->voxel_centers.n_cols;
+            voxel_map[sv] = N;
+            voxel_added.push_back(sv);
+            sub_graph->voxel_centers.insert_cols( N , parent_graph.voxel_centers.col(sv) );
+            sub_graph->voxel_colors.insert_cols( N , parent_graph.voxel_colors.col(sv) );
+            sub_graph->voxel_normals.insert_cols( N , parent_graph.voxel_normals.col(sv) );
+            sub_graph->voxel_size.insert_rows(N,1);
+            sub_graph->voxel_size(N) = 1;
+            sub_graph->voxel_label(i) = N + 1;
+        }else{
+            sub_graph->voxel_size( voxel_map[sv] ) += 1;
+            sub_graph->voxel_label(i) = voxel_map[sv] + 1;
+        }
+    }
+//    std::cerr<<"neighbors"<<std::endl;
+    std::sort(voxel_added.begin(),voxel_added.end(),std::less<size_t>());
+    std::vector<size_t>::iterator iter;
+    std::vector<size_t>::iterator niter;
+    for(iter=voxel_added.begin();iter!=voxel_added.end();++iter)
+    {
+        for( niter = iter + 1 ; niter!=voxel_added.end() ; ++niter)
+        {
+            if(*iter<*niter)std::logic_error("*iter<*niter");
+            if(*iter >= neighborhood.n_cols)std::logic_error("*iter >= neighborhood.n_cols");
+            if(*niter >= neighborhood.n_rows)std::logic_error("*niter >= neighborhood.n_rows");
+            if(1!=neighborhood(*iter,*niter))continue;
+            size_t N_neighbor = sub_graph->voxel_neighbors.n_cols;
+            if(sub_graph->voxel_neighbors.is_empty())
+            {
+                sub_graph->voxel_neighbors = arma::Mat<uint16_t>(2,1);
+            }else{
+                sub_graph->voxel_neighbors.insert_cols(N_neighbor,1);
+            }
+            size_t n0 = voxel_map[*iter];
+            size_t n1 = voxel_map[*niter];
+            if( n0 < n1 )
+            {
+                sub_graph->voxel_neighbors(0,N_neighbor) = n0;
+                sub_graph->voxel_neighbors(1,N_neighbor) = n1;
+            }else{
+                sub_graph->voxel_neighbors(0,N_neighbor) = n1;
+                sub_graph->voxel_neighbors(1,N_neighbor) = n0;
+            }
+        }
+    }
+//    std::cerr<<"done"<<std::endl;
+    return sub_graph;
 }
 
 using namespace nanoflann;
@@ -102,6 +178,7 @@ void VoxelGraph<M>::match(
     arma::fmat ref_n_mat((float*)Ref_.vertex_normals(),3,Ref_.n_vertices(),false,true);
     arma::fmat m_n_mat((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
     double min_dist = std::numeric_limits<double>::max();
+//    std::cerr<<"match 1"<<std::endl;
     for( size_t p_i = 0 ; p_i < Ref_.n_vertices() ; ++ p_i )
     {
         kdtree.knnSearch(&pts[3*p_i],5,search_idx.memptr(),search_dist.memptr());
@@ -123,17 +200,19 @@ void VoxelGraph<M>::match(
         {
 //            sv_match_score(sv_idx) += 1.0/(1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)/color_var));
 //            sv_match_score(sv_idx) += 1.0/(1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
-            if(current_n.is_finite()&&nearest_n.is_finite())
-            {
-                sv_match_score(sv_idx) += std::abs(arma::dot(current_n,nearest_n)) / (1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
-            }
-            else sv_match_score(sv_idx) += 1.0 / (1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
+//            if(current_n.is_finite()&&nearest_n.is_finite())
+//            {
+//                sv_match_score(sv_idx) += std::abs(arma::dot(current_n,nearest_n)) / (1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
+//            }
+//            else
+                sv_match_score(sv_idx) += 1.0 / (1.0+search_dist(min_idx))/(1.0+ ( color_dist(min_idx) / color_var ));
         }
         if( min_dist > search_dist(min_idx) ) min_dist = search_dist(min_idx);
         sv_geo_score(sv_idx) += gscore[match_idx];
         sv_norm_score(sv_idx) += nscore[match_idx];
         sv_color_score(sv_idx) += cscore[match_idx];
     }
+//    std::cerr<<"match 2"<<std::endl;
     if( min_dist > dist_th )std::cerr<<"min_dist:"<<min_dist<<std::endl;
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
     {
@@ -150,6 +229,7 @@ void VoxelGraph<M>::match(
 //    }
 //    sv_geo_score /= arma::max(sv_geo_score);
 //    sv_color_score /= arma::max(sv_color_score);
+//    std::cerr<<"match 3"<<std::endl;
     if(!sv_match_score.is_finite())std::cerr<<"Infinite in sv_match_score"<<std::endl;
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
     {
@@ -213,7 +293,7 @@ double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2,double dist_th,double
     {
         normal_sim = std::abs(arma::dot(norm1,norm2));
     }
-    return normal_sim / (1.0+spatial_dist) / (1.0+color_dist);
+    return normal_sim / (1.0+spatial_dist) / (1.0+color_dist/color_var);
 }
 
 template <typename M>
@@ -244,3 +324,4 @@ void VoxelGraph<M>::get_Lab(arma::fmat&voxels,const arma::uvec&indices)
     }
     voxels = Lab;
 }
+

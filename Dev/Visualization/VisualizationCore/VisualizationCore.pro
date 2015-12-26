@@ -16,7 +16,8 @@ DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 SOURCES += visualizationcore.cpp \
     QGLViewerWidget.cpp \
     labspace.cpp \
-    qglpointselection.cpp
+    qglpointselection.cpp \
+    featureviewerwidget.cpp
 
 HEADERS += visualizationcore.h\
         visualizationcore_global.h \
@@ -32,7 +33,8 @@ HEADERS += visualizationcore.h\
     MeshListViewerWidgetT.hpp \
     labspace.h \
     qglpointselection.h \
-    qglpointselection.hpp
+    qglpointselection.hpp \
+    featureviewerwidget.h
 
 unix {
     target.path = /usr/lib
@@ -62,7 +64,8 @@ INCLUDEPATH += $$PWD/../../../3rdParty/SuperLU/include
 DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
 
 FORMS += \
-    labspace.ui
+    labspace.ui \
+    featureviewerwidget.ui
 
 INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
 DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include

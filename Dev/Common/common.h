@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "common_global.h"
+#include "extractmesh.hpp"
 #include "MeshType.h"
 #include "MeshColor.h"
 #include "KDtree.hpp"
@@ -30,6 +31,7 @@ inline void getRotation(float x, float y, float z, float roll, float pitch, floa
    t(1,0) = B*C;  t(1,1) = A*E + B*DF;  t(1,2) = B*DE - A*F;
    t(2,0) = -D;   t(2,1) = C*F;         t(2,2) = C*E;
 }
+
 inline void fitPlane(
         arma::fvec &center,
         arma::fmat &neighbor,
@@ -38,10 +40,9 @@ inline void fitPlane(
         float& distToOrigin)
 {
     neighbor.each_col() -= center;
-    arma::fmat c = arma::cov( neighbor.t() );
     arma::fmat U,V;
     arma::fvec s;
-    if(!arma::svd(U,s,V,c,"std"))
+    if(!arma::svd(U,s,V,neighbor.t(),"std"))
     {
         normal.fill(std::numeric_limits<float>::quiet_NaN());
         distToOrigin = std::numeric_limits<float>::quiet_NaN();
@@ -49,8 +50,29 @@ inline void fitPlane(
     }else{
         arma::uword minidx;
         curvature = s.min(minidx);
-        normal = U.col(minidx);
+        normal = arma::normalise(V.col(minidx));
         distToOrigin = - arma::dot(normal,center);
     }
 }
+inline void fitPlane(
+        arma::fmat &neighbor,
+        arma::fvec &coeff
+        )
+{
+    coeff = arma::fvec(4);
+    arma::fmat center = arma::mean(neighbor,1);
+    neighbor.each_col() -= center;
+    arma::fmat U,V;
+    arma::fvec s;
+    if(!arma::svd(U,s,V,neighbor.t(),"std"))
+    {
+        coeff.fill(std::numeric_limits<float>::quiet_NaN());
+    }else{
+        arma::uword minidx;
+        s.min(minidx);
+        coeff.head(3) = arma::normalise(V.col(minidx));
+        coeff(3) = - arma::dot(coeff.head(3),center);
+    }
+}
+
 #endif // COMMON_H

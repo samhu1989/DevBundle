@@ -1,5 +1,5 @@
 #include "unifylabelthread.h"
-#include "featurecore.h"
+#include "extractpatchfeature.h"
 #include "mbb.h"
 #include <QTime>
 bool UnifyLabelThread::configure(Config::Ptr config)
@@ -47,6 +47,7 @@ void UnifyLabelThread::extract_patch_features()
     patch_features_.clear();
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
     size_t lindex = 0;
+    int feature_dim;
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         MeshBundle<DefaultMesh>::Ptr input = *iter;
@@ -59,8 +60,9 @@ void UnifyLabelThread::extract_patch_features()
             if(!extracted_label.is_empty())
             {
                 extractMesh<DefaultMesh,DefaultMesh>(input->mesh_,extracted_label,extracted_mesh);
-                arma::fvec feature;
-                extract_patch_feature(extracted_mesh,feature);
+                arma::vec feature;
+                extract_patch_feature(extracted_mesh,feature,config_);
+                feature_dim = feature.size();
                 if( input_patch_label_value_.size() <= lindex )
                 {
                     input_patch_label_value_.emplace_back(1);
@@ -77,87 +79,81 @@ void UnifyLabelThread::extract_patch_features()
         }
         ++lindex;
     }
+    //reduce dimension
+    int custom_dim = config_->getInt("Feature_dim");
+    if(config_->has("Feature_dim")){
+        if( feature_dim > custom_dim )
+        {
+            if(feature_base_.is_empty())
+            {
+                arma::mat feature_data;
+                std::vector<arma::mat>::iterator fiter;
+                for(fiter=patch_features_.begin();fiter!=patch_features_.end();++fiter)
+                {
+                    feature_data = arma::join_rows(feature_data,*fiter);
+                }
+                std::cerr<<"Feature dimension is "<<feature_data.n_rows<<std::endl;
+                arma::vec mean = arma::mean(feature_data,1);
+                //centralize data
+                feature_data.each_col() -= mean;
+                arma::mat U,V;
+                arma::vec s;
+                arma::svd(U,s,V,feature_data.t());
+                emit message(tr("Init Feature Base with PCA"),0);
+                std::cerr<<"Init Feature Base with PCA"<<std::endl;
+                feature_base_ = V.cols(0,custom_dim-1);
+            }
+            std::vector<arma::mat>::iterator fiter;
+            for(fiter=patch_features_.begin();fiter!=patch_features_.end();++fiter)
+            {
+//                std::cerr<<"n before reduce"<<(*fiter).n_cols<<std::endl;
+                *fiter = ((*fiter).t()*feature_base_).t();
+                if(custom_dim != (*fiter).n_rows)
+                {
+                    std::cerr<<"supposed to reduced to "<<custom_dim<<std::endl;
+                    std::cerr<<"actually reduced to"<<(*fiter).n_rows<<std::endl;
+                }
+//                std::cerr<<"n after reduce"<<(*fiter).n_cols<<std::endl;
+            }
+        }
+    }
+    std::cerr<<"Feature dimension is reduced to"<<custom_dim<<std::endl;
 }
 
-void UnifyLabelThread::extract_patch_feature(DefaultMesh&mesh,arma::fvec&feature)
-{
-    arma::fmat points((float*)mesh.points(),3,mesh.n_vertices(),false,true);
-    arma::fmat box;
-    get3DMBB(points,2,box);
-    arma::fvec lwh(3);//length width height
-    lwh(0) = arma::norm( box.col(0) - box.col(1) );
-    lwh(1) = arma::norm( box.col(0) - box.col(3) );
-    lwh(2) = arma::norm( box.col(0) - box.col(4) );
-    if( lwh(0) < lwh(1) ) lwh.swap_rows(0,1);
-    arma::fvec color_hist;
-    if("RGB"==config_->getString("Color_Space"))
-    {
-        Feature::ColorHistogramRGB<DefaultMesh>
-                color_hist_extractor(
-                    config_->getInt("RGB_r_bin_num"),
-                    config_->getInt("RGB_g_bin_num"),
-                    config_->getInt("RGB_b_bin_num")
-                    );
-        color_hist_extractor.extract(mesh,color_hist);
-    }else if("Lab"==config_->getString("Color_Space")){
-        Feature::ColorHistogramLab<DefaultMesh>
-                color_hist_extractor(
-                    config_->getInt("Lab_L_bin_num"),
-                    config_->getInt("Lab_a_bin_num"),
-                    config_->getInt("Lab_b_bin_num")
-                    );
-        color_hist_extractor.extract(mesh,color_hist);
-    }
-    if(config_->has("Feature_height_w"))
-    {
-        lwh.tail(1) *= config_->getFloat("Feature_height_w");
-    }
-    if(config_->has("Feature_length_width_w"))
-    {
-        lwh.head(2) *= config_->getFloat("Feature_length_width_w");
-    }
-    if(config_->has("Feature_color_hist_w"))
-    {
-        color_hist *= config_->getFloat("Feature_color_hist_w");
-    }
-    feature = arma::join_cols(lwh,color_hist);
-//    feature = color_hist;
-}
+
 
 void UnifyLabelThread::learn()
 {
     size_t max_patch_num = 0;
     size_t max_patch_num_index = 0;
-    size_t feature_dim = 0;
-    std::vector<arma::fmat>::iterator fiter;
+    size_t feature_dim = 2; //default to reduce dimension to 2
+    std::vector<arma::mat>::iterator fiter;
     size_t index = 0;
     arma::mat data;
     for(fiter=patch_features_.begin();fiter!=patch_features_.end();++fiter)
     {
-        if(0==feature_dim)
-        {
-            feature_dim = (*fiter).n_rows;
-        }
         if((*fiter).n_cols>max_patch_num)
         {
             max_patch_num=(*fiter).n_cols;
             max_patch_num_index = index;
         }
-        data = arma::join_rows(data,arma::conv_to<arma::mat>::from(*fiter));
+        data = arma::join_rows(data,*fiter);
         ++index;
     }
+    feature_dim = data.n_rows;
     gmm_.reset(feature_dim,max_patch_num);
-    gmm_.set_means(arma::conv_to<arma::mat>::from(patch_features_[max_patch_num_index]));
+    std::cerr<<"choose frame "<<max_patch_num_index<<" with "<<max_patch_num<<"patches as clustering center"<<std::endl;
+    gmm_.set_means(patch_features_[max_patch_num_index]);
     arma::mat dcovs(feature_dim,gmm_.n_gaus());
     dcovs.each_col() = arma::var(data,0,1);
     dcovs += std::numeric_limits<double>::epsilon();
     gmm_.set_dcovs(dcovs);
-    gmm_.learn(data,max_patch_num,arma::eucl_dist,arma::keep_existing,10,0,1e-10,true);
+    gmm_.learn(data,max_patch_num,arma::maha_dist,arma::keep_existing,0,30,1e-10,true);
 }
 
 void UnifyLabelThread::assign()
 {
-    std::vector<arma::fmat>::iterator fiter;
+    std::vector<arma::mat>::iterator fiter;
     size_t index = 0;
     for(fiter=patch_features_.begin();fiter!=patch_features_.end();++fiter)
     {
@@ -172,7 +168,7 @@ void UnifyLabelThread::assign()
 }
 
 void UnifyLabelThread::assign(
-        const arma::fmat& features,
+        const arma::mat& features,
         arma::urowvec& label_value
         )
 {
@@ -192,32 +188,19 @@ void UnifyLabelThread::assign(
 //    std::cerr<<"2"<<std::endl;
     uint64_t row_max_index;
     uint64_t col_max_index;
-    uint64_t current_row = 0;
     log_p.max(col_max_index,row_max_index);
-    current_row = col_max_index;
+    std::cerr<<"log_p:"<<std::endl;
+    std::cerr<<log_p<<std::endl;
     while(!log_p.is_empty())
     {
-        while(current_row >= log_p.n_rows ) -- current_row;
-        log_p.row(current_row).max(row_max_index);
-        log_p.col(row_max_index).max(col_max_index);
-        if(current_row==col_max_index)
-        {
-            std::cerr<<gaus_indices(current_row)<<"->"<<feature_indices(row_max_index)<<std::endl;
-            label_value( feature_indices(row_max_index) ) = 1 + arma::uword(gaus_indices(current_row));
-//            std::cerr<<"a"<<std::endl;
-            log_p.shed_row(current_row);
-            gaus_indices.shed_row(current_row);
-//            std::cerr<<"c"<<std::endl;
-            log_p.shed_col(row_max_index);
-//            std::cerr<<"d"<<std::endl;
-            feature_indices.shed_row(row_max_index);
-        }else{
-            log_p.max(col_max_index,row_max_index);
-            current_row = col_max_index;
-        }
-//        std::cerr<<current_row<<std::endl;
-//        std::cerr<<"log_p.n_rows:"<<log_p.n_rows<<std::endl;
-//        std::cerr<<"log_p.n_cols:"<<log_p.n_cols<<std::endl;
+        std::cerr<<gaus_indices(col_max_index)<<"->"<<feature_indices(row_max_index)<<":"<<log_p(col_max_index,row_max_index)<<std::endl;
+        label_value( feature_indices(row_max_index) ) = 1 + arma::uword(gaus_indices(col_max_index));
+        log_p.shed_row(col_max_index);
+        gaus_indices.shed_row(col_max_index);
+        log_p.shed_col(row_max_index);
+        feature_indices.shed_row(row_max_index);
+        if(log_p.is_empty())return;
+        log_p.max(col_max_index,row_max_index);
     }
 //    std::cerr<<"3"<<std::endl;
 }

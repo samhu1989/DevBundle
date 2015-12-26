@@ -12,6 +12,8 @@ struct ObjModel
     }T;
     ObjModel();
     void init(arma::fmat&X);
+    void updateModel(MeshBundle<DefaultMesh>::Ptr);
+    void finishModel();
     void updateFullModel(MeshBundle<DefaultMesh>::Ptr);
     void updateColor(MeshBundle<DefaultMesh>::Ptr);
     void finishColor();
@@ -36,6 +38,7 @@ struct ObjModel
     arma::fvec ColorP_;
     arma::fvec NormP_;
 private:
+    arma::fmat initX_;
     DefaultMesh FullM_;
     DefaultMesh FullLayout_;
     arma::mat accu_color_;

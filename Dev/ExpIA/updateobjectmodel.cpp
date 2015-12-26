@@ -37,6 +37,7 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
     }
     current_label_ = 0;
     current_patches_.resize(inputs_.size());
+    outputs_.clear();
     gl_timer.start(100);
 }
 
@@ -84,6 +85,7 @@ void UpdateObjectModel::prepare_for_next()
         prepare_for_next();
     }
     gl_timer.stop();
+    disconnect(&gl_timer,SIGNAL(timeout()),geo_view_,SLOT(updateGL()));
     geo_view_->list().clear();
     Filter::OctreeGrid<DefaultMesh> octree_grid;
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
@@ -115,6 +117,7 @@ void UpdateObjectModel::prepare_for_next()
             geo_view_->list().push_back(*iter);
         }
     }
+    connect(&gl_timer,SIGNAL(timeout()),geo_view_,SLOT(updateGL()));
     gl_timer.start(100);
 }
 
@@ -181,11 +184,22 @@ void UpdateObjectModel::update_objects()
                 V.each_col() += t;
                 ++index;
             }
-            std::cerr<<"update geometry object"<<std::endl;
+            std::cerr<<"update Centroid Model"<<std::endl;
             std::vector<MeshBundle<DefaultMesh>::Ptr>& patch_list_ = current_patches_;
-            PatchList::reverse_iterator piter=patch_list_.rbegin();
+            PatchList::reverse_iterator piter;
             obj_ptr->init(*(r->X));
-            for( ;piter!=patch_list_.rend();++piter)
+            std::cerr<<"Done init Centroid Model"<<std::endl;
+            for(piter=patch_list_.rbegin();piter!=patch_list_.rend();++piter)
+            {
+                MeshBundle<DefaultMesh>::Ptr& patch_ptr = *piter;
+                if(!patch_ptr||0==patch_ptr.use_count())continue;
+                if(0==patch_ptr->mesh_.n_vertices())continue;
+                obj_ptr->updateModel(patch_ptr);
+            }
+            std::cerr<<"finish Centroid Model"<<std::endl;
+            obj_ptr->finishModel();
+            std::cerr<<"update Full Model"<<std::endl;
+            for(piter=patch_list_.rbegin();piter!=patch_list_.rend();++piter)
             {
                 MeshBundle<DefaultMesh>::Ptr& patch_ptr = *piter;
                 if(!patch_ptr||0==patch_ptr.use_count())continue;
@@ -203,11 +217,13 @@ void UpdateObjectModel::update_objects()
                 if(0==patch_ptr->mesh_.n_vertices())continue;
                 obj_ptr->updateWeight(patch_ptr);
             }
+            std::cerr<<"finish weight"<<std::endl;
             obj_ptr->finishWeight();
             obj_ptr->computeLayout();
             obj_ptr->computeFullLayout();
         }
     }
+    std::cerr<<"done update objects"<<std::endl;
 }
 
 void UpdateObjectModel::start_align()

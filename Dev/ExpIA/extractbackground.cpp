@@ -4,6 +4,7 @@
 #include "segmentationcore.h"
 #include "extractplanethread.h"
 #include "SAC/sac_plane.h"
+#include "nanoflann.hpp"
 ExtractBackground::ExtractBackground(
         std::vector<QWidget*>&inputs,
         QTimer& gl_timer,
@@ -74,7 +75,7 @@ void ExtractBackground::extract_points()
         ++index;
     }
 }
-
+using namespace nanoflann;
 void ExtractBackground::extract_points(
         MeshBundle<DefaultMesh>::Ptr ptr,
         const std::vector<arma::uword>& indices,

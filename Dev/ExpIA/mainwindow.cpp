@@ -18,6 +18,7 @@
 #include "objectview.h"
 #include "globalalign.h"
 #include "extractbackground.h"
+#include "inpatchgraphcut.h"
 #include <typeinfo>
 #include <fstream>
 #include <strstream>
@@ -50,7 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAutomatically,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUpdateObjModel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
-    connect(ui->actionUpdate_Label,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionGlobal_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
@@ -743,7 +745,7 @@ void MainWindow::start_editing()
     }
     if(edit==ui->actionAutomatically)
     {
-        UnifyLabelThread* th = new UnifyLabelThread(inputs_,labels_);
+        UnifyLabelThread* th = new UnifyLabelThread(inputs_,labels_,feature_base_);
         if(!th->configure(config_)){
             th->deleteLater();
             QString msg = "Missing Some Configure\n";
@@ -815,9 +817,22 @@ void MainWindow::start_editing()
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         s->show();
     }
-    if(edit==ui->actionUpdate_Label)
+    if(edit==ui->actionGlobal_Graph_Cut)
     {
         GraphCutThread* th = new GraphCutThread(inputs_,objects_,labels_);
+        if(!th->configure(config_)){
+            th->deleteLater();
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionIn_Patch_Graph_Cut)
+    {
+        InPatchGraphCut* th = new InPatchGraphCut(inputs_,objects_,labels_);
         if(!th->configure(config_)){
             th->deleteLater();
             QString msg = "Missing Some Inputs or configure\n";

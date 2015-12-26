@@ -29,7 +29,10 @@ SOURCES += main.cpp\
     globalalign.cpp \
     extractbackground.cpp \
     extractplanethread.cpp \
-    unifylabelthread.cpp
+    unifylabelthread.cpp \
+    extractpatchfeature.cpp \
+    featureview.cpp \
+    inpatchgraphcut.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -43,7 +46,10 @@ HEADERS  += mainwindow.h \
     globalalign.h \
     extractbackground.h \
     extractplanethread.h \
-    unifylabelthread.h
+    unifylabelthread.h \
+    extractpatchfeature.h \
+    featureview.h \
+    inpatchgraphcut.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
@@ -51,7 +57,8 @@ FORMS    += mainwindow.ui \
     updateobjectmodel.ui \
     objectview.ui \
     globalalign.ui \
-    extractbackground.ui
+    extractbackground.ui \
+    featureview.ui
 
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 

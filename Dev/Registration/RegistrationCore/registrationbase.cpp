@@ -1,5 +1,6 @@
 #include "RegistrationBase.h"
 #include "common.h"
+#include "nanoflann.hpp"
 namespace Registration{
 void RegistrationBase::alignAroundZ(const arma::fmat &x0,const arma::fmat &x1, arma::fmat &bestR)
 {
@@ -20,6 +21,7 @@ void RegistrationBase::alignAroundZ(const arma::fmat &x0,const arma::fmat &x1, a
     }
     std::cerr<<"minError:"<<minError<<std::endl;
 }
+using namespace nanoflann;
 double RegistrationBase::closestError(const arma::fmat&x0,const arma::fmat&x1)
 {
     ArmaKDTreeInterface<arma::fmat> points(x0);

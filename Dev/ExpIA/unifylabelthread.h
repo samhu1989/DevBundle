@@ -11,8 +11,9 @@ public:
     typedef std::vector<arma::uvec>::iterator OutputIterator;
     UnifyLabelThread(
             std::vector<MeshBundle<DefaultMesh>::Ptr>& inputs,
-            std::vector<arma::uvec>& outputs
-            ):inputs_(inputs),labels_(outputs)
+            std::vector<arma::uvec>& outputs,
+            arma::mat& base
+            ):inputs_(inputs),labels_(outputs),feature_base_(base)
     {
         setObjectName("UnifyLabelThread");
     }
@@ -22,10 +23,9 @@ signals:
 protected:
     void run();
     void extract_patch_features();
-    void extract_patch_feature(DefaultMesh&mesh,arma::fvec&feature);
     void learn();
     void assign();
-    void assign(const arma::fmat& features,arma::urowvec& label_value);
+    void assign(const arma::mat& features,arma::urowvec& label_value);
     void alter_label(
             const arma::urowvec&,
             const arma::urowvec&,
@@ -36,7 +36,8 @@ protected:
 private:
     MeshBundle<DefaultMesh>::PtrList& inputs_;
     std::vector<arma::uvec>& labels_;
-    std::vector<arma::fmat> patch_features_;//each column is a feature vector for a patch
+    arma::mat& feature_base_;
+    std::vector<arma::mat> patch_features_;//each column is a feature vector for a patch
     std::vector<arma::urowvec> input_patch_label_value_;
     Config::Ptr config_;
     arma::gmm_diag gmm_;

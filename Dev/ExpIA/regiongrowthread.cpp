@@ -1,6 +1,8 @@
 #include "regiongrowthread.h"
 #include "segmentationcore.h"
 #include "featurecore.h"
+#include "common.h"
+#include "KDtree.hpp"
 void RegionGrowThread::run()
 {
     if(labels_.size()!=inputs_.size())
@@ -21,16 +23,38 @@ void RegionGrowThread::run()
     timer_.restart();
     for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
     {
-
         MeshBundle<DefaultMesh>& input = **iiter;
         emit message("Region Growing On: "+QString::fromStdString(input.name_),0);
         std::shared_ptr<float> curvature;
         Feature::computePointNormal(input.mesh_,curvature,0.0,config_->getInt("NormalEstimation_k"));
         seg.setInputMesh(&input.mesh_);
         arma::uvec indices = arma::find(*oiter==0);
-        seg.setIndices(indices);
-        seg.getCurvatures() = curvature;
-        seg.extract(*oiter);
+        if( indices.size() > config_->getInt("RegionGrow_cluster_min_num"))
+        {
+            seg.setIndices(indices);
+            seg.getCurvatures() = curvature;
+            seg.extract(*oiter);
+        }
+        //assigning unknown to cloest
+        arma::uvec knownIndices = arma::find( *oiter != 0 );
+        arma::uvec unknownIndices = arma::find( *oiter == 0 );
+        arma::fmat data((float*)input.mesh_.points(),3,input.mesh_.n_vertices(),false,true);
+        arma::fmat knownData = data.cols(knownIndices);
+        arma::fmat unknownData = data.cols(unknownIndices);
+        ArmaKDTreeInterface<arma::fmat> points(knownData);
+        KDTreeSingleIndexAdaptor<
+                L2_Simple_Adaptor<float,ArmaKDTreeInterface<arma::fmat>>,
+                ArmaKDTreeInterface<arma::fmat>,
+                3,arma::uword>
+                kdtree(3,points,KDTreeSingleIndexAdaptorParams(1));
+        kdtree.buildIndex();
+        arma::uvec rindices(1);
+        arma::fvec dists(1);
+        for(size_t i = 0 ; i < unknownData.n_cols ; ++i )
+        {
+            kdtree.knnSearch(unknownData.colptr(i),1,rindices.memptr(),dists.memptr());
+            (*oiter)(unknownIndices(i)) = (*oiter)(knownIndices(rindices(0)));
+        }
         input.custom_color_.fromlabel(*oiter);
         ++oiter;
     }
