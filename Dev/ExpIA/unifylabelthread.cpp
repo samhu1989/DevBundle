@@ -120,8 +120,6 @@ void UnifyLabelThread::extract_patch_features()
     std::cerr<<"Feature dimension is reduced to"<<custom_dim<<std::endl;
 }
 
-
-
 void UnifyLabelThread::learn()
 {
     size_t max_patch_num = 0;

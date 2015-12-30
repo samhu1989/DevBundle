@@ -7,7 +7,7 @@ bool InPatchGraphCut::configure(Config::Ptr config)
     if(!config_->has("GC_data_weight"))return false;
     if(!config_->has("GC_smooth_weight"))return false;
     if(!config_->has("GC_gamma_soft"))return false;
-    if(config_->getDouble("GC_gamma_soft")>0.5||config_->getDouble("GC_gamma_soft")<0){
+    if(config_->getDouble("GC_gamma_soft")<0){
         emit message(tr("Wrong GC_gamma_soft"),0);
         return false;
     }
@@ -31,7 +31,7 @@ void InPatchGraphCut::run(void)
     while( current_frame_ < meshes_.size() )
     {
         timer.restart();
-        std::cerr<<"Frame "<<current_frame_<<std::endl;
+//        std::cerr<<"Frame "<<current_frame_<<std::endl;
         for_each_frame();
         QString msg;
         msg = msg.sprintf("%u ms for F %u",timer.elapsed(),current_frame_);
@@ -100,16 +100,44 @@ bool InPatchGraphCut::prepareDataTerm(Segmentation::GraphCut& gc)
     double* data = data_.get();
     arma::mat data_mat(data,label_number_,pix_number_,false,true);
     ObjModel& model = *objects_[ current_label_ - 1 ];
+    bool has_outlier = true;
+    double minP = arma::min(model.DistP_);
+    double maxP = arma::max(model.DistP_);
+    if( minP / maxP > 0.8 ) has_outlier = false;
     DefaultMesh obj_mesh;
-    model.transform(obj_mesh,current_frame_);
+    if(!model.transform(obj_mesh,current_frame_))
+    {
+        std::cerr<<"no extracted object "<< current_label_ - 1 <<" for frame "<<current_frame_<<std::endl;
+    }
     arma::vec score;
 //    std::cerr<<"1"<<std::endl;
     if(!config_->has("GC_color_var"))current_patch_graph_->match(obj_mesh,model.DistP_,model.NormP_,model.ColorP_,score,config_->getDouble("GC_distance_threshold"));
     else current_patch_graph_->match(obj_mesh,model.DistP_,model.NormP_,model.ColorP_,score,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
 //    std::cerr<<"2"<<std::endl;
-    data_mat.row(0) = score.t();
+    size_t N_max,N_min;
+    if( config_->has("GC_gamma_soft") ) N_max = config_->getDouble("GC_gamma_soft")*score.size();
+    else N_max = 0.1*score.size();
+    N_max = std::max(size_t(10),N_max);
+    N_max = std::min(N_max,score.size()-1);
+    if( config_->has("GC_gamma_hard") ) N_min = config_->getDouble("GC_gamma_hard")*N_max;
+    else N_min = 0.1*N_max;
+    N_min = std::max(size_t(3),N_min);
+    N_min = std::min(N_min,score.size()-1);
+    arma::vec sorted_score = arma::sort(score);
+    double min_score = arma::mean( sorted_score.head(N_min) );
+    double max_score = arma::mean( sorted_score.tail(N_max) );
+    score -= min_score;
+    score /= ( max_score - min_score );
+    arma::uvec underflow = arma::find( score < 0 );
+    score(underflow).fill(0.0);
+    arma::uvec overflow = arma::find( score > 1.0 );
+    score(overflow).fill(1.0);
+
+    if(has_outlier)data_mat.row(0) = score.t();
+    else data_mat.row(0).fill(1.0);
     data_mat.row(1).fill(1.0);
-    data_mat.row(1) -= data_mat.row(0);
+    data_mat.row(1) -= score.t();
+
     if(!data_mat.is_finite())
     {
         std::cerr<<"infinite in data of frame "<<current_frame_<<" patch "<<current_label_<<std::endl;
@@ -139,11 +167,11 @@ bool InPatchGraphCut::prepareSmoothTerm(Segmentation::GraphCut& gc)
         if(pix2>=pix_number_)std::logic_error("pix2>=pix_number_");
         if( pix1 < pix2 )
         {
-            if(!config_->has("GC_color_var"))smooth_(pix1,pix2) = current_patch_graph_->voxel_similarity(pix1,pix2);
-            else smooth_(pix1,pix2) = current_patch_graph_->voxel_similarity(pix1,pix2,config_->getDouble("GC_color_var"));
+            if(!config_->has("GC_color_var"))smooth_(pix1,pix2) = current_patch_graph_->voxel_similarity(pix1,pix2,config_->getDouble("GC_distance_threshold"));
+            else smooth_(pix1,pix2) = current_patch_graph_->voxel_similarity(pix1,pix2,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
         }else{
             if(!config_->has("GC_color_var"))smooth_(pix2,pix1) = current_patch_graph_->voxel_similarity(pix1,pix2);
-            else smooth_(pix2,pix1) = current_patch_graph_->voxel_similarity(pix1,pix2,config_->getDouble("GC_color_var"));
+            else smooth_(pix2,pix1) = current_patch_graph_->voxel_similarity(pix1,pix2,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
         }
     }
     smooth_ *= config_->getDouble("GC_smooth_weight");

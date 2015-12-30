@@ -27,7 +27,16 @@ public:
             double dist_th=0.05,
             double color_var=30.0
             );
+    void match2(M&mesh,
+            arma::fvec &gscore,
+            arma::fvec &nscore,
+            arma::fvec &cscore,
+            arma::vec&score,
+            double dist_th=0.05,
+            double color_var=30.0
+            );
     double voxel_similarity(size_t v1,size_t v2,double dist_th=0.05,double color_var=30.0);
+    double voxel_similarity2(size_t v1,size_t v2,double dist_th=0.05,double color_var=30.0);
     inline void get_XYZLab(arma::fmat&voxels,const arma::uvec&indices = arma::uvec());
     inline void get_Lab(arma::fmat&voxels,const arma::uvec&indices = arma::uvec());
 

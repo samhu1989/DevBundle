@@ -141,6 +141,7 @@ void JRMPC<M>::reset(
         )
 {
     count = 0;
+    restart_count = 0;
     T_updated_ = 0;
     X_updated_ = 0;
     float* target_data = (float*)target.memptr();
@@ -167,7 +168,9 @@ void JRMPC<M>::reset(
     for( VIter = V_ptrs.begin() ; VIter != V_ptrs.end() ; ++VIter )
     {
         arma::fmat&v = **VIter;
-        arma::fvec meanV = arma::mean(v,1);
+        arma::fvec rand(v.n_cols/2+1,arma::fill::randu);
+        arma::uvec select = arma::conv_to<arma::uvec>::from(v.n_cols*rand);
+        arma::fvec meanV = arma::mean(v.cols(select),1);
         res_ptr->Rs.emplace_back(new arma::fmat(3,3,arma::fill::eye));
         res_ptr->ts.emplace_back(new arma::fvec(meanX-meanV));
         v.each_col() += *(res_ptr->ts.back());
@@ -199,7 +202,7 @@ void JRMPC<M>::reset(
 
     float maxvar = arma::accu(arma::square(maxAllXYZ-minAllXYZ));
 
-//    (*X_ptr)*=(0.5*std::sqrt(maxvar));
+    (*X_ptr)*=(0.5*std::sqrt(maxvar));
 
     var = arma::frowvec(X_ptr->n_cols);
     var.fill(1.0/maxvar);
@@ -213,6 +216,11 @@ void JRMPC<M>::reset(
     h = 2.0 / arma::mean(var);
     float gamma = info_ptr->gamma;
     beta = gamma/(h*(gamma+1));
+
+    std::cerr<<V_ptrs.size()<<std::endl;
+    std::cerr<<"V_pts[0]:"<<V_ptrs[0]->n_cols<<std::endl;
+    std::cerr<<"V_pts[1]:"<<V_ptrs[1]->n_cols<<std::endl;
+    std::cerr<<"X_ptr->n_cols:"<<X_ptr->n_cols<<std::endl;
 }
 
 template<typename M>
@@ -232,7 +240,7 @@ void JRMPC<M>::initK(
         ++idx;
     }
     k = int(0.5*arma::median(nviews));
-    k = k > 12 ? k : 12 ;
+    k = k > 300 ? k : 300 ;
     k = k < 8000 ? k : 8000;
 }
 
@@ -425,6 +433,7 @@ void JRMPC<M>::computeOnce(void)
     arma::fmat U,V;
     arma::fvec s;
     arma::fmat C(3,3,arma::fill::eye);
+    float t_ratio = float(count) / ( info_ptr->max_iter - 1 );
     for(VIter=V_ptrs.begin();VIter!=V_ptrs.end();++VIter)
     {
         arma::fmat& V_ = **VIter;
@@ -454,7 +463,8 @@ void JRMPC<M>::computeOnce(void)
         for(int c=0;c<alpha.n_cols;++c)
         {
             arma::fvec ccol = alpha.col(c);
-            float th = arma::median(ccol);
+            float th;
+            th =  arma::median(ccol);
             arma::uvec smallerth = arma::find( ccol < th );
             ccol(smallerth).fill(0.0);
             alpha.col(c) = ccol;
@@ -482,24 +492,38 @@ void JRMPC<M>::computeOnce(void)
         p -= square_norm_lambda;
         arma::fmat tmp = X_;
         tmp.each_row() %= p % square_lambda;
-        arma::uvec nearest(alpha.n_cols);
+        arma::uvec selectedX;
+        arma::uvec sortedX = arma::sort_index(alpha_colsum);
+        selectedX = sortedX.tail(0.55f*sortedX.n_rows);
+        arma::uvec nearest(selectedX.n_rows);
         #pragma omp parallel for
-        for(int c=0;c<alpha.n_cols;++c)
+        for(int i=0;i<selectedX.n_rows;++i)
         {
             arma::uword uidx;
-            alpha.col(c).max( uidx );
-            nearest(c) = uidx;
+            alpha.col(selectedX(i)).max( uidx );
+            nearest(i) = uidx;
         }
         arma::fmat V_nearest = V_.cols(nearest);
-        arma::fmat A = tmp * ( V_nearest.t() );
+        arma::fmat A;
+        if(V_ptrs.size()>2) A = tmp* W.t();
+        else A = tmp.cols(selectedX)*V_nearest.t();
         dR = arma::fmat(3,3,arma::fill::eye);
         dt = arma::fvec(3,arma::fill::zeros);
+//        arma::fmat selectedW = W.cols(selectedX);
         if(arma::svd(U,s,V,A,"std"))
         {
             C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
             dR = U*C*(V.t());
-            tmp = X_ - dR*W;
-            tmp.each_row()%=square_norm_lambda;
+            if(V_ptrs.size()>2)
+            {
+                tmp = X_.cols(selectedX) - dR*V_nearest;
+                tmp.each_row() %= square_norm_lambda.cols(selectedX);
+            }else{
+                tmp = X_ - dR*W;
+                tmp.each_row() %= square_norm_lambda;
+            }
+//            tmp = X_.cols(selectedX) - dR*W.cols(selectedX);
+//            tmp.each_row() %= square_norm_lambda.cols(selectedX);
             dt = arma::sum(tmp,1);
         }
         R = dR*R;
@@ -534,6 +558,7 @@ void JRMPC<M>::computeOnce(void)
         ++idx;
     }
     //count how much X are updated
+    arma::frowvec alpha_sum_no_bias = ( alpha_sum * ( double( V_ptrs.size() ) - 1 ) / double(V_ptrs.size()) );
     arma::fmat newX = X_sum.each_row() / alpha_sum;
     arma::frowvec delta =  arma::sum(arma::square(X_ - newX));
     arma::uvec updatedX = arma::find( delta > info_ptr->eps );
@@ -542,7 +567,9 @@ void JRMPC<M>::computeOnce(void)
         arma::uvec finite_i = arma::find_finite(delta);
         X_.cols(finite_i) = newX.cols(finite_i);
     }
-    var = ( (3.0*alpha_sum ) / ( var_sum + 1e-5 ) );//restore reciprocal fractions of variation
+    arma::fvec meanX = arma::mean(X_,1);
+    X_.each_col() -= meanX;
+    var = ( (3.0*alpha_sum ) / ( var_sum + 1e-6 ) );//restore reciprocal fractions of variation
     mu = arma::accu(alpha_sumij);
     mu*=(info_ptr->gamma+1.0);
     P_ = alpha_sumij;
@@ -578,22 +605,43 @@ void JRMPC<M>::varToColor()
 }
 
 template<typename M>
+void JRMPC<M>::restart(void)
+{
+    count = 0;
+    arma::fmat rand_target = *X_ptr;
+    initX(rand_target);
+    *X_ptr = 0.9*(*X_ptr) + 0.1*rand_target;
+}
+
+template<typename M>
 bool JRMPC<M>::isEnd()
 {
     if( count >= info_ptr->max_iter )
     {
-        std::cerr<<"N_Iter=="<<count<<std::endl;
-        info_ptr->mode = MaxIter;
-        return true;
+        if( restart_count >= info_ptr->max_restart )
+        {
+            std::cerr<<"N_Iter=="<<count<<std::endl;
+            info_ptr->mode = MaxIter;
+            return true;
+        }else{
+            ++ restart_count;
+            restart();
+        }
     }
-    if( 0==T_updated_ )
+    if( 0==T_updated_ && count > 10)
     {
         std::cerr<<"T_updated_=="<<T_updated_<<std::endl;
         info_ptr->mode = Converge;
         return true;
     }
-    if( 0==X_updated_ ){
+    if( 0==X_updated_ && count > 10){
         std::cerr<<"X_updated_=="<<X_updated_<<std::endl;
+        info_ptr->mode = Converge;
+        return true;
+    }
+    if( 0==X_updated_ && 0==T_updated_ && count > 5 )
+    {
+        std::cerr<<"X_updated_=="<<X_updated_<<"&&"<<"T_updated_=="<<T_updated_<<std::endl;
         info_ptr->mode = Converge;
         return true;
     }

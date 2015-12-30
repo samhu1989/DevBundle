@@ -5,18 +5,18 @@ bool GraphCutThread::configure(Config::Ptr config)
 {
     config_ = config;
     if(!config_->has("GC_iter_num"))return false;
-    if(!config_->has("GC_data_weight"))return false;
-    if(!config_->has("GC_smooth_weight"))return false;
-    if(!config_->has("GC_gamma_soft"))return false;
-    if(config_->getDouble("GC_gamma_soft")>0.5||config_->getDouble("GC_gamma_soft")<0){
-        emit message(tr("Wrong GC_gamma_soft"),0);
-        return false;
-    }
-    if(!config_->has("GC_gamma_hard"))return false;
-    if(config_->getDouble("GC_gamma_hard")>0.5||config_->getDouble("GC_gamma_hard")<0){
-        emit message(tr("Wrong GC_gamma_hard"),0);
-        return false;
-    }
+    if(!config_->has("GC_global_data_weight"))return false;
+    if(!config_->has("GC_global_smooth_weight"))return false;
+//    if(!config_->has("GC_gamma_soft"))return false;
+//    if(config_->getDouble("GC_gamma_soft")>0.5||config_->getDouble("GC_gamma_soft")<0){
+//        emit message(tr("Wrong GC_gamma_soft"),0);
+//        return false;
+//    }
+//    if(!config_->has("GC_gamma_hard"))return false;
+//    if(config_->getDouble("GC_gamma_hard")>0.5||config_->getDouble("GC_gamma_hard")<0){
+//        emit message(tr("Wrong GC_gamma_hard"),0);
+//        return false;
+//    }
     if(!config_->has("GC_distance_threshold"))return false;
     if(meshes_.empty())return false;
     if(meshes_.front()->graph_.empty())return false;
@@ -192,8 +192,12 @@ void GraphCutThread::prepareDataForLabel(uint32_t l,
     double* data = data_.get();
     arma::mat data_mat(data,label_number_,pix_number_,false,true);
     arma::vec score;
-    if(!config_->has("GC_color_var"))graph.match(obj,dist_score,norm_score,color_score,score,config_->getDouble("GC_distance_threshold"));
-    else graph.match(obj,dist_score,norm_score,color_score,score,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
+//    arma::fvec n_score(norm_score.size(),arma::fill::ones);
+//    arma::fvec d_score(dist_score.size(),arma::fill::ones);
+//    arma::fvec c_score(color_score.size(),arma::fill::ones);
+    if(!config_->has("GC_color_var"))graph.match2(obj,dist_score,norm_score,color_score,score,config_->getDouble("GC_distance_threshold"));
+    else graph.match2(obj,dist_score,norm_score,color_score,score,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
+    score /= graph.voxel_centers.n_cols;
     data_mat.row(l) = score.t();
     if(!data_mat.row(l).is_finite())
     {
@@ -203,45 +207,51 @@ void GraphCutThread::prepareDataForLabel(uint32_t l,
 
 void GraphCutThread::prepareDataForUnknown()
 {
-    MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
+//    MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
     arma::mat data((double*)data_.get(),label_number_,pix_number_,false,true);
-    if(!data.is_finite())
-    {
-        std::cerr<<"infinite in data"<<std::endl;
-    }
-    arma::mat known_mat = data.rows(1,label_number_-1);
-    arma::uword unknown_num = double(pix_number_)*config_->getDouble("GC_gamma_soft");
-    std::cerr<<"unknown_num:"<<unknown_num<<std::endl;
-    arma::rowvec known_median = arma::median(known_mat);
-    arma::rowvec known_sum = 2.0*arma::sum(known_mat);
-    arma::uvec sorted_i = arma::sort_index(known_sum);
-    arma::rowvec unknown_data(data.n_cols);
-    unknown_data = known_median;
-    arma::uvec choosen_i = sorted_i.head(unknown_num);
-    if(0!=choosen_i.size())unknown_data(choosen_i) = known_sum(choosen_i);
-    data.row(0) = unknown_data;
+//    if(!data.is_finite())
+//    {
+//        std::cerr<<"infinite in data"<<std::endl;
+//    }
+//    arma::mat known_mat = data.rows(1,label_number_-1);
+//    arma::uword unknown_num = double(pix_number_)*config_->getDouble("GC_gamma_soft");
+//    std::cerr<<"unknown_num:"<<unknown_num<<std::endl;
+//    arma::rowvec known_median = arma::median(known_mat);
+//    arma::rowvec known_sum = 2.0*arma::sum(known_mat);
+//    arma::uvec sorted_i = arma::sort_index(known_sum);
+//    arma::rowvec unknown_data(data.n_cols);
+//    unknown_data = known_median;
+//    arma::uvec choosen_i = sorted_i.head(unknown_num);
+//    if(0!=choosen_i.size())unknown_data(choosen_i) = known_sum(choosen_i);
+    data.row(0).fill(0.0);
 }
 
 void GraphCutThread::normalizeData()
 {
     arma::mat data((double*)data_.get(),label_number_,pix_number_,false,true);
+//    arma::vec row_max = arma::max(data,1);
+//    #pragma omp for
+//    for(size_t i=0 ; i < label_number_ ; ++i )
+//    {
+//        if( row_max(i) !=0 )data.row(i) /= row_max(i);
+//    }
     arma::rowvec col_sum = arma::sum(data);
     #pragma omp for
     for(size_t i=0 ; i < pix_number_ ; ++i )
     {
         if( col_sum(i) !=0 )data.col(i) /= col_sum(i);
     }
-    arma::uword unknown_num = double(pix_number_)*config_->getDouble("GC_gamma_hard");
-    arma::rowvec unknown_data = data.row(0);
-    arma::uvec sorted_i = arma::sort_index(unknown_data);
-    arma::uvec choosen_i = sorted_i.head(unknown_num);
-    unknown_data(choosen_i).fill(1.0);
-    data.row(0) = unknown_data;
+//    arma::uword unknown_num = double(pix_number_)*config_->getDouble("GC_gamma_hard");
+//    arma::rowvec unknown_data = data.row(0);
+//    arma::uvec sorted_i = arma::sort_index(unknown_data);
+//    arma::uvec choosen_i = sorted_i.head(unknown_num);
+//    unknown_data(choosen_i).fill(1.0);
+//    data.row(0) = unknown_data;
     data = arma::mat(label_number_,pix_number_,arma::fill::ones) - data;
-    unknown_data = data.row(0);
-    unknown_data(choosen_i).fill(std::numeric_limits<double>::max());
-    data.row(0) = unknown_data;
-    data *= config_->getDouble("GC_data_weight");
+//    unknown_data = data.row(0);
+//    unknown_data(choosen_i).fill(std::numeric_limits<double>::max());
+//    data.row(0) = unnkown_data;
+    data *= config_->getDouble("GC_global_data_weight");
     if(!data.is_finite())
     {
         std::cerr<<"infinite in data after normalized"<<std::endl;
@@ -260,14 +270,14 @@ bool GraphCutThread::prepareSmoothTerm(Segmentation::GraphCut& gc)
         if(pix2>=pix_number_)std::logic_error("pix2>=pix_number_");
         if( pix1 < pix2 )
         {
-            if(!config_->has("GC_color_var"))smooth_(pix1,pix2) = m.graph_.voxel_similarity(pix1,pix2);
-            else smooth_(pix1,pix2) = m.graph_.voxel_similarity(pix1,pix2,config_->getDouble("GC_color_var"));
+            if(!config_->has("GC_color_var"))smooth_(pix1,pix2) = m.graph_.voxel_similarity2(pix1,pix2);
+            else smooth_(pix1,pix2) = m.graph_.voxel_similarity2(pix1,pix2,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
         }else{
-            if(!config_->has("GC_color_var"))smooth_(pix2,pix1) = m.graph_.voxel_similarity(pix1,pix2);
-            else smooth_(pix2,pix1) = m.graph_.voxel_similarity(pix1,pix2,config_->getDouble("GC_color_var"));
+            if(!config_->has("GC_color_var"))smooth_(pix2,pix1) = m.graph_.voxel_similarity2(pix1,pix2);
+            else smooth_(pix2,pix1) = m.graph_.voxel_similarity2(pix1,pix2,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
         }
     }
-    smooth_ *= config_->getDouble("GC_smooth_weight");
+    smooth_ *= config_->getDouble("GC_global_smooth_weight");
     current_smooth_.reset(new SmoothnessCost(GraphCutThread::fnCost));
     if(config_->has("GC_show_smooth")&&1==config_->getInt("GC_show_smooth"))
     {

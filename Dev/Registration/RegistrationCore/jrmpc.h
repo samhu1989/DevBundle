@@ -21,6 +21,7 @@ namespace Registration {
             int k = 0;
             float gamma = 0.05;// weight for uniform distribution
             int max_iter = 50;
+            int max_restart = 0;
             float fitness_th = 0.0;
             float var_th = 0.0 ;
             float eps = 1e-7;
@@ -107,6 +108,7 @@ namespace Registration {
         virtual void initK(const std::vector<std::shared_ptr<arma::fmat>>&source,int&k);
         virtual void initX(arma::fmat&target);
         virtual void initX(const std::vector<std::shared_ptr<arma::fmat>>&source,arma::fmat&target);
+        virtual void restart(void);
         virtual void stepE();
         virtual void stepMa();
         virtual void stepMbc();
@@ -115,6 +117,7 @@ namespace Registration {
         virtual void varToColor();
     protected:
         int count;
+        int restart_count;
 
         arma::frowvec P_;
         std::shared_ptr<arma::fmat> X_ptr;

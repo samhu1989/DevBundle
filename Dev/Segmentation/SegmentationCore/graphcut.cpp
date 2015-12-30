@@ -49,19 +49,19 @@ void GraphCut::init(Method method)
     switch(method)
     {
     case EXPANSION:
-        std::cerr<<"EXPANSION"<<std::endl;
+//        std::cerr<<"EXPANSION"<<std::endl;
         mrf_.reset(new Expansion(numberofPixels,numberofLabels,eng_.get()));
         break;
     case  SWAP:
-        std::cerr<<"SWAP"<<std::endl;
+//        std::cerr<<"SWAP"<<std::endl;
         mrf_.reset(new Swap(numberofPixels,numberofLabels,eng_.get()));
         break;
     case  BELIEF:
-        std::cerr<<"BELIEF"<<std::endl;
+//        std::cerr<<"BELIEF"<<std::endl;
         mrf_.reset(new MaxProdBP(numberofPixels,numberofLabels,eng_.get()));
         break;
     default:
-        std::cerr<<"EXPANSION"<<std::endl;
+//        std::cerr<<"EXPANSION"<<std::endl;
         mrf_.reset(new Expansion(numberofPixels,numberofLabels,eng_.get()));
     }
     mrf_->initialize();
@@ -72,9 +72,9 @@ void GraphCut::updateInfo(void)
 {
     std::stringstream stream;
     stream<<"GraphCut:";
-    std::cerr<<"Get Data Energy"<<std::endl;
+//    std::cerr<<"Get Data Energy"<<std::endl;
     stream<<"Data("<<mrf_->dataEnergy()<<")+";
-    std::cerr<<"Get Smoothness Energy"<<std::endl;
+//    std::cerr<<"Get Smoothness Energy"<<std::endl;
     stream<<"Smooth("<<mrf_->smoothnessEnergy()<<")";
     info_ = stream.str();
 }

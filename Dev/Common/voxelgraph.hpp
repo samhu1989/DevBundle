@@ -198,14 +198,12 @@ void VoxelGraph<M>::match(
         arma::fvec nearest_n = m_n_mat.col(match_idx);
         if( search_dist(min_idx) < dist_th )
         {
-//            sv_match_score(sv_idx) += 1.0/(1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)/color_var));
-//            sv_match_score(sv_idx) += 1.0/(1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
+            double normal_sim = 1.0;
 //            if(current_n.is_finite()&&nearest_n.is_finite())
 //            {
-//                sv_match_score(sv_idx) += std::abs(arma::dot(current_n,nearest_n)) / (1.0+search_dist(min_idx))/(1.0+(color_dist(min_idx)));
+//                normal_sim = std::abs(arma::dot(current_n,nearest_n));
 //            }
-//            else
-                sv_match_score(sv_idx) += 1.0 / (1.0+search_dist(min_idx))/(1.0+ ( color_dist(min_idx) / color_var ));
+            sv_match_score(sv_idx) += normal_sim / ( 1.0 + search_dist(min_idx) / dist_th ) / (1.0+ ( color_dist(min_idx) / color_var ));
         }
         if( min_dist > search_dist(min_idx) ) min_dist = search_dist(min_idx);
         sv_geo_score(sv_idx) += gscore[match_idx];
@@ -234,7 +232,104 @@ void VoxelGraph<M>::match(
     for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
     {
         if(sv_norm_score(sv_i)<0)std::logic_error("sv_norm_score(sv_i)<0");
-        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i)*sv_norm_score(sv_i)*sv_color_score(sv_i);
+//        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i)*sv_norm_score(sv_i)*sv_color_score(sv_i);
+        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i)*sv_norm_score(sv_i);
+//        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i);
+    }
+}
+
+
+template <typename M>
+void VoxelGraph<M>::match2(
+        M&mesh,
+        arma::fvec&gscore,
+        arma::fvec&nscore,
+        arma::fvec&cscore,
+        arma::vec&score,
+        double dist_th,
+        double color_var
+        )
+{
+    MeshKDTreeInterface<M> points(mesh);
+    KDTreeSingleIndexAdaptor<
+            L2_Simple_Adaptor<float,MeshKDTreeInterface<M>>,
+            MeshKDTreeInterface<M>,
+            3,arma::uword>
+            kdtree(3,points,KDTreeSingleIndexAdaptorParams(5));
+    kdtree.buildIndex();
+    size_t sv_N = voxel_centers.n_cols;
+    arma::uvec search_idx(5);
+    arma::fvec search_dist(5);
+
+    arma::vec sv_match_score(sv_N,arma::fill::zeros);
+    arma::vec sv_geo_score(sv_N,arma::fill::zeros);
+    arma::vec sv_norm_score(sv_N,arma::fill::zeros);
+    arma::vec sv_color_score(sv_N,arma::fill::zeros);
+    score.resize(sv_N);
+
+    float* pts = (float*)Ref_.points();
+    arma::Mat<uint8_t> ref_c_mat((uint8_t*)Ref_.vertex_colors(),3,Ref_.n_vertices(),false,true);
+    arma::Mat<uint8_t> m_c_mat((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
+    arma::fmat ref_n_mat((float*)Ref_.vertex_normals(),3,Ref_.n_vertices(),false,true);
+    arma::fmat m_n_mat((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
+    double min_dist = std::numeric_limits<double>::max();
+//    std::cerr<<"match 1"<<std::endl;
+    for( size_t p_i = 0 ; p_i < Ref_.n_vertices() ; ++ p_i )
+    {
+        kdtree.knnSearch(&pts[3*p_i],5,search_idx.memptr(),search_dist.memptr());
+        arma::fvec current_c;
+        ColorArray::RGB2Lab(ref_c_mat.col(p_i),current_c);
+        arma::fmat nearest_c;
+        ColorArray::RGB2Lab(m_c_mat.cols(search_idx),nearest_c);
+        nearest_c.each_col() -= current_c;
+        arma::frowvec color_dist = arma::sqrt(arma::sum(arma::square(nearest_c)));
+        arma::uword min_idx;
+        color_dist.min(min_idx);
+        arma::uword sv_idx = voxel_label(p_i) - 1;
+        arma::uword match_idx = search_idx(min_idx);
+        if(match_idx>gscore.size())std::logic_error("match_idx>gscore.size()");
+        if(match_idx>cscore.size())std::logic_error("match_idx>cscore.size()");
+        arma::fvec current_n = ref_n_mat.col(p_i);
+        arma::fvec nearest_n = m_n_mat.col(match_idx);
+        if( search_dist(min_idx) < dist_th )
+        {
+            double normal_sim = 1.0;
+//            if(current_n.is_finite()&&nearest_n.is_finite())
+//            {
+//                normal_sim = std::abs(arma::dot(current_n,nearest_n));
+//            }
+            sv_match_score(sv_idx) += normal_sim / (1.0+search_dist(min_idx) / dist_th) / ( 1.0+ ( color_dist(min_idx) / 255 ));
+        }
+        if( min_dist > search_dist(min_idx) ) min_dist = search_dist(min_idx);
+        sv_geo_score(sv_idx) += gscore[match_idx];
+        sv_norm_score(sv_idx) += nscore[match_idx];
+        sv_color_score(sv_idx) += cscore[match_idx];
+    }
+//    std::cerr<<"match 2"<<std::endl;
+    if( min_dist > dist_th )std::cerr<<"min_dist:"<<min_dist<<std::endl;
+    for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
+    {
+        assert(voxel_size(sv_i)>0);
+        sv_match_score(sv_i) /= voxel_size(sv_i);
+        sv_geo_score(sv_i) /= voxel_size(sv_i);
+        sv_norm_score(sv_i) /= voxel_size(sv_i);
+        sv_color_score(sv_i) /= voxel_size(sv_i);
+    }
+//    double match_max = arma::max(sv_match_score);
+//    if(match_max!=0.0)sv_match_score /= match_max;
+//    else {
+//        std::cerr<<"All zeros in sv_match_score with dist th="<<dist_th<<std::endl;
+//    }
+//    sv_geo_score /= arma::max(sv_geo_score);
+//    sv_color_score /= arma::max(sv_color_score);
+//    std::cerr<<"match 3"<<std::endl;
+    if(!sv_match_score.is_finite())std::cerr<<"Infinite in sv_match_score"<<std::endl;
+    for(size_t sv_i = 0 ; sv_i < voxel_centers.n_cols ; ++ sv_i )
+    {
+        if(sv_norm_score(sv_i)<0)std::logic_error("sv_norm_score(sv_i)<0");
+//        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i)*sv_norm_score(sv_i)*sv_color_score(sv_i);
+        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i)*sv_norm_score(sv_i);
+//        score(sv_i) = sv_match_score(sv_i)*sv_geo_score(sv_i);
     }
 }
 
@@ -293,7 +388,70 @@ double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2,double dist_th,double
     {
         normal_sim = std::abs(arma::dot(norm1,norm2));
     }
-    return normal_sim / (1.0+spatial_dist) / (1.0+color_dist/color_var);
+    if( spatial_dist > dist_th ) return 0.0;
+//    else if( normal_sim > 0.99 ) return 2.0;
+    else return normal_sim / (1.0 + spatial_dist / dist_th ) / (1.0+color_dist/color_var);
+//    return normal_sim / (1.0+spatial_dist) ;
+}
+
+template <typename M>
+double VoxelGraph<M>::voxel_similarity2(size_t v1,size_t v2,double dist_th,double color_var)
+{
+    if(v1>=voxel_centers.n_cols)std::logic_error("v1>=voxel_centers.n_cols");
+    if(v2>=voxel_centers.n_cols)std::logic_error("v2>=voxel_centers.n_cols");
+    //use the distance between closest point as distance
+    double spatial_dist = std::numeric_limits<double>::max();
+    arma::fmat pts((float*)Ref_.points(),3,Ref_.n_vertices(),false,true);
+    arma::uvec idx1 = arma::find( voxel_label == (v1+1) );
+    arma::uvec idx2 = arma::find( voxel_label == (v2+1) );
+    if(idx1.is_empty())std::logic_error("idx1.is_empty()");
+    if(idx2.is_empty())std::logic_error("idx2.is_empty()");
+    arma::fmat pts1;
+    arma::fmat pts2;
+    if( idx1.size() > idx2.size() )
+    {
+        pts1 = pts.cols(idx1);
+        pts2 = pts.cols(idx2);
+    }else{
+        pts1 = pts.cols(idx2);
+        pts2 = pts.cols(idx1);
+    }
+    ArmaKDTreeInterface<arma::fmat> search_pts(pts1);
+    KDTreeSingleIndexAdaptor<
+            L2_Simple_Adaptor<float,ArmaKDTreeInterface<arma::fmat>>,
+            ArmaKDTreeInterface<arma::fmat>,
+            3,arma::uword>
+            kdtree(3,search_pts,KDTreeSingleIndexAdaptorParams(1));
+    kdtree.buildIndex();
+    float* p = (float*)pts2.memptr();
+    arma::uword i;
+    float d;
+    for( size_t pi = 0 ; pi < pts2.n_cols ; ++ pi )
+    {
+        kdtree.knnSearch(&p[3*pi],1,&i,&d);
+        if( d < spatial_dist )spatial_dist = d;
+    }
+    double color_dist;
+    arma::fvec Lab1;
+    arma::fvec ab1(2);
+    ColorArray::RGB2Lab(voxel_colors.col(v1),Lab1);
+    ab1(0) = Lab1(1);ab1(1) = Lab1(2);
+    arma::fvec Lab2;
+    arma::fvec ab2(2);
+    ColorArray::RGB2Lab(voxel_colors.col(v2),Lab2);
+    ab2(0) = Lab2(1);ab2(1) = Lab2(2);
+    color_dist = arma::norm( ab1 - ab2 );
+
+    arma::fvec norm1 = voxel_normals.col(v1);
+    arma::fvec norm2 = voxel_normals.col(v2);
+    double normal_sim = 1.0;
+    if(norm1.is_finite()&&norm2.is_finite())
+    {
+        normal_sim = std::abs(arma::dot(norm1,norm2));
+    }
+    if(spatial_dist>dist_th)return 0.0;
+    else return normal_sim / ( 1.0+spatial_dist / dist_th) / ( 1.0+color_dist / 255 );
+//    return normal_sim / (1.0+spatial_dist) ;
 }
 
 template <typename M>

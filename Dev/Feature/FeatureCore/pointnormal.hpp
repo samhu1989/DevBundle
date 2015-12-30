@@ -22,6 +22,8 @@ void computePointNormal(M& mesh,float r,int k)
     float* normal_ptr = (float*)mesh.vertex_normals();
     arma::fmat X(point_ptr,3,mesh.n_vertices(),false,true);
     int idx;
+    if( mesh.n_vertices() < 5)std::logic_error("mesh.n_vertices() < 5");
+    if( k > ( mesh.n_vertices() - 1 )) k = mesh.n_vertices() - 1;
     if( k < 4 )k = 4;
     for(idx=0;idx<mesh.n_vertices();++idx)
     {
@@ -82,6 +84,8 @@ void computePointNormal(M& mesh,std::shared_ptr<float>& curvature,float r,int k)
     float* c_ptr = curvature.get();
     arma::fmat X(point_ptr,3,mesh.n_vertices(),false,true);
     int idx;
+    if( mesh.n_vertices() < 5)std::logic_error("mesh.n_vertices() < 5");
+    if( k > ( mesh.n_vertices() - 1 )) k = mesh.n_vertices() - 1;
     if( k < 4 )k = 4;
     for(idx=0;idx<mesh.n_vertices();++idx)
     {

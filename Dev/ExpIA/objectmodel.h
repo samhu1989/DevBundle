@@ -12,10 +12,10 @@ struct ObjModel
     }T;
     ObjModel();
     void init(arma::fmat&X);
-    void updateModel(MeshBundle<DefaultMesh>::Ptr);
-    void finishModel();
+    void updateModel(MeshBundle<DefaultMesh>::Ptr,float);
+    void finishModel(float dist_th = 0.05);
     void updateFullModel(MeshBundle<DefaultMesh>::Ptr);
-    void updateColor(MeshBundle<DefaultMesh>::Ptr);
+    void updateColor(MeshBundle<DefaultMesh>::Ptr,float dist_th = 0.05 );
     void finishColor();
     void updateWeight(MeshBundle<DefaultMesh>::Ptr);
     void finishWeight();

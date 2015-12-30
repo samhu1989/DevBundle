@@ -764,7 +764,7 @@ MeshListViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
   case Key_Up:
       if(!mesh_list_.empty())
       {
-          if((current_visible_num_<8)&&(current_visible_num_<mesh_list_.size()))
+          if((current_visible_num_<32)&&(current_visible_num_<mesh_list_.size()))
           {
               current_visible_num_++;
               updateGL();

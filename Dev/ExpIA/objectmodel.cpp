@@ -81,7 +81,7 @@ void ObjModel::updateFullModel(MeshBundle<DefaultMesh>::Ptr input)
     }
 }
 
-void ObjModel::updateModel(MeshBundle<DefaultMesh>::Ptr input)
+void ObjModel::updateModel(MeshBundle<DefaultMesh>::Ptr input,float th)
 {
     MeshKDTreeInterface<DefaultMesh> points(input->mesh_);
     KDTreeSingleIndexAdaptor<
@@ -94,31 +94,34 @@ void ObjModel::updateModel(MeshBundle<DefaultMesh>::Ptr input)
     size_t N = initX_.n_cols;
     float* pdata = (float*)initX_.memptr();
     float* idata = (float*)input->mesh_.points();
-    size_t k = std::min(size_t(6),input->mesh_.n_vertices());
-    arma::uvec indices(k);
-    arma::fvec dists(k);
+    std::vector<std::pair<arma::uword,float>> result;
+    std::vector<std::pair<arma::uword,float>>::iterator riter;
     //init on first update
     for( size_t index = 0 ; index < N ; ++ index )
     {
-        kdtree.knnSearch(&(pdata[3*index]),k,indices.memptr(),dists.memptr());
-        for(size_t ii=0;ii<k;++ii)
+        result.clear();
+        kdtree.radiusSearch(&(pdata[3*index]),0.1*th,result,SearchParams());
+        for(riter=result.begin();riter!=result.end();++riter)
         {
             GeoM_->mesh_.add_vertex(
                     DefaultMesh::Point(
-                        idata[3*indices(ii)],
-                        idata[3*indices(ii)+1],
-                        idata[3*indices(ii)+2])
+                        idata[3*(riter->first)],
+                        idata[3*(riter->first)+1],
+                        idata[3*(riter->first)+2])
                 );
         }
     }
 }
 
-void ObjModel::finishModel()
+void ObjModel::finishModel(float dist_th)
 {
-    Filter::OctreeGrid<DefaultMesh> filter;
-    filter.set_seed_resolution(0.02);
-    filter.extract(GeoM_->mesh_);
-    Feature::computePointNormal<DefaultMesh>(GeoM_->mesh_,0.0,10);
+    if(GeoM_->mesh_.n_vertices()>1000)
+    {
+        Filter::OctreeGrid<DefaultMesh> filter;
+        filter.set_seed_resolution(dist_th/2);
+        filter.extract(GeoM_->mesh_);
+    }
+    Feature::computePointNormal<DefaultMesh>(GeoM_->mesh_,0.0,24);
     accu_color_ = arma::mat(3,GeoM_->mesh_.n_vertices(),arma::fill::zeros);
     accu_count_ = 0;
     DistP_  = arma::fvec(GeoM_->mesh_.n_vertices(),arma::fill::zeros);
@@ -126,7 +129,7 @@ void ObjModel::finishModel()
     NormP_ = arma::fvec(GeoM_->mesh_.n_vertices(),arma::fill::zeros);
 }
 
-void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input)
+void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input,float dist_th)
 {
     MeshKDTreeInterface<DefaultMesh> points(input->mesh_);
     KDTreeSingleIndexAdaptor<
@@ -144,10 +147,10 @@ void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input)
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
         kdtree.knnSearch(&(pdata[3*index]),1,indices.memptr(),dists.memptr());
-        double w = 1.0 / ( 1.0 + dists(0) );
+        double w = 1.0 / ( 1.0 + dists(0)/dist_th );
         current_color = arma::conv_to<arma::fvec>::from(cmat.col(indices(0)));
         accu_color_.col(index) += arma::conv_to<arma::vec>::from(w*current_color);
-        DistP_[index] += w;
+        if( dists(0) < dist_th ) DistP_[index] += w;
     }
     ++ accu_count_;
 }
@@ -203,7 +206,7 @@ void ObjModel::updateWeight(MeshBundle<DefaultMesh>::Ptr input)
         neighbor_color = arma::conv_to<arma::fvec>::from(mcmat.col(index));
         current_normal = nmat.col(indices(0));
         neighbor_normal = mnmat.col(index);
-        double color_dist = arma::norm(current_color - neighbor_color);
+        double color_dist = arma::norm( current_color - neighbor_color );
         double cw = 1.0 / ( 1.0 + color_dist );
         ColorP_(index) += cw;
         if(current_normal.is_finite()&&neighbor_normal.is_finite())

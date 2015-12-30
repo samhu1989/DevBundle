@@ -2,6 +2,9 @@
 #include "ui_updateobjectmodel.h"
 #include "registrationcore.h"
 #include "filter.h"
+#include "nanoflann.hpp"
+#include <vector>
+#include "extractpatchfeature.h"
 UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OModelList &outputs, QWidget *parent) :
     QFrame(parent),
     inputs_(inputs),
@@ -54,6 +57,9 @@ bool UpdateObjectModel::configure(Config::Ptr config)
     if(config_->has("Align_Eps")){
         std::cerr<<"Align_Eps:"<<config_->getFloat("Align_Eps")<<std::endl;
     }
+    if(config_->has("Align_Max_Dist")){
+        std::cerr<<"Align_Max_Dist"<<config_->getFloat("Align_Max_Dist")<<std::endl;
+    }
     return true;
 }
 
@@ -80,7 +86,7 @@ void UpdateObjectModel::prepare_for_next()
     done_align_ = false;
     done_fit_ = false;
     extract_patches();
-    if(valid_patches_.empty())
+    if(valid_patches_.size()<2)
     {
         prepare_for_next();
     }
@@ -129,8 +135,15 @@ void UpdateObjectModel::extract_patches()
     PatchList::iterator piter=current_patches_.begin();
     QString tmp;
     size_t frame = 0;
-
     valid_patches_.clear();
+    std::vector<arma::uword> patch_size_vec;
+    for(iter=labels_.begin();iter!=labels_.end();++iter)
+    {
+        indices = arma::find(*iter==current_label_);
+        patch_size_vec.push_back(indices.size());
+    }
+    arma::uvec patch_sizes(patch_size_vec);
+    arma::uword mean_size = arma::mean(patch_sizes);
     for(iter=labels_.begin();iter!=labels_.end();++iter)
     {
         indices = arma::find(*iter==current_label_);
@@ -139,7 +152,14 @@ void UpdateObjectModel::extract_patches()
         (*piter)->name_ = tmp.toStdString();
         (*piter)->mesh_.clear();
         if(!indices.is_empty()){
-            extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*piter)->mesh_);
+//            std::cerr<<"extracting F"<<frame<<"L"<<current_label_<<std::endl;
+            if(indices.size()<mean_size)
+            {
+                if(config_->has("Align_Expand_r"))extract_patch_expand((*miter)->mesh_,indices,(*piter)->mesh_,config_->getFloat("Align_Expand_r"));
+                else extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*piter)->mesh_);
+            }else {
+                extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*piter)->mesh_);
+            }
             valid_patches_.push_back(frame);
         }
         if(miter==inputs_.end())break;
@@ -148,6 +168,7 @@ void UpdateObjectModel::extract_patches()
         ++piter;
         ++frame;
     }
+    std::cerr<<valid_patches_.size()<<" valid patches extracted"<<std::endl;
 }
 
 void UpdateObjectModel::update_objects()
@@ -182,6 +203,8 @@ void UpdateObjectModel::update_objects()
                 arma::fmat V((float*)m.points(),3,m.n_vertices(),false,true);
                 V = R*V;
                 V.each_col() += t;
+                arma::fmat Vn((float*)m.vertex_normals(),3,m.n_vertices(),false,true);
+                Vn = R*Vn;
                 ++index;
             }
             std::cerr<<"update Centroid Model"<<std::endl;
@@ -194,10 +217,12 @@ void UpdateObjectModel::update_objects()
                 MeshBundle<DefaultMesh>::Ptr& patch_ptr = *piter;
                 if(!patch_ptr||0==patch_ptr.use_count())continue;
                 if(0==patch_ptr->mesh_.n_vertices())continue;
-                obj_ptr->updateModel(patch_ptr);
+                if(config_->has("Align_Max_Dist"))obj_ptr->updateModel(patch_ptr,config_->getFloat("Align_Max_Dist"));
+                else obj_ptr->updateModel(patch_ptr,0.1);
             }
             std::cerr<<"finish Centroid Model"<<std::endl;
-            obj_ptr->finishModel();
+            if(config_->has("Align_Max_Dist"))obj_ptr->finishModel(config_->getFloat("Align_Max_Dist"));
+            else obj_ptr->finishModel();
             std::cerr<<"update Full Model"<<std::endl;
             for(piter=patch_list_.rbegin();piter!=patch_list_.rend();++piter)
             {
@@ -205,7 +230,8 @@ void UpdateObjectModel::update_objects()
                 if(!patch_ptr||0==patch_ptr.use_count())continue;
                 if(0==patch_ptr->mesh_.n_vertices())continue;
                 obj_ptr->updateFullModel(patch_ptr);
-                obj_ptr->updateColor(patch_ptr);
+                if(config_->has("Align_Max_Dist"))obj_ptr->updateColor(patch_ptr,config_->getFloat("Align_Max_Dist"));
+                else obj_ptr->updateColor(patch_ptr,0.1);
             }
             obj_ptr->finishColor();
             std::cerr<<"update weight"<<std::endl;
@@ -318,7 +344,9 @@ void UpdateObjectModel::finish_current()
     }
     if(done_align_)
     {
-        if(current_label_<max_label_)timer_.start(1);
+        if(current_label_<max_label_){
+//            timer_.start(1);
+        }
         else{
             QString msg = "All Objects are Updated";
             QMessageBox::information( NULL, windowTitle(), msg);

@@ -2,6 +2,7 @@
 #include "ui_unifylabelmannual.h"
 #include <memory>
 #include <QScrollBar>
+#include "extractpatchfeature.h"
 UnifyLabelMannual::UnifyLabelMannual(
         InputType&input,
         OutputType&output,
@@ -228,7 +229,10 @@ void UnifyLabelMannual::reloadFrame()
         if( l <= maxL )
         {
             indices = arma::find( label == l );
-            if(!indices.is_empty())extractMesh<DefaultMesh,DefaultMesh>(bundle.mesh_,indices,*patches_.back());
+            if(!indices.is_empty())
+//            if(config_->has("Align_Expand_r")) extract_patch_expand(bundle.mesh_,indices,*patches_.back(),config_->getFloat("Align_Expand_r"));
+//            else
+                extractMesh<DefaultMesh,DefaultMesh>(bundle.mesh_,indices,*patches_.back());
         }//else let the patch be empty mesh
         l++;
     }
