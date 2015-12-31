@@ -36,7 +36,7 @@ void GraphCutThread::run(void)
         pix_number_ = m.graph_.voxel_centers.n_cols;
         gc.setLabelNumber( label_number_ );
         gc.setPixelNumber( pix_number_ );
-        if(!prepareDataTerm())
+        if(!prepareDataTermLabelWise())
         {
             std::cerr<<"Failed in prepareDataTerm"<<std::endl;
         }
@@ -141,7 +141,7 @@ void GraphCutThread::showSmooth()
     m.graph_.sv2pix(cv,cmat);
 }
 
-bool GraphCutThread::prepareDataTerm()
+bool GraphCutThread::prepareDataTermLabelWise()
 {
     MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
     data_.reset(new double[label_number_*pix_number_]);
@@ -257,6 +257,61 @@ void GraphCutThread::normalizeData()
         std::cerr<<"infinite in data after normalized"<<std::endl;
     }
 }
+
+bool GraphCutThread::prepareDataTermPixWise()
+{
+    MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
+    VoxelGraph<DefaultMesh>& graph = m.graph_;
+    arma::mat data_mat((double*)data_.get(),label_number_,pix_number_,false,true);
+    for( uint32_t pix = 0 ; pix < graph.voxel_centers.n_cols ; ++pix )
+    {
+        prepareDataForPix(pix,data_mat);
+    }
+    data_mat *= config_->getDouble("GC_global_data_weight");
+    if(!data_mat.is_finite())
+    {
+        std::cerr<<"infinite in data term"<<std::endl;
+    }
+    current_data_.reset(new DataCost(data_.get()));
+}
+
+void GraphCutThread::prepareDataForPix(uint32_t pix, arma::mat& data_mat)
+{
+    data_mat(0,pix) = std::numeric_limits<float>::max();
+    arma::vec frame_data(meshes_.size());
+    double* frame_data_ptr = frame_data.memptr();
+    for( uint32_t oidx = 0 ; oidx > objects_.size() ; ++oidx )
+    {
+        ObjModel& model = *objects_[oidx];
+        for(uint32_t fidx=0;fidx<frame_data.n_rows;++fidx)
+        {
+            ObjModel::T::Ptr t_ptr = model.GeoT_[fidx];
+            if(t_ptr&&0<t_ptr.use_count())
+            {
+                arma::fmat R(t_ptr->R,3,3,false,true);
+                arma::fvec t(t_ptr->t,3,false,true);
+                matchPixtoFrame(pix,meshes_[fidx]->graph_,fidx,R,t,frame_data_ptr[fidx]);
+            }else{
+                frame_data(fidx) = 0.0;
+            }
+        }
+        data_mat( oidx , pix ) = arma::max(frame_data);
+    }
+
+}
+
+void GraphCutThread::matchPixtoFrame(
+        uint32_t pix,
+        const VoxelGraph<DefaultMesh>& graph,
+        uint32_t frame,
+        const arma::fmat &R,
+        const arma::fvec &t,
+        double &score
+        )
+{
+    ;
+}
+
 
 bool GraphCutThread::prepareSmoothTerm(Segmentation::GraphCut& gc)
 {

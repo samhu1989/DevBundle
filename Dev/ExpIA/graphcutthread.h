@@ -32,7 +32,8 @@ protected:
     void showData(size_t);
     void showSmooth();
 
-    bool prepareDataTerm();
+    /*match object model to get data term*/
+    bool prepareDataTermLabelWise();
     void prepareDataForLabel(
             uint32_t l,
             VoxelGraph<DefaultMesh>& graph,
@@ -43,6 +44,18 @@ protected:
             );
     void prepareDataForUnknown();
     void normalizeData();
+
+    /*match transformation through object model to data term to get data term*/
+    bool prepareDataTermPixWise();
+    void prepareDataForPix(uint32_t,arma::mat&);
+    void matchPixtoFrame(
+            uint32_t pix,
+            const VoxelGraph<DefaultMesh>& graph,
+            uint32_t frame,
+            const arma::fmat &R,
+            const arma::fvec &t,
+            double& score
+         );
 
     std::shared_ptr<double> data_;
     std::shared_ptr<DataCost> current_data_;
