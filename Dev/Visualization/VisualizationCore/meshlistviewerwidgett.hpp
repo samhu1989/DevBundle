@@ -111,11 +111,11 @@ bool MeshListViewerWidgetT<M>::save_mesh(const char* _filename,Mesh& mesh_,IO::O
   // calculate normals
   // set scene center and radius
 
-  mesh_.request_face_normals();
-  mesh_.request_face_colors();
+//  mesh_.request_face_normals();
+//  mesh_.request_face_colors();
   mesh_.request_vertex_normals();
   mesh_.request_vertex_colors();
-  mesh_.request_vertex_texcoords2D();
+//  mesh_.request_vertex_texcoords2D();
 
   std::cout << "Saving to file '" << _filename << "'\n";
   if ( IO::write_mesh(mesh_, _filename, _opt, 16 ) )

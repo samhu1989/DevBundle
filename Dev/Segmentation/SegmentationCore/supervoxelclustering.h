@@ -29,6 +29,7 @@ public:
     {
         xyz_ = arma::mean(points_.cols(indices_),1);
         normal_ = arma::mean(normals_.cols(indices_),1);
+        normal_ = arma::normalise(normal_);
         arma::Mat<uint8_t> c = colors_.cols(indices_);
         arma::fmat fc = arma::conv_to<arma::fmat>::from(c);
         rgb_ = arma::mean(fc,1);

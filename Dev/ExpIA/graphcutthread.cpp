@@ -1,4 +1,5 @@
 #include "graphcutthread.h"
+#include "nanoflann.hpp"
 arma::sp_mat GraphCutThread::smooth_;
 
 bool GraphCutThread::configure(Config::Ptr config)
@@ -18,6 +19,7 @@ bool GraphCutThread::configure(Config::Ptr config)
 //        return false;
 //    }
     if(!config_->has("GC_distance_threshold"))return false;
+    if(!config_->has("GC_global_mode"))return false;
     if(meshes_.empty())return false;
     if(meshes_.front()->graph_.empty())return false;
     if(objects_.empty())return false;
@@ -28,6 +30,10 @@ void GraphCutThread::run(void)
 {
     Segmentation::GraphCut gc;
     current_frame_ = 0;
+    obj_trees_.clear();
+    obj_tree_interface_.clear();
+    mesh_trees_.clear();
+    mesh_tree_interface_.clear();
     while( current_frame_ < meshes_.size() )
     {
         timer.restart();
@@ -36,10 +42,19 @@ void GraphCutThread::run(void)
         pix_number_ = m.graph_.voxel_centers.n_cols;
         gc.setLabelNumber( label_number_ );
         gc.setPixelNumber( pix_number_ );
-        if(!prepareDataTermLabelWise())
+        if("Label_Wise"==config_->getString("GC_global_mode"))
         {
-            std::cerr<<"Failed in prepareDataTerm"<<std::endl;
-        }
+            if(!prepareDataTermLabelWise())
+            {
+                std::cerr<<"Failed in prepareDataTerm"<<std::endl;
+            }
+        }else if("Pixel_Wise"==config_->getString("GC_global_mode"))
+        {
+            if(!prepareDataTermPixWise())
+            {
+                std::cerr<<"Failed in prepareDataTerm"<<std::endl;
+            }
+        }else throw std::logic_error("Invalid value of GC_global_mode");
         if(!current_data_||0==current_data_.use_count())std::logic_error("!current_data_||0==current_data_.use_count()");
         gc.inputDataTerm(current_data_);
         if(!prepareSmoothTerm(gc))
@@ -55,8 +70,10 @@ void GraphCutThread::run(void)
         gc.updateInfo();
         float t;
         emit message(QString::fromStdString(gc.info()),0);
+        std::cerr<<gc.info()<<std::endl;
         gc.optimize(config_->getInt("GC_iter_num"),t);
         emit message(QString::fromStdString(gc.info()),0);
+        std::cerr<<gc.info()<<std::endl;
         arma::uvec sv_label;
         gc.getAnswer(sv_label);
         m.graph_.sv2pix(sv_label,outputs_[current_frame_]);
@@ -64,6 +81,7 @@ void GraphCutThread::run(void)
         QString msg;
         msg = msg.sprintf("%u ms for F %u",timer.elapsed(),current_frame_);
         emit message(msg,0);
+        std::cerr<<msg.toStdString()<<std::endl;
         ++current_frame_;
     }
 }
@@ -261,11 +279,13 @@ void GraphCutThread::normalizeData()
 bool GraphCutThread::prepareDataTermPixWise()
 {
     MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
-    VoxelGraph<DefaultMesh>& graph = m.graph_;
+    data_.reset(new double[label_number_*pix_number_]);
     arma::mat data_mat((double*)data_.get(),label_number_,pix_number_,false,true);
-    for( uint32_t pix = 0 ; pix < graph.voxel_centers.n_cols ; ++pix )
+    data_mat.fill(std::numeric_limits<float>::max());
+    for( uint32_t pix = 0 ; pix < pix_number_ ; ++pix )
     {
         prepareDataForPix(pix,data_mat);
+//        std::cerr<<"done data for pix "<<pix<<std::endl;
     }
     data_mat *= config_->getDouble("GC_global_data_weight");
     if(!data_mat.is_finite())
@@ -273,43 +293,170 @@ bool GraphCutThread::prepareDataTermPixWise()
         std::cerr<<"infinite in data term"<<std::endl;
     }
     current_data_.reset(new DataCost(data_.get()));
+    return true;
 }
 
 void GraphCutThread::prepareDataForPix(uint32_t pix, arma::mat& data_mat)
 {
     data_mat(0,pix) = std::numeric_limits<float>::max();
-    arma::vec frame_data(meshes_.size());
-    double* frame_data_ptr = frame_data.memptr();
-    for( uint32_t oidx = 0 ; oidx > objects_.size() ; ++oidx )
+    for( uint32_t oidx = 0 ; oidx < objects_.size() ; ++oidx )
     {
         ObjModel& model = *objects_[oidx];
-        for(uint32_t fidx=0;fidx<frame_data.n_rows;++fidx)
+        ObjModel::T::Ptr s_ptr = model.GeoT_[current_frame_];
+        if(s_ptr && 0 < s_ptr.use_count())
         {
-            ObjModel::T::Ptr t_ptr = model.GeoT_[fidx];
-            if(t_ptr&&0<t_ptr.use_count())
+            arma::fmat sR(s_ptr->R,3,3,false,true);
+            arma::fvec st(s_ptr->t,3,false,true);
+            double object_data;
+//            std::cerr<<"matchPix("<<pix<<")toObject("<<oidx<<")"<<std::endl;
+            matchPixtoObject(pix,oidx,sR,st,object_data);
+            if(object_data<std::numeric_limits<float>::max())
             {
-                arma::fmat R(t_ptr->R,3,3,false,true);
-                arma::fvec t(t_ptr->t,3,false,true);
-                matchPixtoFrame(pix,meshes_[fidx]->graph_,fidx,R,t,frame_data_ptr[fidx]);
+                arma::vec frame_data(meshes_.size(),arma::fill::zeros);
+                double* frame_data_ptr = frame_data.memptr();
+                for(uint32_t fidx=0;fidx<frame_data.n_rows;++fidx)
+                {
+                    ObjModel::T::Ptr& t_ptr = model.GeoT_[fidx];
+                    if(t_ptr&&0<t_ptr.use_count())
+                    {
+                        arma::fmat tR(t_ptr->R,3,3,false,true);
+                        arma::fvec tt(t_ptr->t,3,false,true);
+                        arma::fmat R = arma::inv(tR)*sR;
+                        arma::fvec t = arma::inv(tR)*(st-tt);
+                        matchPixtoFrame(pix,fidx,R,t,frame_data_ptr[fidx]);
+                    }
+                }
+//                double tmp_data = object_data*arma::max(frame_data);
+                double tmp_data =  arma::max(frame_data);
+                data_mat( oidx+1 , pix ) = tmp_data < std::numeric_limits<float>::max()?tmp_data:std::numeric_limits<float>::max();
             }else{
-                frame_data(fidx) = 0.0;
+                data_mat( oidx+1 , pix ) = std::numeric_limits<float>::max();
             }
+        }else{
+            data_mat( oidx+1 , pix ) = std::numeric_limits<float>::max();
         }
-        data_mat( oidx , pix ) = arma::max(frame_data);
+        if(!std::isfinite( data_mat(oidx+1,pix) ))
+        {
+            std::cerr<<"data("<<oidx+1<<","<<pix<<")="<<data_mat(oidx+1,pix)<<std::endl;
+        }
+//        if( data_mat(oidx+1,pix) < std::numeric_limits<float>::max() )
+//        {
+//            std::cerr<<"data("<<oidx+1<<","<<pix<<")="<<data_mat(oidx+1,pix)<<std::endl;
+//        }
     }
-
+}
+using namespace  nanoflann;
+void GraphCutThread::matchPixtoObject(
+        uint32_t pix,
+        uint32_t objIdx,
+        const arma::fmat &R,
+        const arma::fvec &t,
+        double& score
+        )
+{
+//    std::cerr<<"1"<<std::endl;
+    if(current_frame_>meshes_.size())throw std::logic_error("current_frame_>meshes_.size()");
+    MeshBundle<DefaultMesh>& source = *meshes_[current_frame_];
+    if(objIdx>objects_.size())throw std::logic_error("objIdx>objects_.size()");
+    ObjModel & target = *objects_[objIdx];
+    arma::Mat<uint8_t> target_color(
+                (uint8_t*)target.GeoM_->mesh_.vertex_colors(),3,
+                target.GeoM_->mesh_.n_vertices(),false,true
+                );
+    arma::fmat target_norm(
+                (float*)target.GeoM_->mesh_.vertex_normals(),3,
+                target.GeoM_->mesh_.n_vertices(),false,true
+                );
+//    std::cerr<<"2"<<std::endl;
+    if(objIdx>obj_trees_.size())throw std::logic_error("objIdx>obj_trees_.size()");
+    if(objIdx==obj_trees_.size())
+    {
+        obj_tree_interface_.emplace_back(new MTInterface(target.GeoM_->mesh_));
+        obj_trees_.emplace_back(new MeshTree(3,*obj_tree_interface_.back(),KDTreeSingleIndexAdaptorParams(2)));
+        obj_trees_.back()->buildIndex();
+    }
+    MeshTree& kdtree = *obj_trees_[objIdx];
+    arma::fvec source_point = R*source.graph_.voxel_centers.col(pix) + t;
+//    std::cerr<<"3"<<std::endl;
+    arma::uword indice;
+    float dist;
+//    std::cerr<<source_point.t()<<std::endl;
+    kdtree.knnSearch(source_point.memptr(),1,&indice,&dist);
+    if(dist>1.1*config_->getFloat("GC_distance_threshold"))
+    {
+        score = std::numeric_limits<float>::max();
+        return ;
+    }
+    if(indice>target.GeoM_->mesh_.n_vertices())
+        throw std::logic_error("indice>target.GeoM_->mesh_.n_vertices()");
+//    std::cerr<<"4"<<std::endl;
+    arma::fvec source_c;
+    ColorArray::RGB2Lab(source.graph_.voxel_colors.col(pix),source_c);
+    arma::fvec target_c;
+    ColorArray::RGB2Lab(target_color.col(indice),target_c);
+    double c_dist = arma::norm(source_c.tail(2) - target_c.tail(2));
+    arma::fvec source_n = R*source.graph_.voxel_normals.col(pix);
+    arma::fvec target_n = target_norm.col(indice);
+    double norm_similarity = std::abs(arma::dot(source_n,target_n));
+//    if(dist>config_->getFloat("GC_distance_threshold"))score = std::numeric_limits<float>::max();
+    score = target.DistP_(indice)*( 1 + dist / config_->getFloat("GC_distance_threshold") );
+    if(!std::isfinite(score))score = std::numeric_limits<float>::max();
+    if(score > std::numeric_limits<float>::max())score =  std::numeric_limits<float>::max();
 }
 
 void GraphCutThread::matchPixtoFrame(
         uint32_t pix,
-        const VoxelGraph<DefaultMesh>& graph,
-        uint32_t frame,
+        uint32_t frameIdx,
         const arma::fmat &R,
         const arma::fvec &t,
         double &score
         )
 {
-    ;
+//    std::cerr<<"1"<<std::endl;
+    MeshBundle<DefaultMesh>& source = *meshes_[current_frame_];
+    MeshBundle<DefaultMesh>& target = *meshes_[frameIdx];
+    if( frameIdx > mesh_trees_.size() )throw std::logic_error("frameIdx>mesh_trees_.size()");
+    if( frameIdx == mesh_trees_.size() )
+    {
+        mesh_tree_interface_.emplace_back(new ATInterface(target.graph_.voxel_centers));
+        mesh_trees_.emplace_back(new ArmaTree(3,*mesh_tree_interface_.back(),KDTreeSingleIndexAdaptorParams(2)));
+        mesh_trees_.back()->buildIndex();
+    }
+//    std::cerr<<"2"<<std::endl;
+    ArmaTree& kdtree = *mesh_trees_[frameIdx];
+    arma::uword indice;
+    float dist;
+//    std::cerr<<"3"<<std::endl;
+    arma::fvec source_point = R*source.graph_.voxel_centers.col(pix) + t;
+//    std::cerr<<"4"<<std::endl;
+//    std::cerr<<source_point.t()<<std::endl;
+    kdtree.knnSearch(source_point.memptr(),1,&indice,&dist);
+    if(dist>2*config_->getFloat("GC_distance_threshold"))
+    {
+        score = 0.0;
+        return ;
+    }
+//    std::cerr<<"5"<<std::endl;
+    if(indice>target.graph_.voxel_centers.n_cols)
+        throw std::logic_error("indice>target.graph_.voxel_centers.n_cols");
+    arma::fvec source_c = arma::conv_to<arma::fvec>::from(source.graph_.voxel_colors.col(pix));
+    ColorArray::RGB2Lab(source.graph_.voxel_colors.col(pix),source_c);
+    arma::fvec target_c = arma::conv_to<arma::fvec>::from(target.graph_.voxel_colors.col(indice));
+    ColorArray::RGB2Lab(target.graph_.voxel_colors.col(indice),target_c);
+    double c_dist = arma::norm(source_c.tail(2) - target_c.tail(2));
+    arma::fvec source_n = R*source.graph_.voxel_normals.col(pix);
+    arma::fvec target_n = target.graph_.voxel_normals.col(indice);
+    double norm_similarity = std::abs(arma::dot(source_n,target_n));
+    if( norm_similarity < 0.5)
+    {
+        score = 0.0;
+        return ;
+    }
+//    score = ( 1 + dist / config_->getFloat("GC_distance_threshold") )*( 1 + c_dist / 20.0 );
+    score = ( 1 + dist / config_->getFloat("GC_distance_threshold") )*( 1 + c_dist / 20.0 ) / norm_similarity ;
+//    score = ( 1 + dist / config_->getFloat("GC_distance_threshold") ) / norm_similarity ;
+    if(!std::isfinite(score))score = std::numeric_limits<float>::max();
+    if(score > std::numeric_limits<float>::max())score =  std::numeric_limits<float>::max();
 }
 
 
@@ -321,8 +468,8 @@ bool GraphCutThread::prepareSmoothTerm(Segmentation::GraphCut& gc)
     {
         size_t pix1 = m.graph_.voxel_neighbors(0,idx);
         size_t pix2 = m.graph_.voxel_neighbors(1,idx);
-        if(pix1>=pix_number_)std::logic_error("pix1>=pix_number_");
-        if(pix2>=pix_number_)std::logic_error("pix2>=pix_number_");
+        if(pix1>=pix_number_)throw std::logic_error("pix1>=pix_number_");
+        if(pix2>=pix_number_)throw std::logic_error("pix2>=pix_number_");
         if( pix1 < pix2 )
         {
             if(!config_->has("GC_color_var"))smooth_(pix1,pix2) = m.graph_.voxel_similarity2(pix1,pix2);

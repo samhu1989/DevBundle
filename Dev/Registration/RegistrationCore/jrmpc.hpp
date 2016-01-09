@@ -164,15 +164,16 @@ void JRMPC<M>::reset(
     res_ptr = ResPtr(new Result);
     std::vector<std::shared_ptr<arma::fmat>>::iterator VIter;
     arma::fvec meanX = arma::mean(*X_ptr,1);
-    arma::fmat& v0 = **V_ptrs.begin();
+    arma::fmat& v0 = *V_ptrs.front();
     for( VIter = V_ptrs.begin() ; VIter != V_ptrs.end() ; ++VIter )
     {
         arma::fmat&v = **VIter;
-        arma::fvec rand(v.n_cols/2+1,arma::fill::randu);
-        arma::uvec select = arma::conv_to<arma::uvec>::from(v.n_cols*rand);
-        arma::fvec meanV = arma::mean(v.cols(select),1);
+//        arma::fvec rand(v.n_cols/2+1,arma::fill::randu);
+//        arma::uvec select = arma::conv_to<arma::uvec>::from(v.n_cols*rand);
+//        arma::fvec meanV = arma::mean(v.cols(select),1);
+        arma::fvec meanV = arma::mean(v,1);
         res_ptr->Rs.emplace_back(new arma::fmat(3,3,arma::fill::eye));
-        res_ptr->ts.emplace_back(new arma::fvec(meanX-meanV));
+        res_ptr->ts.emplace_back(new arma::fvec( meanX - meanV ));
         v.each_col() += *(res_ptr->ts.back());
         if(VIter!=V_ptrs.begin())
         {
@@ -463,8 +464,9 @@ void JRMPC<M>::computeOnce(void)
         for(int c=0;c<alpha.n_cols;++c)
         {
             arma::fvec ccol = alpha.col(c);
+            arma::fvec sorted_ccol = arma::sort(ccol);
             float th;
-            th =  arma::median(ccol);
+            th =  arma::median(sorted_ccol.tail(3+ccol.n_rows/3));
             arma::uvec smallerth = arma::find( ccol < th );
             ccol(smallerth).fill(0.0);
             alpha.col(c) = ccol;

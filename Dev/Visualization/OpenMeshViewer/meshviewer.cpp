@@ -107,10 +107,10 @@ int main(int argc, char **argv)
   // enable most options for now
   opt += OpenMesh::IO::Options::VertexColor;
   opt += OpenMesh::IO::Options::VertexNormal;
-  opt += OpenMesh::IO::Options::VertexTexCoord;
-  opt += OpenMesh::IO::Options::FaceColor;
-  opt += OpenMesh::IO::Options::FaceNormal;
-  opt += OpenMesh::IO::Options::FaceTexCoord;
+//  opt += OpenMesh::IO::Options::VertexTexCoord;
+//  opt += OpenMesh::IO::Options::FaceColor;
+//  opt += OpenMesh::IO::Options::FaceNormal;
+//  opt += OpenMesh::IO::Options::FaceTexCoord;
 
   // create widget
   MainWindow mainWin;

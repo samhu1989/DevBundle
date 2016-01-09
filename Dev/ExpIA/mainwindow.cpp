@@ -125,13 +125,17 @@ void MainWindow::save_aligned()
     opt+=OpenMesh::IO::Options::Binary;
     opt+=OpenMesh::IO::Options::VertexColor;
     opt+=OpenMesh::IO::Options::VertexNormal;
+    if(config_->has("ascii"))
+    {
+        opt.unset(OpenMesh::IO::Options::Binary);
+    }
     std::string path = dirName.toStdString();
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         MeshBundle<DefaultMesh>::Ptr ptr = *iter;
-        if(!OpenMesh::IO::write_mesh(ptr->mesh_,path+"/"+ptr->name_+"_aligned.ply",opt,13)){
-            std::cerr<<"can't save to:"<<path+"/"+ptr->name_+"_aligned.ply"<<std::endl;
+        if(!OpenMesh::IO::write_mesh(ptr->mesh_,path+"/"+ptr->name_+".ply",opt,13)){
+            std::cerr<<"can't save to:"<<path+"/"+ptr->name_+".ply"<<std::endl;
             return;
         }
     }

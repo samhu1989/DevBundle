@@ -14,6 +14,7 @@ void OctreeGrid<M>::applyFilter(M&mesh)
     if(mesh.has_vertex_colors())
     {
         result.request_vertex_colors();
+        result.request_vertex_normals();
     }
     OctreeMesh octree_m(mesh);
     arma::fmat p_mat((float*)mesh.points(),3,mesh.n_vertices(),false,true);

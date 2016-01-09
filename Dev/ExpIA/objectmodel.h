@@ -13,7 +13,7 @@ struct ObjModel
     ObjModel();
     void init(arma::fmat&X);
     void updateModel(MeshBundle<DefaultMesh>::Ptr,float);
-    void finishModel(float dist_th = 0.05);
+    void finishModel(Config::Ptr);
     void updateFullModel(MeshBundle<DefaultMesh>::Ptr);
     void updateColor(MeshBundle<DefaultMesh>::Ptr,float dist_th = 0.05 );
     void finishColor();
@@ -43,6 +43,7 @@ private:
     DefaultMesh FullLayout_;
     arma::mat accu_color_;
     arma::uword accu_count_;
+    arma::mat accu_normal_;
 };
 
 #endif // OBJECTMODEL_H

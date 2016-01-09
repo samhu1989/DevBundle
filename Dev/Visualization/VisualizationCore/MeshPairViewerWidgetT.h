@@ -49,7 +49,7 @@ public:
 
   /// open mesh
   virtual bool open_mesh(const char*,Mesh&,Stripifier&,OpenMesh::IO::Options);
-  virtual bool save_mesh(const char*, Mesh& ,OpenMesh::IO::Options);
+  virtual bool save_mesh(const std::string&, Mesh& ,OpenMesh::IO::Options);
 
   ///set center of scene
   virtual void set_center_at_mesh(const Mesh&);

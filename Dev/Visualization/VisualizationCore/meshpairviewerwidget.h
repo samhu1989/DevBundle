@@ -57,7 +57,7 @@ public:
             QMessageBox::critical( NULL, windowTitle(), msg);
         }
         t.stop();
-        std::cout << "Saved mesh to ~" << t.as_string() << std::endl;
+        std::cerr << "Saved mesh to ~" << t.as_string() << std::endl;
     }
 
 public slots:

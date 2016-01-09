@@ -6,10 +6,21 @@
 #include "common.h"
 #include <typeinfo>
 #include <QTime>
+#include "nanoflann.hpp"
 class GraphCutThread:public QThread
 {
     Q_OBJECT
 public:
+    typedef nanoflann::KDTreeSingleIndexAdaptor<
+            nanoflann::L2_Simple_Adaptor<float,MeshKDTreeInterface<DefaultMesh>>,
+            MeshKDTreeInterface<DefaultMesh>,
+            3,arma::uword> MeshTree;
+    typedef nanoflann::KDTreeSingleIndexAdaptor<
+            nanoflann::L2_Simple_Adaptor<float,ArmaKDTreeInterface<arma::fmat>>,
+            ArmaKDTreeInterface<arma::fmat>,
+            3,arma::uword> ArmaTree;
+    typedef MeshKDTreeInterface<DefaultMesh> MTInterface;
+    typedef ArmaKDTreeInterface<arma::fmat> ATInterface;
     GraphCutThread(
             MeshBundle<DefaultMesh>::PtrList&inputmesh,
             std::vector<ObjModel::Ptr>& inputobj,
@@ -48,10 +59,16 @@ protected:
     /*match transformation through object model to data term to get data term*/
     bool prepareDataTermPixWise();
     void prepareDataForPix(uint32_t,arma::mat&);
+    void matchPixtoObject(
+            uint32_t pix,
+            uint32_t objIdx,
+            const arma::fmat &R,
+            const arma::fvec &t,
+            double& score
+            );
     void matchPixtoFrame(
             uint32_t pix,
-            const VoxelGraph<DefaultMesh>& graph,
-            uint32_t frame,
+            uint32_t frameIdx,
             const arma::fmat &R,
             const arma::fvec &t,
             double& score
@@ -71,6 +88,10 @@ protected:
     uint32_t current_frame_;
     uint32_t label_number_;
     uint32_t pix_number_;
+    std::vector<std::shared_ptr<ArmaTree>> mesh_trees_;
+    std::vector<std::shared_ptr<ATInterface>> mesh_tree_interface_;
+    std::vector<std::shared_ptr<MeshTree>> obj_trees_;
+    std::vector<std::shared_ptr<MTInterface>> obj_tree_interface_;
 private:
     MeshBundle<DefaultMesh>::PtrList& meshes_;
     std::vector<ObjModel::Ptr>& objects_;

@@ -40,6 +40,7 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
     }
     current_label_ = 0;
     current_patches_.resize(inputs_.size());
+    current_extanded_patches_.resize(inputs_.size());
     outputs_.clear();
     gl_timer.start(100);
 }
@@ -95,7 +96,7 @@ void UpdateObjectModel::prepare_for_next()
     geo_view_->list().clear();
     Filter::OctreeGrid<DefaultMesh> octree_grid;
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
-    for(iter=current_patches_.begin();iter!=current_patches_.end();++iter)
+    for(iter=current_extanded_patches_.begin();iter!=current_extanded_patches_.end();++iter)
     {
         MeshBundle<DefaultMesh>::Ptr ptr = *iter;
         if( ptr && 0!=ptr.use_count() )
@@ -116,7 +117,9 @@ void UpdateObjectModel::prepare_for_next()
                 lwh(1) = arma::norm( box.col(0) - box.col(3) );
                 lwh(2) = arma::norm( box.col(0) - box.col(4) );
                 double min_size = arma::min(lwh);
-                octree_grid.set_seed_resolution(min_size*config_->getDouble("Align_Down_Sample_Ratio"));
+                double res = min_size*config_->getDouble("Align_Down_Sample_Ratio");
+                if( res > 0.075 ) res = 0.075;
+                octree_grid.set_seed_resolution(res);
                 octree_grid.extract(m);
             }
         }else{
@@ -133,6 +136,7 @@ void UpdateObjectModel::extract_patches()
     ILabelList::iterator iter;
     IMeshList::iterator miter=inputs_.begin();
     PatchList::iterator piter=current_patches_.begin();
+    PatchList::iterator pext_iter=current_extanded_patches_.begin();
     QString tmp;
     size_t frame = 0;
     valid_patches_.clear();
@@ -148,24 +152,30 @@ void UpdateObjectModel::extract_patches()
     {
         indices = arma::find(*iter==current_label_);
         if(!*piter)*piter = std::make_shared<MeshBundle<DefaultMesh>>();
+        if(!*pext_iter)*pext_iter = std::make_shared<MeshBundle<DefaultMesh>>();
         tmp = tmp.sprintf("F%dL%d",frame,current_label_);
         (*piter)->name_ = tmp.toStdString();
         (*piter)->mesh_.clear();
+        (*pext_iter)->name_ = tmp.toStdString();
+        (*pext_iter)->mesh_.clear();
         if(!indices.is_empty()){
 //            std::cerr<<"extracting F"<<frame<<"L"<<current_label_<<std::endl;
             if(indices.size()<mean_size)
             {
-                if(config_->has("Align_Expand_r"))extract_patch_expand((*miter)->mesh_,indices,(*piter)->mesh_,config_->getFloat("Align_Expand_r"));
-                else extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*piter)->mesh_);
+                if(config_->has("Align_Expand_r"))extract_patch_expand((*miter)->mesh_,indices,(*pext_iter)->mesh_,config_->getFloat("Align_Expand_r"));
+                else extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*pext_iter)->mesh_);
             }else {
-                extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*piter)->mesh_);
+                extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*pext_iter)->mesh_);
             }
+            extractMesh<DefaultMesh,DefaultMesh>((*miter)->mesh_,indices,(*piter)->mesh_);
             valid_patches_.push_back(frame);
         }
         if(miter==inputs_.end())break;
         if(piter==current_patches_.end())break;
+        if(pext_iter==current_extanded_patches_.end())break;
         ++miter;
         ++piter;
+        ++pext_iter;
         ++frame;
     }
     std::cerr<<valid_patches_.size()<<" valid patches extracted"<<std::endl;
@@ -221,8 +231,8 @@ void UpdateObjectModel::update_objects()
                 else obj_ptr->updateModel(patch_ptr,0.1);
             }
             std::cerr<<"finish Centroid Model"<<std::endl;
-            if(config_->has("Align_Max_Dist"))obj_ptr->finishModel(config_->getFloat("Align_Max_Dist"));
-            else obj_ptr->finishModel();
+            if(config_->has("Align_Max_Dist"))obj_ptr->finishModel(config_);
+            else obj_ptr->finishModel(config_);
             std::cerr<<"update Full Model"<<std::endl;
             for(piter=patch_list_.rbegin();piter!=patch_list_.rend();++piter)
             {
@@ -233,6 +243,7 @@ void UpdateObjectModel::update_objects()
                 if(config_->has("Align_Max_Dist"))obj_ptr->updateColor(patch_ptr,config_->getFloat("Align_Max_Dist"));
                 else obj_ptr->updateColor(patch_ptr,0.1);
             }
+            std::cerr<<"finishing color"<<std::endl;
             obj_ptr->finishColor();
             std::cerr<<"update weight"<<std::endl;
             piter=patch_list_.rbegin();
@@ -345,7 +356,8 @@ void UpdateObjectModel::finish_current()
     if(done_align_)
     {
         if(current_label_<max_label_){
-//            timer_.start(1);
+            if(config_->has("Align_Wait_ms")) timer_.start(config_->getInt("Align_Wait_ms"));
+            else timer_.start(1);
         }
         else{
             QString msg = "All Objects are Updated";

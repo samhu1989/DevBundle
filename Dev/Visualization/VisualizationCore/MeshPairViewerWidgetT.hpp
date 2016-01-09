@@ -127,21 +127,22 @@ MeshPairViewerWidgetT<M>::open_mesh(const char* _filename,Mesh& mesh_,Stripifier
 }
 
 template <typename M>
-bool MeshPairViewerWidgetT<M>::save_mesh(const char* _filename,Mesh& mesh_,IO::Options _opt)
+bool MeshPairViewerWidgetT<M>::save_mesh(const std::string& _filename,Mesh& mesh_,IO::Options _opt)
 {
   // load mesh
   // calculate normals
   // set scene center and radius
 
-  mesh_.request_face_normals();
-  mesh_.request_face_colors();
-  mesh_.request_vertex_normals();
-  mesh_.request_vertex_colors();
-  mesh_.request_vertex_texcoords2D();
+//  mesh_.request_face_normals();
+//  mesh_.request_face_colors();
+  if(!mesh_.has_vertex_normals())mesh_.request_vertex_normals();
+  if(!mesh_.has_vertex_colors())mesh_.request_vertex_colors();
+//  mesh_.request_vertex_texcoords2D();
 
-  std::cout << "Saving to file '" << _filename << "'\n";
-  if ( IO::write_mesh(mesh_, _filename, _opt, 16 ) )
+  std::cerr << "Saving to file '" << _filename << "'\n";
+  if ( IO::write_mesh(mesh_, _filename, _opt, 10 ) )
   {
+      std::cerr << "Saved to file '" << _filename << "'\n";
       return true;
   }
   return false;

@@ -166,6 +166,7 @@ void VoxelGraph<M>::match(
     arma::uvec search_idx(5);
     arma::fvec search_dist(5);
 
+    float max_geo_score = arma::max(gscore);
     arma::vec sv_match_score(sv_N,arma::fill::zeros);
     arma::vec sv_geo_score(sv_N,arma::fill::zeros);
     arma::vec sv_norm_score(sv_N,arma::fill::zeros);
@@ -206,7 +207,7 @@ void VoxelGraph<M>::match(
             sv_match_score(sv_idx) += normal_sim / ( 1.0 + search_dist(min_idx) / dist_th ) / (1.0+ ( color_dist(min_idx) / color_var ));
         }
         if( min_dist > search_dist(min_idx) ) min_dist = search_dist(min_idx);
-        sv_geo_score(sv_idx) += gscore[match_idx];
+        if( gscore[match_idx] >= 0.6*max_geo_score)sv_geo_score(sv_idx) += gscore[match_idx];
         sv_norm_score(sv_idx) += nscore[match_idx];
         sv_color_score(sv_idx) += cscore[match_idx];
     }
@@ -449,8 +450,11 @@ double VoxelGraph<M>::voxel_similarity2(size_t v1,size_t v2,double dist_th,doubl
     {
         normal_sim = std::abs(arma::dot(norm1,norm2));
     }
-    if(spatial_dist>dist_th)return 0.0;
-    else return normal_sim / ( 1.0+spatial_dist / dist_th) / ( 1.0+color_dist / 255 );
+//    if(spatial_dist>dist_th)return 0.0;
+//    if(normal_sim>0.99)return std::numeric_limits<float>::max();
+    return exp( 1+normal_sim ) / ( 1.0 + spatial_dist / dist_th ) ;
+//    return exp( 1 + 30*normal_sim ) / ( 1.0 + spatial_dist / dist_th ) ;
+//    else return normal_sim / ( 1.0 + spatial_dist / dist_th) ;
 //    return normal_sim / (1.0+spatial_dist) ;
 }
 

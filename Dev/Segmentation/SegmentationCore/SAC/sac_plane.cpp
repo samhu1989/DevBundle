@@ -89,6 +89,7 @@ void SAC_Plane::optimizeModel(const arma::uvec&inliers,
 //    std::cerr<<"Use Least-Squares to fit the plane through all the given sample points and find out its coefficients"<<std::endl;
 
     arma::fmat neighborhood = inputs_.cols(inliers);
+    std::cerr<<inliers.size()<<std::endl;
     arma::fvec xyz_centroid = arma::mean(neighborhood,1);
     fitPlane(xyz_centroid,neighborhood,plane_normal,curvature,plane_dist);
 

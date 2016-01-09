@@ -76,6 +76,7 @@ void ObjModel::updateFullModel(MeshBundle<DefaultMesh>::Ptr input)
         {
             DefaultMesh::VertexHandle new_v = FullM_.add_vertex(input->mesh_.point(*v_it));
             FullM_.set_color( new_v ,input->mesh_.color(*v_it));
+            FullM_.set_normal( new_v , input->mesh_.normal(*v_it));
         }
         ++index;
     }
@@ -100,7 +101,7 @@ void ObjModel::updateModel(MeshBundle<DefaultMesh>::Ptr input,float th)
     for( size_t index = 0 ; index < N ; ++ index )
     {
         result.clear();
-        kdtree.radiusSearch(&(pdata[3*index]),0.1*th,result,SearchParams());
+        kdtree.radiusSearch(&(pdata[3*index]),th,result,SearchParams());
         for(riter=result.begin();riter!=result.end();++riter)
         {
             GeoM_->mesh_.add_vertex(
@@ -113,16 +114,26 @@ void ObjModel::updateModel(MeshBundle<DefaultMesh>::Ptr input,float th)
     }
 }
 
-void ObjModel::finishModel(float dist_th)
+void ObjModel::finishModel(Config::Ptr config_)
 {
-    if(GeoM_->mesh_.n_vertices()>1000)
+    if(GeoM_->mesh_.n_vertices() > config_->getInt("Align_Down_Sample_Threshold"))
     {
-        Filter::OctreeGrid<DefaultMesh> filter;
-        filter.set_seed_resolution(dist_th/2);
-        filter.extract(GeoM_->mesh_);
+        arma::fmat pts((float*)GeoM_->mesh_.points(),3,GeoM_->mesh_.n_vertices(),false,true);
+        arma::fmat box;
+        get3DMBB(pts,2,box);
+        arma::fvec lwh(3);//length width height
+        lwh(0) = arma::norm( box.col(0) - box.col(1) );
+        lwh(1) = arma::norm( box.col(0) - box.col(3) );
+        lwh(2) = arma::norm( box.col(0) - box.col(4) );
+        double min_size = arma::min(lwh);
+        Filter::OctreeGrid<DefaultMesh> octree_grid;
+        double res = min_size*config_->getDouble("Align_Down_Sample_Ratio");
+        if(res>0.075) res = 0.075;
+        octree_grid.set_seed_resolution(res);
+        octree_grid.extract(GeoM_->mesh_);
     }
-    Feature::computePointNormal<DefaultMesh>(GeoM_->mesh_,0.0,24);
     accu_color_ = arma::mat(3,GeoM_->mesh_.n_vertices(),arma::fill::zeros);
+    accu_normal_ = arma::mat(3,GeoM_->mesh_.n_vertices(),arma::fill::zeros);
     accu_count_ = 0;
     DistP_  = arma::fvec(GeoM_->mesh_.n_vertices(),arma::fill::zeros);
     ColorP_ = arma::fvec(GeoM_->mesh_.n_vertices(),arma::fill::zeros);
@@ -141,15 +152,24 @@ void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input,float dist_th)
     arma::uvec indices(1);
     arma::fvec dists(1);
     arma::fvec current_color;
+    arma::fvec current_normal;
     float* pdata = (float*)GeoM_->mesh_.points();
     uint8_t* cdata = (uint8_t*)input->mesh_.vertex_colors();
+    float* ndata = (float*)input->mesh_.vertex_normals();
     arma::Mat<uint8_t> cmat(cdata,3,input->mesh_.n_vertices(),false,true);
+    arma::fmat nmat(ndata,3,input->mesh_.n_vertices(),false,true);
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
         kdtree.knnSearch(&(pdata[3*index]),1,indices.memptr(),dists.memptr());
         double w = 1.0 / ( 1.0 + dists(0)/dist_th );
         current_color = arma::conv_to<arma::fvec>::from(cmat.col(indices(0)));
+        current_normal = nmat.col(indices(0));
         accu_color_.col(index) += arma::conv_to<arma::vec>::from(w*current_color);
+        arma::fvec accu = arma::conv_to<arma::fvec>::from(arma::normalise(accu_normal_.col(index)));
+        if( 0 > arma::dot(accu,current_normal)||index==0)
+        accu_normal_.col(index) += arma::conv_to<arma::vec>::from(w*current_normal);
+        else
+        accu_normal_.col(index) += arma::conv_to<arma::vec>::from(-w*current_normal);
         if( dists(0) < dist_th ) DistP_[index] += w;
     }
     ++ accu_count_;
@@ -157,6 +177,7 @@ void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input,float dist_th)
 
 void ObjModel::finishColor()
 {
+    std::cerr<<"finishing color"<<std::endl;
     #pragma omp for
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
@@ -164,10 +185,24 @@ void ObjModel::finishColor()
     }
     arma::Mat<uint8_t> mc((uint8_t*)GeoM_->mesh_.vertex_colors(),3,GeoM_->mesh_.n_vertices(),false,true);
     mc = arma::conv_to<arma::Mat<uint8_t>>::from(accu_color_);
+    std::cerr<<"finishing dist weight"<<std::endl;
     #pragma omp for
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
         DistP_(index) /= accu_count_;
+    }
+    std::cerr<<"finishing normal"<<std::endl;
+    if(!GeoM_->mesh_.has_vertex_normals())GeoM_->mesh_.request_vertex_normals();
+    arma::fmat mn((float*)GeoM_->mesh_.vertex_normals(),3,GeoM_->mesh_.n_vertices(),false,true);
+    #pragma omp for
+    for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
+    {
+        if(0<arma::norm(accu_normal_.col(index)))
+        {
+            arma::vec n = arma::normalise(accu_normal_.col(index));
+            mn.col(index) = arma::conv_to<arma::fvec>::from(n);
+        }
+        else mn.col(index).fill(std::numeric_limits<float>::quiet_NaN());
     }
     accu_count_ = 0;
 }
@@ -453,6 +488,11 @@ bool ObjModel::load(const std::string& path)
     if( T_cube.n_cols != 4 || T_cube.n_rows != 3 )return false;
     GeoT_.resize(T_indices.size());
     arma::uvec indices = arma::find(T_indices==1);
+    if(indices.is_empty()){
+        std::cerr<<"this object mapped to none frame"<<std::endl;
+    }else{
+        std::cerr<<"this object mapped to "<<indices.size()<<" frames"<<std::endl;
+    }
     arma::uword index = 0;
     arma::uvec::iterator iter;
     for(iter=indices.begin();iter!=indices.end();++iter)

@@ -6,7 +6,7 @@ void RegistrationBase::alignAroundZ(const arma::fmat &x0,const arma::fmat &x1, a
 {
     arma::fmat::fixed<3,3> R;
     arma::fmat y;
-    float N = 36.0;
+    float N = 72.0;
     double minError = std::numeric_limits<double>::max();
     for(int k=0;k<N;++k)
     {
@@ -38,7 +38,7 @@ double RegistrationBase::closestError(const arma::fmat&x0,const arma::fmat&x1)
     for(size_t index=0;index<x1.n_cols;++index)
     {
         kdtree.knnSearch(&pts[3*index],1,indices.memptr(),dists.memptr());
-        error += dists(0);
+        error += std::sqrt(dists(0));
     }
     error /= x1.n_cols;
     return error;

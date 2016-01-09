@@ -103,7 +103,7 @@ bool InPatchGraphCut::prepareDataTerm(Segmentation::GraphCut& gc)
     bool has_outlier = true;
     double minP = arma::min(model.DistP_);
     double maxP = arma::max(model.DistP_);
-    if( minP / maxP > 0.8 ) has_outlier = false;
+    if( minP / maxP > 0.4 ) has_outlier = false;
     DefaultMesh obj_mesh;
     if(!model.transform(obj_mesh,current_frame_))
     {
@@ -190,7 +190,7 @@ bool InPatchGraphCut::prepareNeighbors(Segmentation::GraphCut& gc)
         if(pix1>=pix_number_)std::logic_error("pix1>=pix_number_");
         if(pix2>=pix_number_)std::logic_error("pix2>=pix_number_");
         double w = w_eps * ( current_patch_graph_->voxel_size(pix1) + current_patch_graph_->voxel_size(pix2) );
-        if(w<=0)std::logic_error("w<=0");
+        if(w<=0)throw std::logic_error("w<=0");
         if(!gc.setNeighbors(pix1,pix2,w))return false;
     }
     return true;

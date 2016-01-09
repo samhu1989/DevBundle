@@ -42,7 +42,8 @@ inline void fitPlane(
     neighbor.each_col() -= center;
     arma::fmat U,V;
     arma::fvec s;
-    if(!arma::svd(U,s,V,neighbor.t(),"std"))
+    arma::fmat A = neighbor*neighbor.t();
+    if(!arma::svd(U,s,V,A,"std"))
     {
         normal.fill(std::numeric_limits<float>::quiet_NaN());
         distToOrigin = std::numeric_limits<float>::quiet_NaN();
@@ -64,7 +65,8 @@ inline void fitPlane(
     neighbor.each_col() -= center;
     arma::fmat U,V;
     arma::fvec s;
-    if(!arma::svd(U,s,V,neighbor.t(),"std"))
+    arma::fmat A = neighbor*neighbor.t();
+    if(!arma::svd(U,s,V,A,"std"))
     {
         coeff.fill(std::numeric_limits<float>::quiet_NaN());
     }else{

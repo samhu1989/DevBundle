@@ -98,9 +98,12 @@ void GlobalAlign::finish_AlignEachOther(void)
                 arma::fmat R = *(r->Rs[index]);
                 arma::fvec t = *(r->ts[index]);
                 float* pdata = (float*)(*iter)->mesh_.points();
+                float* ndata = (float*)(*iter)->mesh_.vertex_normals();
                 arma::fmat pts(pdata,3,(*iter)->mesh_.n_vertices(),false,true);
+                arma::fmat ns(ndata,3,(*iter)->mesh_.n_vertices(),false,true);
                 pts = R*pts;
                 pts.each_col() += t;
+                ns = R*ns;
                 ++index;
             }
             geo_thread_->deleteLater();
@@ -141,9 +144,12 @@ void GlobalAlign::alignUptoZ(void)
     //transform inputs
     iter = inputs_.begin() + geo_view_->current_mesh_start();
     pdata = (float*)(*iter)->mesh_.points();
+    float *ndata = (float*)(*iter)->mesh_.vertex_normals();
     arma::fmat ipts(pdata,3,(*iter)->mesh_.n_vertices(),false,true);
+    arma::fmat ns(ndata,3,(*iter)->mesh_.n_vertices(),false,true);
     ipts.each_col() -= t;
     ipts = R*ipts;
+    ns = R*ns;
     geo_view_->current_selected().clear();
 }
 
@@ -179,12 +185,16 @@ void GlobalAlign::alignAllUptoZ(void)
         pts = R*pts;
     }
     //transform inputs
+    float* ndata;
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         pdata = (float*)(*iter)->mesh_.points();
+        ndata = (float*)(*iter)->mesh_.vertex_normals();
         arma::fmat ipts(pdata,3,(*iter)->mesh_.n_vertices(),false,true);
+        arma::fmat ns(ndata,3,(*iter)->mesh_.n_vertices(),false,true);
         ipts.each_col() -= t;
         ipts = R*ipts;
+        ns = R*ns;
     }
 
     geo_view_->current_selected().clear();

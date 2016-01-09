@@ -418,6 +418,7 @@ void SuperVoxel<M>::updateCentroid()
     centroid_->color() /= float(voxels.size());
     centroid_->xyz() /= float(voxels.size());
     centroid_->normal() /= float(voxels.size());
+    centroid_->normal() = arma::normalise(centroid_->normal());
     for(iter=voxels.begin();iter!=voxels.end();++iter)
     {
         (*iter)->dist2parent_ = parent_.dist_(centroid_,(*iter));

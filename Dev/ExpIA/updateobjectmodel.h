@@ -65,6 +65,7 @@ private:
     arma::uword max_label_;
 
     PatchList current_patches_;
+    PatchList current_extanded_patches_;
     std::vector<arma::uword> valid_patches_;
 };
 

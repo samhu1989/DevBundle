@@ -26,7 +26,16 @@ void RegionGrowThread::run()
         MeshBundle<DefaultMesh>& input = **iiter;
         emit message("Region Growing On: "+QString::fromStdString(input.name_),0);
         std::shared_ptr<float> curvature;
-        Feature::computePointNormal(input.mesh_,curvature,0.0,config_->getInt("NormalEstimation_k"));
+        if(input.mesh_.has_vertex_normals())
+        {
+            DefaultMesh mesh;
+            mesh.request_vertex_colors();
+            mesh.request_vertex_normals();
+            mesh = input.mesh_;
+            Feature::computePointNormal(mesh,curvature,0.0,config_->getInt("NormalEstimation_k"));
+        }else{
+            Feature::computePointNormal(input.mesh_,curvature,0.0,config_->getInt("NormalEstimation_k"));
+        }
         seg.setInputMesh(&input.mesh_);
         arma::uvec indices = arma::find(*oiter==0);
         if( indices.size() > config_->getInt("RegionGrow_cluster_min_num"))
