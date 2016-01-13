@@ -12,8 +12,9 @@ public:
     UnifyLabelThread(
             std::vector<MeshBundle<DefaultMesh>::Ptr>& inputs,
             std::vector<arma::uvec>& outputs,
-            arma::mat& base
-            ):inputs_(inputs),labels_(outputs),feature_base_(base)
+            arma::mat& base,
+            arma::mat& center
+            ):inputs_(inputs),labels_(outputs),feature_base_(base),feature_centers_(center)
     {
         setObjectName("UnifyLabelThread");
     }
@@ -37,6 +38,7 @@ private:
     MeshBundle<DefaultMesh>::PtrList& inputs_;
     std::vector<arma::uvec>& labels_;
     arma::mat& feature_base_;
+    arma::mat& feature_centers_;
     std::vector<arma::mat> patch_features_;//each column is a feature vector for a patch
     std::vector<arma::urowvec> input_patch_label_value_;
     Config::Ptr config_;

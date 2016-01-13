@@ -28,6 +28,7 @@ struct ObjModel
     bool load(const std::string& path);
 
     bool fullLayout(arma::fmat&,int32_t);
+    bool layout(arma::fmat&,int32_t);
     bool fullModel(DefaultMesh&,int32_t);
 
     MeshBundle<DefaultMesh>::Ptr GeoM_;

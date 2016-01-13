@@ -5,11 +5,13 @@ featureview::featureview(
         std::vector<MeshBundle<DefaultMesh>::Ptr>& inputs,
         std::vector<arma::uvec>& labels,
         arma::mat& base,
+        arma::mat& center,
         QWidget *parent
         ):
     inputs_(inputs),
     labels_(labels),
     feature_base_(base),
+    feature_center_(center),
     QWidget(parent),
     ui(new Ui::featureview)
 {
@@ -21,6 +23,7 @@ featureview::featureview(
 bool featureview::configure(Config::Ptr config)
 {
     config_ = config;
+    return true;
 }
 
 void featureview::init(void)
@@ -84,19 +87,25 @@ void featureview::extract_patch_features()
                 std::cerr<<"Feature dimension is "<<feature_data.n_rows<<std::endl;
                 arma::vec mean = arma::mean(feature_data,1);
                 //centralize data
-                feature_data.each_col() -= mean;
+                arma::mat centered_feature = feature_data.each_col() - mean;
                 arma::mat U,V;
                 arma::vec s;
-                arma::svd(U,s,V,feature_data.t());
+                arma::svd(U,s,V,centered_feature.t());
+                emit message(tr("Init Feature Base with PCA"),0);
+                std::cerr<<"Init Feature Base with PCA"<<std::endl;
+                feature_base_ = V.cols(0,custom_dim-1);
+                feature_base_ = arma::join_rows(mean,feature_base_);
                 emit message(tr("Reset Feature Base with PCA"),0);
                 std::cerr<<"Reset Feature Base with PCA"<<std::endl;
-                feature_base_ = V.cols(0,custom_dim-1);
             }
             std::vector<arma::mat>::iterator fiter;
+            arma::vec mean = feature_base_.col(0);
+            arma::mat proj = feature_base_.cols(1,feature_base_.n_cols-1);
+//            std::cerr<<mean<<std::endl;
             for(fiter=patch_features_.begin();fiter!=patch_features_.end();++fiter)
             {
 //                std::cerr<<"n before reduce"<<(*fiter).n_cols<<std::endl;
-                *fiter = ((*fiter).t()*feature_base_).t();
+                *fiter = (( (*fiter).each_col() - mean ).t()*proj).t();
                 if(custom_dim != (*fiter).n_rows)
                 {
                     std::cerr<<"supposed to reduced to "<<custom_dim<<std::endl;
@@ -117,24 +126,54 @@ void featureview::set_patch_features()
     {
         features = arma::join_rows(features,arma::conv_to<arma::fmat>::from(*fiter));
     }
-    arma::Mat<uint8_t> colors(3,features.n_cols);
+    if(!feature_center_.is_empty())
+    {
+        features = arma::join_rows(arma::conv_to<arma::fmat>::from(feature_center_),features);
+    }
     QStringList strings;
+    arma::Mat<uint8_t> colors;
+    colors = arma::Mat<uint8_t>( 3 , features.n_cols );
+    std::cerr<<feature_center_.n_cols<<feature_center_.n_cols<<std::endl;
+    for(size_t cIdx=0 ; cIdx < feature_center_.n_cols ; ++ cIdx )
+    {
+        QString str;
+        colors(0,cIdx) = 0;
+        colors(1,cIdx) = 0;
+        colors(2,cIdx) = 0;
+        str = str.sprintf("Object %u Centroid",cIdx+1);
+        strings.push_back(str);
+    }
+
+    int index;
+    size_t idx = feature_center_.n_cols;
     for(size_t fIdx=0;fIdx<input_patch_label_value_.size();++fIdx)
     {
         int pN = input_patch_label_value_[fIdx].size();
         QString str;
-        for(size_t pIdx=0;pIdx<pN;++pIdx)
+        for(size_t pIdx=0 ; pIdx < pN; ++pIdx)
         {
             arma::uword label = input_patch_label_value_[fIdx](pIdx);
-
+            if(label==0)index=0;
+            else{
+                std::srand(label);
+                index = std::rand()%( ColorArray::DefaultColorNum_ - 1 );
+                index += 1;
+            }
+            colors(0,idx) = ColorArray::DefaultColor[index].rgba.r;
+            colors(1,idx) = ColorArray::DefaultColor[index].rgba.g;
+            colors(2,idx) = ColorArray::DefaultColor[index].rgba.b;
             str = str.sprintf("Frame %u Patch %u",fIdx,label);
             strings.push_back(str);
+            ++idx;
         }
     }
+
     viewer_->set_features(features);
     viewer_->set_feature_colors(colors);
     viewer_->set_feature_string(strings);
 }
+
+
 
 featureview::~featureview()
 {

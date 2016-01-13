@@ -18,6 +18,7 @@ void RegionGrowThread::run()
     seg.setMaxClusterSize(config_->getInt("RegionGrow_cluster_max_num"));
     seg.setSmoothnessThreshold(config_->getFloat("RegionGrow_max_norm_angle")/180.0*M_PI);
     seg.setCurvatureThreshold(std::numeric_limits<float>::max());
+    seg.setRadiusOfNeighbours(config_->getFloat("RegionGrow_r"));
 
     oiter = labels_.begin();
     timer_.restart();
@@ -84,6 +85,7 @@ bool RegionGrowThread::configure(Config::Ptr config)
     config_ = config;
     if(!config_->has("NormalEstimation_k"))return false;
     if(!config_->has("RegionGrow_k"))return false;
+    if(!config_->has("RegionGrow_r"))return false;
     if(!config_->has("RegionGrow_cluster_min_num"))return false;
     if(!config_->has("RegionGrow_cluster_max_num"))return false;
     if(!config_->has("RegionGrow_max_norm_angle"))return false;

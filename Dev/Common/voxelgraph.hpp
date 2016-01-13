@@ -15,6 +15,22 @@ bool VoxelGraph<M>::save(const std::string&path)
     if(!voxel_size.save(path+"\\sizes.uvec.arma",arma::arma_binary))return false;
     if(!voxel_neighbors.save(path+"\\neighbors.Mat_uint16_t.arma",arma::arma_binary))return false;
     if(!voxel_label.save(path+"\\labels.uvec.arma",arma::arma_binary))return false;
+    M output;
+    for( int i=0 ; i < voxel_centers.n_cols ; ++i )
+    {
+        output.add_vertex(typename M::Point(voxel_centers(0,i),voxel_centers(1,i),voxel_centers(2,i)));
+    }
+    output.request_vertex_colors();
+    arma::Mat<uint8_t> cOut((uint8_t*)output.vertex_colors(),3,output.n_vertices(),false,true);
+    cOut = voxel_colors;
+    output.request_vertex_normals();
+    arma::fmat nOut((float*)output.vertex_normals(),3,output.n_vertices(),false,true);
+    nOut = voxel_normals;
+    OpenMesh::IO::Options opt;
+    opt+=OpenMesh::IO::Options::Binary;
+    opt+=OpenMesh::IO::Options::VertexColor;
+    opt+=OpenMesh::IO::Options::VertexNormal;
+    OpenMesh::IO::write_mesh(output,path+"\\mesh.ply",opt,13);
     return true;
 }
 
@@ -443,19 +459,18 @@ double VoxelGraph<M>::voxel_similarity2(size_t v1,size_t v2,double dist_th,doubl
     ab2(0) = Lab2(1);ab2(1) = Lab2(2);
     color_dist = arma::norm( ab1 - ab2 );
 
+    arma::fvec dir = voxel_centers.col(v2) - voxel_centers.col(v1);
+    dir = arma::normalise(dir);
     arma::fvec norm1 = voxel_normals.col(v1);
     arma::fvec norm2 = voxel_normals.col(v2);
     double normal_sim = 1.0;
     if(norm1.is_finite()&&norm2.is_finite())
     {
-        normal_sim = std::abs(arma::dot(norm1,norm2));
-    }
-//    if(spatial_dist>dist_th)return 0.0;
-//    if(normal_sim>0.99)return std::numeric_limits<float>::max();
-    return exp( 1+normal_sim ) / ( 1.0 + spatial_dist / dist_th ) ;
-//    return exp( 1 + 30*normal_sim ) / ( 1.0 + spatial_dist / dist_th ) ;
-//    else return normal_sim / ( 1.0 + spatial_dist / dist_th) ;
-//    return normal_sim / (1.0+spatial_dist) ;
+        float theta1 = std::acos(arma::dot(norm1,dir));
+        float theta2 = std::acos(arma::dot(norm2,dir));
+        if( ( theta2 - theta1 ) > ( M_PI / 180.0 ) )return 0.0;
+        else return std::numeric_limits<float>::max();
+    }else return ( 1.0 + color_dist ) ;
 }
 
 template <typename M>

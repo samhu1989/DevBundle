@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     unifylabelthread.cpp \
     extractpatchfeature.cpp \
     featureview.cpp \
-    inpatchgraphcut.cpp
+    inpatchgraphcut.cpp \
+    updateclustercenter.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -49,7 +50,8 @@ HEADERS  += mainwindow.h \
     unifylabelthread.h \
     extractpatchfeature.h \
     featureview.h \
-    inpatchgraphcut.h
+    inpatchgraphcut.h \
+    updateclustercenter.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

@@ -426,17 +426,9 @@ void GraphCutThread::matchPixtoFrame(
     ArmaTree& kdtree = *mesh_trees_[frameIdx];
     arma::uword indice;
     float dist;
-//    std::cerr<<"3"<<std::endl;
     arma::fvec source_point = R*source.graph_.voxel_centers.col(pix) + t;
-//    std::cerr<<"4"<<std::endl;
-//    std::cerr<<source_point.t()<<std::endl;
     kdtree.knnSearch(source_point.memptr(),1,&indice,&dist);
-    if(dist>2*config_->getFloat("GC_distance_threshold"))
-    {
-        score = 0.0;
-        return ;
-    }
-//    std::cerr<<"5"<<std::endl;
+    arma::fvec target_point = target.graph_.voxel_centers.col(indice);
     if(indice>target.graph_.voxel_centers.n_cols)
         throw std::logic_error("indice>target.graph_.voxel_centers.n_cols");
     arma::fvec source_c = arma::conv_to<arma::fvec>::from(source.graph_.voxel_colors.col(pix));
@@ -446,15 +438,23 @@ void GraphCutThread::matchPixtoFrame(
     double c_dist = arma::norm(source_c.tail(2) - target_c.tail(2));
     arma::fvec source_n = R*source.graph_.voxel_normals.col(pix);
     arma::fvec target_n = target.graph_.voxel_normals.col(indice);
-    double norm_similarity = std::abs(arma::dot(source_n,target_n));
-    if( norm_similarity < 0.5)
+    arma::fvec dir = source_point - target_point;
+    float proj_dist = arma::dot(dir,target_n);
+    //occluded by target
+    if(proj_dist<0)
     {
         score = 0.0;
-        return ;
+        return;
     }
-//    score = ( 1 + dist / config_->getFloat("GC_distance_threshold") )*( 1 + c_dist / 20.0 );
-    score = ( 1 + dist / config_->getFloat("GC_distance_threshold") )*( 1 + c_dist / 20.0 ) / norm_similarity ;
-//    score = ( 1 + dist / config_->getFloat("GC_distance_threshold") ) / norm_similarity ;
+    //occlude target
+    if(proj_dist > 0.5*std::sqrt(config_->getFloat("GC_distance_threshold")))
+    {
+        score = std::numeric_limits<float>::max();
+        return;
+    }
+    double norm_similarity = std::abs(arma::dot(source_n,target_n));
+//    score = ( 1 + proj_dist )*( 1 + c_dist / 20.0 ) / norm_similarity ;
+    score = ( 1 + proj_dist ) / norm_similarity;
     if(!std::isfinite(score))score = std::numeric_limits<float>::max();
     if(score > std::numeric_limits<float>::max())score =  std::numeric_limits<float>::max();
 }

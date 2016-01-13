@@ -19,6 +19,7 @@
 #include "globalalign.h"
 #include "extractbackground.h"
 #include "inpatchgraphcut.h"
+#include "featureview.h"
 #include <typeinfo>
 #include <fstream>
 #include <strstream>
@@ -57,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
     connect(ui->actionSupervoxel_Color,SIGNAL(triggered(bool)),this,SLOT(showSVColor()));
+    connect(ui->actionFeature_View,SIGNAL(triggered(bool)),this,SLOT(showFeature()));
 
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
@@ -556,18 +558,19 @@ void MainWindow::save_object_layout(const std::string&path)
     {
         ObjModel::Ptr obj_ptr = *iter;
         stream.clear();
-        stream<<path<<"/layouts/obj_box"<<index<<".obj";
+        stream<<path<<"/layouts/obj"<<index<<".obj";
         stream>>objfilename;
         objfile.open(objfilename,objfile.out);
         if(!objfile.is_open())
         {
             std::cerr<<"Failed to Open:"<<objfilename<<std::endl;
         }
-        objfile<<"#obj "<<index<<std::endl;
+        objfile<<"#obj obj"<<index<<std::endl;
         arma::fmat layout_mat;
-        if(obj_ptr->fullLayout(layout_mat,-1));
+        if(obj_ptr->layout(layout_mat,-1));
         {
             layout_stream.clear();
+            layout_stream.str("");
             size_t cnt = 1;
             for(size_t c=0;c<layout_mat.n_cols;++c)
             {
@@ -576,13 +579,13 @@ void MainWindow::save_object_layout(const std::string&path)
                            <<" "<<layout_mat(2,c)
                           <<std::endl;
             }
-            layout_stream<<"f "<<cnt+0<<" "<<cnt+1<<" "<<cnt+2<<" "<<cnt+3<<std::endl;
-            layout_stream<<"f "<<cnt+4<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+7<<std::endl;
-            layout_stream<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
-            layout_stream<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+5<<" "<<cnt+1<<std::endl;
-            layout_stream<<"f "<<cnt+1<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+2<<std::endl;
-            layout_stream<<"f "<<cnt+2<<" "<<cnt+6<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
             objfile << layout_stream.str();
+            objfile<<"f "<<cnt+0<<" "<<cnt+3<<" "<<cnt+2<<" "<<cnt+1<<std::endl;
+            objfile<<"f "<<cnt+4<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+7<<std::endl;
+            objfile<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
+            objfile<<"f "<<cnt+0<<" "<<cnt+1<<" "<<cnt+5<<" "<<cnt+4<<std::endl;
+            objfile<<"f "<<cnt+1<<" "<<cnt+2<<" "<<cnt+6<<" "<<cnt+5<<std::endl;
+            objfile<<"f "<<cnt+2<<" "<<cnt+3<<" "<<cnt+7<<" "<<cnt+6<<std::endl;
             objfile.close();
         }
         ++index;
@@ -594,44 +597,123 @@ void MainWindow::save_scene_layout(const std::string&path)
     std::fstream objfile;
     std::stringstream stream("");
     std::string objfilename;
+    OpenMesh::IO::Options opt;
+    opt+=OpenMesh::IO::Options::Binary;
+    opt+=OpenMesh::IO::Options::VertexColor;
     for(size_t fIndex = 0 ; fIndex < inputs_.size() ; ++fIndex )
     {
         stream.clear();
         stream.str("");
-        stream<<path<<"/layouts/scene_"<<fIndex<<".obj";
+        stream<<path<<"/layouts/scene_"<<fIndex;
         stream>>objfilename;
-        objfile.open(objfilename,objfile.out);
+        objfile.open(objfilename+".obj",objfile.out);
+        DefaultMesh scene_layout;
+        scene_layout.request_vertex_colors();
+        MeshColor<DefaultMesh> scene_layout_color(scene_layout);
+        std::vector<arma::uword> labels;
+        std::vector<DefaultMesh::VertexHandle> vhandles;
         if(!objfile.is_open())
         {
-            std::cerr<<"Failed to Open:"<<objfilename<<std::endl;
+            std::cerr<<"Failed to Open:"<<objfilename+".obj"<<std::endl;
         }
-        size_t cnt = 1;
+
         std::vector<ObjModel::Ptr>::iterator iter;
+        //counting objects number
+        size_t obj_number = 0;
+        for(iter=objects_.begin();iter!=objects_.end();++iter)
+        {
+            arma::fmat layout_mat;
+            if( ( (*iter)->layout(layout_mat,fIndex) ) )
+            {
+                ++obj_number;
+            }
+        }
+        objfile<<"#obj_number "<<obj_number<<std::endl;
+        size_t cnt = 1;
         size_t oIndex = 1;
         for(iter=objects_.begin();iter!=objects_.end();++iter)
         {
-            objfile<<"#obj "<<oIndex<<std::endl;
             arma::fmat layout_mat;
-            if((*iter)->fullLayout(layout_mat,fIndex));
+            if( ( (*iter)->layout(layout_mat,fIndex) ) )
             {
+                objfile<<"#obj obj"<<oIndex<<std::endl;
                 for(size_t c=0;c<layout_mat.n_cols;++c)
                 {
                     objfile<<"v "<<layout_mat(0,c)
                           <<" "<<layout_mat(1,c)
                          <<" "<<layout_mat(2,c)
                         <<std::endl;
+                    vhandles.push_back(
+                                scene_layout.add_vertex(
+                                    DefaultMesh::Point(
+                                        layout_mat(0,c),
+                                        layout_mat(1,c),
+                                        layout_mat(2,c)
+                                        )
+                                    )
+                    );
+                    labels.push_back(oIndex);
                 }
-                objfile<<"f "<<cnt+0<<" "<<cnt+1<<" "<<cnt+2<<" "<<cnt+3<<std::endl;
+                objfile<<"f "<<cnt+0<<" "<<cnt+3<<" "<<cnt+2<<" "<<cnt+1<<std::endl;
                 objfile<<"f "<<cnt+4<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+7<<std::endl;
                 objfile<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
-                objfile<<"f "<<cnt+0<<" "<<cnt+4<<" "<<cnt+5<<" "<<cnt+1<<std::endl;
-                objfile<<"f "<<cnt+1<<" "<<cnt+5<<" "<<cnt+6<<" "<<cnt+2<<std::endl;
-                objfile<<"f "<<cnt+2<<" "<<cnt+6<<" "<<cnt+7<<" "<<cnt+3<<std::endl;
+                objfile<<"f "<<cnt+0<<" "<<cnt+1<<" "<<cnt+5<<" "<<cnt+4<<std::endl;
+                objfile<<"f "<<cnt+1<<" "<<cnt+2<<" "<<cnt+6<<" "<<cnt+5<<std::endl;
+                objfile<<"f "<<cnt+2<<" "<<cnt+3<<" "<<cnt+7<<" "<<cnt+6<<std::endl;
+                {
+                    vhandles.clear();
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+0));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+3));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+2));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+1));
+                    scene_layout.add_face(vhandles);
+
+                    vhandles.clear();
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+4));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+5));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+6));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+7));
+                    scene_layout.add_face(vhandles);
+
+                    vhandles.clear();
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+0));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+4));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+7));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+3));
+                    scene_layout.add_face(vhandles);
+
+                    vhandles.clear();
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+0));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+1));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+5));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+4));
+                    scene_layout.add_face(vhandles);
+
+                    vhandles.clear();
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+1));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+2));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+6));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+5));
+                    scene_layout.add_face(vhandles);
+
+                    vhandles.clear();
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+2));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+3));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+7));
+                    vhandles.push_back(scene_layout.vertex_handle(cnt-1+6));
+                    scene_layout.add_face(vhandles);
+                }
                 cnt+=8;
             }
             ++oIndex;
         }
+        arma::uvec scene_label(labels);
+        scene_layout_color.fromlabel(scene_label);
+        arma::Mat<uint8_t> smat((uint8_t*)scene_layout.vertex_colors(),3,scene_layout.n_vertices(),false,true);
+        arma::Mat<uint8_t> cmat((uint8_t*)scene_layout_color.vertex_colors(),4,scene_layout.n_vertices(),false,true);
+        smat = cmat.rows(0,2);
         objfile.close();
+        OpenMesh::IO::write_mesh(scene_layout,objfilename+".ply",opt,13);
     }
 }
 
@@ -749,7 +831,7 @@ void MainWindow::start_editing()
     }
     if(edit==ui->actionAutomatically)
     {
-        UnifyLabelThread* th = new UnifyLabelThread(inputs_,labels_,feature_base_);
+        UnifyLabelThread* th = new UnifyLabelThread(inputs_,labels_,feature_base_,feature_centers_);
         if(!th->configure(config_)){
             th->deleteLater();
             QString msg = "Missing Some Configure\n";
@@ -942,6 +1024,18 @@ void MainWindow::showSVColor()
         );
         m.graph_.sv2pix(m.graph_.voxel_colors,cmat);
     }
+}
+
+void MainWindow::showFeature()
+{
+    if(inputs_.empty())return;
+    featureview* v = new featureview(inputs_,labels_,feature_base_,feature_centers_);
+    if(!v->configure(config_))return;
+    v->setAttribute(Qt::WA_DeleteOnClose,true);
+    QMdiSubWindow* s = ui->mdiArea->addSubWindow(v);
+    connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));
+    v->init();
+    v->show();
 }
 
 MainWindow::~MainWindow()

@@ -85,6 +85,7 @@
     <addaction name="actionRegionGrow"/>
     <addaction name="menuUnify_Label"/>
     <addaction name="actionUpdateObjModel"/>
+    <addaction name="actionUpdate_Cluster_Center"/>
     <addaction name="menuUpdate_Label"/>
     <addaction name="separator"/>
     <addaction name="actionIterate"/>
@@ -240,6 +241,11 @@
   <action name="actionIn_Patch_Graph_Cut">
    <property name="text">
     <string>In-Patch Graph Cut</string>
+   </property>
+  </action>
+  <action name="actionUpdate_Cluster_Center">
+   <property name="text">
+    <string>Update Cluster Center</string>
    </property>
   </action>
  </widget>

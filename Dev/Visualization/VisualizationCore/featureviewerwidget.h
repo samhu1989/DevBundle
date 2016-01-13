@@ -6,6 +6,7 @@
 #include "common.h"
 #include <QGraphicsScene>
 #include <QGraphicsEllipseItem>
+#include <QWheelEvent>
 namespace Ui {
 class FeatureViewerWidget;
 }
@@ -23,6 +24,8 @@ public:
 public slots:
     virtual void refresh();
 protected:
+    void wheelEvent(QWheelEvent*);
+protected:
     arma::fmat features_;
     arma::Mat<uint8_t> feature_colors_;
     QStringList feature_strings_;
@@ -30,6 +33,7 @@ protected:
 private:
     Ui::FeatureViewerWidget *ui;
     QGraphicsScene scene_;
+    qreal scale_;
 };
 
 #endif // FEATUREVIEWERWIDGET_H

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "featureviewerwidget.h"
+#include <QWheelEvent>
 namespace Ui {
 class featureview;
 }
@@ -15,6 +16,7 @@ public:
             std::vector<MeshBundle<DefaultMesh>::Ptr>& inputs,
             std::vector<arma::uvec>& labels,
             arma::mat& base,
+            arma::mat& center,
             QWidget *parent = 0
             );
     ~featureview();
@@ -32,6 +34,7 @@ private:
     MeshBundle<DefaultMesh>::PtrList& inputs_;
     std::vector<arma::uvec>& labels_;
     arma::mat& feature_base_;
+    arma::mat& feature_center_;
     std::vector<arma::urowvec> input_patch_label_value_;
     std::vector<arma::mat> patch_features_;
 };

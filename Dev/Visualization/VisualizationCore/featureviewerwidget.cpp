@@ -1,9 +1,10 @@
 #include "featureviewerwidget.h"
 #include "ui_featureviewerwidget.h"
 #include <QGLWidget>
-
+#include <QDebug>
 FeatureViewerWidget::FeatureViewerWidget(QWidget *parent) :
     QWidget(parent),
+    scale_(1.0),
     ui(new Ui::FeatureViewerWidget)
 {
     ui->setupUi(this);
@@ -13,27 +14,59 @@ FeatureViewerWidget::FeatureViewerWidget(QWidget *parent) :
 
 void FeatureViewerWidget::refresh()
 {
+//    std::cerr<<"refreshing"<<std::endl;
     scene_.clear();
     feature_points_.clear();
-    for(size_t idx;idx<features_.n_cols;++idx)
+//    std::cerr<<"feature number"<<features_.n_cols<<std::endl;
+    arma::Col<uint8_t> black(3,arma::fill::zeros);
+    for(size_t idx = 0; idx <  features_.n_cols ;++idx)
     {
         QPen pen;
-        pen.setWidth(2);
-        pen.setColor(QColor(qRgb(255,255,255)));
+        pen.setWidth(1);
+        pen.setColor(QColor(0,0,0));
         QBrush brush;
         brush.setColor(
                     QColor(
-                        qRgb(
                             feature_colors_(0,idx),
                             feature_colors_(1,idx),
                             feature_colors_(2,idx)
-                            )
                         )
                     );
-        QGraphicsEllipseItem* item = scene_.addEllipse(features_(0,idx),features_(1,idx),8.0,8.0,pen,brush);
+        brush.setStyle(Qt::SolidPattern);
+        QGraphicsEllipseItem* item = scene_.addEllipse(scale_*100*features_(0,idx),scale_*100*features_(1,idx),8.0,8.0,pen,brush);
+        item->setBrush(brush);
+        item->setCursor(QCursor(Qt::PointingHandCursor));
         item->setToolTip(feature_strings_[idx]);
+        if(!arma::any(feature_colors_.col(idx))){
+            item->setZValue(item->zValue()+50.0);
+//            std::cerr<<idx<<"Z was set to"<<item->zValue()<<std::endl;
+        }
         feature_points_.push_back(item);
     }
+}
+
+void FeatureViewerWidget::wheelEvent(QWheelEvent* event)
+{
+    // Typical Calculations (Ref Qt Doc)
+    const int degrees = event->delta() / 8;
+    int steps = degrees / 15;
+
+    // Declare below as class member vars and set default values as below
+    // qreal h11 = 1.0
+    // qreal h12 = 0
+    // qreal h21 = 1.0
+    // qreal h22 = 0
+
+    double scaleFactor = 0.5; //How fast we zoom
+    const qreal minFactor = 1.0;
+    const qreal maxFactor = 10.0;
+    if(steps>0)scale_ += scaleFactor;
+    if(steps<0)scale_ -= scaleFactor;
+    scale_= scale_ < maxFactor ? scale_ : maxFactor;
+    scale_= scale_ > minFactor ? scale_ : minFactor;
+    refresh();
+    ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    ui->graphicsView->setTransform(QTransform(1, 0, 0, 1, 0, 0));
 }
 
 FeatureViewerWidget::~FeatureViewerWidget()

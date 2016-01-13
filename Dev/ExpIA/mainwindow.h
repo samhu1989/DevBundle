@@ -59,6 +59,7 @@ protected slots:
     void showLab();
     void viewObj();
     void showSVColor();
+    void showFeature();
 private:
     Ui::MainWindow *ui;
     std::vector<WidgetPtr> mesh_views_;
@@ -66,6 +67,7 @@ private:
     std::vector<arma::uvec> labels_;
     std::vector<ObjModel::Ptr> objects_;
     arma::mat feature_base_;
+    arma::mat feature_centers_;
 
     IO::Options io_opt_;
     Config::Ptr config_;

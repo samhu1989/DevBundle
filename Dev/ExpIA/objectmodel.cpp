@@ -165,11 +165,7 @@ void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input,float dist_th)
         current_color = arma::conv_to<arma::fvec>::from(cmat.col(indices(0)));
         current_normal = nmat.col(indices(0));
         accu_color_.col(index) += arma::conv_to<arma::vec>::from(w*current_color);
-        arma::fvec accu = arma::conv_to<arma::fvec>::from(arma::normalise(accu_normal_.col(index)));
-        if( 0 > arma::dot(accu,current_normal)||index==0)
         accu_normal_.col(index) += arma::conv_to<arma::vec>::from(w*current_normal);
-        else
-        accu_normal_.col(index) += arma::conv_to<arma::vec>::from(-w*current_normal);
         if( dists(0) < dist_th ) DistP_[index] += w;
     }
     ++ accu_count_;
@@ -177,7 +173,7 @@ void ObjModel::updateColor(MeshBundle<DefaultMesh>::Ptr input,float dist_th)
 
 void ObjModel::finishColor()
 {
-    std::cerr<<"finishing color"<<std::endl;
+//    std::cerr<<"finishing color"<<std::endl;
     #pragma omp for
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
@@ -185,18 +181,13 @@ void ObjModel::finishColor()
     }
     arma::Mat<uint8_t> mc((uint8_t*)GeoM_->mesh_.vertex_colors(),3,GeoM_->mesh_.n_vertices(),false,true);
     mc = arma::conv_to<arma::Mat<uint8_t>>::from(accu_color_);
-    std::cerr<<"finishing dist weight"<<std::endl;
-    #pragma omp for
-    for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
-    {
-        DistP_(index) /= accu_count_;
-    }
-    std::cerr<<"finishing normal"<<std::endl;
+//    std::cerr<<"finishing dist weight"<<std::endl;
     if(!GeoM_->mesh_.has_vertex_normals())GeoM_->mesh_.request_vertex_normals();
     arma::fmat mn((float*)GeoM_->mesh_.vertex_normals(),3,GeoM_->mesh_.n_vertices(),false,true);
     #pragma omp for
     for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
     {
+        if(0<DistP_(index))accu_normal_.col(index) /= DistP_(index);
         if(0<arma::norm(accu_normal_.col(index)))
         {
             arma::vec n = arma::normalise(accu_normal_.col(index));
@@ -204,6 +195,12 @@ void ObjModel::finishColor()
         }
         else mn.col(index).fill(std::numeric_limits<float>::quiet_NaN());
     }
+    #pragma omp for
+    for(size_t index=0;index<GeoM_->mesh_.n_vertices();++index)
+    {
+        DistP_(index) /= accu_count_;
+    }
+//    std::cerr<<"finishing normal"<<std::endl;
     accu_count_ = 0;
 }
 
@@ -328,17 +325,38 @@ void ObjModel::computeFullLayout()
 bool ObjModel::fullLayout(arma::fmat& object_layout,int32_t t_index)
 {
     object_layout = arma::fmat((float*)FullLayout_.points(),3,FullLayout_.n_vertices(),true,true);
-    ObjModel::T::Ptr t_ptr;
     if(t_index>=0&&t_index<GeoT_.size())
     {
-        t_ptr = GeoT_[t_index];
-        if(t_ptr&&0!=t_ptr.use_count())
+        ObjModel::T::Ptr& t_ptr = GeoT_[t_index];
+        if(t_ptr&&0 < t_ptr.use_count())
         {
             arma::fmat R(t_ptr->R,3,3,false,true);
             arma::fvec t(t_ptr->t,3,false,true);
             object_layout.each_col() -= t;
             object_layout = arma::inv(R)*object_layout;
         }else return false;
+    }
+    return true;
+}
+
+bool ObjModel::layout(arma::fmat& object_layout,int32_t t_index)
+{
+//    std::cerr<<"fIndex:"<<t_index<<std::endl;
+    object_layout = arma::fmat((float*)GeoLayout_->mesh_.points(),3,GeoLayout_->mesh_.n_vertices(),true,true);
+    if(t_index>=0&&t_index<GeoT_.size())
+    {
+        ObjModel::T::Ptr& t_ptr = GeoT_[t_index];
+//        std::cerr<<t_ptr.get()<<std::endl;
+        if( t_ptr && 0 < t_ptr.use_count())
+        {
+            arma::fmat R(t_ptr->R,3,3,false,true);
+            arma::fvec t(t_ptr->t,3,false,true);
+            object_layout.each_col() -= t;
+            object_layout = arma::inv(R)*object_layout;
+        }else {
+//            std::cerr<<"return false"<<std::endl;
+            return false;
+        }
     }
     return true;
 }
@@ -495,6 +513,7 @@ bool ObjModel::load(const std::string& path)
     }
     arma::uword index = 0;
     arma::uvec::iterator iter;
+//    for(uint32_t i=0;i<GeoT_.size();++i)GeoT_[i].reset();
     for(iter=indices.begin();iter!=indices.end();++iter)
     {
         T::Ptr& ptr = GeoT_[*iter];

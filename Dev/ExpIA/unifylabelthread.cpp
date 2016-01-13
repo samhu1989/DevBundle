@@ -95,19 +95,21 @@ void UnifyLabelThread::extract_patch_features()
                 std::cerr<<"Feature dimension is "<<feature_data.n_rows<<std::endl;
                 arma::vec mean = arma::mean(feature_data,1);
                 //centralize data
-                feature_data.each_col() -= mean;
+                arma::mat centered_feature = feature_data.each_col() - mean;
                 arma::mat U,V;
                 arma::vec s;
-                arma::svd(U,s,V,feature_data.t());
+                arma::svd(U,s,V,centered_feature.t());
                 emit message(tr("Init Feature Base with PCA"),0);
                 std::cerr<<"Init Feature Base with PCA"<<std::endl;
-                feature_base_ = V.cols(0,custom_dim-1);
+                feature_base_ = arma::join_rows(mean,V.cols(0,custom_dim-1));
             }
             std::vector<arma::mat>::iterator fiter;
+            arma::vec mean = feature_base_.col(0);
+            arma::mat proj = feature_base_.cols(1,feature_base_.n_cols-1);
             for(fiter=patch_features_.begin();fiter!=patch_features_.end();++fiter)
             {
 //                std::cerr<<"n before reduce"<<(*fiter).n_cols<<std::endl;
-                *fiter = ((*fiter).t()*feature_base_).t();
+                *fiter = (( (*fiter).each_col() - mean ).t()*proj).t();
                 if(custom_dim != (*fiter).n_rows)
                 {
                     std::cerr<<"supposed to reduced to "<<custom_dim<<std::endl;
@@ -146,7 +148,8 @@ void UnifyLabelThread::learn()
     dcovs.each_col() = arma::var(data,0,1);
     dcovs += std::numeric_limits<double>::epsilon();
     gmm_.set_dcovs(dcovs);
-    gmm_.learn(data,max_patch_num,arma::maha_dist,arma::keep_existing,0,30,1e-10,true);
+    gmm_.learn(data,max_patch_num,arma::eucl_dist,arma::keep_existing,20,0,1e-10,true);
+    feature_centers_ = gmm_.means;
 }
 
 void UnifyLabelThread::assign()
@@ -181,7 +184,10 @@ void UnifyLabelThread::assign(
 //    std::cerr<<"1"<<std::endl;
     for( size_t gindex = 0 ; gindex < gmm_.n_gaus() ; ++gindex )
     {
-        log_p.row(gindex) = gmm_.log_p(feature_mat,gindex);
+        for(size_t findex = 0; findex < N_feature ; ++findex)
+        {
+            log_p(gindex,findex) = -arma::norm( gmm_.means.col(gindex) - feature_mat.col(findex) );
+        }
     }
 //    std::cerr<<"2"<<std::endl;
     uint64_t row_max_index;

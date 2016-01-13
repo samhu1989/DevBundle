@@ -190,7 +190,7 @@ RegionGrowing<M>::setRadiusOfNeighbours (float neighbour_radius)
 {
   neighbour_radius_ = neighbour_radius;
   //when using neighbour_radius remove the limit of of neighbour_number
-  neighbour_number_ = std::numeric_limits<unsigned int>::max();
+//  neighbour_number_ = std::numeric_limits<unsigned int>::max();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename M> typename RegionGrowing<M>::KdTreePtr
@@ -429,7 +429,7 @@ RegionGrowing<M>::findPointNeighbours ()
       int pi = indices_(i);
       if (!std::isfinite(pts_ptr[3*pi])||!std::isfinite(pts_ptr[3*pi+1])||!std::isfinite(pts_ptr[3*pi+2]))
           continue;
-      if(neighbour_radius_!=0.0){
+      if(neighbour_number_==0){
           search_->radiusSearch(&pts_ptr[3*pi],neighbour_radius_,radiusResult,param);
           std::vector<std::pair<arma::uword,float>>::iterator iter;
           point_neighbours_[pi].clear();
@@ -442,7 +442,7 @@ RegionGrowing<M>::findPointNeighbours ()
           search_->knnSearch(&pts_ptr[3*pi], neighbour_number_,knnNeighbors,knnDistance);
           for(int k=0;k<neighbour_number_;++k)
           {
-              point_neighbours_[pi].push_back(indices_(knnNeighbors[k]));
+              if( std::sqrt(knnDistance[k]) <= neighbour_radius_ )point_neighbours_[pi].push_back(indices_(knnNeighbors[k]));
           }
       }
   }
