@@ -23,6 +23,7 @@
 #include <typeinfo>
 #include <fstream>
 #include <strstream>
+#include "updateclustercenter.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -52,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAutomatically,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUpdateObjModel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionUpdate_Cluster_Center,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionGlobal_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
@@ -874,6 +876,18 @@ void MainWindow::start_editing()
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
         s->show();
         w->startLater();
+    }
+    if(edit==ui->actionUpdate_Cluster_Center)
+    {
+        UpdateClusterCenter* th = new UpdateClusterCenter(inputs_,labels_,objects_,feature_base_,feature_centers_);
+        if(!th->configure(config_)){
+            th->deleteLater();
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        edit_thread_ = th;
     }
     if(edit==ui->actionGlobal_Align)
     {
