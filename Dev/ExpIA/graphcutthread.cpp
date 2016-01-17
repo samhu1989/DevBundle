@@ -32,6 +32,13 @@ void GraphCutThread::run(void)
     current_frame_ = 0;
     obj_trees_.clear();
     obj_tree_interface_.clear();
+    //build obj_trees_
+    for(size_t objIdx=0;objIdx<objects_.size();++objIdx)
+    {
+        obj_tree_interface_.emplace_back(new MTInterface(objects_[objIdx]->GeoM_->mesh_));
+        obj_trees_.emplace_back(new MeshTree(3,*obj_tree_interface_.back(),nanoflann::KDTreeSingleIndexAdaptorParams(2)));
+        obj_trees_.back()->buildIndex();
+    }
     mesh_trees_.clear();
     mesh_tree_interface_.clear();
     while( current_frame_ < meshes_.size() )
@@ -308,7 +315,7 @@ void GraphCutThread::prepareDataForPix(uint32_t pix, arma::mat& data_mat)
             arma::fmat sR(s_ptr->R,3,3,false,true);
             arma::fvec st(s_ptr->t,3,false,true);
             double object_data;
-//            std::cerr<<"matchPix("<<pix<<")toObject("<<oidx<<")"<<std::endl;
+            std::cerr<<"matchPix("<<pix<<")toObject("<<oidx<<")"<<std::endl;
             matchPixtoObject(pix,oidx,sR,st,object_data);
             if(object_data<std::numeric_limits<float>::max())
             {
@@ -326,8 +333,8 @@ void GraphCutThread::prepareDataForPix(uint32_t pix, arma::mat& data_mat)
                         matchPixtoFrame(pix,fidx,R,t,frame_data_ptr[fidx]);
                     }
                 }
-//                double tmp_data = object_data*arma::max(frame_data);
-                double tmp_data =  arma::max(frame_data);
+                double tmp_data = object_data + arma::max(frame_data);
+//                double tmp_data =  arma::max(frame_data);
                 data_mat( oidx+1 , pix ) = tmp_data < std::numeric_limits<float>::max()?tmp_data:std::numeric_limits<float>::max();
             }else{
                 data_mat( oidx+1 , pix ) = std::numeric_limits<float>::max();
@@ -368,7 +375,11 @@ void GraphCutThread::matchPixtoObject(
                 target.GeoM_->mesh_.n_vertices(),false,true
                 );
 //    std::cerr<<"2"<<std::endl;
-    if(objIdx>obj_trees_.size())throw std::logic_error("objIdx>obj_trees_.size()");
+    if(objIdx>obj_trees_.size()){
+        std::cerr<<"objIdx:"<<objIdx<<std::endl;
+        std::cerr<<"obj_trees_.size():"<<obj_trees_.size()<<std::endl;
+        throw std::logic_error("objIdx>obj_trees_.size()");
+    }
     if(objIdx==obj_trees_.size())
     {
         obj_tree_interface_.emplace_back(new MTInterface(target.GeoM_->mesh_));

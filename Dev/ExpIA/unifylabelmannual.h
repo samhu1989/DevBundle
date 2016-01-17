@@ -23,7 +23,7 @@ public:
     explicit UnifyLabelMannual(InputType&input,OutputType&output,QWidget*parent=0);
     ~UnifyLabelMannual();
     bool configure(Config::Ptr);
-    void initLater(){timer.start(50);}
+    void initLater(){timer.start(20);}
 signals:
     void message(QString,int);
 public slots:

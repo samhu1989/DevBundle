@@ -41,6 +41,7 @@ bool UnifyLabelMannual::configure(Config::Ptr config)
 
 void UnifyLabelMannual::init(void)
 {
+//    std::cerr<<"UnifyLabelMannual::init(void)"<<std::endl;
     reloadFrame();
     showPatches();
 }

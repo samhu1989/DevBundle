@@ -201,9 +201,7 @@ void ExtractBackground::reset_extract()
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         MeshPairViewerWidget* w = (MeshPairViewerWidget*)(*iter);
-        int v = std::rand();
-        v = v>0?v:-v;
-        labels_[index].fill(v);
+        labels_[index].fill(0);
         w->first_ptr()->custom_color_.fromlabel(labels_[index]);
         ++index;
     }

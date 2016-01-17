@@ -168,10 +168,10 @@ bool InPatchGraphCut::prepareSmoothTerm(Segmentation::GraphCut& gc)
         if( pix1 < pix2 )
         {
             if(!config_->has("GC_color_var"))smooth_(pix1,pix2) = current_patch_graph_->voxel_similarity(pix1,pix2,config_->getDouble("GC_distance_threshold"));
-            else smooth_(pix1,pix2) = current_patch_graph_->voxel_similarity2(pix1,pix2,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
+            else smooth_(pix1,pix2) = current_patch_graph_->voxel_similarity(pix1,pix2,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
         }else{
             if(!config_->has("GC_color_var"))smooth_(pix2,pix1) = current_patch_graph_->voxel_similarity(pix1,pix2);
-            else smooth_(pix2,pix1) = current_patch_graph_->voxel_similarity2(pix1,pix2,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
+            else smooth_(pix2,pix1) = current_patch_graph_->voxel_similarity(pix1,pix2,config_->getDouble("GC_distance_threshold"),config_->getDouble("GC_color_var"));
         }
     }
     smooth_ *= config_->getDouble("GC_smooth_weight");

@@ -96,12 +96,13 @@ void UnifyLabelThread::extract_patch_features()
                 arma::vec mean = arma::mean(feature_data,1);
                 //centralize data
                 arma::mat centered_feature = feature_data.each_col() - mean;
-                arma::mat U,V;
+                arma::mat V;
                 arma::vec s;
-                arma::svd(U,s,V,centered_feature.t());
+                arma::eig_sym(s,V,(centered_feature*centered_feature.t()));
                 emit message(tr("Init Feature Base with PCA"),0);
                 std::cerr<<"Init Feature Base with PCA"<<std::endl;
-                feature_base_ = arma::join_rows(mean,V.cols(0,custom_dim-1));
+                arma::uvec sort_index = arma::sort_index(s,"descend");
+                feature_base_ = arma::join_rows(mean,V.cols(sort_index.head(custom_dim)));
             }
             std::vector<arma::mat>::iterator fiter;
             arma::vec mean = feature_base_.col(0);
