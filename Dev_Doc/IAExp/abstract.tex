@@ -1,0 +1,32 @@
+\begin{abstract}
+
+While modeling static indoor scenes using RGBD cameras has been extensively studied in recent years, 
+we introduce a \emph{behavior recovery} system to investigate the behavior of objects in an cluttered indoor scene.
+%
+In a daily indoor environment, because of object functions and human behaviors, the spatial placements of objects presents non-unique but statistically regular displacements.
+%Behavior Analysis in Cluttered and Dynamic Indoor Scene
+We take the \emph{inverse problem} to recover object behaviors from a collection of point clouds captured at different times in a dynamic indoor scene.
+%
+Our system consists of two key parts, \emph{extraction of object correspondence} and \emph{behavior model}. 
+%
+Given a collection of dense point clouds of an indoor scene in daily use at different times, the correspondence between objects are extracted using an iterative segmentation-and-registration process.
+%
+Our algorithm is robust to noise and incomplete parts in imperfect scans. 
+%
+In the second part is to recover object behaviors, which represent the spatial arrangement of objects and interrelations between objects. 
+%
+Using our method, the correlation between concrete geometry and semantic behaviors of an indoor scene can be established.  
+Therefore, the recovered behavior model can be adopted to many applications that requires labeled 3D database, such as scene synthesis, scene arrangement and so on. 
+%
+%The spatial placements of objects at different times implicitly encode the object functions and human behavior in the environment.
+%RGBD cameras is becoming more and more popular for common users to capture the environment where they live. 
+% 
+We evaluate our algorithm on a number of indoor scenes including office, bedroom and so on.
+The results demonstrate that our algorithm build accurate object correspondence from imperfect scans of cluttered indoor scenes, based on which, the recovered behavior provides natural principles for many other applications oriented to indoor scenes. 
+
+
+
+\end{abstract} 
+
+
+\keywordlist 

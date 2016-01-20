@@ -1,0 +1,82 @@
+%%% template.tex
+%%%
+%%% This LaTeX source document can be used as the basis for your technical
+%%% paper or abstract. Intentionally stripped of annotation, the parameters
+%%% and commands should be adjusted for your particular paper - title,
+%%% author, article DOI, etc.
+%%% The accompanying ``template.annotated.tex'' provides copious annotation
+%%% for the commands and parameters found in the source document. (The code
+%%% is identical in ``template.tex'' and ``template.annotated.tex.'')
+
+\documentclass[review]{acmsiggraph}
+
+
+\TOGonlineid{Paper\_0000}
+\TOGvolume{0}
+\TOGnumber{0}
+\TOGarticleDOI{1111111.2222222}
+\TOGprojectURL{}
+\TOGvideoURL{}
+\TOGdataURL{}
+\TOGcodeURL{}
+
+\usepackage{graphics}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{subfigure}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amsthm}
+\usepackage{mathptmx}
+\usepackage{amsmath,bm}
+\usepackage{textcomp}
+\usepackage{mathrsfs}
+\usepackage{enumerate}
+
+
+\newcommand{\comment}[1]{}
+\newcommand{\xj}[1]{\textcolor[rgb]{1.00,0.00,0.00}{(xuejin: #1)} }
+\newcommand{\redemph}[1]{\textcolor[rgb]{1.00,0.00,0.00}{#1}}
+\newcommand{\blueemph}[1]{\textcolor[rgb]{0.00,0.00,1.00}{#1}}
+\newcommand{\vb}[1]{\mathbf{#1} }
+\newcommand{\mathpo}[1]{\left( \begin{array}{c} x\\y \end{array} \right)}
+\newcommand{\mathp}[2]{\left( \begin{array}{c} #1\\#2 \end{array} \right)}
+\newcommand{\objmodel}{\mathbf{O}}
+\newtheorem{theorem}{Theorem}
+
+
+
+%\title{Behavior Analysis in Interior Scenes from Dynamic RGBD images }
+\title{ Behavior Recovery/Analysis in Cluttered and Dynamic Indoor Scene  }
+
+\author{Paper0000 }
+\pdfauthor{Paper0000}
+
+\keywords{Indoor scene, behavior analysis, dynamic, object correspondence}
+
+\begin{document}
+
+ \teaser{
+ \includegraphics[width=2\columnwidth]{figures/teaser.png}
+ \caption{Behavior recovery and behavior-based editing of dynamic cluttered indoor scenes.
+ 	From a set of dense scans at different times (a), our system first extract the object correspondences (b) and behavior model (\xj{optionally show a graph}). The recovered behavior model can be applied to many applications, such as scene editing (c) and indoor scene synthesis (d).}
+  \label{fig:teaser}
+ }
+
+\maketitle
+
+\input{abstract.tex}
+\input{introduction.tex}
+\input{relatedwork.tex}
+\input{overview.tex}
+\input{segmentation.tex}
+\input{behavior.tex}
+\input{applications.tex}
+\input{results.tex}
+\input{conclusion.tex}
+
+
+
+\bibliographystyle{acmsiggraph}
+\bibliography{indoorRef}
+\end{document}

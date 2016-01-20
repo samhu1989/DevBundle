@@ -1,0 +1,23 @@
+\section{Training Dataset}
+\label{sec:trainingset}
+
+We use a very small set of RGBD image which are manually segmented and labeled. 
+NYU-depth V2 (http://cs.nyu.edu/~silberman/datasets/nyu_depth_v2) dataset is comprised of video sequences from a variety of indoor scenes as recorded by both the RGB and Depth cameras from the Microsoft Kinect. 
+It features: 
+\begin{enumerate}
+	\item 1449 densely labeled pairs of aligned RGB and depth images
+	\item 464 new scenes taken from 3 cities
+	\item 407,024 new unlabeled frames
+	\item Each object is labeled with a class and an instance number (cup1, cup2, cup3, etc).
+\end{enumerate}
+
+The dataset has several components:
+\begin{enumerate}
+	\item Labeled: A subset of the video data accompanied by dense multi-class labels. This data has also been preprocessed to fill in missing depth labels.
+	\item Raw: The raw rgb, depth and accelerometer data as provided by the Kinect.
+	\item Toolbox: Useful functions for manipulating the data and labels.
+\end{enumerate}
+
+\paragraph{Discussion on training set} If we rely on training set, how many models/images are required to solve the problem? How robust is the algorithm? How similar are the scenes can be handled with the training set? If we do not use training data, someone may ask, there are so many public resources of the rgbd images or 3d warehouse, if you use them as training set, how much will your algorithm be improved? 
+
+ 

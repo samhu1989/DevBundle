@@ -1,0 +1,68 @@
+
+\section{Introduction}
+\label{sec:intro}
+
+%3D indoor scenes are popular in many applications, such as games, robotics, virtual reality, etc.
+Modeling indoor scenes has attracted a large amount of attentions for decades in computer graphics.
+%
+Recently, many techniques have been presented to generate static 3D models for indoor scenes, including dense modeling from RGBD data~\cite{Hen12RGB,kinectfusion11,MuseumCSG12,YanSiggraph14}, combing object classification and modeling~\cite{shao12,NanIndoor2012,kmyg_acquireIndoor_sigga12}, and synthesizing of 3D indoor scenes from large collection of examples~\cite{Fisherscenesynth12,Xu13sig}.
+%
+While visually appealing models are obtained for rendering, it remains challenging to extract the semantics that the geometric representation essentially encodes. 
+%
+On the other hand, the semantics are required in many applications such as indoor scene understanding, scene editing, and etc.
+
+
+%%%% Why do we use dynamic data
+Comparing with static scenes, dynamic scene analysis has significant value in interior design, animation making, etc.
+%
+The manners of how furniture objects interact with each other and how furniture objects interact with users play a very important rule in interior design.
+%
+Typically, the geometric representation including object model and spatial placements of objects at different times implicitly encode the object functions and human behavior in that environment.
+%
+However, the dynamic indoor scene analysis has not been investigated much in computer graphics. 
+
+
+%%%% non-trivial to use dynamic data directly
+Though the geometry data collection carries the behavior information, it is non-trivial to extract behavior from imperfect scans by consumer-level RGBD cameras.
+%
+The challenges are in two-fold because the scanned point clouds are noisy, incomplete and with errors. 
+%
+First, segmentation of objects with accurate boundary is tedious because the objects in a cluttered indoor environment are in a large variety of scales. Moreover, the massive occlusions and self-occlusions in a cluttered scene makes the segmentation more challenging.
+%
+Second, it is an arduous task to figure out exact object correspondences given imperfect segmentations. Furthermore, there are a great of deal of similar structures in man-made objects in indoor scenes, which leads to large ambiguities of shape correspondences. 
+%
+
+
+  
+\comment{
+A few techniques have been proposed to analyze the spatial relationships between objects in a cluttered scene either from a boundary model~\cite{Mobility2013} or an RGBD image~\cite{Silberman:ECCV12}. The former technique learns features to classify the support relationship between RGBD image patches from a training dataset and then segments and classifies the support relationship of a new RGBD image.
+The later technique do not use any training data. It builds a support tree to describe the supporting-supported relationship between objects.
+Furthermore, it learns the mobility of each object/part from various poses of the repetitive instances of the same object. 
+However, perfectly matched meshes and the large variety are required, which is very challenging for raw RGBD images. 
+}
+
+%%
+In this paper, \redemph{we present a novel algorithm to explore object behaviors in cluttered indoor scenes from a set of point clouds scanned using consumer-level RGBD cameras without any training data}.
+%
+The consistency and difference between frames simultaneously provide valuable hints for recovering object correspondences.
+%
+First, each frame is roughly segmented into patches, which are then clustered into objects as initial correspondences hypothesis. 
+%
+While we project the object models back to each frame with the corresponding transformation, the consistency between captured data and the project data strengthens the initial hypothesis while the difference indicates wrong correspondences. 
+%
+Based on this validation, each frame is re-segmented into patches. 
+By iteratively perform the segmentation and registration steps, our work converges to coherent segmentations and correct correspondences between a bunch of objects at different scales in a large collection of points clouds. 
+
+
+
+In summary, the contributions of our system are three-fold:
+\begin{enumerate}
+	\item To the best of our knowledge, our system, for the first time, performs behavior analysis in a dynamic indoor scene from point clouds scanned using consumer-level RGBD cameras without any database.
+	\item We present a global optimization framework to combine object segmentation, correspondence extraction and behavior analysis in an iterative scheme. 
+%	\item Our object segmentation method using RPCA simultaneously segment objects and complete the occluded objects in a cluttered environment.
+	\item We present a novel behavior model in dynamic indoor scenes, which can be applied directly to many appealing applications.  
+\end{enumerate}
+
+
+
+
