@@ -45,7 +45,6 @@
 \citation{craigyu2011furniture}
 \citation{Fisher2012}
 \citation{xu_sig14}
-\citation{NieBner:2013:VoxelHashing}
 \@LN@col{1}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}}
 \@writefile{toc}{\contentsline {paragraph}{Reconstruction from RGBD Images.}{2}{section*.2}}
@@ -55,6 +54,7 @@
 \@writefile{toc}{\contentsline {paragraph}{Data-Driven Furniture Layout.}{2}{section*.5}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Overview}{2}{section.3}}
 \newlabel{sec:overview}{{3}{2}{Overview}{section.3}{}}
+\citation{NieBner:2013:VoxelHashing}
 \citation{Jia20153D}
 \citation{Evangelidis-ECCV-2014}
 \citation{Fisherscenesynth12,Silberman:ECCV12,Xu13sig,xu_sig14}
@@ -62,13 +62,13 @@
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:overview}{{2}{3}{System overview.\relax }{figure.caption.6}{}}
 \@LN@col{1}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Iterative Segmentation and Registration}{3}{section.4}}
-\newlabel{sec:segmentation}{{4}{3}{Iterative Segmentation and Registration}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}In-Patch Graph Cut}{3}{subsection.4.1}}
-\newlabel{eq:dataterm}{{1}{3}{In-Patch Graph Cut}{equation.4.1}{}}
 \@LN@col{2}
-\newlabel{eq:match-function}{{2}{3}{In-Patch Graph Cut}{equation.4.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Global Consistent Graph Cut}{3}{subsection.4.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Iteratively Co-Segmentation and Joint Registration}{3}{section.4}}
+\newlabel{sec:segmentation}{{4}{3}{Iteratively Co-Segmentation and Joint Registration}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Region Grow}{3}{subsection.4.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Object Clustering}{3}{subsection.4.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Joint Registration}{3}{subsection.4.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Global Consistent Graph Cut}{3}{subsection.4.4}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Behavior Model}{3}{section.5}}
 \newlabel{sec:behavior}{{5}{3}{Behavior Model}{section.5}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Pairwise Object Relations}{3}{subsection.5.1}}
@@ -76,20 +76,49 @@
 \@writefile{toc}{\contentsline {paragraph}{Support}{3}{section*.8}}
 \bibstyle{acmsiggraph}
 \bibdata{indoorRef}
+\bibcite{sparseicp_sgp13}{\citename {Bouaziz et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2013}
+\bibcite{chang11global}{\citename {Chang and Zwicker }2011}
+\bibcite{Evangelidis-ECCV-2014}{\citename {Evangelidis et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
+\bibcite{Fisherscenesynth12}{\citename {Fisher et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2012}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  The segmentation of each frame is progressively refined based on registered object models. From left to right: an input point cloud (a), segmentation updates at three iterations. \leavevmode {\color  [rgb]{1.00,0.00,0.00}(xuejin: show corresponding object model at each iteration.)}  \relax }}{4}{figure.caption.7}}
 \newlabel{fig:object-iterations}{{3}{4}{The segmentation of each frame is progressively refined based on registered object models. From left to right: an input point cloud (a), segmentation updates at three iterations. \xj {show corresponding object model at each iteration.} \relax }{figure.caption.7}{}}
 \@LN@col{1}
-\newlabel{eq:sr_ab}{{3}{4}{Support}{equation.5.3}{}}
+\newlabel{eq:sr_ab}{{1}{4}{Support}{equation.5.1}{}}
 \@writefile{toc}{\contentsline {paragraph}{Proximity}{4}{section*.9}}
-\newlabel{eq:proximity_ab}{{4}{4}{Proximity}{equation.5.4}{}}
+\newlabel{eq:proximity_ab}{{2}{4}{Proximity}{equation.5.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Group Behavior}{4}{subsection.5.2}}
 \newlabel{sec:groupbehavior}{{5.2}{4}{Group Behavior}{subsection.5.2}{}}
+\newlabel{eq:reliability_sg}{{4}{4}{Group Behavior}{equation.5.4}{}}
 \@LN@col{2}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Construction a directed geometric graph from pairwise relations. Green edges indicate supporting relations. Purple edges represent proximity relations. The edge width indicates the frequency of each relation. Each dashed ellipse represents a structural group. \leavevmode {\color  [rgb]{1.00,0.00,0.00}The pair (B,C) should be very weak because they are far away from other other, and can be removed. Otherwise, (A,B,C) is another structural group.}\relax }}{4}{figure.caption.10}}
 \newlabel{fig:geometric_graph}{{4}{4}{Construction a directed geometric graph from pairwise relations. Green edges indicate supporting relations. Purple edges represent proximity relations. The edge width indicates the frequency of each relation. Each dashed ellipse represents a structural group. \redemph {The pair (B,C) should be very weak because they are far away from other other, and can be removed. Otherwise, (A,B,C) is another structural group.}\relax }{figure.caption.10}{}}
-\newlabel{eq:reliability_sg}{{6}{4}{Group Behavior}{equation.5.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Applications}{4}{section.6}}
 \newlabel{sec:applications}{{6}{4}{Applications}{section.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Results and Discussions}{4}{section.7}}
 \newlabel{sec:results}{{7}{4}{Results and Discussions}{section.7}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {8}Conclusions}{4}{section.8}}
+\bibcite{fisher2015actsynth}{\citename {Fisher et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2015}
+\bibcite{Hen12RGB}{\citename {Henry et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2012}
+\bibcite{HuICON2015}{\citename {Hu et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2015}
+\bibcite{Huang2014}{\citename {Huang et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
+\bibcite{kinectfusion11}{\citename {Izadi et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2011}
+\bibcite{Jia20153D}{\citename {Jia et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2015}
+\bibcite{kmyg_acquireIndoor_sigga12}{\citename {Kim et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2012}
+\bibcite{Koppula/etal/11}{\citename {Koppula et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2011}
+\bibcite{IndoorUpdatingPG14}{\citename {Liu et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
+\bibcite{Merrell11}{\citename {Merrell et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2011}
+\bibcite{NanIndoor2012}{\citename {Nan et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2012}
+\bibcite{Silberman:ECCV12}{\citename {Nathan\nobreakspace  {}Silberman and Fergus }2012}
+\bibcite{NieBner:2013:VoxelHashing}{\citename {Nie{\ss }ner et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2013}
+\bibcite{savva2014scenegrok}{\citename {Savva et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
+\bibcite{shao12}{\citename {Shao et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2012}
+\bibcite{Su2014_3dattributes}{\citename {Su et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
+\bibcite{Wand2007}{\citename {Wand et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2007}
+\bibcite{MuseumCSG12}{\citename {Xiao and Furukawa }2012}
+\bibcite{Xu13sig}{\citename {Xu et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2013}
+\bibcite{xu_sig14}{\citename {Xu et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
+\bibcite{xu_siga15}{\citename {Xu et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2015}
+\bibcite{YanSiggraph14}{\citename {Yan et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2014}
+\bibcite{craigyu2011furniture}{\citename {Yu et\nobreakspace  {}al\unhbox \voidb@x \hbox {.} }2011}
+\@LN@col{1}
+\@LN@col{2}

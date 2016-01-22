@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.1.14)  17 JAN 2016 16:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.1.14)  22 JAN 2016 16:28
 entering extended mode
 **DynamicModeling.tex
 (DynamicModeling.tex
@@ -577,37 +577,7 @@ LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 (Font)              scaled to size 11.03998pt on input line 29.
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
 (Font)              scaled to size 4.59999pt on input line 29.
-) (introduction.tex
-
-LaTeX Warning: Citation 'Hen12RGB' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'kinectfusion11' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'MuseumCSG12' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'YanSiggraph14' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'shao12' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'NanIndoor2012' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'kmyg_acquireIndoor_sigga12' on page 1 undefined on inp
-ut line 8.
-
-
-LaTeX Warning: Citation 'Fisherscenesynth12' on page 1 undefined on input line 
-8.
-
-
-LaTeX Warning: Citation 'Xu13sig' on page 1 undefined on input line 8.
-
-[1{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}
+) (introduction.tex [1{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}
 
 
  <./figures/teaser.png>]) (relatedwork.tex
@@ -619,97 +589,19 @@ LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 (Font)              scaled to size 8.27998pt on input line 11.
 
 
-LaTeX Warning: Citation 'kinectfusion11' on page 2 undefined on input line 11.
-
-
-LaTeX Warning: Citation 'MuseumCSG12' on page 2 undefined on input line 13.
-
-
-LaTeX Warning: Citation 'Hen12RGB' on page 2 undefined on input line 13.
-
-
-LaTeX Warning: Citation 'Koppula/etal/11' on page 2 undefined on input line 16.
-
-
-
-LaTeX Warning: Citation 'shao12' on page 2 undefined on input line 17.
-
-
-LaTeX Warning: Citation 'NanIndoor2012' on page 2 undefined on input line 17.
-
-
-LaTeX Warning: Citation 'kmyg_acquireIndoor_sigga12' on page 2 undefined on inp
-ut line 18.
-
-
-LaTeX Warning: Citation 'shao12' on page 2 undefined on input line 21.
-
-
-LaTeX Warning: Citation 'IndoorUpdatingPG14' on page 2 undefined on input line 
-24.
-
-
-LaTeX Warning: Citation 'Wand2007' on page 2 undefined on input line 32.
-
-
-LaTeX Warning: Citation 'chang11global' on page 2 undefined on input line 36.
-
-
-LaTeX Warning: Citation 'sparseicp_sgp13' on page 2 undefined on input line 41.
-
-
-
-LaTeX Warning: Citation 'YanSiggraph14' on page 2 undefined on input line 44.
-
-
-LaTeX Warning: Citation 'xu_siga15' on page 2 undefined on input line 45.
-
-
-LaTeX Warning: Citation 'Huang2014' on page 2 undefined on input line 51.
-
-
-LaTeX Warning: Citation 'Su2014_3dattributes' on page 2 undefined on input line
- 51.
-
-
-LaTeX Warning: Citation 'HuICON2015' on page 2 undefined on input line 53.
-
-
-LaTeX Warning: Citation 'savva2014scenegrok' on page 2 undefined on input line 
-55.
-
-
-LaTeX Warning: Citation 'fisher2015actsynth' on page 2 undefined on input line 
-57.
-
-
-LaTeX Warning: Citation 'Merrell11' on page 2 undefined on input line 72.
-
-
-LaTeX Warning: Citation 'craigyu2011furniture' on page 2 undefined on input lin
-e 75.
-
-
 LaTeX Warning: Citation 'Fisher2012' on page 2 undefined on input line 80.
 
-
-LaTeX Warning: Citation 'xu_sig14' on page 2 undefined on input line 84.
-
-) (overview.tex <figures/overview.png, id=19, 761.09344pt x 258.9675pt>
+) (overview.tex <figures/overview.png, id=60, 761.09344pt x 258.9675pt>
 File: figures/overview.png Graphic file (type png)
 
 <use figures/overview.png>
 Package pdftex.def Info: figures/overview.png used on input line 5.
 (pdftex.def)             Requested size: 505.89pt x 172.13612pt.
-
-
-LaTeX Warning: Citation 'NieBner:2013:VoxelHashing' on page 2 undefined on inpu
-t line 20.
-
-[2]
+ [2]
 LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 28
 .
- ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ztmcm.fd"
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ztmcm.fd"
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
 LaTeX Font Info:    Try loading font information for OML+ztmcm on input line 28
@@ -738,75 +630,54 @@ LaTeX Font Info:    Try loading font information for U+rsfs on input line 28.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\jknappen\ursfs.fd"
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
-)
-
-LaTeX Warning: Citation 'Jia20153D' on page 3 undefined on input line 30.
-
-
-LaTeX Warning: Citation 'Evangelidis-ECCV-2014' on page 3 undefined on input li
-ne 37.
-
-) (segmentation.tex
+)) (segmentation.tex
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
-(Font)              scaled to size 9.19998pt on input line 5.
+(Font)              scaled to size 9.19998pt on input line 3.
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <10> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 5.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 3.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
-(Font)              scaled to size 9.19998pt on input line 5.
+(Font)              scaled to size 9.19998pt on input line 3.
 
-Overfull \hbox (15.1804pt too wide) detected at line 17
-\OML/ztmcm/m/it/9 data\OT1/ztmcm/m/n/9 (\OML/ztmcm/m/it/9 P[]; L\OT1/ztmcm/m/n/
-9 ) = []
- []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-<figures/object-iterations.png, id=37, 803.25093pt x 155.83218pt>
+
+<figures/object-iterations.png, id=105, 803.25093pt x 155.83218pt>
 File: figures/object-iterations.png Graphic file (type png)
 
 <use figures/object-iterations.png>
-Package pdftex.def Info: figures/object-iterations.png used on input line 36.
+Package pdftex.def Info: figures/object-iterations.png used on input line 11.
 (pdftex.def)             Requested size: 481.88998pt x 93.49051pt.
-) (behavior.tex
-
-LaTeX Warning: Citation 'Fisherscenesynth12' on page 3 undefined on input line 
-25.
-
-
-LaTeX Warning: Citation 'Silberman:ECCV12' on page 3 undefined on input line 25
-.
-
-
-LaTeX Warning: Citation 'Xu13sig' on page 3 undefined on input line 25.
-
-
-LaTeX Warning: Citation 'xu_sig14' on page 3 undefined on input line 25.
-
-[3 <./figures/overview.png>]
-<figures/geometric_graph.png, id=58, 350.05782pt x 268.00125pt>
+) (behavior.tex [3 <./figures/overview.png>] <figures/geometric_graph.png, id=1
+35, 350.05782pt x 268.00125pt>
 File: figures/geometric_graph.png Graphic file (type png)
 
 <use figures/geometric_graph.png>
 Package pdftex.def Info: figures/geometric_graph.png used on input line 105.
 (pdftex.def)             Requested size: 236.12506pt x 180.77852pt.
 ) (applications.tex) (results.tex)
-(conclusion.tex)
-No file DynamicModeling.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 82.
-[4 <./figures/object-iterations.png> <./figures/geometric_graph.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 82.
+(conclusion.tex) (DynamicModeling.bbl [4 <./figures/object-iterations.png> <./f
+igures/geometric_graph.png>]
+Underfull \hbox (badness 2065) in paragraph at lines 31--35
+[]\OT1/ptm/m/sc/9 Fisher, M., Savva, M., Li, Y., Han-ra-han, P., and
+ []
 
-(DynamicModeling.aux)
+)
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 82.
+ [5]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 82.
+ (DynamicModeling.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 82.
 Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 82.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 82.
  ) 
 Here is how much of TeX's memory you used:
- 8191 strings out of 493698
- 122140 string characters out of 3144382
- 217539 words of memory out of 3000000
+ 8224 strings out of 493698
+ 122713 string characters out of 3144382
+ 220128 words of memory out of 3000000
  11306 multiletter control sequences out of 15000+200000
- 40180 words of font info for 80 fonts, out of 3000000 for 9000
+ 41904 words of font info for 82 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 43i,8n,40p,595b,410s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,7n,40p,595b,414s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/fontname/8r.enc}<C:/Program File
 s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX
  2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fon
@@ -818,9 +689,9 @@ iles/MiKTeX 2.9/fonts/type1/urw/symbol/usyr.pfb><C:/Program Files/MiKTeX 2.9/fo
 nts/type1/urw/symbol/usyr.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/time
 s/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><C:/
 Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on DynamicModeling.pdf (4 pages, 488369 bytes).
+Output written on DynamicModeling.pdf (5 pages, 511430 bytes).
 PDF statistics:
- 129 PDF objects out of 1000 (max. 8388607)
- 40 named destinations out of 1000 (max. 500000)
+ 218 PDF objects out of 1000 (max. 8388607)
+ 69 named destinations out of 1000 (max. 500000)
  21 words of extra memory for PDF output out of 10000 (max. 10000000)
 
