@@ -41,8 +41,11 @@ protected:
             DefaultMesh& om,
             DefaultMesh& pm
             );
-    void evaluate_objects();
-    void update_proj();
+    void compute_mi();
+    void compute_Si();
+    void compute_Sw();
+    void compute_Sb();
+    void compute_proj();
     void update();
 private:
     int raw_feature_dim;
@@ -51,12 +54,12 @@ private:
     ObjList& objects_;
     arma::mat& feature_base_;
     arma::mat& feature_centers_;
-    std::vector<arma::uword> patch_frame_;
-    std::vector<arma::uword> patch_class_;
+    arma::mat patch_feature_;
     std::vector<double> patch_score_;
-    arma::mat  patch_feature_;
-    arma::mat  Sb;
+    std::vector<arma::mat> Si;
+    std::vector<arma::vec> mi;
     arma::mat  Sw;
+    arma::mat  Sb;
     Config::Ptr config_;
 };
 

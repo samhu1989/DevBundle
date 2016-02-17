@@ -10,8 +10,6 @@ bool UpdateClusterCenter::configure(Config::Ptr config)
 
 void UpdateClusterCenter::evaluate_patches()
 {
-    patch_frame_.clear();
-    patch_class_.clear();
     patch_feature_.clear();
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
     size_t lindex = 0;
@@ -30,12 +28,13 @@ void UpdateClusterCenter::evaluate_patches()
                 extractMesh<DefaultMesh,DefaultMesh>(input->mesh_,extracted_label,extracted_mesh);
                 arma::vec feature;
                 extract_patch_feature(extracted_mesh,feature,config_);
+                feature -= feature_base_.col(0); //centralize the feature
                 if(!raw_feature_dim)raw_feature_dim = feature.size();
-                patch_frame_.push_back( lindex );
-                patch_class_.push_back( label_value );
                 patch_score_.push_back( evaluate_patch( label_value - 1 , lindex , extracted_mesh ) );
-                patch_feature_.insert_cols(patch_feature_.n_cols-1,patch_feature_);
+                patch_feature_.insert_cols(patch_feature_.n_cols-1,feature);
             }
+            compute_mi();
+            compute_Si();
             ++ label_value;
         }
         ++lindex;
@@ -66,12 +65,27 @@ double UpdateClusterCenter::match_patch(
     ;
 }
 
-void UpdateClusterCenter::evaluate_objects()
+void UpdateClusterCenter::compute_mi()
 {
     ;
 }
 
-void UpdateClusterCenter::update_proj()
+void UpdateClusterCenter::compute_Si()
+{
+    ;
+}
+
+void UpdateClusterCenter::compute_Sw()
+{
+    ;
+}
+
+void UpdateClusterCenter::compute_Sb()
+{
+    ;
+}
+
+void UpdateClusterCenter::compute_proj()
 {
     arma::mat U,V;
     arma::vec s;
@@ -84,7 +98,9 @@ void UpdateClusterCenter::update_proj()
 
 void UpdateClusterCenter::update()
 {
-    update_proj();
+    compute_Sw();
+    compute_Sb();
+    compute_proj();
 }
 
 void UpdateClusterCenter::run()
@@ -93,8 +109,6 @@ void UpdateClusterCenter::run()
     timer.restart();
     emit message(QString("evaluate_patches"),0);
     evaluate_patches();
-    emit message(QString("evaluate_objects"),0);
-    evaluate_objects();
     update();
     QString msg;
     msg = msg.sprintf("Cluster Center is Updated after %u ms",timer.elapsed());
