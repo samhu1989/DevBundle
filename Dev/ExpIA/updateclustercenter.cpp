@@ -6,21 +6,23 @@
 bool UpdateClusterCenter::configure(Config::Ptr config)
 {
     config_ = config;
+    raw_feature_dim = 0;
 }
 
 void UpdateClusterCenter::evaluate_patches()
 {
     patch_feature_.clear();
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
-    size_t lindex = 0;
-    int feature_dim;
-    for(iter=inputs_.begin();iter!=inputs_.end();++iter)
+    arma::uword label_value = 1;
+    arma::uword label_max;
+    std::vector<double> score;
+    while(label_value <= label_max)
     {
-        MeshBundle<DefaultMesh>::Ptr input = *iter;
-        arma::uword label_value = 1;
-        arma::uword label_max = arma::max(labels_[lindex]);
-        while( label_value <= label_max )
+        score.clear();
+        arma::uword lindex = 0;
+        for(iter=inputs_.begin();iter!=inputs_.end();++iter)
         {
+            MeshBundle<DefaultMesh>::Ptr input = *iter;
             arma::uvec extracted_label = arma::find( label_value == labels_[lindex] );
             DefaultMesh extracted_mesh;
             if(!extracted_label.is_empty())
@@ -30,14 +32,16 @@ void UpdateClusterCenter::evaluate_patches()
                 extract_patch_feature(extracted_mesh,feature,config_);
                 feature -= feature_base_.col(0); //centralize the feature
                 if(!raw_feature_dim)raw_feature_dim = feature.size();
-                patch_score_.push_back( evaluate_patch( label_value - 1 , lindex , extracted_mesh ) );
+                score.push_back( evaluate_patch( label_value - 1 , lindex , extracted_mesh ) );
                 patch_feature_.insert_cols(patch_feature_.n_cols-1,feature);
             }
-            compute_mi();
-            compute_Si();
-            ++ label_value;
+            ++lindex;
         }
-        ++lindex;
+        patch_score_ = arma::rowvec(score);
+        select_samples();
+        compute_mi();
+        compute_Si();
+        ++ label_value;
     }
 }
 
@@ -65,24 +69,55 @@ double UpdateClusterCenter::match_patch(
     ;
 }
 
+void UpdateClusterCenter::select_samples()
+{
+    double th = arma::mean(patch_score_);
+    arma::uvec selected = arma::find( patch_score_ > th );
+    Ni.push_back(selected.size());
+    patch_score_ = patch_score_.cols(selected);
+    patch_feature_ = patch_feature_.cols(selected);
+}
+
 void UpdateClusterCenter::compute_mi()
 {
-    ;
+    mi.emplace_back(patch_feature_.n_rows,arma::fill::zeros);
+    arma::mat tmp;
+    tmp = patch_feature_;
+    tmp.each_row() %= patch_score_;
+    mi.back() = arma::sum(tmp,1);
+    mi.back() /= arma::sum(patch_score_);
 }
 
 void UpdateClusterCenter::compute_Si()
 {
-    ;
+    Si.emplace_back(patch_feature_.n_rows,patch_feature_.n_rows,arma::fill::zeros);
+    arma::mat tmp;
+    tmp = patch_feature_;
+    tmp.each_col() -= mi.back();
+    Si.back() = tmp * ( tmp.t() );
 }
 
 void UpdateClusterCenter::compute_Sw()
 {
-    ;
+    Sw.reset();
+    std::vector<arma::mat>::iterator Siter;
+    for(Siter=Si.begin();Siter!=Si.end();++Siter)
+    {
+        if(Sw.is_empty())Sw = *Siter;
+        else Sw += *Siter;
+    }
 }
 
 void UpdateClusterCenter::compute_Sb()
 {
-    ;
+    Sb = arma::mat(raw_feature_dim,raw_feature_dim,arma::fill::zeros);
+    std::vector<arma::vec>::iterator miter;
+    uint32_t index = 0;
+    for(miter=mi.begin();miter!=mi.end();++miter)
+    {
+        Sb += Ni[index] * (*miter) * ( (*miter).t() );
+        ++index;
+    }
 }
 
 void UpdateClusterCenter::compute_proj()

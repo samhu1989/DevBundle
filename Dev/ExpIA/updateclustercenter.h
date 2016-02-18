@@ -41,6 +41,7 @@ protected:
             DefaultMesh& om,
             DefaultMesh& pm
             );
+    void select_samples();
     void compute_mi();
     void compute_Si();
     void compute_Sw();
@@ -55,9 +56,10 @@ private:
     arma::mat& feature_base_;
     arma::mat& feature_centers_;
     arma::mat patch_feature_;
-    std::vector<double> patch_score_;
+    arma::rowvec patch_score_;
     std::vector<arma::mat> Si;
     std::vector<arma::vec> mi;
+    std::vector<arma::uword> Ni;
     arma::mat  Sw;
     arma::mat  Sb;
     Config::Ptr config_;
