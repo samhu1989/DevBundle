@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Segments,SIGNAL(triggered(bool)),this,SLOT(load_labels()));
     connect(ui->actionSave_Object_Model,SIGNAL(triggered(bool)),this,SLOT(save_objects()));
     connect(ui->actionLoad_Objects,SIGNAL(triggered(bool)),this,SLOT(load_objects()));
+    connect(ui->actionSave_Clusters,SIGNAL(triggered(bool)),this,SLOT(save_cluster()));
+    connect(ui->actionLoad_Clusters,SIGNAL(triggered(bool)),this,SLOT(load_cluster()));
     connect(ui->actionSave_Scenes,SIGNAL(triggered(bool)),this,SLOT(save_scenes()));
 
     connect(ui->actionGlobal_Align,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -244,13 +246,16 @@ void MainWindow::view_inputs()
     gl_timer.start(100);
 }
 
-void MainWindow::save_labels()
+void MainWindow::save_labels(QString dirName)
 {
-    QString dirName = QFileDialog::getExistingDirectory(
+    if(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
                 this,
                 tr("Save Labels"),
                 tr("../Dev_Data/")
                 );
+    }
     if(dirName.isEmpty())return;
     std::vector<arma::uvec>::iterator iter;
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
@@ -320,13 +325,16 @@ void MainWindow::load_labels()
     }
 }
 
-void MainWindow::save_objects()
+void MainWindow::save_objects(QString dirName)
 {
-    QString dirName = QFileDialog::getExistingDirectory(
+    if(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
                 this,
                 tr("Save Objects"),
                 tr("../Dev_Data/")
                 );
+    }
     if(dirName.isEmpty())return;
     std::vector<ObjModel::Ptr>::iterator iter;
     QDir dir;
@@ -418,13 +426,16 @@ void MainWindow::load_objects()
     }
 }
 
-void MainWindow::save_supervoxels()
+void MainWindow::save_supervoxels(QString dirName)
 {
-    QString dirName = QFileDialog::getExistingDirectory(
+    if(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
                 this,
                 tr("Save Supervoxels"),
                 tr("../Dev_Data/")
                 );
+    }
     if(dirName.isEmpty())return;
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter;
     QDir dir;
@@ -502,6 +513,69 @@ void MainWindow::load_supervoxels()
             return;
         }
         ptr->custom_color_.fromlabel(ptr->graph_.voxel_label);
+    }
+}
+
+void MainWindow::save_cluster(QString dirName)
+{
+    if(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save Cluster"),
+                tr("../Dev_Data/")
+                );
+    }
+    if(dirName.isEmpty())return;
+    QDir dir;
+    dir.setPath(dirName);
+    QString filepath = dir.absoluteFilePath(
+                QString::fromStdString("Base.fmat.arma")
+                );
+    if(!feature_base_.save(filepath.toStdString(),arma::arma_binary))
+    {
+        QString msg = "Failed to Save "+filepath+"\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
+    }
+    filepath = dir.absoluteFilePath(
+                QString::fromStdString("Center.fmat.arma")
+                );
+    if(!feature_centers_.save(filepath.toStdString(),arma::arma_binary))
+    {
+        QString msg = "Failed to Save "+filepath+"\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
+    }
+}
+
+void MainWindow::load_cluster()
+{
+    QString dirName = QFileDialog::getExistingDirectory(
+            this,
+            tr("Save Cluster"),
+            tr("../Dev_Data/")
+            );
+    if(dirName.isEmpty())return;
+    QDir dir;
+    dir.setPath(dirName);
+    QString filepath = dir.absoluteFilePath(
+                QString::fromStdString("Base.fmat.arma")
+                );
+    if(!feature_base_.load(filepath.toStdString()))
+    {
+        QString msg = "Failed to Load "+filepath+"\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
+    }
+    filepath = dir.absoluteFilePath(
+                QString::fromStdString("Center.fmat.arma")
+                );
+    if(!feature_centers_.load(filepath.toStdString()))
+    {
+        QString msg = "Failed to Load "+filepath+"\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
     }
 }
 

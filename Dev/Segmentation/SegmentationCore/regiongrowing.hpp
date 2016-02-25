@@ -582,7 +582,7 @@ RegionGrowing<M>::validatePoint (int initial_seed, int point, int nghbr, bool& i
   else
   {
     arma::fvec nghbr_normal (&(n_ptr[3*nghbr]),3,false,true);
-    arma::fvec initial_seed_normal(&(n_ptr[initial_seed]),3,false,true);
+    arma::fvec initial_seed_normal(&(n_ptr[3*initial_seed]),3,false,true);
     float dot_product = std::fabs(arma::dot(initial_seed_normal,nghbr_normal));
     if (dot_product < cosine_threshold)
       return (false);

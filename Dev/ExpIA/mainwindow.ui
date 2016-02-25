@@ -54,6 +54,8 @@
     <addaction name="actionLoad_Supervoxels"/>
     <addaction name="actionSave_Segments"/>
     <addaction name="actionLoad_Segments"/>
+    <addaction name="actionSave_Clusters"/>
+    <addaction name="actionLoad_Clusters"/>
     <addaction name="actionSave_Object_Model"/>
     <addaction name="actionLoad_Objects"/>
     <addaction name="actionSave_Scenes"/>
@@ -246,6 +248,16 @@
   <action name="actionUpdate_Cluster_Center">
    <property name="text">
     <string>Update Cluster Center</string>
+   </property>
+  </action>
+  <action name="actionSave_Clusters">
+   <property name="text">
+    <string>Save Clusters</string>
+   </property>
+  </action>
+  <action name="actionLoad_Clusters">
+   <property name="text">
+    <string>Load Clusters</string>
    </property>
   </action>
  </widget>

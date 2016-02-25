@@ -16,7 +16,7 @@ void RegionGrowThread::run()
     seg.setNumberOfNeighbours(config_->getInt("RegionGrow_k"));
     seg.setMinClusterSize(config_->getInt("RegionGrow_cluster_min_num"));
     seg.setMaxClusterSize(config_->getInt("RegionGrow_cluster_max_num"));
-    seg.setSmoothnessThreshold(config_->getFloat("RegionGrow_max_norm_angle")/180.0*M_PI);
+    seg.setSmoothnessThreshold(config_->getFloat("RegionGrow_max_norm_angle")*M_PI/180.0);
     seg.setCurvatureThreshold(std::numeric_limits<float>::max());
     seg.setRadiusOfNeighbours(config_->getFloat("RegionGrow_r"));
 

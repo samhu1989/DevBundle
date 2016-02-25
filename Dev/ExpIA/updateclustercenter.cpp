@@ -67,7 +67,7 @@ double UpdateClusterCenter::match_patch(
         DefaultMesh& pm
         )
 {
-    MeshKDTreeInterface<DefaultMesh> pts(om);
+    MeshKDTreeInterface<DefaultMesh> pts(pm);
     nanoflann::KDTreeSingleIndexAdaptor<
             nanoflann::L2_Simple_Adaptor<float,MeshKDTreeInterface<DefaultMesh>>,
             MeshKDTreeInterface<DefaultMesh>,
@@ -75,7 +75,7 @@ double UpdateClusterCenter::match_patch(
             kdtree(3,pts,nanoflann::KDTreeSingleIndexAdaptorParams(5));
     kdtree.buildIndex();
     double v = 0.0;
-    float* p = (float*)pm.points();
+    float* p = (float*)om.points();
 
     arma::uword search_idx;
     float search_dist;
@@ -89,12 +89,12 @@ double UpdateClusterCenter::match_patch(
     arma::Mat<uint8_t> o_c_mat((uint8_t*)om.vertex_colors(),3,om.n_vertices(),false,true);
     arma::Mat<uint8_t> p_c_mat((uint8_t*)pm.vertex_colors(),3,pm.n_vertices(),false,true);
 
-    for( size_t p_i = 0 ; p_i < pm.n_vertices() ; ++ p_i )
+    for( size_t p_i = 0 ; p_i < om.n_vertices() ; ++ p_i )
     {
         kdtree.knnSearch(&p[3*p_i],1,&search_idx,&search_dist);
-        double ncos = arma::dot(p_n_mat.col(p_i),o_n_mat.col(search_idx));
-        arma::fvec pc = arma::conv_to<arma::fvec>::from(p_c_mat.col(p_i));
-        arma::fvec oc = arma::conv_to<arma::fvec>::from(o_c_mat.col(search_idx));
+        double ncos = arma::dot(o_n_mat.col(p_i),p_n_mat.col(search_idx));
+        arma::fvec oc = arma::conv_to<arma::fvec>::from(o_c_mat.col(p_i));
+        arma::fvec pc = arma::conv_to<arma::fvec>::from(p_c_mat.col(search_idx));
         double cdist = arma::norm(pc - oc);
         v += ncos / ( 1.0 + cdist / 10.0 ) / ( 1.0 + 10.0*std::sqrt(search_dist) ) ;
     }
@@ -156,17 +156,21 @@ void UpdateClusterCenter::compute_proj()
 {
     arma::mat U,V;
     arma::vec s;
-    arma::svd(U,s,V,arma::solve(Sw,Sb));
+    arma::mat X = arma::solve(Sw,Sb);
+    arma::svd(U,s,V,X);
     int dim = 2;
     if(config_->has("Feature_dim"))dim = config_->getInt("Feature_dim");
-    feature_base_ = arma::mat(raw_feature_dim,1+dim);
-    feature_base_.cols(1,dim) = V.cols( 0 , dim - 1 );
+    std::cerr<<"X:"<<X.n_rows<<","<<X.n_cols<<std::endl;
+    std::cerr<<"V:"<<V.n_rows<<","<<V.n_cols<<std::endl;
+    std::cerr<<"Base:"<<feature_base_.n_rows<<","<<feature_base_.n_cols<<std::endl;
+    feature_base_.cols( 1 , dim ) = V.cols( 0 , dim - 1 );
 }
 //update the projection matrix by LDA
 void UpdateClusterCenter::update()
 {
     compute_Sw();
     compute_Sb();
+    std::cerr<<"compute_proj"<<std::endl;
     compute_proj();
 }
 
@@ -174,8 +178,9 @@ void UpdateClusterCenter::run()
 {
     QTime timer;
     timer.restart();
-    emit message(QString("evaluate_patches"),0);
+    emit message(QString("evaluate patches"),0);
     evaluate_patches();
+    emit message(QString("updating project matrix"),0);
     update();
     QString msg;
     msg = msg.sprintf("Cluster Center is Updated after %u ms",timer.elapsed());

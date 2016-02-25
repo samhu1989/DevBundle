@@ -27,6 +27,20 @@ public slots:
     void closeInMdi(QWidget* w);
     void showBox(int,MeshBundle<DefaultMesh>::Ptr);
 
+
+public slots:
+    void save_labels(QString dirName=QString());
+    void load_labels();
+
+    void save_objects(QString dirName=QString());
+    void load_objects();
+
+    void save_supervoxels(QString dirName=QString());
+    void load_supervoxels();
+
+    void save_cluster(QString dirName=QString());
+    void load_cluster();
+
 protected slots:
     void configure();
 
@@ -37,17 +51,9 @@ protected slots:
     void view_inputs();
     void removeView();
 
-    void save_labels();
-    void load_labels();
-
-    void save_objects();
-    void load_objects();
-
-    void save_supervoxels();
-    void load_supervoxels();
-
     void save_scenes();
     void save_object_layout(const std::string&);
+
     void save_scene_layout(const std::string&);
     void save_scene_model(const std::string&);
 
