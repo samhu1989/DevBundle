@@ -3,6 +3,7 @@
 #include "extractmesh.hpp"
 #include "objectmodel.h"
 #include <QTime>
+#include "nanoflann.hpp"
 bool UpdateClusterCenter::configure(Config::Ptr config)
 {
     config_ = config;
@@ -66,7 +67,38 @@ double UpdateClusterCenter::match_patch(
         DefaultMesh& pm
         )
 {
-    ;
+    MeshKDTreeInterface<DefaultMesh> pts(om);
+    nanoflann::KDTreeSingleIndexAdaptor<
+            nanoflann::L2_Simple_Adaptor<float,MeshKDTreeInterface<DefaultMesh>>,
+            MeshKDTreeInterface<DefaultMesh>,
+            3,arma::uword>
+            kdtree(3,pts,nanoflann::KDTreeSingleIndexAdaptorParams(5));
+    kdtree.buildIndex();
+    double v = 0.0;
+    float* p = (float*)pm.points();
+
+    arma::uword search_idx;
+    float search_dist;
+
+//    arma::fmat o_v_mat((float*)om.points(),3,om.n_vertices(),false,true);
+//    arma::fmat p_v_mat((float*)pm.points(),3,pm.n_vertices(),false,true);
+
+    arma::fmat o_n_mat((float*)om.vertex_normals(),3,om.n_vertices(),false,true);
+    arma::fmat p_n_mat((float*)pm.vertex_normals(),3,pm.n_vertices(),false,true);
+
+    arma::Mat<uint8_t> o_c_mat((uint8_t*)om.vertex_colors(),3,om.n_vertices(),false,true);
+    arma::Mat<uint8_t> p_c_mat((uint8_t*)pm.vertex_colors(),3,pm.n_vertices(),false,true);
+
+    for( size_t p_i = 0 ; p_i < pm.n_vertices() ; ++ p_i )
+    {
+        kdtree.knnSearch(&p[3*p_i],1,&search_idx,&search_dist);
+        double ncos = arma::dot(p_n_mat.col(p_i),o_n_mat.col(search_idx));
+        arma::fvec pc = arma::conv_to<arma::fvec>::from(p_c_mat.col(p_i));
+        arma::fvec oc = arma::conv_to<arma::fvec>::from(o_c_mat.col(search_idx));
+        double cdist = arma::norm(pc - oc);
+        v += ncos / ( 1.0 + cdist / 10.0 ) / ( 1.0 + 10.0*std::sqrt(search_dist) ) ;
+    }
+    return v;
 }
 
 void UpdateClusterCenter::select_samples()
@@ -130,7 +162,7 @@ void UpdateClusterCenter::compute_proj()
     feature_base_ = arma::mat(raw_feature_dim,1+dim);
     feature_base_.cols(1,dim) = V.cols( 0 , dim - 1 );
 }
-
+//update the projection matrix by LDA
 void UpdateClusterCenter::update()
 {
     compute_Sw();
