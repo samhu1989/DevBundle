@@ -15,8 +15,15 @@ void UpdateClusterCenter::evaluate_patches()
     patch_feature_.clear();
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
     arma::uword label_value = 1;
-    arma::uword label_max;
+    arma::uword label_max = 0;
+    LabelList::iterator liter;
+    for(liter=labels_.begin();liter!=labels_.end();++liter)
+    {
+        arma::uword max = arma::max(*liter);
+        if( max > label_max ) label_max = max;
+    }
     std::vector<double> score;
+    score.reserve(labels_.size());
     while(label_value <= label_max)
     {
         score.clear();
@@ -34,7 +41,8 @@ void UpdateClusterCenter::evaluate_patches()
                 feature -= feature_base_.col(0); //centralize the feature
                 if(!raw_feature_dim)raw_feature_dim = feature.size();
                 score.push_back( evaluate_patch( label_value - 1 , lindex , extracted_mesh ) );
-                patch_feature_.insert_cols(patch_feature_.n_cols-1,feature);
+                if(patch_feature_.empty())patch_feature_ = feature;
+                else patch_feature_.insert_cols( patch_feature_.n_cols - 1 , feature );
             }
             ++lindex;
         }
@@ -56,7 +64,8 @@ double UpdateClusterCenter::evaluate_patch(uint64_t oidx,uint64_t fidx,DefaultMe
     {
         arma::fmat R(T_ptr->R,3,3,false,true);
         arma::fvec t(T_ptr->t,3,false,true);
-        v = R*v+t;
+        v = R*v;
+        v.each_col() += t;
         vn = R*vn;
     }
     return match_patch(model.GeoM_->mesh_,patch);
@@ -156,7 +165,9 @@ void UpdateClusterCenter::compute_proj()
 {
     arma::mat U,V;
     arma::vec s;
-    arma::mat X = arma::solve(Sw,Sb);
+//    Sw.save("./debug/Sw.arma",arma::raw_ascii);
+//    Sb.save("./debug/Sb.arma",arma::raw_ascii);
+    arma::mat X = arma::pinv(Sw) * Sb;
     arma::svd(U,s,V,X);
     int dim = 2;
     if(config_->has("Feature_dim"))dim = config_->getInt("Feature_dim");
@@ -170,7 +181,6 @@ void UpdateClusterCenter::update()
 {
     compute_Sw();
     compute_Sb();
-    std::cerr<<"compute_proj"<<std::endl;
     compute_proj();
 }
 

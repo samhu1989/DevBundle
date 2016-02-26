@@ -553,7 +553,7 @@ void MainWindow::load_cluster()
 {
     QString dirName = QFileDialog::getExistingDirectory(
             this,
-            tr("Save Cluster"),
+            tr("Load Cluster"),
             tr("../Dev_Data/")
             );
     if(dirName.isEmpty())return;
