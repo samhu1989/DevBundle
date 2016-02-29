@@ -31,7 +31,7 @@ signals:
     void message(QString,int);
 protected:
     void run();
-    void evaluate_patches();
+    void evaluate();
     double evaluate_patch(
             uint64_t oidx,
             uint64_t fidx,
@@ -41,12 +41,16 @@ protected:
             DefaultMesh& om,
             DefaultMesh& pm
             );
+    bool validate_object();
     void select_samples();
     void compute_mi();
     void compute_Si();
+    void remove_invalid();
+
     void compute_Sw();
     void compute_Sb();
-    void compute_proj();
+    void compute_base();
+    void compute_center();
     void update();
 private:
     int raw_feature_dim;
@@ -57,6 +61,7 @@ private:
     arma::mat& feature_centers_;
     arma::mat patch_feature_;
     arma::rowvec patch_score_;
+    std::vector<arma::uword> invalid_objects_;
     std::vector<arma::mat> Si;
     std::vector<arma::vec> mi;
     std::vector<arma::uword> Ni;

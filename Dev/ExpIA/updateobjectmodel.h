@@ -8,6 +8,7 @@
 #include "objectmodel.h"
 #include "MeshListViewerWidget.h"
 #include "labspace.h"
+#include "registrationcore.h"
 namespace Ui {
 class UpdateObjectModel;
 }
@@ -27,6 +28,7 @@ public:
             QWidget *parent = 0);
     ~UpdateObjectModel();
     bool configure(Config::Ptr);
+    void setMethod(uint32_t method){method_id_ = method;}
 public slots:
     void startLater();
 signals:
@@ -39,6 +41,7 @@ protected slots:
     void start_fit();   //start thread for gmm fitting for color model
     void finish_current();
 protected:
+    JRMPC_Thread* create_align_thread();
     void extract_patches();
     void update_objects();
     void show_layouts();
@@ -51,6 +54,7 @@ private:
     QTime alg_timer;
     QTimer timer_;
     QTimer gl_timer;
+    uint32_t method_id_;
     QThread* geo_thread_;
     QThread* color_thread_;
 

@@ -8,11 +8,21 @@ bool UpdateClusterCenter::configure(Config::Ptr config)
 {
     config_ = config;
     raw_feature_dim = 0;
+    if(feature_base_.empty()){
+        std::cerr<<"Err:Empty Feature Base"<<std::endl;
+        return false;
+    }
+    if(objects_.empty())
+    {
+        std::cerr<<"Err:Empty Object List"<<std::endl;
+        return false;
+    }
+    return true;
 }
 
-void UpdateClusterCenter::evaluate_patches()
+void UpdateClusterCenter::evaluate()
 {
-    patch_feature_.clear();
+    invalid_objects_.clear();
     MeshBundle<DefaultMesh>::PtrList::iterator iter;
     arma::uword label_value = 1;
     arma::uword label_max = 0;
@@ -27,6 +37,7 @@ void UpdateClusterCenter::evaluate_patches()
     while(label_value <= label_max)
     {
         score.clear();
+        patch_feature_.clear();
         arma::uword lindex = 0;
         for(iter=inputs_.begin();iter!=inputs_.end();++iter)
         {
@@ -47,11 +58,24 @@ void UpdateClusterCenter::evaluate_patches()
             ++lindex;
         }
         patch_score_ = arma::rowvec(score);
-        select_samples();
-        compute_mi();
-        compute_Si();
+        std::cerr<<"obj-"<<label_value<<std::endl;
+        std::cerr<<"score("<<arma::min(patch_score_)<<","<<arma::max(patch_score_)<<","<<std::endl;
+        ObjModel& model = *objects_[label_value-1];
+        std::cerr<<"expected score:"<<model.GeoM_->mesh_.n_vertices()<<std::endl;
+
+//        std::cerr<<"score num:"<<patch_score_.n_cols<<std::endl;
+//        std::cerr<<"feature num:"<<patch_feature_.n_cols<<std::endl;
+        if(validate_object())
+        {
+            select_samples();
+            compute_mi();
+            compute_Si();
+        }else{
+            invalid_objects_.push_back(label_value);
+        }
         ++ label_value;
     }
+    if(!invalid_objects_.empty())remove_invalid();
 }
 
 double UpdateClusterCenter::evaluate_patch(uint64_t oidx,uint64_t fidx,DefaultMesh& patch)
@@ -105,15 +129,26 @@ double UpdateClusterCenter::match_patch(
         arma::fvec oc = arma::conv_to<arma::fvec>::from(o_c_mat.col(p_i));
         arma::fvec pc = arma::conv_to<arma::fvec>::from(p_c_mat.col(search_idx));
         double cdist = arma::norm(pc - oc);
-        v += ncos / ( 1.0 + cdist / 10.0 ) / ( 1.0 + 10.0*std::sqrt(search_dist) ) ;
+        v += ncos / ( 1.0 + 10.0*std::sqrt(search_dist) ) ;
     }
     return v;
 }
 
+bool UpdateClusterCenter::validate_object()
+{
+    std::cerr<<"validate object is not implemented"<<std::endl;
+    return true;
+}
+
+void UpdateClusterCenter::remove_invalid()
+{
+    ;
+}
+
 void UpdateClusterCenter::select_samples()
 {
-    double th = arma::mean(patch_score_);
-    arma::uvec selected = arma::find( patch_score_ > th );
+    double th = arma::median(patch_score_);
+    arma::uvec selected = arma::find( patch_score_ >= th );
     Ni.push_back(selected.size());
     patch_score_ = patch_score_.cols(selected);
     patch_feature_ = patch_feature_.cols(selected);
@@ -126,7 +161,7 @@ void UpdateClusterCenter::compute_mi()
     tmp = patch_feature_;
     tmp.each_row() %= patch_score_;
     mi.back() = arma::sum(tmp,1);
-    mi.back() /= arma::sum(patch_score_);
+    mi.back() /= arma::accu(patch_score_);
 }
 
 void UpdateClusterCenter::compute_Si()
@@ -161,7 +196,7 @@ void UpdateClusterCenter::compute_Sb()
     }
 }
 
-void UpdateClusterCenter::compute_proj()
+void UpdateClusterCenter::compute_base()
 {
     arma::mat U,V;
     arma::vec s;
@@ -171,26 +206,42 @@ void UpdateClusterCenter::compute_proj()
     arma::svd(U,s,V,X);
     int dim = 2;
     if(config_->has("Feature_dim"))dim = config_->getInt("Feature_dim");
-    std::cerr<<"X:"<<X.n_rows<<","<<X.n_cols<<std::endl;
-    std::cerr<<"V:"<<V.n_rows<<","<<V.n_cols<<std::endl;
-    std::cerr<<"Base:"<<feature_base_.n_rows<<","<<feature_base_.n_cols<<std::endl;
     feature_base_.cols( 1 , dim ) = V.cols( 0 , dim - 1 );
+}
+
+void UpdateClusterCenter::compute_center()
+{
+    std::vector<arma::vec>::iterator miter;
+    size_t N = feature_base_.n_cols - 1;
+    arma::mat proj = feature_base_.cols( 1, N );
+    feature_centers_ = arma::mat(N,mi.size());
+    size_t index = 0;
+    for(miter=mi.begin();miter!=mi.end();++miter)
+    {
+        feature_centers_.col(index) = (((*miter).t())*proj).t();
+        ++ index;
+    }
 }
 //update the projection matrix by LDA
 void UpdateClusterCenter::update()
 {
+    std::cerr<<"Sw"<<std::endl;
     compute_Sw();
+    std::cerr<<"Sb"<<std::endl;
     compute_Sb();
-    compute_proj();
+    std::cerr<<"Base"<<std::endl;
+    compute_base();
+    std::cerr<<"Center"<<std::endl;
+    compute_center();
 }
 
 void UpdateClusterCenter::run()
 {
     QTime timer;
     timer.restart();
-    emit message(QString("evaluate patches"),0);
-    evaluate_patches();
-    emit message(QString("updating project matrix"),0);
+    emit message(QString("evaluating"),0);
+    evaluate();
+    emit message(QString("updating"),0);
     update();
     QString msg;
     msg = msg.sprintf("Cluster Center is Updated after %u ms",timer.elapsed());

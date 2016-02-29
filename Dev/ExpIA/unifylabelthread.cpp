@@ -142,15 +142,26 @@ void UnifyLabelThread::learn()
         ++index;
     }
     feature_dim = data.n_rows;
-    gmm_.reset(feature_dim,max_patch_num);
-    std::cerr<<"choose frame "<<max_patch_num_index<<" with "<<max_patch_num<<"patches as clustering center"<<std::endl;
-    gmm_.set_means(patch_features_[max_patch_num_index]);
+    if(!check_centers()){
+        std::cerr<<"choose frame "<<max_patch_num_index<<" with "<<max_patch_num<<"patches as clustering center"<<std::endl;
+        feature_centers_ = patch_features_[max_patch_num_index];
+    }
+    gmm_.reset(feature_centers_.n_rows,feature_centers_.n_cols);
+    gmm_.set_means(feature_centers_);
     arma::mat dcovs(feature_dim,gmm_.n_gaus());
     dcovs.each_col() = arma::var(data,0,1);
     dcovs += std::numeric_limits<double>::epsilon();
     gmm_.set_dcovs(dcovs);
     gmm_.learn(data,max_patch_num,arma::eucl_dist,arma::keep_existing,20,0,1e-10,true);
     feature_centers_ = gmm_.means;
+}
+
+bool UnifyLabelThread::check_centers()
+{
+    int custom_dim = config_->getInt("Feature_dim");
+    if(feature_centers_.n_rows!=custom_dim)return false;
+    if(feature_centers_.n_cols<2)return false;
+    return true;
 }
 
 void UnifyLabelThread::assign()

@@ -32,8 +32,7 @@ protected:
             const arma::urowvec&,
             arma::uvec&
             );
-
-
+    bool check_centers();
 private:
     MeshBundle<DefaultMesh>::PtrList& inputs_;
     std::vector<arma::uvec>& labels_;

@@ -10,14 +10,15 @@ namespace Registration{
     public:
         typedef typename std::vector<typename MeshBundle<M>::Ptr> MeshList;
         RegistrationThreadT(QObject* parent=0);
+        virtual ~RegistrationThreadT(){delete reg_;}
         virtual bool init(MeshList&,Config::Ptr&);
         virtual bool init(MeshList&,std::vector<arma::uword>&,Config::Ptr&);
         typename Reg::ResPtr result(void);
-        const std::string& errorString(void){ return reg_.errorForThread(); }
+        const std::string& errorString(void){ return reg_->errorForThread(); }
     protected:
         virtual void compute(void);
     protected:
-        Reg reg_;
+        Reg* reg_;
     };
 }
 #include <RegistrationThreadT.hpp>

@@ -1,10 +1,10 @@
 #include "updateobjectmodel.h"
 #include "ui_updateobjectmodel.h"
-#include "registrationcore.h"
 #include "filter.h"
 #include "nanoflann.hpp"
 #include <vector>
 #include "extractpatchfeature.h"
+
 UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OModelList &outputs, QWidget *parent) :
     QFrame(parent),
     inputs_(inputs),
@@ -12,6 +12,7 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
     outputs_(outputs),
     geo_thread_(NULL),
     color_thread_(NULL),
+    method_id_(0),
     ui(new Ui::UpdateObjectModel)
 {
     ui->setupUi(this);
@@ -276,8 +277,8 @@ void UpdateObjectModel::start_align()
         QMessageBox::critical(this, windowTitle(), msg);
         return;
     }
-    JRMPC_Thread* th = new JRMPC_Thread();
-    if(!th->init(geo_view_->list(),valid_patches_,config_))
+    JRMPC_Thread* th = create_align_thread();
+    if(!th)
     {
         QString msg = "Fail to Initialize the Registration:\n '";
         msg += QString::fromStdString(th->errorString());
@@ -294,6 +295,26 @@ void UpdateObjectModel::start_align()
     geo_thread_->setObjectName(name);
     emit message(name,0);
     geo_thread_->start(QThread::HighestPriority);
+}
+
+JRMPC_Thread *UpdateObjectModel::create_align_thread()
+{
+    switch(method_id_)
+    {
+    case 0:
+        {
+            JRMPC_Thread* th = new JRMPC_Thread();
+            if(th->init(geo_view_->list(),valid_patches_,config_))return th;
+            else return NULL;
+        }
+    case 1:
+        {
+            JRMPCV2_Thread* th = new JRMPCV2_Thread();
+            if(th->init(geo_view_->list(),valid_patches_,config_))return th;
+            else return NULL;
+        }
+    }
+    return NULL;
 }
 
 void UpdateObjectModel::start_fit()

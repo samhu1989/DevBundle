@@ -54,7 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionAutomatically,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionMannually,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
-    connect(ui->actionUpdateObjModel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionV0,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionV1,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionUpdate_Cluster_Center,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionGlobal_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -930,7 +931,7 @@ void MainWindow::start_editing()
         showInMdi((QWidget*)w);
         w->initLater();
     }
-    if(edit==ui->actionUpdateObjModel)
+    if(edit==ui->actionV0)
     {
         UpdateObjectModel* w = new UpdateObjectModel(
                     inputs_,
@@ -943,6 +944,29 @@ void MainWindow::start_editing()
             w->deleteLater();
             return;
         }
+        w->setMethod(0);
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(w,SIGNAL(show_layout(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w,Qt::Widget|Qt::WindowMinMaxButtonsHint);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        s->show();
+        w->startLater();
+    }
+    if(edit==ui->actionV1)
+    {
+        UpdateObjectModel* w = new UpdateObjectModel(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        if(!w->configure(config_)){
+            QString msg = "You probably should do unify label first\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        w->setMethod(1);
         connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         connect(w,SIGNAL(show_layout(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)));
         w->setAttribute(Qt::WA_DeleteOnClose,true);

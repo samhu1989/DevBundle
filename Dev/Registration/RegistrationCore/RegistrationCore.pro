@@ -26,8 +26,8 @@ HEADERS += registrationcore.h\
     RegistrationThreadT.hpp \
     jrmpc.h \
     jrmpc.hpp \
-    ljrmpc.h \
-    ljrmpc.hpp
+    jrmpcv2.h \
+    jrmpcv2.hpp
 
 unix {
     target.path = /usr/lib
