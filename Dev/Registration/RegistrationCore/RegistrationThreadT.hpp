@@ -7,7 +7,7 @@ template<typename Reg,typename M>
 RegistrationThreadT<Reg,M>::RegistrationThreadT(QObject* parent):QThread(parent)
 {
     setTerminationEnabled(true);
-    reg_ = new Reg();
+    reg_ = NULL;
 }
 
 template<typename Reg,typename M>

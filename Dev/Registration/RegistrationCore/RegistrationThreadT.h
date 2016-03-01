@@ -10,7 +10,7 @@ namespace Registration{
     public:
         typedef typename std::vector<typename MeshBundle<M>::Ptr> MeshList;
         RegistrationThreadT(QObject* parent=0);
-        virtual ~RegistrationThreadT(){delete reg_;}
+        virtual ~RegistrationThreadT(){if(reg_)delete reg_;}
         virtual bool init(MeshList&,Config::Ptr&);
         virtual bool init(MeshList&,std::vector<arma::uword>&,Config::Ptr&);
         typename Reg::ResPtr result(void);

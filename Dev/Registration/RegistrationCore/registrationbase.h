@@ -13,7 +13,20 @@ namespace Registration
         virtual const std::string& errorForThread(void)const {return error_string_;}
         virtual void quit(){end_=true;}
         static void alignAroundZ(const arma::fmat&,const arma::fmat&,arma::fmat&);
+        static void alignAroundZ(
+                const arma::fmat&,
+                const arma::fmat&,
+                const arma::fmat&,
+                const arma::fmat&,
+                arma::fmat&
+                );
         static double closestError(const arma::fmat&,const arma::fmat&);
+        static double closestMatch(
+                const arma::fmat&,
+                const arma::fmat&,
+                const arma::fmat&,
+                const arma::fmat&
+                );
     protected:
         std::string error_string_;
         bool end_;

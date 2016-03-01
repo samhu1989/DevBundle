@@ -97,7 +97,7 @@ bool JRMPC<M>::initForThread(void *meshlistptr,std::vector<arma::uword>&valid_in
         return false;
     }
 
-    typename MeshBundle<DefaultMesh>::Ptr mesh_ptr;
+    typename MeshBundle<M>::Ptr mesh_ptr;
     std::vector<std::shared_ptr<arma::fmat>> source;
     for(size_t index = 0 ; index < valid_index.size() ; ++index)
     {

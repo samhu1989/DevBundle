@@ -84,7 +84,6 @@ namespace Registration {
 
         virtual void compute(void)
         {
-
             do{
                 computeOnce();
                 varToColor();

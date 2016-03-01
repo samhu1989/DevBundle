@@ -19,6 +19,7 @@ void OctreeGrid<M>::applyFilter(M&mesh)
     OctreeMesh octree_m(mesh);
     arma::fmat p_mat((float*)mesh.points(),3,mesh.n_vertices(),false,true);
     arma::Mat<uint8_t> c_mat((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
+    arma::fmat n_mat((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
     Octree tree;
     tree.initialize(octree_m,unibn::OctreeParams(float(seed_resolution_)));
     size_t N = tree.getLeafNum();
@@ -27,10 +28,13 @@ void OctreeGrid<M>::applyFilter(M&mesh)
         arma::uvec pIndices;
         if(0==tree.getPointofLeafAt(index,pIndices))continue;
         arma::fvec p = arma::mean( p_mat.cols(pIndices) , 1 );
+        arma::fvec n = arma::mean( n_mat.cols(pIndices) , 1 );
+        n = arma::normalise(n);
         arma::fmat cs = arma::conv_to<arma::fmat>::from( c_mat.cols(pIndices) );
         arma::Col<uint8_t> c = arma::conv_to<arma::Col<uint8_t>>::from( arma::mean(cs,1) );
         MeshVertexHandle new_v = result.add_vertex(MeshPoint(p(0),p(1),p(2)));
         result.set_color( new_v , MeshColor(c(0),c(1),c(2)) );
+        result.set_normal( new_v , MeshNormal(n(0),n(1),n(2)) );
     }
     mesh = result;
 }

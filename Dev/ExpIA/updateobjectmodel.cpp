@@ -107,6 +107,7 @@ void UpdateObjectModel::prepare_for_next()
             m.request_vertex_colors();
             m.request_vertex_normals();
             m = ptr->mesh_;
+
             //down sampling
             if(m.n_vertices() > config_->getInt("Align_Down_Sample_Threshold"))
             {

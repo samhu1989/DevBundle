@@ -17,6 +17,12 @@ template class REGISTRATIONCORESHARED_EXPORT Registration::JRMPCV2<DefaultMesh>;
 class REGISTRATIONCORESHARED_EXPORT CPDR3D_DM_R_Thread:public Registration::RegistrationThreadT<Registration::CPDRigid3D<DefaultMesh>,DefaultMesh>
 {
     Q_OBJECT
+public:
+    CPDR3D_DM_R_Thread(QObject* parent=0):
+        Registration::RegistrationThreadT<Registration::CPDRigid3D<DefaultMesh>,DefaultMesh>(parent)
+    {
+        reg_ = new Registration::CPDRigid3D<DefaultMesh>();
+    }
 public slots:
     void quit()
     {
@@ -32,7 +38,11 @@ class REGISTRATIONCORESHARED_EXPORT JRMPC_Thread:public Registration::Registrati
 {
     Q_OBJECT
 public:
-    JRMPC_Thread(QObject* parent=0):Registration::RegistrationThreadT<Registration::JRMPC<DefaultMesh>,DefaultMesh>(parent){}
+    JRMPC_Thread(QObject* parent=0):
+        Registration::RegistrationThreadT<Registration::JRMPC<DefaultMesh>,DefaultMesh>(parent)
+    {
+        reg_ = new Registration::JRMPC<DefaultMesh>();
+    }
 public slots:
     void quit()
     {
@@ -53,7 +63,6 @@ class REGISTRATIONCORESHARED_EXPORT JRMPCV2_Thread:public JRMPC_Thread
 public:
     JRMPCV2_Thread(QObject* parent=0):JRMPC_Thread(parent)
     {
-        delete reg_;
         reg_ = new Registration::JRMPCV2<DefaultMesh>();
     }
 public slots:

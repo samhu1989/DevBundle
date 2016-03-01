@@ -11,6 +11,7 @@ public:
     typedef typename M::VertexHandle MeshVertexHandle;
     typedef typename M::Point MeshPoint;
     typedef typename M::Color MeshColor;
+    typedef typename M::Normal MeshNormal;
     OctreeGrid():
         FilterBase<M>(),
         seed_resolution_(0.0)
