@@ -21,7 +21,7 @@ namespace Registration
                 arma::fmat&
                 );
         static double closestError(const arma::fmat&,const arma::fmat&);
-        static double closestMatch(
+        static double closestError(
                 const arma::fmat&,
                 const arma::fmat&,
                 const arma::fmat&,

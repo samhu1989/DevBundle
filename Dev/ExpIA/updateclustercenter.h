@@ -41,8 +41,9 @@ protected:
             DefaultMesh& om,
             DefaultMesh& pm
             );
-    bool validate_object();
+    bool validate_object(double th=0);
     void select_samples();
+    void select_samples(double th=0);
     void compute_mi();
     void compute_Si();
     void remove_invalid();

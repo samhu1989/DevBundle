@@ -67,10 +67,11 @@ void UpdateClusterCenter::evaluate()
 //        std::cerr<<"feature num:"<<patch_feature_.n_cols<<std::endl;
         if(validate_object())
         {
-            select_samples();
+            select_samples(0.1*(model.GeoM_->mesh_.n_vertices()));
             compute_mi();
             compute_Si();
         }else{
+            std::cerr<<"obj-"<<label_value<<"is invalid"<<std::endl;
             invalid_objects_.push_back(label_value);
         }
         ++ label_value;
@@ -134,9 +135,10 @@ double UpdateClusterCenter::match_patch(
     return v;
 }
 
-bool UpdateClusterCenter::validate_object()
+bool UpdateClusterCenter::validate_object(double th)
 {
-    std::cerr<<"validate object is not implemented"<<std::endl;
+    arma::uvec index = arma::find( patch_score_ > th );
+    if(index.size()<patch_score_.size())return false;
     return true;
 }
 
@@ -145,9 +147,13 @@ void UpdateClusterCenter::remove_invalid()
     ;
 }
 
-void UpdateClusterCenter::select_samples()
+void UpdateClusterCenter::select_samples(double th)
 {
-    double th = arma::median(patch_score_);
+    if(th<0)
+    {
+        double th = arma::mean(patch_score_);
+        th = th > 0 ? th : 0 ;
+    }
     arma::uvec selected = arma::find( patch_score_ >= th );
     Ni.push_back(selected.size());
     patch_score_ = patch_score_.cols(selected);
@@ -177,10 +183,12 @@ void UpdateClusterCenter::compute_Sw()
 {
     Sw.reset();
     std::vector<arma::mat>::iterator Siter;
+    uint32_t index = 0;
     for(Siter=Si.begin();Siter!=Si.end();++Siter)
     {
-        if(Sw.is_empty())Sw = *Siter;
-        else Sw += *Siter;
+        if(Sw.is_empty())Sw = *Siter / ( Ni[index] - 1 );
+        else Sw += *Siter / ( Ni[index] - 1 );
+        ++index;
     }
 }
 
@@ -188,25 +196,24 @@ void UpdateClusterCenter::compute_Sb()
 {
     Sb = arma::mat(raw_feature_dim,raw_feature_dim,arma::fill::zeros);
     std::vector<arma::vec>::iterator miter;
-    uint32_t index = 0;
     for(miter=mi.begin();miter!=mi.end();++miter)
     {
-        Sb += Ni[index] * (*miter) * ( (*miter).t() );
-        ++index;
+        Sb +=  (*miter) * ( (*miter).t() );
     }
 }
 
 void UpdateClusterCenter::compute_base()
 {
-    arma::mat U,V;
+    arma::mat V;
     arma::vec s;
 //    Sw.save("./debug/Sw.arma",arma::raw_ascii);
 //    Sb.save("./debug/Sb.arma",arma::raw_ascii);
     arma::mat X = arma::pinv(Sw) * Sb;
-    arma::svd(U,s,V,X);
+    arma::eig_sym(s,V,X);
     int dim = 2;
     if(config_->has("Feature_dim"))dim = config_->getInt("Feature_dim");
-    feature_base_.cols( 1 , dim ) = V.cols( 0 , dim - 1 );
+    arma::uvec index = arma::sort_index(s,"descend");
+    feature_base_.cols( 1 , dim ) = V.cols(index.head(dim));
 }
 
 void UpdateClusterCenter::compute_center()

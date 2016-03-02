@@ -55,22 +55,22 @@ void RegistrationBase::alignAroundZ(
     arma::fmat y;
     arma::fmat yn;
     float N = 72.0;
-    double maxMatch = std::numeric_limits<double>::lowest();
+    double minError = std::numeric_limits<double>::max();
     for(int k=0;k<N;++k)
     {
         getRotation(0,0,0,0,0,k*2.0*M_PI/N,R);
         y = R*x1;
         yn = R*n1;
-        double match = closestMatch(x0,n0,y,yn);
-        if( maxMatch <  match )
+        double e = closestError(x0,n0,y,yn);
+        if( minError >  e )
         {
-            maxMatch = match;
+            minError = e;
             bestR = R;
         }
     }
-    std::cerr<<"max match:"<<maxMatch<<std::endl;
+    std::cerr<<"minError:"<<minError<<std::endl;
 }
-double RegistrationBase::closestMatch(
+double RegistrationBase::closestError(
         const arma::fmat& x,
         const arma::fmat& xn,
         const arma::fmat& y,
@@ -98,7 +98,7 @@ double RegistrationBase::closestMatch(
         kdtree.knnSearch(&pts[3*index],1,indices.memptr(),dists.memptr());
         float dcos = 0.0;
         if( yn.col(index).is_finite() && xn.col(indices(0)).is_finite() )dcos = arma::dot(yn.col(index),xn.col(indices(0)));
-        error += dcos / ( 1.0 + std::sqrt(dists(0)) );
+        error += ( 1.0 - dcos )*std::sqrt(dists(0));
     }
     error /= y.n_cols;
     return error;

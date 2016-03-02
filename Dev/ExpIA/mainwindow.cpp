@@ -1110,6 +1110,10 @@ void MainWindow::showLab()
 
 void MainWindow::viewObj()
 {
+    if(objects_.empty()){
+        ui->statusBar->showMessage(QString("! No Objects"));
+        return;
+    }
     ObjectView* v = new ObjectView(objects_);
     v->setAttribute(Qt::WA_DeleteOnClose,true);
     QMdiSubWindow* s = ui->mdiArea->addSubWindow(v);
