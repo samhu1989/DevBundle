@@ -4,6 +4,8 @@
 #include "objectmodel.h"
 #include <QTime>
 #include "nanoflann.hpp"
+#include "OpenBLAS/lapacke.h"
+#include "OpenBLAS/lapacke_utils.h"
 bool UpdateClusterCenter::configure(Config::Ptr config)
 {
     config_ = config;
@@ -69,7 +71,8 @@ void UpdateClusterCenter::evaluate()
         {
             select_samples(0.1*(model.GeoM_->mesh_.n_vertices()));
             compute_mi();
-            compute_Si();
+            compute_Hbi();
+            compute_Hwi();
         }else{
             std::cerr<<"obj-"<<label_value<<"is invalid"<<std::endl;
             invalid_objects_.push_back(label_value);
@@ -170,36 +173,49 @@ void UpdateClusterCenter::compute_mi()
     mi.back() /= arma::accu(patch_score_);
 }
 
-void UpdateClusterCenter::compute_Si()
+void UpdateClusterCenter::compute_Hbi()
 {
-    Si.emplace_back(patch_feature_.n_rows,patch_feature_.n_rows,arma::fill::zeros);
-    arma::mat tmp;
-    tmp = patch_feature_;
-    tmp.each_col() -= mi.back();
-    Si.back() = tmp * ( tmp.t() );
+    Hbi.emplace_back(patch_feature_.n_rows,arma::fill::zeros);
+    Hbi.back() = std::sqrt(double(Ni.back()))*mi.back();
 }
 
-void UpdateClusterCenter::compute_Sw()
+void UpdateClusterCenter::compute_Hwi()
 {
-    Sw.reset();
-    std::vector<arma::mat>::iterator Siter;
-    uint32_t index = 0;
-    for(Siter=Si.begin();Siter!=Si.end();++Siter)
+    Hwi.emplace_back(patch_feature_.n_rows,patch_feature_.n_cols,arma::fill::zeros);
+    Hwi.back() = patch_feature_;
+    Hwi.back().each_col() -= mi.back();
+}
+
+void UpdateClusterCenter::compute_Hw()
+{
+    std::vector<arma::mat>::iterator Hwiter;
+    Hw = Hwi.front();
+    for( Hwiter = (Hwi.begin()+1) ;Hwiter!=Hwi.end();++Hwiter)
     {
-        if(Sw.is_empty())Sw = *Siter / ( Ni[index] - 1 );
-        else Sw += *Siter / ( Ni[index] - 1 );
+        Hw = arma::join_rows(Hw,*Hwiter);
+    }
+}
+
+void UpdateClusterCenter::compute_Hb()
+{
+    Hb = arma::mat(Hbi.front().size(),Hbi.size(),arma::fill::zeros);
+    std::vector<arma::vec>::iterator Hbiter;
+    size_t index = 0;
+    for(Hbiter=Hbi.begin();Hbiter!=Hbi.end();++Hbiter)
+    {
+        Hb.col(index) = *Hbiter;
         ++index;
     }
 }
 
+void UpdateClusterCenter::compute_Sw()
+{
+    Sw = Hw*Hw.t();
+}
+
 void UpdateClusterCenter::compute_Sb()
 {
-    Sb = arma::mat(raw_feature_dim,raw_feature_dim,arma::fill::zeros);
-    std::vector<arma::vec>::iterator miter;
-    for(miter=mi.begin();miter!=mi.end();++miter)
-    {
-        Sb +=  (*miter) * ( (*miter).t() );
-    }
+    Sb = Hb*Hb.t();
 }
 
 void UpdateClusterCenter::compute_base()
@@ -214,6 +230,11 @@ void UpdateClusterCenter::compute_base()
     if(config_->has("Feature_dim"))dim = config_->getInt("Feature_dim");
     arma::uvec index = arma::sort_index(s,"descend");
     feature_base_.cols( 1 , dim ) = V.cols(index.head(dim));
+}
+
+void UpdateClusterCenter::compute_base_gsvd()
+{
+    ;
 }
 
 void UpdateClusterCenter::compute_center()
@@ -232,12 +253,22 @@ void UpdateClusterCenter::compute_center()
 //update the projection matrix by LDA
 void UpdateClusterCenter::update()
 {
-    std::cerr<<"Sw"<<std::endl;
-    compute_Sw();
-    std::cerr<<"Sb"<<std::endl;
-    compute_Sb();
-    std::cerr<<"Base"<<std::endl;
-    compute_base();
+    std::cerr<<"Hw"<<std::endl;
+    compute_Hw();
+    std::cerr<<"Hb"<<std::endl;
+    compute_Hb();
+    if( Hw.n_rows > arma::rank(Hw) )
+    {
+        std::cerr<<"Base"<<std::endl;
+        compute_base_gsvd();
+    }else{
+        std::cerr<<"Sw"<<std::endl;
+        compute_Sw();
+        std::cerr<<"Sb"<<std::endl;
+        compute_Sb();
+        std::cerr<<"Base"<<std::endl;
+        compute_base();
+    }
     std::cerr<<"Center"<<std::endl;
     compute_center();
 }

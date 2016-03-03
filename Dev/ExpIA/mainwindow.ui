@@ -109,9 +109,16 @@
     <addaction name="actionSupervoxel_Color"/>
     <addaction name="actionFeature_View"/>
    </widget>
+   <widget class="QMenu" name="menuTests">
+    <property name="title">
+     <string>Tests</string>
+    </property>
+    <addaction name="actionLAPACKE_dggsvd"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuReplay"/>
+   <addaction name="menuTests"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_Inputs">
@@ -270,6 +277,11 @@
   <action name="actionV1">
    <property name="text">
     <string>V1</string>
+   </property>
+  </action>
+  <action name="actionLAPACKE_dggsvd">
+   <property name="text">
+    <string>LAPACKE_dggsvd</string>
    </property>
   </action>
  </widget>

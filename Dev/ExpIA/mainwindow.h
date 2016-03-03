@@ -6,6 +6,7 @@
 #include "objectmodel.h"
 #include "voxelgraph.h"
 #include <QTimer>
+#include "tests.h"
 using namespace OpenMesh;
 namespace Ui {
 class MainWindow;
@@ -66,6 +67,10 @@ protected slots:
     void viewObj();
     void showSVColor();
     void showFeature();
+
+protected slots:
+    void LAPACKE_dggsvd_test(void){TEST::LAPACKE_dggsvd_test();}
+
 private:
     Ui::MainWindow *ui;
     std::vector<WidgetPtr> mesh_views_;

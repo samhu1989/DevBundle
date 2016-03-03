@@ -45,12 +45,16 @@ protected:
     void select_samples();
     void select_samples(double th=0);
     void compute_mi();
-    void compute_Si();
+    void compute_Hbi();
+    void compute_Hwi();
     void remove_invalid();
 
+    void compute_Hw();
+    void compute_Hb();
     void compute_Sw();
     void compute_Sb();
     void compute_base();
+    void compute_base_gsvd();
     void compute_center();
     void update();
 private:
@@ -63,9 +67,12 @@ private:
     arma::mat patch_feature_;
     arma::rowvec patch_score_;
     std::vector<arma::uword> invalid_objects_;
-    std::vector<arma::mat> Si;
     std::vector<arma::vec> mi;
+    std::vector<arma::mat> Hwi;
+    std::vector<arma::vec> Hbi;
     std::vector<arma::uword> Ni;
+    arma::mat  Hw;
+    arma::mat  Hb;
     arma::mat  Sw;
     arma::mat  Sb;
     Config::Ptr config_;

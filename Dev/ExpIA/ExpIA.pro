@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     extractpatchfeature.cpp \
     featureview.cpp \
     inpatchgraphcut.cpp \
-    updateclustercenter.cpp
+    updateclustercenter.cpp \
+    tests.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -51,7 +52,8 @@ HEADERS  += mainwindow.h \
     extractpatchfeature.h \
     featureview.h \
     inpatchgraphcut.h \
-    updateclustercenter.h
+    updateclustercenter.h \
+    tests.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
@@ -130,3 +132,8 @@ win32: LIBS += -L$$DESTDIR/ -lFilterCore
 
 INCLUDEPATH += $$PWD/../Filter/FilterCore
 DEPENDPATH += $$PWD/../Filter/FilterCore
+
+win32: LIBS += -L$$DESTDIR/ -lDimensionReduction
+
+INCLUDEPATH += $$PWD/../ML/DimensionReduction
+DEPENDPATH += $$PWD/../ML/DimensionReduction

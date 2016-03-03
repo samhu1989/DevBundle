@@ -65,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSupervoxel_Color,SIGNAL(triggered(bool)),this,SLOT(showSVColor()));
     connect(ui->actionFeature_View,SIGNAL(triggered(bool)),this,SLOT(showFeature()));
 
+    connect(ui->actionLAPACKE_dggsvd,SIGNAL(triggered(bool)),this,SLOT(LAPACKE_dggsvd_test()));
+
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;
     io_opt_ += OpenMesh::IO::Options::VertexTexCoord;
