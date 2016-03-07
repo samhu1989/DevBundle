@@ -13,6 +13,10 @@ void lda_gsvd(
         arma::mat& G
         )
 {
-
+    arma::mat U,V,C,S,X;
+    arma::mat A = Hb.t();
+    arma::mat B = Hw.t();
+    ML_Math::dggsvd(A,B,U,V,C,S,X);
+    G = X.head_cols(G.n_cols);
 }
 }

@@ -19,10 +19,13 @@ void dggsvd(
     assert(A.n_cols==B.n_cols);
     arma::mat A_ = A;
     arma::mat B_ = B;
-    lapack_int m,n,p,l,k,iwork;
+    lapack_int m,n,p,l,k;
     m = A_.n_rows;
     n = A_.n_cols;
     p = B_.n_rows;
+    k = 0;
+    l = 0;
+    arma::Col<lapack_int> iwork(n,arma::fill::zeros);
     arma::mat Q(n,n,arma::fill::zeros);
     arma::vec alpha(n,arma::fill::zeros);
     arma::vec beta(n,arma::fill::zeros);
@@ -31,14 +34,14 @@ void dggsvd(
     LAPACKE_dggsvd(LAPACK_COL_MAJOR,
                    'U','V','Q',
                    m,n,p,&k,&l,
-                   A_.memptr(),A_.n_rows,
-                   B_.memptr(),B_.n_rows,
+                   A_.memptr(),m,
+                   B_.memptr(),p,
                    alpha.memptr(),
                    beta.memptr(),
                    U.memptr(),U.n_rows,
                    V.memptr(),V.n_rows,
                    Q.memptr(),Q.n_rows,
-                   &iwork
+                   iwork.memptr()
                    );
     C = arma::mat(m,k+l,arma::fill::zeros);
     S = arma::mat(p,k+l,arma::fill::zeros);
@@ -51,7 +54,7 @@ void dggsvd(
     }else{
         diag_len = m;
         R.submat(0,0,m-1,k+l-1) = A_.submat(0,n-k-l,m-1,n-1);
-        R.submat(m-k,m,l-1,k+l-1) = B_.submat(m-k,n+m-k-l,l-1,n-1);
+        R.submat(m,m,k+l-1,k+l-1) = B_.submat(m-k,n+m-k-l,l-1,n-1);
     }
     C.diag().ones();
     arma::vec cd = C.diag();
@@ -64,10 +67,6 @@ void dggsvd(
     S.diag(1) = sd;
 
     arma::mat T(Q.n_rows,Q.n_cols,arma::fill::eye);
-    std::cerr<<"R:"<<std::endl;
-    std::cerr<<R<<std::endl;
-    std::cerr<<"T:"<<std::endl;
-    std::cerr<<T<<std::endl;
     T.submat(Q.n_rows-R.n_rows,Q.n_cols-R.n_cols,Q.n_rows-1,Q.n_cols-1) = R.i();
     X = Q*T;
 }

@@ -4,8 +4,8 @@
 #include "objectmodel.h"
 #include <QTime>
 #include "nanoflann.hpp"
-#include "OpenBLAS/lapacke.h"
-#include "OpenBLAS/lapacke_utils.h"
+#include "dimensionreduction.h"
+
 bool UpdateClusterCenter::configure(Config::Ptr config)
 {
     config_ = config;
@@ -234,7 +234,11 @@ void UpdateClusterCenter::compute_base()
 
 void UpdateClusterCenter::compute_base_gsvd()
 {
-    ;
+    int dim = 2;
+    if(config_->has("Feature_dim"))dim = config_->getInt("Feature_dim");
+    arma::mat G(feature_base_.colptr(1),feature_base_.n_rows,dim,false,true);
+    std::cerr<<"compute_base_gsvd()"<<std::endl;
+    DimReduction::lda_gsvd(Hb,Hw,G);
 }
 
 void UpdateClusterCenter::compute_center()
