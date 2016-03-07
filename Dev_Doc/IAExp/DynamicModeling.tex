@@ -1,5 +1,5 @@
+%!TEX program = xelatex
 %%% template.tex
-%%%
 %%% This LaTeX source document can be used as the basis for your technical
 %%% paper or abstract. Intentionally stripped of annotation, the parameters
 %%% and commands should be adjusted for your particular paper - title,
@@ -32,7 +32,12 @@
 \usepackage{textcomp}
 \usepackage{mathrsfs}
 \usepackage{enumerate}
-
+%%%Start for Chinese Setting
+\usepackage{xeCJK}
+\usepackage{fontspec}
+\setCJKmainfont{SimSun}
+\setmainfont{Times New Roman}
+%%%End for Chinese Setting
 
 \newcommand{\comment}[1]{}
 \newcommand{\xj}[1]{\textcolor[rgb]{1.00,0.00,0.00}{(xuejin: #1)} }
