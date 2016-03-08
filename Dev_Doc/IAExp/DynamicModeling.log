@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  7 MAR 2016 16:50
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  8 MAR 2016 17:32
 entering extended mode
 **DynamicModeling.tex
 (DynamicModeling.tex
@@ -1562,10 +1562,6 @@ File: figures/hsy/overview.pdf Graphic file (type QTm)
 Requested font "[lmsans10-bold]:mapping=tex-text" at 10.0pt
  -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
 
-Underfull \hbox (badness 10000) in paragraph at lines 10--17
-
- []
-
 
 ! LaTeX Error: Illegal character in array arg.
 
@@ -1573,27 +1569,42 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.28 ...{p{0.73\columnwidth}|{p{0.1\columnwidth}}}
+l.29 ...{p{0.73\columnwidth}|{p{0.1\columnwidth}}}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
+[3] [4]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+put line 57.
+
+Underfull \hbox (badness 10000) in paragraph at lines 79--83
+
+ []
+
 File: figures/object-iterations.png Graphic file (type QTm)
-<use  "figures/object-iterations.png" >) (behavior.tex [3] [4]
+<use  "figures/object-iterations.png" >) (behavior.tex
 Underfull \hbox (badness 1082) in paragraph at lines 64--71
 \EU1/TimesNewRoman(0)/m/n/9 Based on all the extracted pairwise relation, a dir
 ected graph
  []
 
+[5]
 File: figures/geometric_graph.png Graphic file (type QTm)
-<use  "figures/geometric_graph.png" >) (applications.tex) (results.tex)
-(conclusion.tex) (DynamicModeling.bbl
+ <use  "figures/geometric_graph.png" >) (applications.tex) (results.tex)
+(conclusion.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+)
+(DynamicModeling.bbl
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;+
 smcp;" at 9.0pt
  -> C:/windows/Fonts/times.ttf
- [5])
+ [6])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 87.
- [6]
+ [7
+
+]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 87.
  (DynamicModeling.aux)
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 87.
@@ -1601,12 +1612,12 @@ Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 87.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 87.
  ) 
 Here is how much of TeX's memory you used:
- 26128 strings out of 428790
- 490693 string characters out of 3164816
+ 26136 strings out of 428790
+ 490825 string characters out of 3164816
  564042 words of memory out of 3000000
- 29184 multiletter control sequences out of 15000+200000
+ 29192 multiletter control sequences out of 15000+200000
  12865 words of font info for 66 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
  43i,11n,69p,10423b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on DynamicModeling.pdf (6 pages).
+Output written on DynamicModeling.pdf (7 pages).
