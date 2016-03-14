@@ -24,6 +24,7 @@
 #include <fstream>
 #include <strstream>
 #include "updateclustercenter.h"
+#include "looper.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -59,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUpdate_Cluster_Center,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionGlobal_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionIterate,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
@@ -1043,6 +1045,27 @@ void MainWindow::start_editing()
         connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
         edit_thread_ = th;
     }
+    if(edit==ui->actionIterate)
+    {
+        QThread* th = new QThread();
+        Looper* loop = new Looper();
+
+        if(!loop->configure(config_)){
+            loop->deleteLater();
+            QString msg = "Missing Some Inputs or configure Before Iterate\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        loop->moveToThread(th);
+
+        connect(loop,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(loop,SIGNAL(end()),th,SLOT(quit()));
+        connect(loop,SIGNAL(end()),loop,SLOT(deleteLater()));
+        connect(th,SIGNAL(started()),loop,SLOT(loop()));
+        th->setObjectName(QString("Global_Iterate"));
+
+        edit_thread_ = th;
+    }
     if(edit_thread_){
         connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
         edit_thread_->start(QThread::HighestPriority);
@@ -1056,7 +1079,7 @@ void MainWindow::finish_editing()
     {
         while(edit_thread_->isRunning())
         {
-            edit_thread_->terminate();
+            edit_thread_->quit();
             QApplication::processEvents();
         }
         edit_thread_->deleteLater();

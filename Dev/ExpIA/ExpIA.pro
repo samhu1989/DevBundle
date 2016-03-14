@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     featureview.cpp \
     inpatchgraphcut.cpp \
     updateclustercenter.cpp \
-    tests.cpp
+    tests.cpp \
+    looper.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -53,7 +54,8 @@ HEADERS  += mainwindow.h \
     featureview.h \
     inpatchgraphcut.h \
     updateclustercenter.h \
-    tests.h
+    tests.h \
+    looper.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

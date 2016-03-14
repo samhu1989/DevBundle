@@ -403,7 +403,7 @@ double VoxelGraph<M>::voxel_similarity(size_t v1,size_t v2,double dist_th,double
     double normal_sim = 1.0;
     if(norm1.is_finite()&&norm2.is_finite())
     {
-        normal_sim = std::abs(arma::dot(norm1,norm2));
+        normal_sim = arma::dot(norm1,norm2);
     }
     if( spatial_dist > dist_th ) return 0.0;
 //    else if( normal_sim > 0.99 ) return 2.0;
