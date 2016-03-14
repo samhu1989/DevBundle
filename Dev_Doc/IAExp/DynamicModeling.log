@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  8 MAR 2016 17:32
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  14 MAR 2016 09:23
 entering extended mode
 **DynamicModeling.tex
 (DynamicModeling.tex
@@ -1569,42 +1569,562 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.29 ...{p{0.73\columnwidth}|{p{0.1\columnwidth}}}
+l.30 ...{p{0.73\columnwidth}|{p{0.1\columnwidth}}}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
-[3] [4]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 57.
 
-Underfull \hbox (badness 10000) in paragraph at lines 79--83
+Underfull \vbox (badness 4048) has occurred while \output is active []
+
+ [3]
+[4]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+put line 58.
+Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
+ at 7.0pt
+ -> C:/windows/Fonts/times.ttf
+
+Underfull \hbox (badness 10000) in paragraph at lines 80--84
 
  []
 
+File: figures/hsy/bedroom_O00.png Graphic file (type QTm)
+<use  "figures/hsy/bedroom_O00.png" >
+! Argument of \@subfloat has an extra }.
+<inserted text> 
+                \par 
+l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+                                                  
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+{ Invalid Object\\ min:0.0494,max:0.6272\\ mean:0.4763,med:0.5639\\ v\ETC.
+! Paragraph ended before \@subfloat was complete.
+<to be read again> 
+                   \par 
+l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+                                                  
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
+ at 8.0pt
+ -> C:/windows/Fonts/times.ttf
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: figures/hsy/bedroom_O01.png Graphic file (type QTm)
+<use  "figures/hsy/bedroom_O01.png" >
+! Argument of \@subfloat has an extra }.
+<inserted text> 
+                \par 
+l.109 ^^I}
+          
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+{ Monitor\\ min:0.7006,max:0.8442\\ mean:0.7937,med:0.8033\\ var:0.00\ETC.
+! Paragraph ended before \@subfloat was complete.
+<to be read again> 
+                   \par 
+l.109 ^^I}
+          
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.109 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.109 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.109 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: figures/hsy/bedroom_O02.png Graphic file (type QTm)
+<use  "figures/hsy/bedroom_O02.png" >
+! Argument of \@subfloat has an extra }.
+<inserted text> 
+                \par 
+l.118 ^^I}
+          
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+{ Vacuum Sweeper\\ min:0.5714,max:0.7993\\ mean:0.7278,med:0.7503\\ v\ETC.
+! Paragraph ended before \@subfloat was complete.
+<to be read again> 
+                   \par 
+l.118 ^^I}
+          
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.118 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.118 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.118 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: figures/hsy/bedroom_O03.png Graphic file (type QTm)
+<use  "figures/hsy/bedroom_O03.png" >
+! Argument of \@subfloat has an extra }.
+<inserted text> 
+                \par 
+l.127 ^^I}
+          
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+{ Invalid Object\\ min:-0.1001,max:0.5751\\ mean:0.1733,med:0.1071\\ \ETC.
+! Paragraph ended before \@subfloat was complete.
+<to be read again> 
+                   \par 
+l.127 ^^I}
+          
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.127 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.127 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.127 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: figures/hsy/bedroom_O04.png Graphic file (type QTm)
+<use  "figures/hsy/bedroom_O04.png" >
+! Argument of \@subfloat has an extra }.
+<inserted text> 
+                \par 
+l.136 ^^I}
+          
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+{ Bed Stand(Mainly)\\ min:0.2278,max:0.6439\\ mean:0.5249,med:0.5707\\\ETC.
+! Paragraph ended before \@subfloat was complete.
+<to be read again> 
+                   \par 
+l.136 ^^I}
+          
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.136 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.136 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.136 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: figures/hsy/bedroom_O05.png Graphic file (type QTm)
+<use  "figures/hsy/bedroom_O05.png" >
+! Argument of \@subfloat has an extra }.
+<inserted text> 
+                \par 
+l.145 ^^I}
+          
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+{ Chair\\ min:0.5774,max:0.7348\\ mean:0.6731,med:0.6736\\ var:0.0014\ETC.
+! Paragraph ended before \@subfloat was complete.
+<to be read again> 
+                   \par 
+l.145 ^^I}
+          
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.145 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.145 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.145 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: figures/hsy/bedroom_O06.png Graphic file (type QTm)
+<use  "figures/hsy/bedroom_O06.png" >
+! Argument of \@subfloat has an extra }.
+<inserted text> 
+                \par 
+l.154 ^^I}
+          
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+{ Desk\\ min:0.2860,max:0.4823\\ mean:0.4130,med:0.4253\\ var:0.0020,\ETC.
+! Paragraph ended before \@subfloat was complete.
+<to be read again> 
+                   \par 
+l.154 ^^I}
+          
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.154 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.154 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.154 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: figures/hsy/bedroom_O07.png Graphic file (type QTm)
+<use  "figures/hsy/bedroom_O07.png" >
+! Argument of \@subfloat has an extra }.
+<inserted text> 
+                \par 
+l.163 ^^I}
+          
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+{ Bed\\ min:0.5031,max:0.6298\\ mean:0.5787,med:0.5699\\ var:0.0012,s\ETC.
+! Paragraph ended before \@subfloat was complete.
+<to be read again> 
+                   \par 
+l.163 ^^I}
+          
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.163 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.163 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.163 ^^I}
+          
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+File: figures/hsy/bedroom_feature_compare.pdf Graphic file (type QTm)
+<use  "figures/hsy/bedroom_feature_compare.pdf" >
+Underfull \hbox (badness 10000) in paragraph at lines 179--182
+
+ []
+
+
+Overfull \hbox (37.13625pt too wide) detected at line 188
+\OML/ztmcm/m/it/9 E\OT1/ztmcm/m/n/9 (\OML/ztmcm/m/it/9 p[]; p[]; L[]; L[]\OT1/z
+tmcm/m/n/9 ) = []
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 188--191
+
+ []
+
+! Missing delimiter (. inserted).
+<to be read again> 
+                   $
+l.196 \right $
+              $
+I was expecting to see something like `(' or `\{' or
+`\}' here. If you typed, e.g., `{' instead of `\{', you
+should probably delete the `{' by typing `1' now, so that
+braces don't get unbalanced. Otherwise just proceed.
+Acceptable delimiters are characters whose \delcode is
+nonnegative, or you can use `\delimiter <delimiter code>'.
+
 File: figures/object-iterations.png Graphic file (type QTm)
-<use  "figures/object-iterations.png" >) (behavior.tex
+<use  "figures/object-iterations.png" >) (behavior.tex [5] [6] [7]
 Underfull \hbox (badness 1082) in paragraph at lines 64--71
 \EU1/TimesNewRoman(0)/m/n/9 Based on all the extracted pairwise relation, a dir
 ected graph
  []
 
-[5]
 File: figures/geometric_graph.png Graphic file (type QTm)
- <use  "figures/geometric_graph.png" >) (applications.tex) (results.tex)
-(conclusion.tex
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-)
-(DynamicModeling.bbl
+<use  "figures/geometric_graph.png" >) (applications.tex) (results.tex)
+(conclusion.tex) (DynamicModeling.bbl
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;+
 smcp;" at 9.0pt
  -> C:/windows/Fonts/times.ttf
- [6])
+ [8])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 87.
- [7
-
-]
+ [9]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 87.
  (DynamicModeling.aux)
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 87.
@@ -1612,12 +2132,12 @@ Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 87.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 87.
  ) 
 Here is how much of TeX's memory you used:
- 26136 strings out of 428790
- 490825 string characters out of 3164816
- 564042 words of memory out of 3000000
- 29192 multiletter control sequences out of 15000+200000
- 12865 words of font info for 66 fonts, out of 3000000 for 9000
+ 26177 strings out of 428790
+ 491705 string characters out of 3164816
+ 569854 words of memory out of 3000000
+ 29222 multiletter control sequences out of 15000+200000
+ 12881 words of font info for 68 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
- 43i,11n,69p,10423b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,11n,69p,10423b,440s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on DynamicModeling.pdf (7 pages).
+Output written on DynamicModeling.pdf (9 pages).

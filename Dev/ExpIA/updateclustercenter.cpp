@@ -60,16 +60,14 @@ void UpdateClusterCenter::evaluate()
             ++lindex;
         }
         patch_score_ = arma::rowvec(score);
-        std::cerr<<"obj-"<<label_value<<std::endl;
-        std::cerr<<"score("<<arma::min(patch_score_)<<","<<arma::max(patch_score_)<<","<<std::endl;
-        ObjModel& model = *objects_[label_value-1];
-        std::cerr<<"expected score:"<<model.GeoM_->mesh_.n_vertices()<<std::endl;
+        std::cerr<<"(min,max)=("<<arma::min(patch_score_)<<","<<arma::max(patch_score_)<<")"<<std::endl;
+        std::cerr<<"(mean,median)=("<<arma::mean(patch_score_)<<","<<arma::median(patch_score_)<<")"<<std::endl;
+        std::cerr<<"var:"<<arma::var(patch_score_)<<std::endl;
+        std::cerr<<"stddev:"<<arma::stddev(patch_score_)<<std::endl;
 
-//        std::cerr<<"score num:"<<patch_score_.n_cols<<std::endl;
-//        std::cerr<<"feature num:"<<patch_feature_.n_cols<<std::endl;
-        if(validate_object())
+        if(validate_object(0.1))
         {
-            select_samples(0.1*(model.GeoM_->mesh_.n_vertices()));
+            select_samples(-1.0);
             compute_mi();
             compute_Hbi();
             compute_Hwi();
@@ -117,9 +115,6 @@ double UpdateClusterCenter::match_patch(
     arma::uword search_idx;
     float search_dist;
 
-//    arma::fmat o_v_mat((float*)om.points(),3,om.n_vertices(),false,true);
-//    arma::fmat p_v_mat((float*)pm.points(),3,pm.n_vertices(),false,true);
-
     arma::fmat o_n_mat((float*)om.vertex_normals(),3,om.n_vertices(),false,true);
     arma::fmat p_n_mat((float*)pm.vertex_normals(),3,pm.n_vertices(),false,true);
 
@@ -135,13 +130,12 @@ double UpdateClusterCenter::match_patch(
         double cdist = arma::norm(pc - oc);
         v += ncos / ( 1.0 + 10.0*std::sqrt(search_dist) ) ;
     }
-    return v;
+    return v / double(om.n_vertices());
 }
 
 bool UpdateClusterCenter::validate_object(double th)
 {
-    arma::uvec index = arma::find( patch_score_ > th );
-    if(index.size()<patch_score_.size())return false;
+    if( arma::stddev(patch_score_) > th )return false;
     return true;
 }
 
@@ -157,7 +151,7 @@ void UpdateClusterCenter::select_samples(double th)
         double th = arma::mean(patch_score_);
         th = th > 0 ? th : 0 ;
     }
-    arma::uvec selected = arma::find( patch_score_ >= th );
+    arma::uvec selected = arma::find( patch_score_ >= (th - 0.1) || patch_score_ <= ( th + 0.1) );
     Ni.push_back(selected.size());
     patch_score_ = patch_score_.cols(selected);
     patch_feature_ = patch_feature_.cols(selected);
@@ -168,9 +162,11 @@ void UpdateClusterCenter::compute_mi()
     mi.emplace_back(patch_feature_.n_rows,arma::fill::zeros);
     arma::mat tmp;
     tmp = patch_feature_;
-    tmp.each_row() %= patch_score_;
+    arma::rowvec score = patch_score_;
+    score -= arma::mean(patch_score_);
+    tmp.each_row() %= score;
     mi.back() = arma::sum(tmp,1);
-    mi.back() /= arma::accu(patch_score_);
+    mi.back() /= arma::accu(score);
 }
 
 void UpdateClusterCenter::compute_Hbi()
@@ -238,6 +234,8 @@ void UpdateClusterCenter::compute_base_gsvd()
     if(config_->has("Feature_dim"))dim = config_->getInt("Feature_dim");
     arma::mat G(feature_base_.colptr(1),feature_base_.n_rows,dim,false,true);
     std::cerr<<"compute_base_gsvd()"<<std::endl;
+    std::cerr<<"Hb("<<Hb.n_rows<<","<<Hb.n_cols<<")"<<std::endl;
+    std::cerr<<"Hw("<<Hw.n_rows<<","<<Hw.n_cols<<")"<<std::endl;
     DimReduction::lda_gsvd(Hb,Hw,G);
 }
 

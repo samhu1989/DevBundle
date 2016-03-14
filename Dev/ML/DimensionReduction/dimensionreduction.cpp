@@ -17,6 +17,7 @@ void lda_gsvd(
     arma::mat A = Hb.t();
     arma::mat B = Hw.t();
     ML_Math::dggsvd(A,B,U,V,C,S,X);
-    G = X.head_cols(G.n_cols);
+    unsigned int N = G.n_cols;
+    G = X.cols(0,N-1);
 }
 }

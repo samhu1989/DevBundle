@@ -25,6 +25,7 @@ Figure~\ref{fig:object-iterations} 显示了第一次与第二次区域生长的
 以下分别进行说明：
 \subsubsection{Features}
 Table~\ref{tab:features}列举了所有使用的特征以及对应的维数。
+其中后三种feature实际上是以bounding box为参考提取的关于物体形状的特征。
 \begin{table}[!hbp]
 \begin{tabular}{p{0.73\columnwidth}|{p{0.1\columnwidth}}}
 \hline
@@ -62,7 +63,7 @@ $\{C_j\}$:Cluster Centers~~\\
 \textbf{Output:}~~\\
 $\{Id_i\}$:Identity for Each Patch in this Frame
 \begin{enumerate}
-\item Calculate Distance Matrix $D_{ij}:=d(P_i,C_j)$
+\item Calculate Distance Matrix $D_{ij}:=eucl\_dist(P_i,C_j)$
 \item Set Column Index $CIndex: = 1:J$
 \item Set Row Index $RIndex: = 1:I$\\
 \textbf{while} $D$ is not empty \textbf{do}
@@ -80,11 +81,122 @@ $\{Id_i\}$:Identity for Each Patch in this Frame
 1.为之前的聚类结果提供反馈。(更新特征投影矩阵和聚类中心)\\
 2.建立起帧与帧之间的对应关系。为后续的联合分割能量项的生成提供桥梁。\\
 3.在最后的迭代中配准生成的物体模型将作为结果输出。\\
-\subsubsection{Update Cluster Centers}
-图中第一行展示了几个有效的聚类中心在联合配准(joint registration)之后生成的物体模型，第二行中则展示了几个无效的聚类中心在联合配准之后生成的物体模型。
+\subsubsection{Remove Unreliable Cluster Center By Registration Result}
+Figure~\ref{fig:bedroom_O}中展示了若干个联合配准(joint registration)之后将各个patch对齐摆放后的图片。我们以配准的结果模型为参考计算各个patch与object模型match的程度，Figure~\ref{fig:bedroom_O}中的分数显示的是match的得分的分布情况包括最小值(min),最大值(max),均值(mean),中值(med),方差(var),标准差(stddev).我现在使用均值(>0)与标准差(<0.1)上设置阈值来判断是否为有效地聚类中心。(Figure~\ref{fig:bedroom_O}中\ref{fig:subfig:e}所示的床头柜实际混入了不少其它patch)
+其中匹配程度的得分计算如下：
+$$Score=\frac{1}{N}\sum_{(i,j)\in M }\frac{\vec{n_i}\vec{n_j}}{1+\alpha||p_i-p_j||} $$
+其中$N$表示object model点的数量 M是以object model搜索patch中最近点所生成的点对的集合，$\vec{n}$表示点法向量，$p$表示点的空间位置。$\alpha$是一个参数。
+对于不满足阈值的类就去除掉，这是为了避免错误的配准对后续步骤造成破坏，对于不确定的聚类留到下一次迭代再考虑。
+为什么不是越匹配越好？而还要对匹配的得分的标准差做约束：
+我们实际上是将以某个物体为核心的一大块区域放在一起做配准，匹配程度低很可能只是说明除了核心物体外混入的物体其它物体较多，而并不能说明这个聚类不是我们想要的。例如Figure~\ref{fig:subfig:g}比Figure~\ref{fig:subfig:e}匹配得分的均值要小就是因为以桌子为主体的patch中混入的其它物体较多。
+\begin{figure*}
+	\centering
+	\subfigure[
+	Invalid Object\\
+	min:0.0494,max:0.6272\\
+	mean:0.4763,med:0.5639\\
+	var:0.0306,stddev:0.1749
+	]{\label{fig:subfig:a}
+	\includegraphics[width=0.2\textwidth]{figures/hsy/bedroom_O00.png}}
+	\subfigure[
+	Monitor\\
+	min:0.7006,max:0.8442\\
+	mean:0.7937,med:0.8033\\
+	var:0.0012,stddev:0.0360
+	]{
+		\label{fig:subfig:b}
+		\includegraphics[width=0.2\textwidth]{figures/hsy/bedroom_O01.png}
+	}
+	\subfigure[
+	Vacuum Sweeper\\
+	min:0.5714,max:0.7993\\
+	mean:0.7278,med:0.7503\\
+	var:0.0031,stddev:0.0555
+	]{
+		\label{fig:subfig:c}
+		\includegraphics[width=0.2\textwidth]{figures/hsy/bedroom_O02.png}
+	}
+	\subfigure[
+	Invalid Object\\
+	min:-0.1001,max:0.5751\\
+	mean:0.1733,med:0.1071\\
+	var:0.0384,stddev:0.1961
+	]{
+		\label{fig:subfig:d}
+		\includegraphics[width=0.2\textwidth]{figures/hsy/bedroom_O03.png}
+	}
+	\subfigure[
+	Bed Stand(Mainly)\\
+	min:0.2278,max:0.6439\\
+	mean:0.5249,med:0.5707\\
+	var:0.0134,stddev:0.1159
+	]{
+		\label{fig:subfig:e}
+		\includegraphics[width=0.2\textwidth]{figures/hsy/bedroom_O04.png}
+	}
+	\subfigure[
+	Chair\\
+	min:0.5774,max:0.7348\\
+	mean:0.6731,med:0.6736\\
+	var:0.0014,stddev:0.0380
+	]{
+		\label{fig:subfig:f}
+		\includegraphics[width=0.2\textwidth]{figures/hsy/bedroom_O05.png}
+	}
+	\subfigure[
+	Desk\\
+	min:0.2860,max:0.4823\\
+	mean:0.4130,med:0.4253\\
+	var:0.0020,stddev:0.0449
+	]{
+		\label{fig:subfig:g}
+		\includegraphics[width=0.2\textwidth]{figures/hsy/bedroom_O06.png}
+	}
+	\subfigure[
+	Bed\\
+	min:0.5031,max:0.6298\\
+	mean:0.5787,med:0.5699\\
+	var:0.0012,stddev:0.0350
+	]{
+		\label{fig:subfig:h}
+		\includegraphics[width=0.2\textwidth]{figures/hsy/bedroom_O07.png}
+	}
+	\caption{Registered Object Models and Scores}
+	\label{fig:bedroom_O}
+\end{figure*}
+\subsubsection{Update Project Matrix By Registration Result}
+我选择使用LDA的方法来更新特征投影的矩阵主要出于以下几点考虑：
+1.与初始的聚类方法能够较好的衔接(实现上只需要更新一个矩阵就好了)。\\
+2.LDA相当于对不同维的特征赋予不同的权重使得类内方差尽量小而类间方差尽量大，从而在特征子空间中增加不同类别之间的可区分度。
+Figure~\ref{fig:bedroom_pca_lda} 显示了PCA投影产生的特征子空间与LDA投影产生的特征子空间的对比。
+\begin{figure*}
+	\centering
+	\includegraphics[width=2\columnwidth]{figures/hsy/bedroom_feature_compare}
+	\caption{Feature Space Different Projection Matrix}
+	\label{fig:bedroom_pca_lda}
+\end{figure*}
 \subsection{Global Consistent Graph Cut}
+这一步主要利用之前配准所获得object model以及对应的刚体变换为中介来进行重新分割具体的能量项的设计如下：\\
+重新分割操作是在每一帧上单独进行，但是其中data项的计算是通过与其它帧的比较来计算获得：\\
+smooth term：\\
+$$E(p_i,p_j,L_i,L_j)=\left\{
+\begin{aligned}
+& \sum_{(i,j)\in M }\frac{|\vec{n_i}\vec{n_j}|}{(1+\alpha||p_i-p_j||)(1+\beta||c_i-c_j||)}~&~L_i \neq L_j\\
+& 0~&~otherwise
+\end{aligned}
+\right.
+$$
+其中：$\vec{n}$表示superpixel的法向量$p$表示空间位置，$c$表示RGB色彩。$\alpha$ 和 $\beta$ 是常数(目前实际取值就是1)\\
+data term:\\
+$$ E(p_i,L_i) =\left\{
+\begin{aligned}
+& C~&~L_i=0\\
+& ||p_i-p_k|| + \max_{N}(\frac{||T_{nk}(p_i)-p_{nk}||}{T_{nk}(\vec{n_i})\vec{n_{nk}}})~&~L_i=1...K
+\end{aligned}
+\right $$
+其中C是一个很大的常数，相当于一个门限，倘若label成任何一个物体都误差都超过C的时候希望被label为0。
+其中$p_k$是通过$p_i$在当前帧中对应于第k个object的patch中找到的最近点。$T_{nk}(p_i)$是根据第k个object将点的空间位置$p_i$变换到第n帧相应的$T_{nk}(\vec{n_i})$是将法向量进行变换。$p_{nk}$是与$T_{nk}(p_i)$最近的点。$||p_i-p_k||$这一项的加入是为了应对存在多个不运动，或运动始终相同的物体时鼓励将当前点label为最近的点所属的物体。
 \label{subsec:graphcut}
-
 \begin{figure*}
 \centering
 \includegraphics[width=2\columnwidth]{figures/object-iterations.png}

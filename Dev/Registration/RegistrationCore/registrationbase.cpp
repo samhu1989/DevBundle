@@ -6,7 +6,7 @@ void RegistrationBase::alignAroundZ(const arma::fmat &x0,const arma::fmat &x1, a
 {
     arma::fmat::fixed<3,3> R;
     arma::fmat y;
-    float N = 72.0;
+    float N = 100.0;
     double minError = std::numeric_limits<double>::max();
     for(int k=0;k<N;++k)
     {
@@ -54,7 +54,7 @@ void RegistrationBase::alignAroundZ(
     arma::fmat::fixed<3,3> R;
     arma::fmat y;
     arma::fmat yn;
-    float N = 72.0;
+    float N = 100.0;
     double minError = std::numeric_limits<double>::max();
     for(int k=0;k<N;++k)
     {
@@ -68,7 +68,7 @@ void RegistrationBase::alignAroundZ(
             bestR = R;
         }
     }
-    std::cerr<<"minError:"<<minError<<std::endl;
+//    std::cerr<<"minError:"<<minError<<std::endl;
 }
 double RegistrationBase::closestError(
         const arma::fmat& x,

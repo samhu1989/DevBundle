@@ -47,25 +47,35 @@ void dggsvd(
     S = arma::mat(p,k+l,arma::fill::zeros);
     arma::mat R(k+l,k+l,arma::fill::zeros);
     arma::uword diag_len = 0;
+    std::cerr<<"m:"<<m<<std::endl;
+    std::cerr<<"n:"<<n<<std::endl;
+    std::cerr<<"k:"<<k<<std::endl;
+    std::cerr<<"l:"<<l<<std::endl;
+    std::cerr<<iwork<<std::endl;
     if( m-k-l >= 0 )
     {
         diag_len = k+l;
+//        std::cerr<<"1"<<std::endl;
         R = A_.submat(0,n-k-l,k+l-1,n-1);
     }else{
         diag_len = m;
+//        std::cerr<<"2"<<std::endl;
         R.submat(0,0,m-1,k+l-1) = A_.submat(0,n-k-l,m-1,n-1);
         R.submat(m,m,k+l-1,k+l-1) = B_.submat(m-k,n+m-k-l,l-1,n-1);
     }
     C.diag().ones();
     arma::vec cd = C.diag();
-    cd.tail(diag_len - k) = alpha.subvec(k,diag_len-1);
+    size_t Ncd = std::min( diag_len - k , cd.size() );
+    cd.tail(Ncd) = alpha.subvec( k , Ncd + k - 1);
     C.diag() = cd;
 
     S.diag(1).ones();
     arma::vec sd = S.diag(1);
-    sd.head(diag_len - k) = beta.subvec(k,diag_len-1);
+    size_t Nsd = std::min( diag_len - k , sd.size() );
+    sd.head(Nsd) = beta.subvec( k , Nsd + k - 1);
     S.diag(1) = sd;
 
+//    std::cerr<<"3"<<std::endl;
     arma::mat T(Q.n_rows,Q.n_cols,arma::fill::eye);
     T.submat(Q.n_rows-R.n_rows,Q.n_cols-R.n_cols,Q.n_rows-1,Q.n_cols-1) = R.i();
     X = Q*T;

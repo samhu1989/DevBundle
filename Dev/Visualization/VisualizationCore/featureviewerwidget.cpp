@@ -33,7 +33,13 @@ void FeatureViewerWidget::refresh()
                         )
                     );
         brush.setStyle(Qt::SolidPattern);
-        QGraphicsEllipseItem* item = scene_.addEllipse(scale_*100*features_(0,idx),scale_*100*features_(1,idx),8.0,8.0,pen,brush);
+        QGraphicsEllipseItem* item = scene_.addEllipse(
+                    custom_scale_*scale_*features_(0,idx),
+                    custom_scale_*scale_*features_(1,idx),
+                    8.0,
+                    8.0,
+                    pen,
+                    brush);
         item->setBrush(brush);
         item->setCursor(QCursor(Qt::PointingHandCursor));
         item->setToolTip(feature_strings_[idx]);
@@ -60,10 +66,10 @@ void FeatureViewerWidget::wheelEvent(QWheelEvent* event)
     double scaleFactor = 0.5; //How fast we zoom
     const qreal minFactor = 1.0;
     const qreal maxFactor = 10.0;
-    if(steps>0)scale_ += scaleFactor;
-    if(steps<0)scale_ -= scaleFactor;
-    scale_= scale_ < maxFactor ? scale_ : maxFactor;
-    scale_= scale_ > minFactor ? scale_ : minFactor;
+    if(steps>0)custom_scale_ += scaleFactor;
+    if(steps<0)custom_scale_ -= scaleFactor;
+    custom_scale_= custom_scale_ < maxFactor ? custom_scale_ : maxFactor;
+    custom_scale_= custom_scale_ > minFactor ? custom_scale_ : minFactor;
     refresh();
     ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     ui->graphicsView->setTransform(QTransform(1, 0, 0, 1, 0, 0));
