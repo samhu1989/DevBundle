@@ -1048,8 +1048,7 @@ void MainWindow::start_editing()
     if(edit==ui->actionIterate)
     {
         QThread* th = new QThread();
-        Looper* loop = new Looper();
-
+        Looper* loop = new Looper(inputs_,objects_,labels_,feature_base_,feature_centers_,this,QThread::currentThread());
         if(!loop->configure(config_)){
             loop->deleteLater();
             QString msg = "Missing Some Inputs or configure Before Iterate\n";
@@ -1057,11 +1056,16 @@ void MainWindow::start_editing()
             return;
         }
         loop->moveToThread(th);
-
+        connect(loop,SIGNAL(save_svx(QString)),this,SLOT(save_supervoxels(QString)));
+        connect(loop,SIGNAL(save_obj(QString)),this,SLOT(save_objects(QString)));
+        connect(loop,SIGNAL(save_lbl(QString)),this,SLOT(save_labels(QString)));
+        connect(loop,SIGNAL(save_clt(QString)),this,SLOT(save_cluster(QString)));
         connect(loop,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         connect(loop,SIGNAL(end()),th,SLOT(quit()));
         connect(loop,SIGNAL(end()),loop,SLOT(deleteLater()));
         connect(th,SIGNAL(started()),loop,SLOT(loop()));
+        connect(this,SIGNAL(object_updated()),loop,SLOT(step_finished()));
+        connect(loop,SIGNAL(start_uo()),this,SLOT(update_object()));
         th->setObjectName(QString("Global_Iterate"));
 
         edit_thread_ = th;
@@ -1070,6 +1074,31 @@ void MainWindow::start_editing()
         connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
         edit_thread_->start(QThread::HighestPriority);
     }
+}
+
+void MainWindow::update_object()
+{
+    UpdateObjectModel* w = new UpdateObjectModel(
+                inputs_,
+                labels_,
+                objects_
+                );
+    if(!w->configure(config_)){
+        QString msg = "You probably should do unify label first\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        w->deleteLater();
+        return;
+    }
+    w->setMethod(1);
+    w->showMessageBox(false);
+    connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+    connect(w,SIGNAL(show_layout(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)));
+    w->setAttribute(Qt::WA_DeleteOnClose,true);
+    QMdiSubWindow* s = ui->mdiArea->addSubWindow(w,Qt::Widget|Qt::WindowMinMaxButtonsHint);
+    connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+    s->show();
+    connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(notify_object_updated()));
+    w->startLater();
 }
 
 void MainWindow::finish_editing()

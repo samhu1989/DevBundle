@@ -22,12 +22,16 @@ public:
 
 signals:
     void close_views();
+    void object_updated();
 
 public slots:
     void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
     void closeInMdi(QWidget* w);
     void showBox(int,MeshBundle<DefaultMesh>::Ptr);
-
+    void notify_object_updated(){
+        std::cerr<<"notifying"<<std::endl;
+        emit object_updated();
+    }
 
 public slots:
     void save_labels(QString dirName=QString());
@@ -59,6 +63,7 @@ protected slots:
     void save_scene_model(const std::string&);
 
     void start_editing();
+    void update_object();
     void finish_editing();
 
     void remove_zero_label();

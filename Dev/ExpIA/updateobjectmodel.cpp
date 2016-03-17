@@ -13,6 +13,7 @@ UpdateObjectModel::UpdateObjectModel(IMeshList &inputs, ILabelList &labels, OMod
     geo_thread_(NULL),
     color_thread_(NULL),
     method_id_(0),
+    show_mbox_(true),
     ui(new Ui::UpdateObjectModel)
 {
     ui->setupUi(this);
@@ -383,7 +384,7 @@ void UpdateObjectModel::finish_current()
         }
         else{
             QString msg = "All Objects are Updated";
-            QMessageBox::information( NULL, windowTitle(), msg);
+            if(show_mbox_)QMessageBox::information( NULL, windowTitle(), msg);
             int ms = alg_timer.elapsed();
             int s = ms/1000;
             ms -= s*1000;

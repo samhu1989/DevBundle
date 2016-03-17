@@ -29,6 +29,7 @@ public:
     ~UpdateObjectModel();
     bool configure(Config::Ptr);
     void setMethod(uint32_t method){method_id_ = method;}
+    inline void showMessageBox(bool show){show_mbox_=show;}
 public slots:
     void startLater();
 signals:
@@ -60,6 +61,7 @@ private:
 
     bool done_align_;
     bool done_fit_;
+    bool show_mbox_;
 
     MeshListViewerWidget* geo_view_;
 //    LabSpace* color_view_;
