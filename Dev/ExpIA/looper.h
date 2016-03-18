@@ -27,6 +27,7 @@ public:
          main_thread_(main_thread),
          QObject(parent){}
     bool configure(Config::Ptr config);
+    inline void setSavePath(QString path){save_path_=path;}
 signals:
     void message(QString,int);
     void save_svx(QString);//save super voxel
@@ -49,12 +50,17 @@ protected:
     void uo();//update object model
     void uc();//upate cluster
     void gc();//graph cut
+    typedef enum{
+        SV,RG,UF,UO,UC,GC
+    }Step;
+    void saveStep(Step,int,int);
     void wait_for_current();
     void wait_for_current(QThread*);
 protected:
     uint32_t count_;
     uint32_t max_count_;
     bool current_running_;
+    QString save_path_;
 private:
     Config::Ptr config_;
     MainWindow* main_window_;

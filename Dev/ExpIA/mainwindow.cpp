@@ -1047,6 +1047,7 @@ void MainWindow::start_editing()
     }
     if(edit==ui->actionIterate)
     {
+
         QThread* th = new QThread();
         Looper* loop = new Looper(inputs_,objects_,labels_,feature_base_,feature_centers_,this,QThread::currentThread());
         if(!loop->configure(config_)){
@@ -1055,6 +1056,13 @@ void MainWindow::start_editing()
             QMessageBox::critical(this, windowTitle(), msg);
             return;
         }
+        QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save Steps"),
+                tr("../Dev_Data/")
+                );
+        if(dirName.isEmpty())return;
+        loop->setSavePath(dirName);
         loop->moveToThread(th);
         connect(loop,SIGNAL(save_svx(QString)),this,SLOT(save_supervoxels(QString)));
         connect(loop,SIGNAL(save_obj(QString)),this,SLOT(save_objects(QString)));

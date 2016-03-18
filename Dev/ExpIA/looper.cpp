@@ -22,17 +22,27 @@ void Looper::reset()
 
 void Looper::loop()
 {
+    QDir dir;
     reset();
     sv();
+    saveStep(SV,0,0);
     for(count_=0;count_ < max_count_; ++count_ )
     {
+
         rg();
+        saveStep(RG,count_,0);
         uf();
+        saveStep(UF,count_,1);
         uo();
+        saveStep(UO,count_,2);
         uc();
+        saveStep(UC,count_,3);
         uf();
+        saveStep(UF,count_,4);
         uo();
+        saveStep(UO,count_,5);
         gc();
+        saveStep(GC,count_,6);
     }
     emit end();
 }
@@ -47,6 +57,8 @@ void Looper::sv()
         return;
     }
     connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
+    emit message(tr("Starting Supervoxel"),0);
+    th->start(QThread::HighPriority);
     wait_for_current(th);
     th->deleteLater();
 }
@@ -61,6 +73,8 @@ void Looper::rg()
         return;
     }
     connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
+    emit message(tr("Starting Region Grow"),0);
+    th->start(QThread::HighPriority);
     wait_for_current(th);
     th->deleteLater();
 }
@@ -75,12 +89,15 @@ void Looper::uf()
         return;
     }
     connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
+    emit message(tr("Starting Unify Label"),0);
+    th->start(QThread::HighPriority);
     wait_for_current(th);
     th->deleteLater();
 }
 
 void Looper::uo()
 {
+    emit message(tr("Starting Update Object"),0);
     emit start_uo();
     wait_for_current();
 }
@@ -95,6 +112,8 @@ void Looper::uc()
         return;
     }
     connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
+    emit message(tr("Starting Update Object"),0);
+    th->start(QThread::HighPriority);
     wait_for_current(th);
     th->deleteLater();
 }
@@ -110,6 +129,8 @@ void Looper::gc()
     }
     connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
     connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),main_window_,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
+    emit message(tr("Starting Graph Cut"),0);
+    th->start(QThread::HighPriority);
     wait_for_current(th);
     th->deleteLater();
 }
@@ -118,7 +139,7 @@ void Looper::wait_for_current()
 {
     while(current_running_)
     {
-        QThread::msleep(300);
+        QThread::msleep(30);
         QApplication::processEvents();
     }
 }
@@ -127,8 +148,43 @@ void Looper::wait_for_current(QThread* th)
 {
     while(!th->isFinished())
     {
-        QThread::msleep(300);
+        QThread::msleep(30);
         QApplication::processEvents();
+    }
+}
+
+void Looper::saveStep(Step step,int iter,int stepn)
+{
+    QDir dir;
+    dir.setPath(save_path_);
+    QString step_path;
+    switch(step)
+    {
+    case SV:
+         step_path = step_path.sprintf("./%02u%02usv",iter,stepn);break;
+    case RG:
+         step_path = step_path.sprintf("./%02u%02urg",iter,stepn);break;
+    case UF:
+         step_path = step_path.sprintf("./%02u%02uuf",iter,stepn);break;
+    case UC:
+         step_path = step_path.sprintf("./%02u%02uuc",iter,stepn);break;
+    case UO:
+         step_path = step_path.sprintf("./%02u%02uuo",iter,stepn);break;
+    }
+    dir.mkdir(step_path);
+    switch(step)
+    {
+    case SV:
+        emit save_svx(dir.absoluteFilePath(step_path));break;
+    case RG:
+        emit save_lbl(dir.absoluteFilePath(step_path));break;
+    case UF:
+        emit save_lbl(dir.absoluteFilePath(step_path));break;
+        emit save_clt(dir.absoluteFilePath(step_path));break;
+    case UC:
+        emit save_clt(dir.absoluteFilePath(step_path));break;
+    case UO:
+        emit save_obj(dir.absoluteFilePath(step_path));break;
     }
 }
 
