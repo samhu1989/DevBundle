@@ -49,9 +49,9 @@ protected:
     void uf();//unify label
     void uo();//update object model
     void uc();//upate cluster
-    void gc();//graph cut
+    void ggc();//global graph cut
     typedef enum{
-        SV,RG,UF,UO,UC,GC
+        SV,RG,UF,UO,UC,GGC
     }Step;
     void saveStep(Step,int,int);
     void wait_for_current();

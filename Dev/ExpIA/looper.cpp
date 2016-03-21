@@ -11,6 +11,10 @@
 bool Looper::configure(Config::Ptr config)
 {
     config_= config;
+    if(config_->has("Loop_iter_num"))
+    {
+        max_count_ = config->getInt("Loop_iter_num");
+    }else return false;
     return true;
 }
 
@@ -22,27 +26,25 @@ void Looper::reset()
 
 void Looper::loop()
 {
-    QDir dir;
     reset();
     sv();
     saveStep(SV,0,0);
     for(count_=0;count_ < max_count_; ++count_ )
     {
-
         rg();
-        saveStep(RG,count_,0);
+        saveStep(RG,count_,1);
         uf();
-        saveStep(UF,count_,1);
+        saveStep(UF,count_,2);
         uo();
-        saveStep(UO,count_,2);
+        saveStep(UO,count_,3);
         uc();
-        saveStep(UC,count_,3);
+        saveStep(UC,count_,4);
         uf();
-        saveStep(UF,count_,4);
+        saveStep(UF,count_,5);
         uo();
-        saveStep(UO,count_,5);
-        gc();
-        saveStep(GC,count_,6);
+        saveStep(UO,count_,6);
+        ggc();
+        saveStep(GGC,count_,7);
     }
     emit end();
 }
@@ -112,13 +114,13 @@ void Looper::uc()
         return;
     }
     connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
-    emit message(tr("Starting Update Object"),0);
+    emit message(tr("Starting Update Cluster Center"),0);
     th->start(QThread::HighPriority);
     wait_for_current(th);
     th->deleteLater();
 }
 
-void Looper::gc()
+void Looper::ggc()
 {
     GraphCutThread* th = new GraphCutThread(inputs_,objects_,labels_);
     if(!th->configure(config_)){
@@ -128,7 +130,7 @@ void Looper::gc()
         return;
     }
     connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
-    connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),main_window_,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
+    connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),main_window_,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)));
     emit message(tr("Starting Graph Cut"),0);
     th->start(QThread::HighPriority);
     wait_for_current(th);
@@ -137,10 +139,11 @@ void Looper::gc()
 
 void Looper::wait_for_current()
 {
+    current_running_ = true;
     while(current_running_)
     {
         QThread::msleep(30);
-        QApplication::processEvents();
+        QApplication::processEvents();//it is suppose to recieve a signal of finish
     }
 }
 
@@ -170,6 +173,8 @@ void Looper::saveStep(Step step,int iter,int stepn)
          step_path = step_path.sprintf("./%02u%02uuc",iter,stepn);break;
     case UO:
          step_path = step_path.sprintf("./%02u%02uuo",iter,stepn);break;
+    case GGC:
+         step_path = step_path.sprintf("./%02u%02uggc",iter,stepn);break;
     }
     dir.mkdir(step_path);
     switch(step)
@@ -179,12 +184,15 @@ void Looper::saveStep(Step step,int iter,int stepn)
     case RG:
         emit save_lbl(dir.absoluteFilePath(step_path));break;
     case UF:
-        emit save_lbl(dir.absoluteFilePath(step_path));break;
-        emit save_clt(dir.absoluteFilePath(step_path));break;
+        emit save_lbl(dir.absoluteFilePath(step_path));
+        emit save_clt(dir.absoluteFilePath(step_path));
+        break;
     case UC:
         emit save_clt(dir.absoluteFilePath(step_path));break;
     case UO:
         emit save_obj(dir.absoluteFilePath(step_path));break;
+    case GGC:
+        emit save_lbl(dir.absoluteFilePath(step_path));break;
     }
 }
 

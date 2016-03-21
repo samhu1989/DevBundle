@@ -523,6 +523,7 @@ void MainWindow::load_supervoxels()
 
 void MainWindow::save_cluster(QString dirName)
 {
+    std::cerr<<"saving cluster"<<std::endl;
     if(dirName.isEmpty())
     {
         dirName = QFileDialog::getExistingDirectory(
@@ -535,7 +536,7 @@ void MainWindow::save_cluster(QString dirName)
     QDir dir;
     dir.setPath(dirName);
     QString filepath = dir.absoluteFilePath(
-                QString::fromStdString("Base.fmat.arma")
+                tr("Base.fmat.arma")
                 );
     if(!feature_base_.save(filepath.toStdString(),arma::arma_binary))
     {
@@ -544,7 +545,7 @@ void MainWindow::save_cluster(QString dirName)
         return;
     }
     filepath = dir.absoluteFilePath(
-                QString::fromStdString("Center.fmat.arma")
+                tr("Center.fmat.arma")
                 );
     if(!feature_centers_.save(filepath.toStdString(),arma::arma_binary))
     {

@@ -255,10 +255,11 @@ void UpdateClusterCenter::compute_center()
 //update the projection matrix by LDA
 void UpdateClusterCenter::update()
 {
-    std::cerr<<"Hw"<<std::endl;
+
     compute_Hw();
-    std::cerr<<"Hb"<<std::endl;
+    std::cerr<<"Hw("<<Hw.n_rows<<","<<Hw.n_cols<<")"<<std::endl;
     compute_Hb();
+    std::cerr<<"Hb("<<Hb.n_rows<<","<<Hb.n_cols<<")"<<std::endl;
     if( Hw.n_rows > arma::rank(Hw) )
     {
         std::cerr<<"Base"<<std::endl;

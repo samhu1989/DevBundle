@@ -44,11 +44,14 @@ void GraphCutThread::run(void)
     while( current_frame_ < meshes_.size() )
     {
         timer.restart();
+        std::cerr<<"Frame:"<<current_frame_<<std::endl;
         MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
         label_number_ = 1 + objects_.size();
         pix_number_ = m.graph_.voxel_centers.n_cols;
         gc.setLabelNumber( label_number_ );
         gc.setPixelNumber( pix_number_ );
+        std::cerr<<"Label Num:"<<label_number_<<std::endl;
+        std::cerr<<"Pix Num:"<<pix_number_<<std::endl;
         if("Label_Wise"==config_->getString("GC_global_mode"))
         {
             if(!prepareDataTermLabelWise())
@@ -62,6 +65,7 @@ void GraphCutThread::run(void)
                 std::cerr<<"Failed in prepareDataTerm"<<std::endl;
             }
         }else throw std::logic_error("Invalid value of GC_global_mode");
+        std::cerr<<"Done Data Term:"<<std::endl;
         if(!current_data_||0==current_data_.use_count())std::logic_error("!current_data_||0==current_data_.use_count()");
         gc.inputDataTerm(current_data_);
         if(!prepareSmoothTerm(gc))
@@ -69,20 +73,24 @@ void GraphCutThread::run(void)
             std::cerr<<"Failed in prepareSmoothTerm"<<std::endl;
         }
         gc.inputSmoothTerm(current_smooth_);
+        std::cerr<<"Done Smooth Term:"<<std::endl;
         gc.init(Segmentation::GraphCut::EXPANSION);
         if(!prepareNeighbors(gc))
         {
             std::cerr<<"Failed in prepareNeighbors"<<std::endl;
         }
+        std::cerr<<"Done Assign Neighbors:"<<std::endl;
         gc.updateInfo();
         float t;
         emit message(QString::fromStdString(gc.info()),0);
         std::cerr<<gc.info()<<std::endl;
         gc.optimize(config_->getInt("GC_iter_num"),t);
+        std::cerr<<"Done Optimize:"<<std::endl;
         emit message(QString::fromStdString(gc.info()),0);
         std::cerr<<gc.info()<<std::endl;
         arma::uvec sv_label;
         gc.getAnswer(sv_label);
+        std::cerr<<"Got Answer"<<std::endl;
         m.graph_.sv2pix(sv_label,outputs_[current_frame_]);
         m.custom_color_.fromlabel(outputs_[current_frame_]);
         QString msg;
@@ -169,7 +177,13 @@ void GraphCutThread::showSmooth()
 bool GraphCutThread::prepareDataTermLabelWise()
 {
     MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
-    data_.reset(new double[label_number_*pix_number_]);
+    try{
+        data_.reset(new double[label_number_*pix_number_]);
+    }catch(std::bad_alloc& e)
+    {
+        std::cerr<<"prepareDataTermLabelWise:bad_alloc cought:"<<e.what()<<std::endl;
+    }
+
     arma::mat data_mat(data_.get(),label_number_,pix_number_,false,true);
     std::vector<ObjModel::Ptr>::iterator oiter;
     uint32_t obj_index = 0;
@@ -286,7 +300,12 @@ void GraphCutThread::normalizeData()
 bool GraphCutThread::prepareDataTermPixWise()
 {
     MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
-    data_.reset(new double[label_number_*pix_number_]);
+    try{
+        data_.reset(new double[label_number_*pix_number_]);
+    }catch(std::bad_alloc& e)
+    {
+        std::cerr<<"prepareDataTermLabelWise:bad_alloc cought:"<<e.what()<<std::endl;
+    }
     arma::mat data_mat((double*)data_.get(),label_number_,pix_number_,false,true);
     data_mat.fill(std::numeric_limits<float>::max());
     for( uint32_t pix = 0 ; pix < pix_number_ ; ++pix )
@@ -315,7 +334,7 @@ void GraphCutThread::prepareDataForPix(uint32_t pix, arma::mat& data_mat)
             arma::fmat sR(s_ptr->R,3,3,false,true);
             arma::fvec st(s_ptr->t,3,false,true);
             double object_data;
-            std::cerr<<"matchPix("<<pix<<")toObject("<<oidx<<")"<<std::endl;
+//            std::cerr<<"matchPix("<<pix<<")toObject("<<oidx<<")"<<std::endl;
             matchPixtoObject(pix,oidx,sR,st,object_data);
             if(object_data<std::numeric_limits<float>::max())
             {
@@ -474,6 +493,7 @@ void GraphCutThread::matchPixtoFrame(
 bool GraphCutThread::prepareSmoothTerm(Segmentation::GraphCut& gc)
 {
     MeshBundle<DefaultMesh>& m = *meshes_[current_frame_];
+    smooth_.clear();
     smooth_ = arma::sp_mat(pix_number_,pix_number_);
     for( size_t idx = 0 ; idx < m.graph_.voxel_neighbors.n_cols ; ++idx )
     {
