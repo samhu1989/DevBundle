@@ -967,11 +967,12 @@ GCoptimization::EnergyType Expansion::start_expansion(int max_num_iterations )
     //old_energy = new_energy+1; // this doesn't work for large float energies
     old_energy = -1;
 
-    while (old_energy < 0 || (old_energy > new_energy  && curr_cycle <= max_num_iterations))
+    std::cerr<<"starting expansion iteration"<<std::endl;
+    while ( old_energy < 0 || (old_energy > new_energy  && curr_cycle <= max_num_iterations))
     {
         old_energy = new_energy;
         new_energy = oneExpansionIteration();
-        
+        std::cerr<<old_energy<<"->"<<new_energy<<std::endl;
         curr_cycle++;   
     }
 
@@ -985,7 +986,6 @@ GCoptimization::EnergyType Expansion::start_expansion(int max_num_iterations )
 GCoptimization::EnergyType Expansion::alpha_expansion(LabelType label)
 {
     terminateOnError( label < 0 || label >= m_nLabels,"Illegal Label to Expand On");
-
     perform_alpha_expansion(label);
     return(dataEnergy()+smoothnessEnergy());
 }
@@ -997,8 +997,6 @@ void Expansion::perform_alpha_expansion(LabelType alpha_label)
 {
     PixelType i,size = 0; 
     Energy *e = new Energy();
-    
-
     
     for ( i = 0; i < m_nPixels; i++ )
     {

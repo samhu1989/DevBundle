@@ -50,8 +50,9 @@ protected:
     void uo();//update object model
     void uc();//upate cluster
     void ggc();//global graph cut
+    void lgc();//in patch graph cut
     typedef enum{
-        SV,RG,UF,UO,UC,GGC
+        SV,RG,UF,UO,UC,GGC,LGC
     }Step;
     void saveStep(Step,int,int);
     void wait_for_current();

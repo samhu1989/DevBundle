@@ -8,6 +8,7 @@
 #include "unifylabelthread.h"
 #include "graphcutthread.h"
 #include "updateclustercenter.h"
+#include "inpatchgraphcut.h"
 bool Looper::configure(Config::Ptr config)
 {
     config_= config;
@@ -126,12 +127,29 @@ void Looper::ggc()
     if(!th->configure(config_)){
         th->deleteLater();
         QString msg = "Missing Some Inputs or configure\n";
-        QMessageBox::critical(NULL,tr("Looping:Failed to Start Graph Cut"), msg);
+        QMessageBox::critical(NULL,tr("Looping:Failed to Start Global Graph Cut"), msg);
         return;
     }
     connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
     connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),main_window_,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)));
-    emit message(tr("Starting Graph Cut"),0);
+    emit message(tr("Starting Global Graph Cut"),0);
+    th->start(QThread::HighPriority);
+    wait_for_current(th);
+    th->deleteLater();
+}
+
+void Looper::lgc()
+{
+    InPatchGraphCut* th = new InPatchGraphCut(inputs_,objects_,labels_);
+    if(!th->configure(config_)){
+        th->deleteLater();
+        QString msg = "Missing Some Inputs or configure\n";
+        QMessageBox::critical(NULL, tr("Looping:Failed to Start In-Patch Graph Cut"), msg);
+        return;
+    }
+    connect(th,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
+    connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)));
+    emit message(tr("Starting In-Patch Graph Cut"),0);
     th->start(QThread::HighPriority);
     wait_for_current(th);
     th->deleteLater();

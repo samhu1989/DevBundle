@@ -1,0 +1,79 @@
+\subsubsection{Logic Outline}
+\begin{table*}[!hbp]
+	\begin{tabular}{p{0.15\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}}
+		\hline
+		步骤 & 期望目标 & 目前算法实际达到的效果 & 主要差异\\
+		\hline
+		Region Grow 
+		& 输入：一个由多个物体混在一起没有被label的区域（要求不能有一个物体部分被label而另一部分没有被label）
+		输出:欠分割的结果—————将每一帧分为多个patch每一个patch由一个或多个物体组成 
+		& 将每一帧中还没有被label的区域按照空间是否近邻分为多个patch 
+		& 只要输入符合要求我认为在室内数据中是等价的
+		\\
+		\hline
+		Clustering
+		& 输入所有的patch， 输出每个patch所属类别，要求每一类所有的patch中最大的（所占点最多）物体都相同
+		& 以patch最多的一帧的patch特征为初始用k-means来获取聚类中心，将每帧中特征空间中距离聚类中心最近的归为该类
+		& 完全不等价，也没有满足需求\\
+		\hline
+		Joint Registration 
+		& 输入同一类的patch，将它们按照类中patch共有的最大的物体配准到一起 
+		& 输出一个模型与一组刚体变换，在存在noise和outlier的前提下，以高斯为先验最大化 后验概率————这些观察到的patch是由这个模型按照这组刚体变换生成的  
+		& 并不等价，但是从结果来看我觉得是能够满足需求的 \\
+		\hline
+		Graph Cut
+		& 将每一类的每个patch中除了主体物体之外的部分重新标记为没有被label的区域
+		& 一个superpixel如果按照某个类的变换能够在每一帧都匹配得（如能量项中的取max就是为了表达需要在每一帧中都匹配得好才叫匹配得好）很好则label为这个物体，果都匹配得不好则重新被标记为没有label的区域（匹配得好与不好的门限的设置依然是不清晰的）
+		& 因为噪声和形变的存在所以并不能够等价
+	\end{tabular}
+	\caption{Logic Outline v0.0} %表格的名称
+	\label{tab:logic_outline00}
+\end{table*}
+\begin{table*}[!hbp]
+	\begin{tabular}{p{0.15\textwidth}|p{0.75\textwidth}}
+		\hline
+		步骤 & 期望目标 \\
+		\hline
+		Region Grow&\tabincell{l}{
+			输出：\\
+			每一帧每个pixel有一个label值
+			要求：\\
+			1.在任意一帧中，属于同一个物体的pixel必须被赋予同一个label值。\\
+			2.在任意一帧中，属于不同的物体的pixel也可以被赋予同一个label的值。\\（被赋予同一个label值的pixel被认为组成一个patch，\\则这项要求等价于一个patch可以是一个或多个物体的集合）\\
+			3.在不同的帧之间，属于同一个物体的pixel不需要被赋予同一个label值。}\\
+		\hline
+		Clustering&\tabincell{l}{输出：\\
+			每个patch赋予一个新的label的值，其中可以存在一个特殊的零label\\
+			要求：\\
+			1.在不同帧之间，同一个label（零label除外）的patch（称为同一个类的patch）必须包含\\同一个物体，且这个相同的物体在包含它的patch中占有的点的比例足够大（称为类内核心物体）\\
+			2.允许原本多个patch被同时赋予零label}\\
+		\hline
+		Joint Registration&\tabincell{l}{
+			输出：\\
+			除了零label的patch以外，
+			对于每一个patch得到一个刚体变换，对于每一类得到一个物体模型。\\
+			要求：\\
+			1.零label除外，每一类的patch按照所得到的刚体变换变换以后，\\这一类的类内核心物体将会在三维空间中对齐。}\\
+		\hline
+		Graph Cut&\tabincell{l}{输出：\\
+			更新每个pixel的label，使得原本属于类内核心物体的pixel的label与原本类的label相同，\\
+			而不属于类内核心物体的pixel的label被置为零label\\
+			要求：\\
+			1.允许部分属于类内核心物体的pixel被置为零label。\\
+			2.不允许不属于类内核心物体的pixel保留原来该类的label。}\\
+		\hline
+		Region Grow&\tabincell{l}{输出：\\
+			给每一个零label的pixel赋予一个非零的label值。\\
+			要求：\\
+			1.对于不属于上一步中类内核心物体的pixel要求符合第一次\\region grow的要求（属于新分出来的物体的pixel）。}\\
+		\hline
+		Clustering&\tabincell{l}{输出：\\
+			每个patch赋予一个新的label的值，不存在零label
+			要求：\\
+			1.在不同帧之间，同一个label（零label除外）的patch（称为同一个类的patch）\\必须包含同一个物体，且这个相同的物体在包含它的\\patch中占有的点的比例足够大（称为类内核心物体）\\
+			2.允许patch恢复为上一步聚类时的label值}\\
+		\hline
+	\end{tabular}
+	\caption{Logic Outline v0.1} %表格的名称
+	\label{tab:logic_outline01}
+\end{table*}

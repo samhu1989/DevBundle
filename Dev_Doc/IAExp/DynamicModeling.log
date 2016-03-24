@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  14 MAR 2016 09:23
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  24 MAR 2016 10:44
 entering extended mode
 **DynamicModeling.tex
 (DynamicModeling.tex
@@ -1357,37 +1357,37 @@ Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
 \c@theorem=\count172
 
 (DynamicModeling.aux)
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 62.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 62.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 63.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 63.
  ("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for EU1/lmr/m/n on input line 62.
-LaTeX Font Info:    ... okay on input line 62.
-LaTeX Font Info:    Checking defaults for T3/cmr/m/n on input line 62.
-LaTeX Font Info:    Try loading font information for T3+cmr on input line 62.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for EU1/lmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for T3/cmr/m/n on input line 63.
+LaTeX Font Info:    Try loading font information for T3+cmr on input line 63.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\tipa\t3cmr.fd"
 File: t3cmr.fd 2001/12/31 TIPA font definitions
 )
-LaTeX Font Info:    ... okay on input line 62.
+LaTeX Font Info:    ... okay on input line 63.
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 9.0pt
  -> C:/windows/Fonts/times.ttf
@@ -1406,7 +1406,7 @@ File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
 Package color Info: Driver file: xetex.def on input line 137.
 )
-Package hyperref Info: Link coloring ON on input line 62.
+Package hyperref Info: Link coloring ON on input line 63.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
@@ -1416,9 +1416,9 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count173
 )
-LaTeX Info: Redefining \ref on input line 62.
-LaTeX Info: Redefining \pageref on input line 62.
-LaTeX Info: Redefining \nameref on input line 62.
+LaTeX Info: Redefining \ref on input line 63.
+LaTeX Info: Redefining \pageref on input line 63.
+LaTeX Info: Redefining \nameref on input line 63.
 
 ("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\se-ascii-print.def"
 File: se-ascii-print.def 2011/12/02 v1.10 stringenc: Printable ASCII characters
@@ -1443,7 +1443,7 @@ File: figures/teaser.png Graphic file (type QTm)
 <use  "figures/teaser.png" >
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 71.
+(caption)                particular \caption on input line 72.
 See the caption package documentation for explanation.
 
 Requested font "Times New Roman/B/OT:script=latn;language=DFLT;mapping=tex-text
@@ -1555,10 +1555,18 @@ Underfull \hbox (badness 3179) in paragraph at lines 1--1
 []\EU1/lmss/bx/n/12 Iterative Co-Segmentation and Joint
  []
 
+(logic_outline.tex
 Requested font "SimSun/OT:script=hani;language=DFLT;" at 9.0pt
  -> C:/windows/Fonts/simsun.ttc
+
+Underfull \hbox (badness 1048) in paragraph at lines 15--16
+[]\EU1/SimSun(0)/m/n/9 输 入 所 有 的 \EU1/TimesNewRoman(0)/m/n/9 patch\EU1/SimSun(0
+)/m/n/9 ，| 输 出 每 个
+ []
+
+)
 File: figures/hsy/overview.pdf Graphic file (type QTm)
-<use  "figures/hsy/overview.pdf" >
+ <use  "figures/hsy/overview.pdf" >
 Requested font "[lmsans10-bold]:mapping=tex-text" at 10.0pt
  -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
 
@@ -1569,23 +1577,28 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.30 ...{p{0.73\columnwidth}|{p{0.1\columnwidth}}}
+l.31 ...{p{0.73\columnwidth}|{p{0.1\columnwidth}}}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
+! Extra alignment tab has been changed to \cr.
+<recently read> \endtemplate 
+                             
+l.33 Feature & Dimension &
+                           \\
+You have given more \span or & marks than there were
+in the preamble to the \halign or \valign now in progress.
+So I'll assume that you meant to type \cr instead.
 
-Underfull \vbox (badness 4048) has occurred while \output is active []
-
- [3]
-[4]
+[3] [4] [5]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 58.
+put line 59.
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 7.0pt
  -> C:/windows/Fonts/times.ttf
 
-Underfull \hbox (badness 10000) in paragraph at lines 80--84
+Underfull \hbox (badness 10000) in paragraph at lines 81--85
 
  []
 
@@ -1594,7 +1607,7 @@ File: figures/hsy/bedroom_O00.png Graphic file (type QTm)
 ! Argument of \@subfloat has an extra }.
 <inserted text> 
                 \par 
-l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+l.101 ...\textwidth]{figures/hsy/bedroom_O00.png}}
                                                   
 I've run across a `}' that doesn't seem to match anything.
 For example, `\def\a#1{...}' and `\a}' would produce
@@ -1608,7 +1621,7 @@ Runaway argument?
 ! Paragraph ended before \@subfloat was complete.
 <to be read again> 
                    \par 
-l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+l.101 ...\textwidth]{figures/hsy/bedroom_O00.png}}
                                                   
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
@@ -1624,7 +1637,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+l.101 ...\textwidth]{figures/hsy/bedroom_O00.png}}
                                                   
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1636,7 +1649,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+l.101 ...\textwidth]{figures/hsy/bedroom_O00.png}}
                                                   
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1648,7 +1661,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.100 ...\textwidth]{figures/hsy/bedroom_O00.png}}
+l.101 ...\textwidth]{figures/hsy/bedroom_O00.png}}
                                                   
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1658,7 +1671,7 @@ File: figures/hsy/bedroom_O01.png Graphic file (type QTm)
 ! Argument of \@subfloat has an extra }.
 <inserted text> 
                 \par 
-l.109 ^^I}
+l.110 ^^I}
           
 I've run across a `}' that doesn't seem to match anything.
 For example, `\def\a#1{...}' and `\a}' would produce
@@ -1672,7 +1685,7 @@ Runaway argument?
 ! Paragraph ended before \@subfloat was complete.
 <to be read again> 
                    \par 
-l.109 ^^I}
+l.110 ^^I}
           
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
@@ -1685,7 +1698,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.109 ^^I}
+l.110 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1697,7 +1710,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.109 ^^I}
+l.110 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1709,7 +1722,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.109 ^^I}
+l.110 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1719,7 +1732,7 @@ File: figures/hsy/bedroom_O02.png Graphic file (type QTm)
 ! Argument of \@subfloat has an extra }.
 <inserted text> 
                 \par 
-l.118 ^^I}
+l.119 ^^I}
           
 I've run across a `}' that doesn't seem to match anything.
 For example, `\def\a#1{...}' and `\a}' would produce
@@ -1733,7 +1746,7 @@ Runaway argument?
 ! Paragraph ended before \@subfloat was complete.
 <to be read again> 
                    \par 
-l.118 ^^I}
+l.119 ^^I}
           
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
@@ -1746,7 +1759,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.118 ^^I}
+l.119 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1758,7 +1771,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.118 ^^I}
+l.119 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1770,7 +1783,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.118 ^^I}
+l.119 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1780,7 +1793,7 @@ File: figures/hsy/bedroom_O03.png Graphic file (type QTm)
 ! Argument of \@subfloat has an extra }.
 <inserted text> 
                 \par 
-l.127 ^^I}
+l.128 ^^I}
           
 I've run across a `}' that doesn't seem to match anything.
 For example, `\def\a#1{...}' and `\a}' would produce
@@ -1794,7 +1807,7 @@ Runaway argument?
 ! Paragraph ended before \@subfloat was complete.
 <to be read again> 
                    \par 
-l.127 ^^I}
+l.128 ^^I}
           
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
@@ -1807,7 +1820,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.127 ^^I}
+l.128 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1819,7 +1832,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.127 ^^I}
+l.128 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1831,7 +1844,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.127 ^^I}
+l.128 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1841,7 +1854,7 @@ File: figures/hsy/bedroom_O04.png Graphic file (type QTm)
 ! Argument of \@subfloat has an extra }.
 <inserted text> 
                 \par 
-l.136 ^^I}
+l.137 ^^I}
           
 I've run across a `}' that doesn't seem to match anything.
 For example, `\def\a#1{...}' and `\a}' would produce
@@ -1855,7 +1868,7 @@ Runaway argument?
 ! Paragraph ended before \@subfloat was complete.
 <to be read again> 
                    \par 
-l.136 ^^I}
+l.137 ^^I}
           
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
@@ -1868,7 +1881,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.136 ^^I}
+l.137 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1880,7 +1893,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.136 ^^I}
+l.137 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1892,7 +1905,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.136 ^^I}
+l.137 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1902,7 +1915,7 @@ File: figures/hsy/bedroom_O05.png Graphic file (type QTm)
 ! Argument of \@subfloat has an extra }.
 <inserted text> 
                 \par 
-l.145 ^^I}
+l.146 ^^I}
           
 I've run across a `}' that doesn't seem to match anything.
 For example, `\def\a#1{...}' and `\a}' would produce
@@ -1916,7 +1929,7 @@ Runaway argument?
 ! Paragraph ended before \@subfloat was complete.
 <to be read again> 
                    \par 
-l.145 ^^I}
+l.146 ^^I}
           
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
@@ -1929,7 +1942,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.145 ^^I}
+l.146 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1941,7 +1954,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.145 ^^I}
+l.146 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1953,7 +1966,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.145 ^^I}
+l.146 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -1963,7 +1976,7 @@ File: figures/hsy/bedroom_O06.png Graphic file (type QTm)
 ! Argument of \@subfloat has an extra }.
 <inserted text> 
                 \par 
-l.154 ^^I}
+l.155 ^^I}
           
 I've run across a `}' that doesn't seem to match anything.
 For example, `\def\a#1{...}' and `\a}' would produce
@@ -1977,7 +1990,7 @@ Runaway argument?
 ! Paragraph ended before \@subfloat was complete.
 <to be read again> 
                    \par 
-l.154 ^^I}
+l.155 ^^I}
           
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
@@ -1990,7 +2003,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.154 ^^I}
+l.155 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -2002,7 +2015,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.154 ^^I}
+l.155 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -2014,7 +2027,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.154 ^^I}
+l.155 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -2024,7 +2037,7 @@ File: figures/hsy/bedroom_O07.png Graphic file (type QTm)
 ! Argument of \@subfloat has an extra }.
 <inserted text> 
                 \par 
-l.163 ^^I}
+l.164 ^^I}
           
 I've run across a `}' that doesn't seem to match anything.
 For example, `\def\a#1{...}' and `\a}' would produce
@@ -2038,7 +2051,7 @@ Runaway argument?
 ! Paragraph ended before \@subfloat was complete.
 <to be read again> 
                    \par 
-l.163 ^^I}
+l.164 ^^I}
           
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
@@ -2051,7 +2064,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.163 ^^I}
+l.164 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -2063,7 +2076,7 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.163 ^^I}
+l.164 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
@@ -2075,32 +2088,32 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.163 ^^I}
+l.164 ^^I}
           
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 File: figures/hsy/bedroom_feature_compare.pdf Graphic file (type QTm)
 <use  "figures/hsy/bedroom_feature_compare.pdf" >
-Underfull \hbox (badness 10000) in paragraph at lines 179--182
+Underfull \hbox (badness 10000) in paragraph at lines 180--183
 
  []
 
 
-Overfull \hbox (37.13625pt too wide) detected at line 188
+Overfull \hbox (37.13625pt too wide) detected at line 189
 \OML/ztmcm/m/it/9 E\OT1/ztmcm/m/n/9 (\OML/ztmcm/m/it/9 p[]; p[]; L[]; L[]\OT1/z
 tmcm/m/n/9 ) = []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 188--191
+Underfull \hbox (badness 10000) in paragraph at lines 189--192
 
  []
 
 ! Missing delimiter (. inserted).
 <to be read again> 
                    $
-l.196 \right $
+l.197 \right $
               $
 I was expecting to see something like `(' or `\{' or
 `\}' here. If you typed, e.g., `{' instead of `\{', you
@@ -2110,7 +2123,7 @@ Acceptable delimiters are characters whose \delcode is
 nonnegative, or you can use `\delimiter <delimiter code>'.
 
 File: figures/object-iterations.png Graphic file (type QTm)
-<use  "figures/object-iterations.png" >) (behavior.tex [5] [6] [7]
+<use  "figures/object-iterations.png" >) (behavior.tex [6] [7] [8]
 Underfull \hbox (badness 1082) in paragraph at lines 64--71
 \EU1/TimesNewRoman(0)/m/n/9 Based on all the extracted pairwise relation, a dir
 ected graph
@@ -2122,22 +2135,22 @@ File: figures/geometric_graph.png Graphic file (type QTm)
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;+
 smcp;" at 9.0pt
  -> C:/windows/Fonts/times.ttf
- [8])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 87.
- [9]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 87.
+ [9])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 88.
+ [10]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 88.
  (DynamicModeling.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 87.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 87.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 87.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 88.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 88.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 88.
  ) 
 Here is how much of TeX's memory you used:
- 26177 strings out of 428790
- 491705 string characters out of 3164816
- 569854 words of memory out of 3000000
- 29222 multiletter control sequences out of 15000+200000
+ 26193 strings out of 428790
+ 492283 string characters out of 3164816
+ 577988 words of memory out of 3000000
+ 29235 multiletter control sequences out of 15000+200000
  12881 words of font info for 68 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
- 43i,11n,69p,10423b,440s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,16n,69p,10423b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on DynamicModeling.pdf (9 pages).
+Output written on DynamicModeling.pdf (10 pages).
