@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  24 MAR 2016 10:44
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  25 MAR 2016 15:12
 entering extended mode
 **DynamicModeling.tex
 (DynamicModeling.tex
@@ -1466,10 +1466,39 @@ Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
 Requested font "[lmsans8-regular]:mapping=tex-text" at 5.0pt
  -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans8-regular.otf
 ) (introduction.tex
+
+LaTeX Warning: Citation 'Hen12RGB' on page 1 undefined on input line 8.
+
+
+LaTeX Warning: Citation 'kinectfusion11' on page 1 undefined on input line 8.
+
+
+LaTeX Warning: Citation 'MuseumCSG12' on page 1 undefined on input line 8.
+
+
+LaTeX Warning: Citation 'YanSiggraph14' on page 1 undefined on input line 8.
+
+
+LaTeX Warning: Citation 'shao12' on page 1 undefined on input line 8.
+
+
+LaTeX Warning: Citation 'NanIndoor2012' on page 1 undefined on input line 8.
+
+
+LaTeX Warning: Citation 'kmyg_acquireIndoor_sigga12' on page 1 undefined on inp
+ut line 8.
+
+
+LaTeX Warning: Citation 'Fisherscenesynth12' on page 1 undefined on input line 
+8.
+
+
+LaTeX Warning: Citation 'Xu13sig' on page 1 undefined on input line 8.
+
 Requested font "Times New Roman/I/OT:script=latn;language=DFLT;mapping=tex-text
 ;" at 10.0pt
  -> C:/windows/Fonts/timesi.ttf
- [1
+[1
 
 
 ]) (relatedwork.tex
@@ -1478,21 +1507,103 @@ Requested font "[lmsans9-regular]:mapping=tex-text" at 9.0pt
 Requested font "[lmsans10-bold]:mapping=tex-text" at 9.0pt
  -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
 
+
+LaTeX Warning: Citation 'kinectfusion11' on page 2 undefined on input line 11.
+
+
+LaTeX Warning: Citation 'MuseumCSG12' on page 2 undefined on input line 13.
+
+
+LaTeX Warning: Citation 'Hen12RGB' on page 2 undefined on input line 13.
+
+
+LaTeX Warning: Citation 'Koppula/etal/11' on page 2 undefined on input line 16.
+
+
+
+LaTeX Warning: Citation 'shao12' on page 2 undefined on input line 17.
+
+
+LaTeX Warning: Citation 'NanIndoor2012' on page 2 undefined on input line 17.
+
+
+LaTeX Warning: Citation 'kmyg_acquireIndoor_sigga12' on page 2 undefined on inp
+ut line 18.
+
+
+LaTeX Warning: Citation 'shao12' on page 2 undefined on input line 21.
+
+
+LaTeX Warning: Citation 'IndoorUpdatingPG14' on page 2 undefined on input line 
+24.
+
+
 Underfull \hbox (badness 2617) in paragraph at lines 11--26
  []\EU1/lmss/bx/n/9 Reconstruction from RGBD Images.[] \EU1/TimesNewRoman(0)/m/
 n/9 For static scenes,
  []
 
 
+LaTeX Warning: Citation 'Wand2007' on page 2 undefined on input line 32.
+
+
+LaTeX Warning: Citation 'chang11global' on page 2 undefined on input line 36.
+
+
+LaTeX Warning: Citation 'sparseicp_sgp13' on page 2 undefined on input line 41.
+
+
+
+LaTeX Warning: Citation 'YanSiggraph14' on page 2 undefined on input line 44.
+
+
+LaTeX Warning: Citation 'xu_siga15' on page 2 undefined on input line 45.
+
+
+LaTeX Warning: Citation 'Huang2014' on page 2 undefined on input line 51.
+
+
+LaTeX Warning: Citation 'Su2014_3dattributes' on page 2 undefined on input line
+ 51.
+
+
+LaTeX Warning: Citation 'HuICON2015' on page 2 undefined on input line 53.
+
+
+LaTeX Warning: Citation 'savva2014scenegrok' on page 2 undefined on input line 
+55.
+
+
+LaTeX Warning: Citation 'fisher2015actsynth' on page 2 undefined on input line 
+57.
+
+
+LaTeX Warning: Citation 'Merrell11' on page 2 undefined on input line 72.
+
+
+LaTeX Warning: Citation 'craigyu2011furniture' on page 2 undefined on input lin
+e 75.
+
+
 LaTeX Warning: Citation 'Fisher2012' on page 2 undefined on input line 80.
+
+
+LaTeX Warning: Citation 'xu_sig14' on page 2 undefined on input line 84.
 
 ) (overview.tex
 File: figures/overview.eps Graphic file (type eps)
- <figures/overview.eps> [2]
+ <figures/overview.eps>
+
+LaTeX Warning: Reference `fig:overview' on page 2 undefined on input line 18.
+
+
+LaTeX Warning: Citation 'NieBner:2013:VoxelHashing' on page 2 undefined on inpu
+t line 20.
+
+[2]
 LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 28
 .
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ztmcm.fd"
+ ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ztmcm.fd"
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
 Requested font "zptmcm7t" at 9.0pt
@@ -1550,6 +1661,25 @@ File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 Requested font "rsfs10" at 9.0pt
 Requested font "rsfs7" at 7.0pt
 Requested font "rsfs5" at 5.0pt
+
+
+LaTeX Warning: Citation 'Jia20153D' on page 3 undefined on input line 30.
+
+
+LaTeX Warning: Citation 'Evangelidis-ECCV-2014' on page 3 undefined on input li
+ne 37.
+
+
+LaTeX Warning: Reference `sec:segmentation' on page 3 undefined on input line 4
+1.
+
+
+LaTeX Warning: Reference `sec:behavior' on page 3 undefined on input line 44.
+
+
+LaTeX Warning: Reference `sec:applications' on page 3 undefined on input line 4
+4.
+
 ) (segmentation.tex
 Underfull \hbox (badness 3179) in paragraph at lines 1--1
 []\EU1/lmss/bx/n/12 Iterative Co-Segmentation and Joint
@@ -1564,11 +1694,27 @@ Underfull \hbox (badness 1048) in paragraph at lines 15--16
 )/m/n/9 ，| 输 出 每 个
  []
 
+
+Overfull \hbox (181.9751pt too wide) in paragraph at lines 107--108
+[][]| 
+ []
+
 )
+
+LaTeX Warning: Reference `fig:iterative-segmentation-registration' on page 3 un
+defined on input line 4.
+
 File: figures/hsy/overview.pdf Graphic file (type QTm)
- <use  "figures/hsy/overview.pdf" >
+<use  "figures/hsy/overview.pdf" >
 Requested font "[lmsans10-bold]:mapping=tex-text" at 10.0pt
  -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
+
+
+LaTeX Warning: Reference `fig:object-iterations' on page 3 undefined on input l
+ine 18.
+
+
+LaTeX Warning: Reference `tab:features' on page 3 undefined on input line 28.
 
 
 ! LaTeX Error: Illegal character in array arg.
@@ -1591,16 +1737,50 @@ You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-[3] [4] [5]
+
+LaTeX Warning: Reference `subsec:registration' on page 3 undefined on input lin
+e 52.
+
+[3] [4] [5] [6]
+
+LaTeX Warning: Reference `subsec:registration' on page 7 undefined on input lin
+e 55.
+
+
+LaTeX Warning: Reference `alg:assignment' on page 7 undefined on input line 57.
+
+
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 59.
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 7.0pt
  -> C:/windows/Fonts/times.ttf
 
+LaTeX Warning: Citation 'Evangelidis-ECCV-2014' on page 7 undefined on input li
+ne 81.
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 81--85
 
  []
+
+
+LaTeX Warning: Reference `fig:bedroom_O' on page 7 undefined on input line 86.
+
+
+LaTeX Warning: Reference `fig:bedroom_O' on page 7 undefined on input line 86.
+
+
+LaTeX Warning: Reference `fig:bedroom_O' on page 7 undefined on input line 86.
+
+
+LaTeX Warning: Reference `fig:subfig:e' on page 7 undefined on input line 86.
+
+
+LaTeX Warning: Reference `fig:subfig:g' on page 7 undefined on input line 92.
+
+
+LaTeX Warning: Reference `fig:subfig:e' on page 7 undefined on input line 92.
 
 File: figures/hsy/bedroom_O00.png Graphic file (type QTm)
 <use  "figures/hsy/bedroom_O00.png" >
@@ -2093,6 +2273,10 @@ l.164 ^^I}
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
+
+LaTeX Warning: Reference `fig:bedroom_pca_lda' on page 7 undefined on input lin
+e 172.
+
 File: figures/hsy/bedroom_feature_compare.pdf Graphic file (type QTm)
 <use  "figures/hsy/bedroom_feature_compare.pdf" >
 Underfull \hbox (badness 10000) in paragraph at lines 180--183
@@ -2123,11 +2307,34 @@ Acceptable delimiters are characters whose \delcode is
 nonnegative, or you can use `\delimiter <delimiter code>'.
 
 File: figures/object-iterations.png Graphic file (type QTm)
-<use  "figures/object-iterations.png" >) (behavior.tex [6] [7] [8]
+<use  "figures/object-iterations.png" >) (behavior.tex [7] [8] [9]
+
+LaTeX Warning: Citation 'Fisherscenesynth12' on page 10 undefined on input line
+ 25.
+
+
+LaTeX Warning: Citation 'Silberman:ECCV12' on page 10 undefined on input line 2
+5.
+
+
+LaTeX Warning: Citation 'Xu13sig' on page 10 undefined on input line 25.
+
+
+LaTeX Warning: Citation 'xu_sig14' on page 10 undefined on input line 25.
+
+
+LaTeX Warning: Reference `fig:geometric_graph' on page 10 undefined on input li
+ne 64.
+
+
 Underfull \hbox (badness 1082) in paragraph at lines 64--71
 \EU1/TimesNewRoman(0)/m/n/9 Based on all the extracted pairwise relation, a dir
 ected graph
  []
+
+
+LaTeX Warning: Reference `sec:pairwise_relation' on page 10 undefined on input 
+line 79.
 
 File: figures/geometric_graph.png Graphic file (type QTm)
 <use  "figures/geometric_graph.png" >) (applications.tex) (results.tex)
@@ -2135,22 +2342,29 @@ File: figures/geometric_graph.png Graphic file (type QTm)
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;+
 smcp;" at 9.0pt
  -> C:/windows/Fonts/times.ttf
- [9])
+ [10])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 88.
- [10]
+ [11]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 88.
  (DynamicModeling.aux)
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 88.
 Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 88.
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 88.
  ) 
 Here is how much of TeX's memory you used:
- 26193 strings out of 428790
- 492283 string characters out of 3164816
- 577988 words of memory out of 3000000
- 29235 multiletter control sequences out of 15000+200000
+ 26198 strings out of 428790
+ 492496 string characters out of 3164816
+ 594042 words of memory out of 3000000
+ 29240 multiletter control sequences out of 15000+200000
  12881 words of font info for 68 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
- 43i,16n,69p,10423b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,18n,69p,10423b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on DynamicModeling.pdf (10 pages).
+Output written on DynamicModeling.pdf (11 pages).

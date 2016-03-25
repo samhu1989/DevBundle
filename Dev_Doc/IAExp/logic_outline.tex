@@ -77,3 +77,74 @@
 	\caption{Logic Outline v0.1} %表格的名称
 	\label{tab:logic_outline01}
 \end{table*}
+\begin{table*}[!hbp]
+	\begin{tabular}{p{0.15\textwidth}|p{0.75\textwidth}}
+		\hline
+		步骤 & 期望目标 \\
+		\hline
+		Region Grow&\tabincell{l}{
+			输入：\\
+			同一个场景不同时刻扫描的T个Point Cloud:$\{F_t\}$\\
+			场景中总共包含没有被区分开的N个物体：$\{O_n\}$\\
+			第n帧点云有$I(t)$个点，$p_{ti}$表示第N帧的第i个点\\
+			输出：\\
+			对于每一帧输出$J(t)$个Patch$\{P_{tj}\}$\\
+			要求：\\
+			1.Patch之间没有重叠。\\
+			2.同一个物体不能分到两个不同的Patch中。\\
+			3.不同的物体可以被分到同一个Patch中。\\
+			}\\
+		\hline
+		Clustering&\tabincell{l}{
+			输入：\\
+			所有的Patch$\{P_{tj}\}$\\
+			输出：\\
+			将所有的Patch分配到M+1个类当中$\{C_m\}$\\
+			其中$C_0$为无语义类，其余类为有语义类。
+			要求：\\
+			1.同一帧的两个Patch不能属于同一个有语义类。\\
+			2.属于同一个有语义类的Patch必须包含同一个物体，并且这个物体在包含它的Patch中必须占有足够大的比例。（这个物体称为类内核心物体） 
+			}\\
+		\hline
+		Joint Registration&\tabincell{l}{
+			输入：\\
+			已经被分配到个M+1类中的Patch\\
+			设第m类有K(m)个Patch，则$P_{mk}$表示第M类的第k个Patch\\
+			输出：\\
+			除了$C_0$以及属于$C_0$的Patch之外，
+			对于每一个$P_{mk}$得到一个刚体变换，\\
+			对于每一类得到一个物体模型${M_m}$\\
+			要求：\\
+			1.除了属于$C_0$的Patch之外，每一类的Patch按照所得到的刚体变换变换以后，\\这一类的类内核心物体将会在三维空间中对齐。}\\
+		\hline
+		Graph Cut&\tabincell{l}{
+			输入：（前一步的输出）\\
+			输出：\\
+			将不属于类内核心物体的点从该类的Patch中移除\\
+			要求：\\
+			1.允许部分属于类内核心物体的点被错误的移除。\\
+			2.不允许没有被移除干净的点。}\\
+		\hline
+		Region Grow&\tabincell{l}{
+			输入：\\
+			前一步中被从Patch中移除的点。\\
+			输出：\\
+			从没有Patch归属的点中重新生成Patch\\
+			要求：\\
+			1.对于没有被错误移除的点要求在生成Patch时满足第一次region grow 的要求}\\
+		\hline
+		Clustering&\tabincell{l}{
+			输入：\\
+			上一步中新生成的Patch\\
+			输出：\\
+			将所有的新Patch分配到M个新的类当中$\{C_m\}$\\
+			要求：\\
+			1.同一帧的两个Patch不能属于同一个有语义类。\\
+			2.属于同一个有语义类的Patch必须包含同一个物体，\\并且这个物体在包含它的Patch中必须占有足够大的比例。（这个物体称为类内核心物体）\\
+			3.新生成的Patch如果不能被分配到一个有语义的类当中则\\将他合并回到之前的Patch中去。
+			}\\
+		\hline
+	\end{tabular}
+	\caption{Logic Outline v0.2} %表格的名称
+	\label{tab:logic_outline02}
+\end{table*}
