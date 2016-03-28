@@ -8,4 +8,5 @@ SUBDIRS += \
     Feature \
     ExpIA \
     Filter \
-    ML
+    ML \
+    Optimization
