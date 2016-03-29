@@ -25,33 +25,32 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
-#include <Eigen/Core>
-using namespace Eigen;
+#include <armadillo>
 
 class UnaryEnergy {
 public:
 	virtual ~UnaryEnergy();
 	// Set the unary
-	virtual MatrixXf get( ) const = 0;
+    virtual arma::mat get( ) const = 0;
 	// Gradient computation
-	virtual VectorXf parameters() const;
-	virtual void setParameters( const VectorXf & v );
-	virtual VectorXf gradient( const MatrixXf & b ) const;
+    virtual arma::vec parameters() const;
+    virtual void setParameters( const arma::vec & v );
+    virtual arma::vec gradient( const arma::mat & b ) const;
 };
 class ConstUnaryEnergy: public UnaryEnergy {
 protected:
-	MatrixXf unary_;
+    arma::mat unary_;
 public:
-	ConstUnaryEnergy( const MatrixXf & unary );
-	virtual MatrixXf get( ) const;
+    ConstUnaryEnergy( const arma::mat & unary );
+    virtual arma::mat get( ) const;
 };
 class LogisticUnaryEnergy: public UnaryEnergy {
 protected:
-	MatrixXf L_, f_;
+    arma::mat L_, f_;
 public:
-	LogisticUnaryEnergy( const MatrixXf & L, const MatrixXf & feature );
-	virtual MatrixXf get( ) const;
-	virtual VectorXf parameters() const;
-	virtual void setParameters( const VectorXf & v );
-	virtual VectorXf gradient( const MatrixXf & b ) const;
+    LogisticUnaryEnergy( const arma::mat & L, const arma::mat & feature );
+    virtual arma::mat get( ) const;
+    virtual arma::vec parameters() const;
+    virtual void setParameters( const arma::vec & v );
+    virtual arma::vec gradient( const arma::mat & b ) const;
 };

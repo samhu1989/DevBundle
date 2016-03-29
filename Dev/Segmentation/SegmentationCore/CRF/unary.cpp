@@ -25,44 +25,37 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "unary.h"
-
+#include <assert.h>
 
 UnaryEnergy::~UnaryEnergy() {
 }
-VectorXf UnaryEnergy::parameters() const {
-	return VectorXf();
+arma::vec UnaryEnergy::parameters() const {
+    return arma::vec();
 }
-void UnaryEnergy::setParameters( const VectorXf & v ) {
+void UnaryEnergy::setParameters( const arma::vec & v ) {
 }
-VectorXf UnaryEnergy::gradient( const MatrixXf & b ) const {
-	return VectorXf();
+arma::vec UnaryEnergy::gradient( const arma::mat & b ) const {
+    return arma::vec();
 }
-
-
-ConstUnaryEnergy::ConstUnaryEnergy( const MatrixXf & u ):unary_(u) {
+ConstUnaryEnergy::ConstUnaryEnergy( const arma::mat & u ):unary_(u) {
 }
-MatrixXf ConstUnaryEnergy::get() const {
+arma::mat ConstUnaryEnergy::get() const {
 	return unary_;
 }
 
-LogisticUnaryEnergy::LogisticUnaryEnergy( const MatrixXf & L, const MatrixXf & f ):L_(L),f_(f) {
+LogisticUnaryEnergy::LogisticUnaryEnergy( const arma::mat & L, const arma::mat & f ):L_(L),f_(f) {
 }
-MatrixXf LogisticUnaryEnergy::get() const {
+arma::mat LogisticUnaryEnergy::get() const {
 	return L_*f_;
 }
-VectorXf LogisticUnaryEnergy::parameters() const {
-	MatrixXf l = L_;
-	l.resize( l.cols()*l.rows(), 1 );
-	return l;
+arma::vec LogisticUnaryEnergy::parameters() const {
+    return arma::vec((double*)L_.memptr(),L_.size(), true,true );
 }
-void LogisticUnaryEnergy::setParameters( const VectorXf & v ) {
-	assert( v.rows() == L_.cols()*L_.rows() );
-	MatrixXf l = v;
-	l.resizeLike( L_ );
-	L_ = l;
+void LogisticUnaryEnergy::setParameters( const arma::vec & v ) {
+    assert( v.n_rows == L_.size() );
+    L_ = arma::mat((double*)v.memptr(),L_.n_rows,L_.n_cols,true,true);
 }
-VectorXf LogisticUnaryEnergy::gradient( const MatrixXf & b ) const {
-	MatrixXf g = b*f_.transpose();
-	g.resize( g.cols()*g.rows(), 1 );
-	return g;
+arma::vec LogisticUnaryEnergy::gradient( const arma::mat & b ) const {
+    arma::mat g = b*f_.t();
+    return arma::vec((double*)g.memptr(),g.size(),true,true);
 }

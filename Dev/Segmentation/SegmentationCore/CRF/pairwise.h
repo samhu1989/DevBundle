@@ -70,5 +70,5 @@ public:
     virtual void setKernelParameters( const arma::vec & v );
     virtual arma::vec gradient( const arma::mat & b, const arma::mat & Q ) const;
     virtual arma::vec kernelGradient( const arma::mat & b, const arma::mat & Q ) const;
-    virtual arma::vec kernelGradient( const arma::fmat & b, const arma::fmat & Q ) const;
+//    virtual arma::vec kernelGradient( const arma::fmat & b, const arma::fmat & Q ) const;
 };

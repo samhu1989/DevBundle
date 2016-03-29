@@ -56,7 +56,7 @@ public:
 	// The kernel shape should be captured by transforming the
 	// features before passing them into this function
 	// (ownership of LabelCompatibility will be transfered to this class)
-	void addPairwiseEnergy( const MatrixXf & features, LabelCompatibility * function, KernelType kernel_type=DIAG_KERNEL, NormalizationType normalization_type=NORMALIZE_SYMMETRIC );
+    void addPairwiseEnergy( const arma::mat & features, LabelCompatibility * function, KernelType kernel_type=DIAG_KERNEL, NormalizationType normalization_type=NORMALIZE_SYMMETRIC );
 	
 	// Add your own favorite pairwise potential (ownership will be transfered to this class)
 	void addPairwiseEnergy( PairwisePotential* potential );
@@ -64,42 +64,42 @@ public:
 	// Set the unary potential (ownership will be transfered to this class)
 	void setUnaryEnergy( UnaryEnergy * unary );
 	// Add a constant unary term
-	void setUnaryEnergy( const MatrixXf & unary );
+    void setUnaryEnergy( const arma::mat & unary );
 	// Add a logistic unary term
-	void setUnaryEnergy( const MatrixXf & L, const MatrixXf & f );
+    void setUnaryEnergy( const arma::mat & L, const arma::mat & f );
 	
 	// Run inference and return the probabilities
-	MatrixXf inference( int n_iterations ) const;
+    arma::mat inference( int n_iterations ) const;
 	
 	// Run MAP inference and return the map for each pixel
-	VectorXs map( int n_iterations ) const;
+    arma::uvec map( int n_iterations ) const;
 	
 	// Step by step inference
-	MatrixXf startInference() const;
-	void stepInference( MatrixXf & Q, MatrixXf & tmp1, MatrixXf & tmp2 ) const;
-	VectorXs currentMap( const MatrixXf & Q ) const;
+    arma::mat startInference() const;
+    void stepInference( arma::mat & Q, arma::mat & tmp1, arma::mat & tmp2 ) const;
+    arma::uvec currentMap( const arma::mat & Q ) const;
 	
 	// Learning functions
 	// Compute the gradient of the objective function over mean-field marginals with
 	// respect to the model parameters
-	double gradient( int n_iterations, const ObjectiveFunction & objective, VectorXf * unary_grad, VectorXf * lbl_cmp_grad, VectorXf * kernel_grad=NULL ) const;
+    double gradient( int n_iterations, const ObjectiveFunction & objective, arma::vec* unary_grad, arma::vec* lbl_cmp_grad, arma::vec* kernel_grad=NULL ) const;
 public: /* Debugging functions */
 	// Compute the unary energy of an assignment l
-	VectorXf unaryEnergy( const VectorXs & l );
+    arma::vec unaryEnergy( const arma::uvec & l );
 	
 	// Compute the pairwise energy of an assignment l (half of each pairwise potential is added to each of it's endpoints)
-	VectorXf pairwiseEnergy( const VectorXs & l, int term=-1 );
+    arma::vec pairwiseEnergy( const arma::uvec & l, int term=-1 );
 	
 	// Compute the KL-divergence of a set of marginals
-	double klDivergence( const MatrixXf & Q ) const;
+    double klDivergence( const arma::mat & Q ) const;
 
 public: /* Parameters */
-	VectorXf unaryParameters() const;
-	void setUnaryParameters( const VectorXf & v );
-	VectorXf labelCompatibilityParameters() const;
-	void setLabelCompatibilityParameters( const VectorXf & v );
-	VectorXf kernelParameters() const;
-	void setKernelParameters( const VectorXf & v );
+    arma::vec unaryParameters() const;
+    void setUnaryParameters( const arma::vec& v );
+    arma::vec labelCompatibilityParameters() const;
+    void setLabelCompatibilityParameters( const arma::vec & v );
+    arma::vec kernelParameters() const;
+    void setKernelParameters( const arma::vec & v );
 };
 
 class DenseCRF2D:public DenseCRF{

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  25 MAR 2016 15:12
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  29 MAR 2016 14:21
 entering extended mode
 **DynamicModeling.tex
 (DynamicModeling.tex
@@ -1699,6 +1699,11 @@ Overfull \hbox (181.9751pt too wide) in paragraph at lines 107--108
 [][]| 
  []
 
+
+Overfull \hbox (31.52393pt too wide) in paragraph at lines 179--180
+[][]| 
+ []
+
 )
 
 LaTeX Warning: Reference `fig:iterative-segmentation-registration' on page 3 un
@@ -1741,13 +1746,13 @@ So I'll assume that you meant to type \cr instead.
 LaTeX Warning: Reference `subsec:registration' on page 3 undefined on input lin
 e 52.
 
-[3] [4] [5] [6]
+[3] [4] [5] [6] [7]
 
-LaTeX Warning: Reference `subsec:registration' on page 7 undefined on input lin
+LaTeX Warning: Reference `subsec:registration' on page 8 undefined on input lin
 e 55.
 
 
-LaTeX Warning: Reference `alg:assignment' on page 7 undefined on input line 57.
+LaTeX Warning: Reference `alg:assignment' on page 8 undefined on input line 57.
 
 
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
@@ -1756,7 +1761,7 @@ Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 7.0pt
  -> C:/windows/Fonts/times.ttf
 
-LaTeX Warning: Citation 'Evangelidis-ECCV-2014' on page 7 undefined on input li
+LaTeX Warning: Citation 'Evangelidis-ECCV-2014' on page 8 undefined on input li
 ne 81.
 
 
@@ -1765,22 +1770,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 81--85
  []
 
 
-LaTeX Warning: Reference `fig:bedroom_O' on page 7 undefined on input line 86.
+LaTeX Warning: Reference `fig:bedroom_O' on page 8 undefined on input line 86.
 
 
-LaTeX Warning: Reference `fig:bedroom_O' on page 7 undefined on input line 86.
+LaTeX Warning: Reference `fig:bedroom_O' on page 8 undefined on input line 86.
 
 
-LaTeX Warning: Reference `fig:bedroom_O' on page 7 undefined on input line 86.
+LaTeX Warning: Reference `fig:bedroom_O' on page 8 undefined on input line 86.
 
 
-LaTeX Warning: Reference `fig:subfig:e' on page 7 undefined on input line 86.
+LaTeX Warning: Reference `fig:subfig:e' on page 8 undefined on input line 86.
 
 
-LaTeX Warning: Reference `fig:subfig:g' on page 7 undefined on input line 92.
+LaTeX Warning: Reference `fig:subfig:g' on page 8 undefined on input line 92.
 
 
-LaTeX Warning: Reference `fig:subfig:e' on page 7 undefined on input line 92.
+LaTeX Warning: Reference `fig:subfig:e' on page 8 undefined on input line 92.
 
 File: figures/hsy/bedroom_O00.png Graphic file (type QTm)
 <use  "figures/hsy/bedroom_O00.png" >
@@ -2274,7 +2279,7 @@ Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: Reference `fig:bedroom_pca_lda' on page 7 undefined on input lin
+LaTeX Warning: Reference `fig:bedroom_pca_lda' on page 8 undefined on input lin
 e 172.
 
 File: figures/hsy/bedroom_feature_compare.pdf Graphic file (type QTm)
@@ -2307,23 +2312,23 @@ Acceptable delimiters are characters whose \delcode is
 nonnegative, or you can use `\delimiter <delimiter code>'.
 
 File: figures/object-iterations.png Graphic file (type QTm)
-<use  "figures/object-iterations.png" >) (behavior.tex [7] [8] [9]
+<use  "figures/object-iterations.png" >) (behavior.tex [8] [9] [10]
 
-LaTeX Warning: Citation 'Fisherscenesynth12' on page 10 undefined on input line
+LaTeX Warning: Citation 'Fisherscenesynth12' on page 11 undefined on input line
  25.
 
 
-LaTeX Warning: Citation 'Silberman:ECCV12' on page 10 undefined on input line 2
+LaTeX Warning: Citation 'Silberman:ECCV12' on page 11 undefined on input line 2
 5.
 
 
-LaTeX Warning: Citation 'Xu13sig' on page 10 undefined on input line 25.
+LaTeX Warning: Citation 'Xu13sig' on page 11 undefined on input line 25.
 
 
-LaTeX Warning: Citation 'xu_sig14' on page 10 undefined on input line 25.
+LaTeX Warning: Citation 'xu_sig14' on page 11 undefined on input line 25.
 
 
-LaTeX Warning: Reference `fig:geometric_graph' on page 10 undefined on input li
+LaTeX Warning: Reference `fig:geometric_graph' on page 11 undefined on input li
 ne 64.
 
 
@@ -2333,7 +2338,7 @@ ected graph
  []
 
 
-LaTeX Warning: Reference `sec:pairwise_relation' on page 10 undefined on input 
+LaTeX Warning: Reference `sec:pairwise_relation' on page 11 undefined on input 
 line 79.
 
 File: figures/geometric_graph.png Graphic file (type QTm)
@@ -2342,9 +2347,9 @@ File: figures/geometric_graph.png Graphic file (type QTm)
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;+
 smcp;" at 9.0pt
  -> C:/windows/Fonts/times.ttf
- [10])
+ [11])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 88.
- [11]
+ [12]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 88.
  (DynamicModeling.aux)
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 88.
@@ -2359,12 +2364,12 @@ LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 88.
  ) 
 Here is how much of TeX's memory you used:
- 26198 strings out of 428790
- 492496 string characters out of 3164816
- 594042 words of memory out of 3000000
- 29240 multiletter control sequences out of 15000+200000
+ 26199 strings out of 428790
+ 492517 string characters out of 3164816
+ 608042 words of memory out of 3000000
+ 29241 multiletter control sequences out of 15000+200000
  12881 words of font info for 68 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
  43i,18n,69p,10423b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on DynamicModeling.pdf (11 pages).
+Output written on DynamicModeling.pdf (12 pages).
