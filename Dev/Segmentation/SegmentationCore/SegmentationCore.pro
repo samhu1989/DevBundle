@@ -26,7 +26,14 @@ SOURCES += segmentationcore.cpp \
     SAC/sac_plane.cpp \
     sac_segmentation.cpp \
     SAC/sac_parallel_plane.cpp \
-    SAC/sac_perpendicular_plane.cpp
+    SAC/sac_perpendicular_plane.cpp \
+    CRF/labelcompatibility.cpp \
+    CRF/objective.cpp \
+    CRF/pairwise.cpp \
+    CRF/permutohedral.cpp \
+    CRF/unary.cpp \
+    CRF/util.cpp \
+    densecrf.cpp
 
 HEADERS += segmentationcore.h\
         segmentationcore_global.h \
@@ -52,7 +59,14 @@ HEADERS += segmentationcore.h\
     SAC/sac_model.h \
     SAC/sac_plane.h \
     SAC/sac_parallel_plane.h \
-    SAC/sac_perpendicular_plane.h
+    SAC/sac_perpendicular_plane.h \
+    CRF/labelcompatibility.h \
+    CRF/objective.h \
+    CRF/pairwise.h \
+    CRF/permutohedral.h \
+    CRF/unary.h \
+    CRF/util.h \
+    densecrf.h
 
 unix {
     target.path = /usr/lib

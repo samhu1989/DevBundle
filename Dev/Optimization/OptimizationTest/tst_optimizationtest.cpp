@@ -34,7 +34,7 @@ void OptimizationTest::LBFGS_Case1()
 {
     ExampleEnergy e;
     Optimization::LBFGS opt;
-    arma::vec m = opt.minimize(e,true);
+    arma::vec m = opt.minimize(e,0,false);
     arma::vec g(m.n_rows);
     std::cerr<<m<<std::endl;
     std::cerr<<"Minimized :"<<e.gradient(m,g)<<std::endl;
