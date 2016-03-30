@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 #include <QMainWindow>
 #include <QThread>
+#include <QImage>
+#include <armadillo>
 namespace Ui {
 class MainWindow;
 }
@@ -12,6 +14,12 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+public slots:
+    void start_editing();
+    void finish_editing();
+protected:
+    QImage input_img_;
+    arma::uvec annotation_;
 private:
     Ui::MainWindow *ui;
     QThread* edit_thread_;
