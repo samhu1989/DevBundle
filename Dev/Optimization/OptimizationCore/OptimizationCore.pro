@@ -31,7 +31,7 @@ unix {
     INSTALLS += target
 }
 
-DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
+DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
 LIBS += -lopenblas
 

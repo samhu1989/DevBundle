@@ -21,7 +21,7 @@ TEMPLATE = app
 SOURCES += tst_optimizationtest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
-DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
+DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
 LIBS += -lopenblas
 

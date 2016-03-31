@@ -1,0 +1,14 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <filter name="Vertex Attribute Transfer">
+  <Param name="SourceMesh" tooltip="The mesh that contains the source data that we want to transfer." type="RichMesh" description="Source Mesh" value="1"/>
+  <Param name="TargetMesh" tooltip="The mesh whose vertexes will receive the data from the source." type="RichMesh" description="Target Mesh" value="0"/>
+  <Param name="GeomTransfer" tooltip="if enabled, the position of each vertex of the target mesh will be snapped onto the corresponding closest point on the source mesh" type="RichBool" description="Transfer Geometry" value="false"/>
+  <Param name="NormalTransfer" tooltip="if enabled, the normal of each vertex of the target mesh will get the (interpolated) normal of the corresponding closest point on the source mesh" type="RichBool" description="Transfer Normal" value="true"/>
+  <Param name="ColorTransfer" tooltip="if enabled, the color of each vertex of the target mesh will become the color of the corresponding closest point on the source mesh" type="RichBool" description="Transfer Color" value="false"/>
+  <Param name="QualityTransfer" tooltip="if enabled, the quality of each vertex of the target mesh will become the quality of the corresponding closest point on the source mesh" type="RichBool" description="Transfer quality" value="false"/>
+  <Param name="SelectionTransfer" tooltip="if enabled,  each vertex of the target mesh will be selected if the corresponding closest point on the source mesh falls in a selected face" type="RichBool" description="Transfer Selection" value="false"/>
+  <Param name="QualityDistance" tooltip="if enabled, we store the distance of the transferred value as in the vertex quality" type="RichBool" description="Store dist. as quality" value="false"/>
+  <Param name="UpperBound" tooltip="Sample points for which we do not find anything whithin this distance are rejected and not considered for recovering attributes." min="0" max="5.7302" type="RichAbsPerc" description="Max Dist Search" value="0.114604"/>
+ </filter>
+</FilterScript>
