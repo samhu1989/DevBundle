@@ -36,8 +36,8 @@ void OptimizationTest::LBFGS_Case1()
     Optimization::LBFGS opt;
     arma::vec m = opt.minimize(e,0,false);
     arma::vec g(m.n_rows);
-    std::cerr<<m<<std::endl;
-    std::cerr<<"Minimized :"<<e.gradient(m,g)<<std::endl;
+    std::cout<<"Result:"<<m<<std::endl;
+    std::cout<<"Minimized :"<<e.gradient(m,g)<<std::endl;
     QVERIFY2(true, "Failure");
 }
 

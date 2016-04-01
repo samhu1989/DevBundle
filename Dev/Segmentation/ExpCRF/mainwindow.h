@@ -15,6 +15,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 public slots:
+    void load_img(void);
+    void load_annotation(void);
+
     void start_editing();
     void finish_editing();
 protected:

@@ -10,7 +10,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = ExpCRF
 TEMPLATE = app
-
+CONFIG += c++11
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -lgomp -lpthread
 
 SOURCES += main.cpp\
         mainwindow.cpp \
