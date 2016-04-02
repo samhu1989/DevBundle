@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QImage>
 #include <armadillo>
+
 namespace Ui {
 class MainWindow;
 }
@@ -15,6 +16,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 public slots:
+    void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
+
     void load_img(void);
     void load_annotation(void);
 
@@ -23,6 +26,7 @@ public slots:
 protected:
     QImage input_img_;
     arma::uvec annotation_;
+    QHash<arma::uword,arma::uword> colortolabel_;
 private:
     Ui::MainWindow *ui;
     QThread* edit_thread_;

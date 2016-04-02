@@ -61,3 +61,12 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../.
 INCLUDEPATH += $$PWD/../../../3rdParty/SuperLU/include
 DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
 
+win32: LIBS += -L$$DESTDIR/ -lVisualizationCore
+
+INCLUDEPATH += $$PWD/../../Visualization/VisualizationCore
+DEPENDPATH += $$PWD/../../Visualization/VisualizationCore
+
+win32: LIBS += -L$$DESTDIR/ -lSegmentationCore
+
+INCLUDEPATH += $$PWD/../SegmentationCore
+DEPENDPATH += $$PWD/../SegmentationCore

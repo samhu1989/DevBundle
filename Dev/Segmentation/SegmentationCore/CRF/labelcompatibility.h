@@ -26,6 +26,7 @@
 */
 #pragma once
 #include <armadillo>
+#include "../segmentationcore_global.h"
 /**** LabelCompatibility models a function \mu(a,b) ****/
 // To create your own label compatibility implement an "apply" function
 // than computes out(a) = sum_{x_j} \mu( a, b ) Q(b) (where Q(b) is the mean-field
@@ -45,7 +46,7 @@ public:
     virtual arma::vec gradient( const arma::mat & b, const arma::mat & Q ) const;
 };
 /**** Implements potts \mu(a,b) = -w[a==b] ****/
-class PottsCompatibility: public LabelCompatibility {
+class SEGMENTATIONCORESHARED_EXPORT PottsCompatibility: public LabelCompatibility {
 protected:
 	float w_;
 public:
@@ -58,7 +59,7 @@ public:
     virtual arma::vec gradient( const arma::mat & b, const arma::mat & Q ) const;
 };
 /**** Implements diagonal \mu(a,b) = -[a==b]v(a) ****/
-class DiagonalCompatibility: public LabelCompatibility {
+class SEGMENTATIONCORESHARED_EXPORT DiagonalCompatibility: public LabelCompatibility {
 protected:
     arma::vec w_;
 public:
@@ -71,7 +72,7 @@ public:
     virtual arma::vec gradient( const arma::mat & b, const arma::mat & Q ) const;
 };
 /**** Implements matrix \mu(a,b) [enforces symmetry, but not positive definitness] ****/
-class MatrixCompatibility: public LabelCompatibility {
+class SEGMENTATIONCORESHARED_EXPORT MatrixCompatibility: public LabelCompatibility {
 protected:
     arma::mat w_;
 public:

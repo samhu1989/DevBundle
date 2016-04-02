@@ -27,6 +27,7 @@
 
 #include "permutohedral.h"
 
+#undef WIN32
 #ifdef WIN32
 inline int round(double X) {
 	return int(X+.5);

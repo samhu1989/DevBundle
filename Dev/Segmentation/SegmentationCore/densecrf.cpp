@@ -32,7 +32,7 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
-
+#include <QRgb>
 /////////////////////////////
 /////  Alloc / Dealloc  /////
 /////////////////////////////
@@ -351,4 +351,27 @@ void DenseCRF::setKernelParameters( const arma::vec & v ) {
         pairwise_[k]->setKernelParameters( v.subvec( i, i+n[k]-1 ) );
 		i += n[k];
 	}	
+}
+
+arma::uword DenseCRF2D::getColor( const unsigned char * c ){
+    return (arma::uword)qRgb(c[0],c[1],c[2]);
+}
+
+arma::uvec DenseCRF2D::getLabelingImg( const unsigned char * im, int N, int M, ColorLabelMap& map){
+    arma::uvec res(N);
+    //printf("%d %d %d \n",im[0],im[1],im[2]);
+    for( int k=0; k<N; k++ ){
+        // Map the color to a label
+        arma::uword c = getColor( im + 3*k );
+        arma::uword i;
+        if(map.end()==map.find(c))
+        {
+            i = map.size()+1;
+            map.insert(c,i);
+        }else{
+            i = map[c];
+        }
+        res[k] = c?i:-1;
+    }
+    return res;
 }

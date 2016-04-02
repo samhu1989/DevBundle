@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>440</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -47,7 +47,7 @@
     </property>
     <addaction name="actionLoad_Image"/>
     <addaction name="actionLoad_Input_Mesh"/>
-    <addaction name="actionLoad_Mesh_Annotation"/>
+    <addaction name="actionLoad_Annotation"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -56,18 +56,20 @@
     <addaction name="actionCRF"/>
     <addaction name="actionCRF3D"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionLabel_Mask"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad_Image">
    <property name="text">
     <string>Load Input Image</string>
-   </property>
-  </action>
-  <action name="actionLoad_Annotation">
-   <property name="text">
-    <string>Load Annotation Image</string>
    </property>
   </action>
   <action name="actionCRF">
@@ -85,9 +87,17 @@
     <string>Load Input Mesh</string>
    </property>
   </action>
-  <action name="actionLoad_Mesh_Annotation">
+  <action name="actionLoad_Annotation">
    <property name="text">
     <string>Load Annotation</string>
+   </property>
+  </action>
+  <action name="actionLabel_Mask">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Label Mask</string>
    </property>
   </action>
  </widget>

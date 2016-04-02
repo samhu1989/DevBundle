@@ -3,7 +3,7 @@
 #include <QString>
 #include <QObject>
 #include <armadillo>
-#include "common.h"
+#include <QImage>
 class CRF2D:public QObject
 {
     Q_OBJECT
@@ -14,7 +14,6 @@ signals:
 public slots:
     void process(void);
 private:
-    Config::Ptr config_;
     QImage& input_img_;
     arma::uvec& label_;
 };

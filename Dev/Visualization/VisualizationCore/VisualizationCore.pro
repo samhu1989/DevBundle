@@ -17,7 +17,8 @@ SOURCES += visualizationcore.cpp \
     QGLViewerWidget.cpp \
     labspace.cpp \
     qglpointselection.cpp \
-    featureviewerwidget.cpp
+    featureviewerwidget.cpp \
+    segview.cpp
 
 HEADERS += visualizationcore.h\
         visualizationcore_global.h \
@@ -34,7 +35,8 @@ HEADERS += visualizationcore.h\
     labspace.h \
     qglpointselection.h \
     qglpointselection.hpp \
-    featureviewerwidget.h
+    featureviewerwidget.h \
+    segview.h
 
 unix {
     target.path = /usr/lib
@@ -65,7 +67,8 @@ DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
 
 FORMS += \
     labspace.ui \
-    featureviewerwidget.ui
+    featureviewerwidget.ui \
+    segview.ui
 
 INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
 DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include

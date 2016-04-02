@@ -31,9 +31,12 @@
 #include "CRF/objective.h"
 #include "CRF/pairwise.h"
 #include <vector>
+#include <QHash>
+#include <armadillo>
+#include "segmentationcore_global.h"
 
 /**** DenseCRF ****/
-class DenseCRF{
+class SEGMENTATIONCORESHARED_EXPORT DenseCRF{
 protected:
 	// Number of variables and labels
 	int N_, M_;
@@ -102,7 +105,7 @@ public: /* Parameters */
     void setKernelParameters( const arma::vec & v );
 };
 
-class DenseCRF2D:public DenseCRF{
+class SEGMENTATIONCORESHARED_EXPORT DenseCRF2D:public DenseCRF{
 protected:
 	// Width, height of the 2d grid
 	int W_, H_;
@@ -118,4 +121,8 @@ public:
 	
 	// Set the unary potential for a specific variable
 	using DenseCRF::setUnaryEnergy;
+
+    typedef QHash<arma::uword,arma::uword> ColorLabelMap;
+    static arma::uvec getLabelingImg( const unsigned char * im, int N, int M , ColorLabelMap& map );
+    static arma::uword getColor( const unsigned char * c );
 };
