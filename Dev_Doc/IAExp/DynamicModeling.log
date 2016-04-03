@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.3.7)  29 MAR 2016 14:21
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  2 APR 2016 21:52
 entering extended mode
 **DynamicModeling.tex
 (DynamicModeling.tex
@@ -7,9 +7,9 @@ Babel <3.9l> and hyphenation patterns for 68 languages loaded.
 (acmsiggraph.cls
 Document Class: acmsiggraph 2012/01/05 ACM SIGGRAPH class
 \ACMpointsize=\skip41
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls"
+("D:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls"
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\size10.clo"
+("D:\Program Files\MiKTeX 2.9\tex\latex\base\size10.clo"
 File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count80
@@ -24,24 +24,24 @@ File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 \belowcaptionskip=\skip43
 \bibindent=\dimen102
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsmath.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsmath.sty"
 Package: amsmath 2013/01/14 v2.14 AMS math features
 \@mathmargin=\skip44
 
 For additional information on amsmath, use the `?' option.
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amstext.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amstext.sty"
 Package: amstext 2000/06/29 v2.01
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsgen.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsgen.sty"
 File: amsgen.sty 1999/11/30 v2.0
 \@emptytoks=\toks14
 \ex@=\dimen103
 ))
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsbsy.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsbsy.sty"
 Package: amsbsy 1999/11/29 v1.2d
 \pmbraise@=\dimen104
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsopn.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsopn.sty"
 Package: amsopn 1999/12/14 v2.01 operator names
 )
 \inf@bad=\count88
@@ -82,7 +82,7 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
 LaTeX Info: Redefining \[ on input line 2665.
 LaTeX Info: Redefining \] on input line 2666.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\lineno\lineno.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\lineno\lineno.sty"
 Package: lineno 2005/11/02 line numbers on paragraphs v4.41
 Invalid UTF-8 byte or sequence at line 296 replaced by U+FFFD.
 \linenopenalty=\count100
@@ -101,41 +101,41 @@ Invalid UTF-8 byte or sequence at line 296 replaced by U+FFFD.
 \bframebox=\box28
 LaTeX Info: Redefining \\ on input line 3056.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\helvet.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\helvet.sty"
 Package: helvet 2005/04/12 PSNFSS-v9.2a (WaS) 
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\keyval.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\graphics\keyval.sty"
 Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
 \KV@toks@=\toks20
 ))
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\times.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\times.sty"
 Package: times 2005/04/12 PSNFSS-v9.2a (SPQR) 
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\graphicx.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\graphics\graphicx.sty"
 Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\graphics.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\graphics\graphics.sty"
 Package: graphics 2014/10/28 v1.0p Standard LaTeX Graphics (DPC,SPQR)
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\trig.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\graphics\trig.sty"
 Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\00miktex\graphics.cfg"
+("D:\Program Files\MiKTeX 2.9\tex\latex\00miktex\graphics.cfg"
 File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
 )
 Package graphics Info: Driver file: xetex.def on input line 91.
 
-("C:\Program Files\MiKTeX 2.9\tex\xelatex\xetex-def\xetex.def"
+("D:\Program Files\MiKTeX 2.9\tex\xelatex\xetex-def\xetex.def"
 File: xetex.def 2014/07/25 v4.03 LaTeX color/graphics driver for XeTeX (RRM/JK)
 
 ))
 \Gin@req@height=\dimen117
 \Gin@req@width=\dimen118
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\caption\caption.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\caption\caption.sty"
 Package: caption 2013/05/02 v3.3-89 Customizing captions (AR)
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\caption\caption3.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\caption\caption3.sty"
 Package: caption3 2013/05/02 v1.6-88 caption3 kernel (AR)
 Package caption3 Info: TeX engine: e-TeX on input line 57.
 \captionmargin=\dimen119
@@ -148,7 +148,7 @@ Package caption3 Info: TeX engine: e-TeX on input line 57.
 )
 \c@ContinuedFloat=\count107
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\ltxmisc\parskip.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\ltxmisc\parskip.sty"
 Package: parskip 2001/04/09 non-zero parskip adjustments
 )
 \ACMcopyrightspace=\skip47
@@ -157,18 +157,18 @@ Package: parskip 2001/04/09 non-zero parskip adjustments
 \teaserspace=\skip50
 \@ACMabs=\toks21
 
-("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\ifpdf.sty"
+("D:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\ifpdf.sty"
 Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
 Package ifpdf Info: pdfTeX in PDF mode is not detected.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\hyperref.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\hyperref\hyperref.sty"
 Package: hyperref 2012/11/06 v6.83m Hypertext links for LaTeX
 
-("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\hobsub-hyperref.sty"
+("D:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\hobsub-hyperref.sty"
 Package: hobsub-hyperref 2012/04/25 v1.12 Bundle oberdiek, subset hyperref (HO)
 
 
-("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\hobsub-generic.sty"
+("D:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\hobsub-generic.sty"
 Package: hobsub-generic 2012/04/25 v1.12 Bundle oberdiek, subset generic (HO)
 Package: hobsub 2012/04/25 v1.12 Construct package bundles (HO)
 Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
@@ -209,25 +209,25 @@ Package: atbegshi 2011/10/05 v1.16 At begin shipout hook (HO)
 Package: refcount 2011/10/16 v3.4 Data extraction from label references (HO)
 Package: hycolor 2011/01/30 v1.7 Color options for hyperref/bookmark (HO)
 )
-("C:\Program Files\MiKTeX 2.9\tex\generic\ifxetex\ifxetex.sty"
+("D:\Program Files\MiKTeX 2.9\tex\generic\ifxetex\ifxetex.sty"
 Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\auxhook.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\auxhook.sty"
 Package: auxhook 2011/03/04 v1.3 Hooks for auxiliary files (HO)
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\kvoptions.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\kvoptions.sty"
 Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
 )
 \@linkdim=\dimen126
 \Hy@linkcounter=\count108
 \Hy@pagecounter=\count109
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\pd1enc.def"
+("D:\Program Files\MiKTeX 2.9\tex\latex\hyperref\pd1enc.def"
 File: pd1enc.def 2012/11/06 v6.83m Hyperref: PDFDocEncoding definition (HO)
 )
 \Hy@SavedSpaceFactor=\count110
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\00miktex\hyperref.cfg"
+("D:\Program Files\MiKTeX 2.9\tex\latex\00miktex\hyperref.cfg"
 File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
 )
 Package hyperref Info: Option `hyperfootnotes' set `false' on input line 4319.
@@ -241,7 +241,7 @@ Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks OFF on input line 4694.
 \c@Hy@tempcnt=\count111
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\url\url.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\url\url.sty"
 \Urlmuskip=\muskip11
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
@@ -266,13 +266,13 @@ LaTeX Info: Redefining \pageref on input line 6369.
 
 Package hyperref Message: Driver (autodetected): hxetex.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\hxetex.def"
+("D:\Program Files\MiKTeX 2.9\tex\latex\hyperref\hxetex.def"
 File: hxetex.def 2012/11/06 v6.83m Hyperref driver for XeTeX
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\puenc.def"
+("D:\Program Files\MiKTeX 2.9\tex\latex\hyperref\puenc.def"
 File: puenc.def 2012/11/06 v6.83m Hyperref: PDF Unicode definition (HO)
 )
-("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\stringenc.sty"
+("D:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\stringenc.sty"
 Package: stringenc 2011/12/02 v1.10 Convert strings between diff. encodings (HO
 )
 )
@@ -282,7 +282,7 @@ Package: stringenc 2011/12/02 v1.10 Convert strings between diff. encodings (HO
 \Fld@listcount=\count117
 \c@bookmark@seq@number=\count118
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\rerunfilecheck.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\rerunfilecheck.sty"
 Package: rerunfilecheck 2011/04/15 v1.7 Rerun checks for auxiliary files (HO)
 Package rerunfilecheck Info: Feature \pdfmdfivesum is not available
 (rerunfilecheck)             (e.g. pdfTeX or LuaTeX with package `pdftexcmds').
@@ -296,7 +296,7 @@ tly
 Package hyperref Info: Option `colorlinks' set `true' on input line 510.
 Package hyperref Info: Option `breaklinks' set `true' on input line 510.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\subfigure\subfigure.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\subfigure\subfigure.sty"
 Package: subfigure 2002/07/30 v2.1.4 subfigure package
 \subfigtopskip=\skip52
 \subfigcapskip=\skip53
@@ -312,16 +312,16 @@ Package: subfigure 2002/07/30 v2.1.4 subfigure package
 ****************************************
 * Local config file subfigure.cfg used *
 ****************************************
-("C:\Program Files\MiKTeX 2.9\tex\latex\subfigure\subfigure.cfg")
+("D:\Program Files\MiKTeX 2.9\tex\latex\subfigure\subfigure.cfg")
 \subfig@top=\skip56
 \subfig@bottom=\skip57
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\algorithms\algorithm.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\algorithms\algorithm.sty"
 Invalid UTF-8 byte or sequence at line 11 replaced by U+FFFD.
 Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating enviro
 nment
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\float\float.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\float\float.sty"
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count123
 \float@exts=\toks22
@@ -329,13 +329,13 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \@float@everytoks=\toks23
 \@floatcapt=\box31
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\ifthen.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\base\ifthen.sty"
 Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
 )
 \@float@every@algorithm=\toks24
 \c@algorithm=\count124
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\algorithms\algorithmic.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\algorithms\algorithmic.sty"
 Invalid UTF-8 byte or sequence at line 11 replaced by U+FFFD.
 Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
 \c@ALC@unique=\count125
@@ -345,7 +345,7 @@ Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
 \ALC@tlm=\skip58
 \algorithmicindent=\skip59
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\amscls\amsthm.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\amscls\amsthm.sty"
 Package: amsthm 2009/07/02 v2.20.1
 \thm@style=\toks25
 \thm@bodyfont=\toks26
@@ -357,7 +357,7 @@ Package: amsthm 2009/07/02 v2.20.1
 \thm@headsep=\skip62
 \dth@everypar=\toks30
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\mathptmx.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\mathptmx.sty"
 Package: mathptmx 2005/04/12 PSNFSS-v9.2a Times w/ Math, improved (SPQR, WaS) 
 LaTeX Font Info:    Redeclaring symbol font `operators' on input line 28.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
@@ -393,11 +393,11 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> OT1/ptm/m/it on input line 35.
 LaTeX Info: Redefining \hbar on input line 50.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\tools\bm.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\tools\bm.sty"
 Package: bm 2014/10/28 v1.1c Bold Symbol Support (DPC/FMi)
 LaTeX Info: Redefining \bm on input line 203.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\textcomp.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\base\textcomp.sty"
 Package: textcomp 2005/09/27 v1.99g Standard LaTeX package
 Package textcomp Info: Sub-encoding information:
 (textcomp)               5 = only ISO-Adobe without \textcurrency
@@ -412,7 +412,7 @@ Package textcomp Info: Sub-encoding information:
 (textcomp)             See the documentation for details.
 Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 71.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1enc.def"
+("D:\Program Files\MiKTeX 2.9\tex\latex\base\ts1enc.def"
 File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
 )
 LaTeX Info: Redefining \oldstylenums on input line 266.
@@ -478,23 +478,23 @@ Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 338.
 Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 339.
 Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 340.
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\jknappen\mathrsfs.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\jknappen\mathrsfs.sty"
 Package: mathrsfs 1996/01/01 Math RSFS package v1.0 (jk)
 \symrsfs=\mathgroup6
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\tools\enumerate.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\tools\enumerate.sty"
 Package: enumerate 2014/10/28 v3.00 enumerate extensions (DPC)
 \@enLab=\toks31
 )
-("C:\Program Files\MiKTeX 2.9\tex\xelatex\xecjk\xeCJK.sty"
-("C:\Program Files\MiKTeX 2.9\tex\latex\l3kernel\expl3.sty"
+("D:\Program Files\MiKTeX 2.9\tex\xelatex\xecjk\xeCJK.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\l3kernel\expl3.sty"
 Package: expl3 2015/03/01 v5547 L3 programming layer (loader) 
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\l3kernel\expl3-code.tex"
+("D:\Program Files\MiKTeX 2.9\tex\latex\l3kernel\expl3-code.tex"
 Package: expl3 2015/03/01 v5547 L3 programming layer (code) 
 L3 Module: l3bootstrap 2015/02/28 v5542 L3 Bootstrap code
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\misc\etex.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\misc\etex.sty"
 Package: etex 2015/03/02 v2.1 eTeX basic definition package (PEB,DPC)
 \et@xins=\count129
 )
@@ -600,15 +600,15 @@ L3 Module: l3candidates 2015/03/01 v5544 L3 Experimental additions to l3kernel
 \l__coffin_scaled_total_height_dim=\dimen161
 \l__coffin_scaled_width_dim=\dimen162
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\l3kernel\l3unicode-data.def"
+("D:\Program Files\MiKTeX 2.9\tex\latex\l3kernel\l3unicode-data.def"
 File: l3unicode-data.def 2015/03/01 v5544 L3 Unicode data
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\l3kernel\l3xdvipdfmx.def"
+("D:\Program Files\MiKTeX 2.9\tex\latex\l3kernel\l3xdvipdfmx.def"
 File: l3xdvidpfmx.def 2015/03/01 v5544 L3 Experimental driver: xdvipdfmx
 ))
 Package: xeCJK 2014/12/26 v3.3.0 Typesetting CJK scripts with XeLaTeX
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\l3packages\xtemplate\xtemplate.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\l3packages\xtemplate\xtemplate.sty"
 Package: xtemplate 2014/11/25 v5471 L3 Experimental prototype document function
 s
 \l__xtemplate_tmp_dim=\dimen163
@@ -619,7 +619,7 @@ Variant \prop_get:NoNTF already defined; not changing it on line 106
 Variant \prop_get:NoNT already defined; not changing it on line 107
 Variant \prop_get:NoNF already defined; not changing it on line 108
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\l3packages\xparse\xparse.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\l3packages\xparse\xparse.sty"
 Package: xparse 2014/11/25 v5471 L3 Experimental document command parser
 \l__xparse_current_arg_int=\count153
 \l__xparse_m_args_int=\count154
@@ -627,7 +627,7 @@ Package: xparse 2014/11/25 v5471 L3 Experimental document command parser
 \l__xparse_processor_int=\count156
 \l__xparse_v_nesting_int=\count157
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\l3packages\l3keys2e\l3keys2e.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\l3packages\l3keys2e\l3keys2e.sty"
 Package: l3keys2e 2014/11/25 v5471 LaTeX2e option processing using LaTeX3 keys
 )
 \l__xeCJK_tmp_int=\count158
@@ -833,7 +833,7 @@ Package: l3keys2e 2014/11/25 v5471 LaTeX2e option processing using LaTeX3 keys
 .................................................
 \l__xeCJK_verb_exspace_skip=\skip73
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\fontspec\fontspec.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\fontspec\fontspec.sty"
 Package: fontspec 2014/06/21 v2.4a Font selection for XeLaTeX and LuaLaTeX
 \l_fontspec_script_int=\count165
 \l_fontspec_language_int=\count166
@@ -843,7 +843,7 @@ Package: fontspec 2014/06/21 v2.4a Font selection for XeLaTeX and LuaLaTeX
 \l__fontspec_tmpc_dim=\dimen189
 Variant \tl_gset:cV already defined; not changing it on line 71
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\fontspec\fontspec-patches.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\fontspec\fontspec-patches.sty"
 Package: fontspec-patches 2014/06/21 v2.4a Font selection for XeLaTeX and LuaLa
 TeX
 LaTeX Info: Redefining \em on input line 38.
@@ -860,46 +860,46 @@ LaTeX Info: Redefining \- on input line 49.
 . Defining command \liningnums with sig. 'm' on line 148.
 .................................................
 )
-("C:\Program Files\MiKTeX 2.9\tex\latex\fontspec\fontspec-xetex.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\fontspec\fontspec-xetex.sty"
 Package: fontspec-xetex 2014/06/21 v2.4a Font selection for XeLaTeX and LuaLaTe
 X
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\fontenc.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\base\fontenc.sty"
 Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\euenc\eu1enc.def"
+("D:\Program Files\MiKTeX 2.9\tex\latex\euenc\eu1enc.def"
 File: eu1enc.def 2010/05/27 v0.1h Experimental Unicode font encodings
 )
 LaTeX Font Info:    Try loading font information for EU1+lmr on input line 100.
 
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\euenc\eu1lmr.fd"
+("D:\Program Files\MiKTeX 2.9\tex\latex\euenc\eu1lmr.fd"
 File: eu1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 Requested font "[lmroman10-regular]:mapping=tex-text" at 10.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmroman10-regular.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmroman10-regular.otf
 )
-("C:\Program Files\MiKTeX 2.9\tex\xelatex\xunicode\xunicode.sty"
+("D:\Program Files\MiKTeX 2.9\tex\xelatex\xunicode\xunicode.sty"
 File: xunicode.sty 2011/09/09 v0.981 provides access to latin accents and many 
 other characters in Unicode lower plane
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\tipa\t3enc.def"
+("D:\Program Files\MiKTeX 2.9\tex\latex\tipa\t3enc.def"
 File: t3enc.def 2001/12/31 T3 encoding
 Requested font "[lmromanslant10-regular]:mapping=tex-text" at 10.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmromanslant10-regular
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmromanslant10-regular
 .otf
 Requested font "[lmroman10-italic]:mapping=tex-text" at 10.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmroman10-italic.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmroman10-italic.otf
 Requested font "[lmroman10-bold]:mapping=tex-text" at 10.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmroman10-bold.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmroman10-bold.otf
 LaTeX Font Info:    Try loading font information for EU1+lmss on input line 357
 .
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\euenc\eu1lmss.fd"
+("D:\Program Files\MiKTeX 2.9\tex\latex\euenc\eu1lmss.fd"
 File: eu1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 Requested font "[lmsans10-regular]:mapping=tex-text" at 10.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-regular.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-regular.otf
 )
 \tipaTiiicode=\count168
 \tipasavetokens=\toks32
@@ -1013,8 +1013,8 @@ LaTeX Info: Redefining \slshape on input line 2198.
 LaTeX Info: Redefining \scshape on input line 2203.
 LaTeX Info: Redefining \upshape on input line 2208.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\fontspec\fontspec.cfg")))
-("C:\Program Files\MiKTeX 2.9\tex\xelatex\xecjk\xunicode-addon.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\fontspec\fontspec.cfg")))
+("D:\Program Files\MiKTeX 2.9\tex\xelatex\xecjk\xunicode-addon.sty"
 Package: xunicode-addon 2014/12/26 v3.3.0 addon file for xunicode
 .................................................
 . LaTeX info: "xparse/redefine-command"
@@ -1159,12 +1159,12 @@ Package: xunicode-addon 2014/12/26 v3.3.0 addon file for xunicode
 )
 \g__file_internal_ior=\read1
 
-("C:\Program Files\MiKTeX 2.9\tex\xelatex\xunicode\xunicode.sty"
+("D:\Program Files\MiKTeX 2.9\tex\xelatex\xunicode\xunicode.sty"
 File: xunicode.sty 2011/09/09 v0.981 provides access to latin accents and many 
 other characters in Unicode lower plane
 
 *** Reloading Xunicode for encoding 'EU1' ***
-) ("C:\Program Files\MiKTeX 2.9\tex\xelatex\xecjk\xunicode-extra.def"
+) ("D:\Program Files\MiKTeX 2.9\tex\xelatex\xecjk\xunicode-extra.def"
 File: xunicode-extra.def 2014/12/26 v3.3.0 extra definition for xunicode
 )
 .................................................
@@ -1243,35 +1243,39 @@ File: xunicode-extra.def 2014/12/26 v3.3.0 extra definition for xunicode
 . Redefining command \fontfamily with sig. 'm' on line 3728.
 .................................................
 
-("C:\Program Files\MiKTeX 2.9\tex\xelatex\xecjk\config\xeCJK.cfg"
+("D:\Program Files\MiKTeX 2.9\tex\xelatex\xecjk\config\xeCJK.cfg"
 File: xeCJK.cfg 2014/12/26 v3.3.0 Configuration file for xeCJK package
 ))
 Requested font "SimSun/OT" at 10.0pt
- -> C:/windows/Fonts/simsun.ttc
+ -> Á
+/windows/Fonts/simsun.ttc
 \g__fontspec_family_SimSun_int=\count170
 Requested font "SimSun/BI/OT" at 10.0pt
- -> C:/windows/Fonts/simsun.ttc
+ -> Ç
+/windows/Fonts/simsun.ttc
 .................................................
 . fontspec info: "no-font-shape"
 . 
 . Could not resolve font SimSun/BI (it probably doesn't exist).
 .................................................
 Requested font "SimSun/B/OT" at 10.0pt
- -> C:/windows/Fonts/simsun.ttc
+ -> Ä
+/windows/Fonts/simsun.ttc
 .................................................
 . fontspec info: "no-font-shape"
 . 
 . Could not resolve font SimSun/B (it probably doesn't exist).
 .................................................
 Requested font "SimSun/I/OT" at 10.0pt
- -> C:/windows/Fonts/simsun.ttc
+ -> Ç
+/windows/Fonts/simsun.ttc
 .................................................
 . fontspec info: "no-font-shape"
 . 
 . Could not resolve font SimSun/I (it probably doesn't exist).
 .................................................
 Requested font "[lmroman9-regular]:mapping=tex-text" at 9.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmroman9-regular.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmroman9-regular.otf
 .................................................
 . fontspec info: "defining-font"
 . 
@@ -1289,28 +1293,28 @@ Requested font "[lmroman9-regular]:mapping=tex-text" at 9.0pt
 . 
 .................................................
 Requested font "Times New Roman" at 10.0pt
- -> C:/windows/Fonts/times.ttf
+ -> !^^K/windows/Fonts/times.ttf
 Requested font "Times New Roman/OT" at 10.0pt
- -> C:/windows/Fonts/times.ttf
+ -> ^^U^^K/windows/Fonts/times.ttf
 \g__fontspec_family_TimesNewRoman_int=\count171
 Requested font "Times New Roman/BI/OT" at 10.0pt
- -> C:/windows/Fonts/timesbi.ttf
+ -> G^^L/windows/Fonts/timesbi.ttf
 Requested font "Times New Roman/B/OT" at 10.0pt
- -> C:/windows/Fonts/timesbd.ttf
+ -> &^^L/windows/Fonts/timesbd.ttf
 Requested font "Times New Roman/I/OT" at 10.0pt
- -> C:/windows/Fonts/timesi.ttf
+ -> ·^^K/windows/Fonts/timesi.ttf
 Requested font "Times New Roman/B/OT" at 10.0pt
- -> C:/windows/Fonts/timesbd.ttf
+ -> ä^^K/windows/Fonts/timesbd.ttf
 Requested font "Times New Roman/B/OT" at 10.0pt
- -> C:/windows/Fonts/timesbd.ttf
+ -> ä^^K/windows/Fonts/timesbd.ttf
 Requested font "Times New Roman/I/OT" at 10.0pt
- -> C:/windows/Fonts/timesi.ttf
+ -> q^^L/windows/Fonts/timesi.ttf
 Requested font "Times New Roman/I/OT" at 10.0pt
- -> C:/windows/Fonts/timesi.ttf
+ -> /^^L/windows/Fonts/timesi.ttf
 Requested font "Times New Roman/BI/OT" at 10.0pt
- -> C:/windows/Fonts/timesbi.ttf
+ -> ä^^K/windows/Fonts/timesbi.ttf
 Requested font "Times New Roman/BI/OT" at 10.0pt
- -> C:/windows/Fonts/timesbi.ttf
+ -> q^^L/windows/Fonts/timesbi.ttf
 .................................................
 . fontspec info: "defining-font"
 . 
@@ -1323,7 +1327,7 @@ Requested font "Times New Roman/BI/OT" at 10.0pt
 . <->"Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
 . 
 . * 'small caps' with NFSS spec.:
-. <->"Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;+smcp;"
+. 
 . and font adjustment code:
 . 
 . 
@@ -1331,7 +1335,7 @@ Requested font "Times New Roman/BI/OT" at 10.0pt
 . <->"Times New Roman/B/OT:script=latn;language=DFLT;mapping=tex-text;"
 . 
 . * 'bold small caps' with NFSS spec.:
-. <->"Times New Roman/B/OT:script=latn;language=DFLT;mapping=tex-text;+smcp;"
+. 
 . and font adjustment code:
 . 
 . 
@@ -1339,7 +1343,7 @@ Requested font "Times New Roman/BI/OT" at 10.0pt
 . <->"Times New Roman/I/OT:script=latn;language=DFLT;mapping=tex-text;"
 . 
 . * 'small caps' with NFSS spec.:
-. <->"Times New Roman/I/OT:script=latn;language=DFLT;mapping=tex-text;+smcp;"
+. 
 . and font adjustment code:
 . 
 . 
@@ -1347,13 +1351,13 @@ Requested font "Times New Roman/BI/OT" at 10.0pt
 . <->"Times New Roman/BI/OT:script=latn;language=DFLT;mapping=tex-text;"
 . 
 . * 'bold small caps' with NFSS spec.:
-. <->"Times New Roman/BI/OT:script=latn;language=DFLT;mapping=tex-text;+smcp;"
+. 
 . and font adjustment code:
 . 
 .................................................
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 10.0pt
- -> C:/windows/Fonts/times.ttf
+ -> /^^L/windows/Fonts/times.ttf
 \c@theorem=\count172
 
 (DynamicModeling.aux)
@@ -1375,7 +1379,7 @@ LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 63.
 LaTeX Font Info:    ... okay on input line 63.
 LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 63.
 LaTeX Font Info:    Try loading font information for TS1+cmr on input line 63.
- ("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
+ ("D:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    ... okay on input line 63.
@@ -1384,13 +1388,13 @@ LaTeX Font Info:    ... okay on input line 63.
 LaTeX Font Info:    Checking defaults for T3/cmr/m/n on input line 63.
 LaTeX Font Info:    Try loading font information for T3+cmr on input line 63.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\tipa\t3cmr.fd"
+("D:\Program Files\MiKTeX 2.9\tex\latex\tipa\t3cmr.fd"
 File: t3cmr.fd 2001/12/31 TIPA font definitions
 )
 LaTeX Font Info:    ... okay on input line 63.
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 9.0pt
- -> C:/windows/Fonts/times.ttf
+ -> ^^80^^L/windows/Fonts/times.ttf
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
@@ -1398,20 +1402,20 @@ Package caption Info: subfigure package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \AtBeginShipoutBox=\box50
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\color.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\graphics\color.sty"
 Package: color 2014/10/28 v1.1a Standard LaTeX Color (DPC)
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\00miktex\color.cfg"
+("D:\Program Files\MiKTeX 2.9\tex\latex\00miktex\color.cfg"
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
 Package color Info: Driver file: xetex.def on input line 137.
 )
 Package hyperref Info: Link coloring ON on input line 63.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
+("D:\Program Files\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
-("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
+("D:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count173
@@ -1420,13 +1424,13 @@ LaTeX Info: Redefining \ref on input line 63.
 LaTeX Info: Redefining \pageref on input line 63.
 LaTeX Info: Redefining \nameref on input line 63.
 
-("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\se-ascii-print.def"
+("D:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\se-ascii-print.def"
 File: se-ascii-print.def 2011/12/02 v1.10 stringenc: Printable ASCII characters
 
 )
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 14.4pt
- -> C:/windows/Fonts/times.ttf
+ -> ^^92^^L/windows/Fonts/times.ttf
 
 *************************************************
 * xeCJK warning: "CJKfamily-Unknown"
@@ -1436,9 +1440,9 @@ Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
 * Try to use `\setCJKsansfont[...]{...}' to define it.
 *************************************************
 Requested font "[lmsans12-regular]:mapping=tex-text" at 14.4pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans12-regular.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans12-regular.otf
 Requested font "[lmsans10-bold]:mapping=tex-text" at 14.4pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
 File: figures/teaser.png Graphic file (type QTm)
 <use  "figures/teaser.png" >
 
@@ -1448,95 +1452,35 @@ See the caption package documentation for explanation.
 
 Requested font "Times New Roman/B/OT:script=latn;language=DFLT;mapping=tex-text
 ;" at 9.0pt
- -> C:/windows/Fonts/timesbd.ttf
+ -> Ú^^L/windows/Fonts/timesbd.ttf
 Requested font "Times New Roman/I/OT:script=latn;language=DFLT;mapping=tex-text
 ;" at 9.0pt
- -> C:/windows/Fonts/timesi.ttf
+ -> æ^^L/windows/Fonts/timesi.ttf
 (abstract.tex
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 12.0pt
- -> C:/windows/Fonts/times.ttf
+ -> õ^^L/windows/Fonts/times.ttf
 Requested font "[lmsans12-regular]:mapping=tex-text" at 12.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans12-regular.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans12-regular.otf
 Requested font "[lmsans10-bold]:mapping=tex-text" at 12.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 5.0pt
- -> C:/windows/Fonts/times.ttf
+ -> a^^M/windows/Fonts/times.ttf
 Requested font "[lmsans8-regular]:mapping=tex-text" at 5.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans8-regular.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans8-regular.otf
 ) (introduction.tex
-
-LaTeX Warning: Citation 'Hen12RGB' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'kinectfusion11' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'MuseumCSG12' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'YanSiggraph14' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'shao12' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'NanIndoor2012' on page 1 undefined on input line 8.
-
-
-LaTeX Warning: Citation 'kmyg_acquireIndoor_sigga12' on page 1 undefined on inp
-ut line 8.
-
-
-LaTeX Warning: Citation 'Fisherscenesynth12' on page 1 undefined on input line 
-8.
-
-
-LaTeX Warning: Citation 'Xu13sig' on page 1 undefined on input line 8.
-
 Requested font "Times New Roman/I/OT:script=latn;language=DFLT;mapping=tex-text
 ;" at 10.0pt
- -> C:/windows/Fonts/timesi.ttf
-[1
+ -> ^^U^^N/windows/Fonts/timesi.ttf
+ [1
 
 
 ]) (relatedwork.tex
 Requested font "[lmsans9-regular]:mapping=tex-text" at 9.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans9-regular.otf
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans9-regular.otf
 Requested font "[lmsans10-bold]:mapping=tex-text" at 9.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
-
-
-LaTeX Warning: Citation 'kinectfusion11' on page 2 undefined on input line 11.
-
-
-LaTeX Warning: Citation 'MuseumCSG12' on page 2 undefined on input line 13.
-
-
-LaTeX Warning: Citation 'Hen12RGB' on page 2 undefined on input line 13.
-
-
-LaTeX Warning: Citation 'Koppula/etal/11' on page 2 undefined on input line 16.
-
-
-
-LaTeX Warning: Citation 'shao12' on page 2 undefined on input line 17.
-
-
-LaTeX Warning: Citation 'NanIndoor2012' on page 2 undefined on input line 17.
-
-
-LaTeX Warning: Citation 'kmyg_acquireIndoor_sigga12' on page 2 undefined on inp
-ut line 18.
-
-
-LaTeX Warning: Citation 'shao12' on page 2 undefined on input line 21.
-
-
-LaTeX Warning: Citation 'IndoorUpdatingPG14' on page 2 undefined on input line 
-24.
-
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
 
 Underfull \hbox (badness 2617) in paragraph at lines 11--26
  []\EU1/lmss/bx/n/9 Reconstruction from RGBD Images.[] \EU1/TimesNewRoman(0)/m/
@@ -1544,66 +1488,15 @@ n/9 For static scenes,
  []
 
 
-LaTeX Warning: Citation 'Wand2007' on page 2 undefined on input line 32.
-
-
-LaTeX Warning: Citation 'chang11global' on page 2 undefined on input line 36.
-
-
-LaTeX Warning: Citation 'sparseicp_sgp13' on page 2 undefined on input line 41.
-
-
-
-LaTeX Warning: Citation 'YanSiggraph14' on page 2 undefined on input line 44.
-
-
-LaTeX Warning: Citation 'xu_siga15' on page 2 undefined on input line 45.
-
-
-LaTeX Warning: Citation 'Huang2014' on page 2 undefined on input line 51.
-
-
-LaTeX Warning: Citation 'Su2014_3dattributes' on page 2 undefined on input line
- 51.
-
-
-LaTeX Warning: Citation 'HuICON2015' on page 2 undefined on input line 53.
-
-
-LaTeX Warning: Citation 'savva2014scenegrok' on page 2 undefined on input line 
-55.
-
-
-LaTeX Warning: Citation 'fisher2015actsynth' on page 2 undefined on input line 
-57.
-
-
-LaTeX Warning: Citation 'Merrell11' on page 2 undefined on input line 72.
-
-
-LaTeX Warning: Citation 'craigyu2011furniture' on page 2 undefined on input lin
-e 75.
-
-
 LaTeX Warning: Citation 'Fisher2012' on page 2 undefined on input line 80.
-
-
-LaTeX Warning: Citation 'xu_sig14' on page 2 undefined on input line 84.
 
 ) (overview.tex
 File: figures/overview.eps Graphic file (type eps)
- <figures/overview.eps>
-
-LaTeX Warning: Reference `fig:overview' on page 2 undefined on input line 18.
-
-
-LaTeX Warning: Citation 'NieBner:2013:VoxelHashing' on page 2 undefined on inpu
-t line 20.
-
-[2]
+ <figures/overview.eps> [2]
 LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 28
 .
- ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ztmcm.fd"
+
+("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ztmcm.fd"
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
 Requested font "zptmcm7t" at 9.0pt
@@ -1612,7 +1505,7 @@ Requested font "zptmcm7t" at 5.0pt
 LaTeX Font Info:    Try loading font information for OML+ztmcm on input line 28
 .
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omlztmcm.fd"
+("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omlztmcm.fd"
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
 Requested font "zptmcm7m" at 9.0pt
@@ -1621,7 +1514,7 @@ Requested font "zptmcm7m" at 5.0pt
 LaTeX Font Info:    Try loading font information for OMS+ztmcm on input line 28
 .
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omsztmcm.fd"
+("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omsztmcm.fd"
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
 Requested font "zptmcm7y" at 9.0pt
@@ -1630,7 +1523,7 @@ Requested font "zptmcm7y" at 5.0pt
 LaTeX Font Info:    Try loading font information for OMX+ztmcm on input line 28
 .
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omxztmcm.fd"
+("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omxztmcm.fd"
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
 Requested font "zptmcm7v" at 9.0pt
@@ -1638,7 +1531,7 @@ Requested font "zptmcm7v" at 7.0pt
 Requested font "zptmcm7v" at 5.0pt
 LaTeX Font Info:    Try loading font information for OT1+ptm on input line 28.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ptm.fd"
+("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1ptm.fd"
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
@@ -1655,31 +1548,12 @@ Requested font "ptmri7t" at 7.0pt
 Requested font "ptmri7t" at 5.0pt
 LaTeX Font Info:    Try loading font information for U+rsfs on input line 28.
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\jknappen\ursfs.fd"
+("D:\Program Files\MiKTeX 2.9\tex\latex\jknappen\ursfs.fd"
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
 Requested font "rsfs10" at 9.0pt
 Requested font "rsfs7" at 7.0pt
 Requested font "rsfs5" at 5.0pt
-
-
-LaTeX Warning: Citation 'Jia20153D' on page 3 undefined on input line 30.
-
-
-LaTeX Warning: Citation 'Evangelidis-ECCV-2014' on page 3 undefined on input li
-ne 37.
-
-
-LaTeX Warning: Reference `sec:segmentation' on page 3 undefined on input line 4
-1.
-
-
-LaTeX Warning: Reference `sec:behavior' on page 3 undefined on input line 44.
-
-
-LaTeX Warning: Reference `sec:applications' on page 3 undefined on input line 4
-4.
-
 ) (segmentation.tex
 Underfull \hbox (badness 3179) in paragraph at lines 1--1
 []\EU1/lmss/bx/n/12 Iterative Co-Segmentation and Joint
@@ -1687,7 +1561,8 @@ Underfull \hbox (badness 3179) in paragraph at lines 1--1
 
 (logic_outline.tex
 Requested font "SimSun/OT:script=hani;language=DFLT;" at 9.0pt
- -> C:/windows/Fonts/simsun.ttc
+ -> ô
+/windows/Fonts/simsun.ttc
 
 Underfull \hbox (badness 1048) in paragraph at lines 15--16
 []\EU1/SimSun(0)/m/n/9 输 入 所 有 的 \EU1/TimesNewRoman(0)/m/n/9 patch\EU1/SimSun(0
@@ -1700,26 +1575,15 @@ Overfull \hbox (181.9751pt too wide) in paragraph at lines 107--108
  []
 
 
-Overfull \hbox (31.52393pt too wide) in paragraph at lines 179--180
+Overfull \hbox (31.55908pt too wide) in paragraph at lines 179--180
 [][]| 
  []
 
 )
-
-LaTeX Warning: Reference `fig:iterative-segmentation-registration' on page 3 un
-defined on input line 4.
-
 File: figures/hsy/overview.pdf Graphic file (type QTm)
-<use  "figures/hsy/overview.pdf" >
+ <use  "figures/hsy/overview.pdf" >
 Requested font "[lmsans10-bold]:mapping=tex-text" at 10.0pt
- -> C:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
-
-
-LaTeX Warning: Reference `fig:object-iterations' on page 3 undefined on input l
-ine 18.
-
-
-LaTeX Warning: Reference `tab:features' on page 3 undefined on input line 28.
+ -> D:/Program Files/MiKTeX 2.9/fonts/opentype/public/lm/lmsans10-bold.otf
 
 
 ! LaTeX Error: Illegal character in array arg.
@@ -1742,50 +1606,16 @@ You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-
-LaTeX Warning: Reference `subsec:registration' on page 3 undefined on input lin
-e 52.
-
 [3] [4] [5] [6] [7]
-
-LaTeX Warning: Reference `subsec:registration' on page 8 undefined on input lin
-e 55.
-
-
-LaTeX Warning: Reference `alg:assignment' on page 8 undefined on input line 57.
-
-
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 59.
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 7.0pt
- -> C:/windows/Fonts/times.ttf
-
-LaTeX Warning: Citation 'Evangelidis-ECCV-2014' on page 8 undefined on input li
-ne 81.
-
+ -> ^^96^^K/windows/Fonts/times.ttf
 
 Underfull \hbox (badness 10000) in paragraph at lines 81--85
 
  []
-
-
-LaTeX Warning: Reference `fig:bedroom_O' on page 8 undefined on input line 86.
-
-
-LaTeX Warning: Reference `fig:bedroom_O' on page 8 undefined on input line 86.
-
-
-LaTeX Warning: Reference `fig:bedroom_O' on page 8 undefined on input line 86.
-
-
-LaTeX Warning: Reference `fig:subfig:e' on page 8 undefined on input line 86.
-
-
-LaTeX Warning: Reference `fig:subfig:g' on page 8 undefined on input line 92.
-
-
-LaTeX Warning: Reference `fig:subfig:e' on page 8 undefined on input line 92.
 
 File: figures/hsy/bedroom_O00.png Graphic file (type QTm)
 <use  "figures/hsy/bedroom_O00.png" >
@@ -1814,7 +1644,8 @@ My plan is to forget the whole thing and hope for the best.
 
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;"
  at 8.0pt
- -> C:/windows/Fonts/times.ttf
+ -> ^^97
+/windows/Fonts/times.ttf
 
 ! LaTeX Error: Something's wrong--perhaps a missing \item.
 
@@ -2278,10 +2109,6 @@ l.164 ^^I}
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
-
-LaTeX Warning: Reference `fig:bedroom_pca_lda' on page 8 undefined on input lin
-e 172.
-
 File: figures/hsy/bedroom_feature_compare.pdf Graphic file (type QTm)
 <use  "figures/hsy/bedroom_feature_compare.pdf" >
 Underfull \hbox (badness 10000) in paragraph at lines 180--183
@@ -2313,41 +2140,19 @@ nonnegative, or you can use `\delimiter <delimiter code>'.
 
 File: figures/object-iterations.png Graphic file (type QTm)
 <use  "figures/object-iterations.png" >) (behavior.tex [8] [9] [10]
-
-LaTeX Warning: Citation 'Fisherscenesynth12' on page 11 undefined on input line
- 25.
-
-
-LaTeX Warning: Citation 'Silberman:ECCV12' on page 11 undefined on input line 2
-5.
-
-
-LaTeX Warning: Citation 'Xu13sig' on page 11 undefined on input line 25.
-
-
-LaTeX Warning: Citation 'xu_sig14' on page 11 undefined on input line 25.
-
-
-LaTeX Warning: Reference `fig:geometric_graph' on page 11 undefined on input li
-ne 64.
-
-
 Underfull \hbox (badness 1082) in paragraph at lines 64--71
 \EU1/TimesNewRoman(0)/m/n/9 Based on all the extracted pairwise relation, a dir
 ected graph
  []
 
-
-LaTeX Warning: Reference `sec:pairwise_relation' on page 11 undefined on input 
-line 79.
-
 File: figures/geometric_graph.png Graphic file (type QTm)
 <use  "figures/geometric_graph.png" >) (applications.tex) (results.tex)
 (conclusion.tex) (DynamicModeling.bbl
-Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;+
-smcp;" at 9.0pt
- -> C:/windows/Fonts/times.ttf
- [11])
+
+LaTeX Font Warning: Font shape `EU1/TimesNewRoman(0)/m/sc' undefined
+(Font)              using `EU1/TimesNewRoman(0)/m/n' instead on input line 4.
+
+[11])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 88.
  [12]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 88.
@@ -2356,7 +2161,7 @@ Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 88.
 Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 88.
 
 
-LaTeX Warning: There were undefined references.
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
@@ -2364,11 +2169,11 @@ LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 88.
  ) 
 Here is how much of TeX's memory you used:
- 26199 strings out of 428790
- 492517 string characters out of 3164816
- 608042 words of memory out of 3000000
- 29241 multiletter control sequences out of 15000+200000
- 12881 words of font info for 68 fonts, out of 3000000 for 9000
+ 26190 strings out of 428790
+ 492021 string characters out of 3164816
+ 604573 words of memory out of 3000000
+ 29234 multiletter control sequences out of 15000+200000
+ 12873 words of font info for 67 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
  43i,18n,69p,10423b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
 
