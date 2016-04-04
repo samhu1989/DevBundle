@@ -9,4 +9,5 @@ SUBDIRS += \
     ExpIA \
     Filter \
     ML \
-    Optimization
+    Optimization \
+    JRCS

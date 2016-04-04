@@ -47,5 +47,6 @@ void CRF2D::process(void)
         msg = msg.sprintf("kl = %lf\n", crf.klDivergence(Q));
         emit message(msg,0);
     }
+    emit end();
 }
 

@@ -114,6 +114,8 @@ void MainWindow::start_editing()
         worker->moveToThread(edit_thread_);
         edit_thread_->setObjectName("CRF2D");
         connect(edit_thread_,SIGNAL(started()),worker,SLOT(process()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(destroyed(QObject*)),edit_thread_,SLOT(quit()));
     }
     connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
     edit_thread_->start(QThread::HighPriority);

@@ -25,6 +25,7 @@
 #include <strstream>
 #include "updateclustercenter.h"
 #include "looper.h"
+#include "jrcsview.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -34,7 +35,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     gl_timer.stop();
     if(!config_->has("Configure"))config_->reload("../Default.config");
-
+    if(!config_->has("Configure"))
+    {
+        QString msg = "Please Mannually Configure\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+    }
     connect(ui->actionConfigure,SIGNAL(triggered(bool)),this,SLOT(configure()));
     connect(ui->actionOpen_Inputs,SIGNAL(triggered(bool)),this,SLOT(open_inputs()));
     connect(ui->actionSave_Aligned,SIGNAL(triggered(bool)),this,SLOT(save_aligned()));
@@ -60,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUpdate_Cluster_Center,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionGlobal_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIterate,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
@@ -1045,6 +1051,26 @@ void MainWindow::start_editing()
         connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
         edit_thread_ = th;
+    }
+    if(edit==ui->actionJRCS)
+    {
+        JRCSView* w = new JRCSView(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        if(!w->configure(config_)){
+            QString msg = "You probably should do unify label first\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w,Qt::Widget|Qt::WindowMinMaxButtonsHint);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        s->show();
+        w->start();
     }
     if(edit==ui->actionIterate)
     {

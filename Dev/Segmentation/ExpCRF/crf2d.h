@@ -11,6 +11,7 @@ public:
     CRF2D(QImage& img,arma::uvec& lbl);
 signals:
     int message(QString,int);
+    void end();
 public slots:
     void process(void);
 private:

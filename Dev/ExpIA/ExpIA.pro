@@ -35,7 +35,9 @@ SOURCES += main.cpp\
     inpatchgraphcut.cpp \
     updateclustercenter.cpp \
     tests.cpp \
-    looper.cpp
+    looper.cpp \
+    jrcsthread.cpp \
+    jrcsview.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -55,7 +57,9 @@ HEADERS  += mainwindow.h \
     inpatchgraphcut.h \
     updateclustercenter.h \
     tests.h \
-    looper.h
+    looper.h \
+    jrcsthread.h \
+    jrcsview.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
@@ -64,7 +68,8 @@ FORMS    += mainwindow.ui \
     objectview.ui \
     globalalign.ui \
     extractbackground.ui \
-    featureview.ui
+    featureview.ui \
+    jrcsview.ui
 
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 
@@ -139,3 +144,8 @@ win32: LIBS += -L$$DESTDIR/ -lDimensionReduction
 
 INCLUDEPATH += $$PWD/../ML/DimensionReduction
 DEPENDPATH += $$PWD/../ML/DimensionReduction
+
+win32: LIBS += -L$$DESTDIR/ -lJRCSCore
+
+INCLUDEPATH += $$PWD/../JRCS/JRCSCore
+DEPENDPATH += $$PWD/../JRCS/JRCSCore

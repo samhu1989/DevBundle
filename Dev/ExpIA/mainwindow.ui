@@ -41,7 +41,7 @@
      <x>0</x>
      <y>0</y>
      <width>608</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -96,6 +96,7 @@
     <addaction name="menuUpdate_Object_Model"/>
     <addaction name="actionUpdate_Cluster_Center"/>
     <addaction name="menuUpdate_Label"/>
+    <addaction name="actionJRCS"/>
     <addaction name="separator"/>
     <addaction name="actionIterate"/>
    </widget>
@@ -282,6 +283,11 @@
   <action name="actionLAPACKE_dggsvd">
    <property name="text">
     <string>LAPACKE_dggsvd</string>
+   </property>
+  </action>
+  <action name="actionJRCS">
+   <property name="text">
+    <string>JRCS</string>
    </property>
   </action>
  </widget>
