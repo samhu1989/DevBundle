@@ -28,6 +28,7 @@ bool JRCSView::configure(Config::Ptr config)
 
 bool JRCSView::init(Config::Ptr config)
 {
+    std::cerr<<"JRCSView::init"<<std::endl;
     JRCSThread* worker = new JRCSThread();
     if(!worker->configure(config))
     {
@@ -41,6 +42,7 @@ bool JRCSView::init(Config::Ptr config)
 
 void JRCSView::input( JRCSThread* jrcs_worker_ )
 {
+    std::cerr<<"JRCSView::input"<<std::endl;
     MeshList::iterator iter;
     MatPtrLst vv,vn;
     CMatPtrLst vc;
@@ -59,9 +61,9 @@ void JRCSView::input( JRCSThread* jrcs_worker_ )
 
 bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
 {
+    std::cerr<<"JRCSView::allocate_x"<<std::endl;
     MatPtrLst wv,wn;
     CMatPtrLst wc;
-    LCMatPtrLst wl;
     int k = jrcs_worker_->get_k();
     if(k<0)return false;
     int M = inputs_.size();
@@ -75,15 +77,35 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
         }
         mesh.request_vertex_normals();
         mesh.request_vertex_colors();
-
+        wv.emplace_back(new arma::fmat((float*)mesh.points(),3,mesh.n_vertices(),false,true));
+        wn.emplace_back(new arma::fmat((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true));
+        wc.emplace_back(new arma::Mat<uint8_t>((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true));
     }
+    jrcs_worker_->resetw(wv,wn,wc);
+    std::cerr<<"JRCSView::allocate_x:donewv"<<std::endl;
+    MatPtr xv,xn;
+    CMatPtr xc;
+    geo_view_->list().emplace_back(new MeshBundle<DefaultMesh>());
+    DefaultMesh& mesh = geo_view_->list().back()->mesh_;
+    std::cerr<<"k:"<<k<<std::endl;
+    for( int j=0 ; j < k ; ++j )
+    {
+        mesh.add_vertex(DefaultMesh::Point(0,0,0));
+    }
+    mesh.request_vertex_normals();
+    mesh.request_vertex_colors();
+    xv = std::make_shared<arma::fmat>((float*)mesh.points(),3,mesh.n_vertices(),false,true);
+    xn = std::make_shared<arma::fmat>((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
+    xc = std::make_shared<arma::Mat<uint8_t>>((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
 
-
+    std::cerr<<"JRCSView::allocate_x:reseting x"<<std::endl;
+    jrcs_worker_->resetx(xv,xn,xc);
     return true;
 }
 
 void JRCSView::move_worker_to_thread( JRCSThread* jrcs_worker )
 {
+    std::cerr<<"JRCSView::move_worker_to_thread"<<std::endl;
     jrcs_thread_ = new QThread();
     jrcs_worker->moveToThread(jrcs_thread_);
     connect(jrcs_thread_,SIGNAL(started()),jrcs_worker,SLOT(process()));
@@ -95,17 +117,20 @@ void JRCSView::move_worker_to_thread( JRCSThread* jrcs_worker )
 
 void JRCSView::start()
 {
+    std::cerr<<"JRCSView::start"<<std::endl;
     jrcs_thread_->start(QThread::HighPriority);
 }
 
 void JRCSView::finished()
 {
+    std::cerr<<"JRCSView::finished"<<std::endl;
     QThread* th = qobject_cast<QThread*>(sender());
     if(th&&th==jrcs_thread_)
     {
         jrcs_thread_->deleteLater();
         jrcs_thread_ = NULL;
     }
+    emit message(tr("JRCSView is finished"),0);
     emit closeInMdi(parentWidget());
 }
 

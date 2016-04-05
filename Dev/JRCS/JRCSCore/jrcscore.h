@@ -27,9 +27,32 @@ public:
             const MatPtrLst& wn,
             const CMatPtrLst& wc
             );
-    virtual inline void reset_n(int n=4){obj_num_=n;}
+    virtual inline void reset_n( int n = 4 ){
+        obj_num_ = n + 1;
+        if( obj_num_ < 2 )throw std::logic_error("works for at least two object number");
+    }
+    virtual void reset_objw(const std::vector<float>&);
     virtual int evaluate_k();//evalute a proper x
-    virtual void init_x();//randomly initialize the X
+    virtual void initx(
+            const MatPtr& xv,
+            const MatPtr& xn,
+            const CMatPtr& xc
+            );//randomly initialize the X
+
+    virtual void reset_obj_vn(
+            float radius,
+            arma::fvec& pos,
+            arma::fmat& ov,
+            arma::fmat& on
+            );
+    virtual void reset_obj_c(
+            arma::Mat<uint8_t>& oc
+            );
+
+    static void rand_sphere(
+            arma::fmat& ov
+            );
+
     virtual void reset_iteration();
     virtual void compute()
     {
@@ -66,21 +89,22 @@ protected:
     CMatPtrLst wcs_ptrlst_;
 
     //latent model centroid
-    MatPtr x_ptr_;
+    MatPtr xv_ptr_;
     MatPtr xn_ptr_;
     CMatPtr xc_ptr_;
-    arma::uvec obj_label_;
+
     //pre-defined class label for each centroid
+    arma::uvec  obj_label_;
+    arma::fvec  obj_prob_;
+    arma::fmat  obj_pos_;
+
+    MatPtrLst   objv_ptrlst_;
+    MatPtrLst   objn_ptrlst_;
+    CMatPtrLst  objc_ptrlst_;
 
     //latent model parameter
     arma::frowvec x_p_;
     arma::frowvec x_invvar_;
-
-    arma::fvec obj_p_;
-
-    MatPtrLst obj_ptrlst_;
-    MatPtrLst objn_ptrlst_;
-    //probability
 };
 }
 #endif // JRCSCORE_H

@@ -17,6 +17,8 @@ public:
     typedef std::vector<MeshBundle<DefaultMesh>::Ptr> MeshList;
     typedef std::vector<arma::uvec> LabelList;
     typedef std::vector<ObjModel::Ptr> ModelList;
+    typedef JRCSThread::MatPtr MatPtr;
+    typedef JRCSThread::CMatPtr CMatPtr;
     typedef JRCSThread::MatPtrLst MatPtrLst;
     typedef JRCSThread::CMatPtrLst CMatPtrLst;
     typedef JRCSThread::LCMatPtrLst LCMatPtrLst;

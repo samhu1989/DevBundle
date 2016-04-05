@@ -1060,7 +1060,7 @@ void MainWindow::start_editing()
                     objects_
                     );
         if(!w->configure(config_)){
-            QString msg = "You probably should do unify label first\n";
+            QString msg = "Missing Some Inputs or configure\n";
             QMessageBox::critical(this, windowTitle(), msg);
             w->deleteLater();
             return;

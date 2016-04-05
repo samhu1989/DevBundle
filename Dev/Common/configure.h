@@ -20,7 +20,10 @@ public:
     int getInt(const std::string&);
     float   getFloat(const std::string&);
     double  getDouble(const std::string&);
-
+    void getFloatVec(
+            const std::string&,
+            std::vector<float>&
+            );
 private:
     QMap<std::string,std::string>_Config;
     std::string _SourcePath;

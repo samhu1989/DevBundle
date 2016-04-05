@@ -13,16 +13,18 @@ void Config::reload()
     QFile inFile(QString::fromStdString(_SourcePath));
     inFile.open(inFile.ReadOnly);
     QTextStream stream(&inFile);
-    QString str0;
-    QString str1;
     while(!stream.atEnd())
     {
-        stream >> str0;
+        QString line = stream.readLine();
+        QTextStream line_stream(&line);
+        QString str0;
+        line_stream >> str0;
         if(str0.startsWith("#"))
         {
             continue;
         }
-        stream >> str1;
+        QString str1 = line.remove(0,str0.size());
+        str1 = str1.simplified();
         _Config.insert(str0.toStdString(),str1.toStdString());
     }
 }
@@ -70,6 +72,23 @@ float Config::getFloat(const std::string& key)
     float result = str.toFloat(&ok);
     if( !ok )std::cerr<<"Can't convert "+key+" to Float";
     return result;
+}
+
+void Config::getFloatVec(
+        const std::string& key,
+        std::vector<float>& vec
+        )
+{
+    QString str = QString::fromStdString(_Config.value(key));
+    QTextStream stream(&str);
+    while(!stream.atEnd())
+    {
+        QString num;
+        stream >> num;
+        bool ok;
+        vec.push_back(num.toFloat(&ok));
+        if(!ok)std::cerr<<"Can't convert "+num.toStdString()+" to Float";
+    }
 }
 
 double  Config::getDouble(const std::string& key)
