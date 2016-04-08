@@ -14,6 +14,12 @@ public:
     typedef std::vector<CMatPtr> CMatPtrLst;
     typedef std::shared_ptr<arma::Col<uint32_t>> LCMatPtr;
     typedef std::vector<LCMatPtr> LCMatPtrLst;
+    typedef struct{
+        float R[9];
+        float t[3];
+    }T;
+    typedef std::vector<T> Ts;
+    typedef std::vector<Ts> TsLst;
     JRCSBase(){}
     virtual ~JRCSBase(){}
     virtual void input(
@@ -49,13 +55,17 @@ public:
             arma::Mat<uint8_t>& oc
             );
 
+    virtual void reset_rt();
+
     static void rand_sphere(
             arma::fmat& ov
             );
 
     virtual void reset_iteration();
+    virtual void allocate_alpha();
     virtual void compute()
     {
+        allocate_alpha();
         while(!isEnd())
         {
             computeOnce();
@@ -74,11 +84,15 @@ protected:
     //termination criteria
     int iter_count_;
 
+    //max radius
+    float max_obj_radius_;
+
     //input observation
     MatPtrLst vvs_ptrlst_;
     MatPtrLst vns_ptrlst_;
     CMatPtrLst vcs_ptrlst_;
     LCMatPtrLst vls_ptrlst_;
+    TsLst rt_lst_;
 
     //results
     MatPtrLst alpha_ptrlst_;
@@ -105,6 +119,7 @@ protected:
     //latent model parameter
     arma::frowvec x_p_;
     arma::frowvec x_invvar_;
+    float beta_;
 };
 }
 #endif // JRCSCORE_H

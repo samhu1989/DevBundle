@@ -84,6 +84,7 @@ void JRCSBase::initx(
     obj_pos_ = arma::fmat(3,N,arma::fill::zeros);
     arma::frowvec z = arma::linspace<arma::frowvec>(float(-N),float(N),N);
     obj_pos_.row(2) = z;
+    max_obj_radius_ = 0.0;
     std::cerr<<"obj_pos_:"<<std::endl;
     std::cerr<<obj_pos_<<std::endl;
     for(int obj_idx = 0 ; obj_idx < obj_prob_.size() ; ++ obj_idx )
@@ -114,6 +115,7 @@ void JRCSBase::reset_obj_vn(
     rand_sphere(ov);
     on = ov;
     ov *= radius;
+    if( radius > max_obj_radius_ ) max_obj_radius_ = radius;
     ov.each_col() += pos;
 }
 
@@ -136,7 +138,36 @@ void JRCSBase::reset_obj_c(
         )
 {
     oc.fill(0);
-    oc.row(1).fill(255);
+    oc.row(2).fill(255);
+}
+
+void JRCSBase::reset_rt()
+{
+    if(vvs_ptrlst_.empty())
+    {
+        throw std::logic_error("JRCSBase::reset_rt: no input");
+    }
+    rt_lst_.resize(vvs_ptrlst_.size());
+    TsLst::iterator iter;
+    for(iter=rt_lst_.begin();iter!=rt_lst_.end();++iter)
+    {
+        Ts& rt = *iter ;
+        #pragma omp for
+        for( int i = 0 ; i < obj_num_ ; ++i )
+        {
+            arma::fmat R(rt[i].R,3,3,false,true);
+            arma::fvec t(rt[i].t,3,false,true);
+            R.fill(arma::fill::eye);
+            arma::fvec randw(2*obj_num_,arma::fill::randn);
+            randw = arma::normalise(randw);
+            arma::fvec randt(3,arma::fill::randn);
+            arma::fmat pos0 = obj_pos_.each_col() + randt*max_obj_radius_;
+            arma::fmat pos1 = obj_pos_.each_col() - randt*max_obj_radius_;
+            arma::fmat pos_base = arma::join_rows(pos0,pos1);
+            t = pos_base*randw;
+
+        }
+    }
 }
 
 int JRCSBase::evaluate_k()
@@ -162,9 +193,51 @@ void JRCSBase::computeOnce()
     stepM();
 }
 
+void JRCSBase::allocate_alpha()
+{
+    arma::fmat& xv_ = *xv_ptr_;
+    if(alpha_ptrlst_.size()<=vvs_ptrlst_.size())
+    {
+        int idx=0;
+        while(alpha_ptrlst_.size()<=vvs_ptrlst_.size())
+        {
+            alpha_ptrlst_.emplace_back(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
+            ++idx;
+        }
+    }
+}
+
 void JRCSBase::stepE()
 {
-    ;
+    arma::fmat& xv_ = *xv_ptr_;
+    arma::fmat xv_back_up = xv_;
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::fmat& vs_ = *vvs_ptrlst_[idx];
+        arma::fmat& alpha = *alpha_ptrlst_[idx];
+        Ts& rt = rt_lst_[idx];
+        #pragma omp for
+        for(int o = 0 ; o < obj_num_ ; ++o )
+        {
+            arma::fmat R(rt[o].R,3,3,false,true);
+            arma::fvec t(rt[o].t,3,false,true);
+            arma::fmat& objv = *objv_ptrlst_[o];
+            objv = R*objv + t;
+        }
+        #pragma omp for
+        for(int r = 0 ; r<alpha.n_rows ; ++r )
+        {
+            arma::fmat tmpm = xv_.each_col() - vs_.col(r);
+            alpha.row(r) = arma::sum(arma::square(tmpm));
+        }
+        alpha.each_row()%=(-0.5*x_invvar_);
+        alpha = arma::exp(alpha);
+        alpha.each_row()%=arma::pow(x_invvar_,1.5);
+        alpha.each_row()%=x_p_;
+        arma::fvec alpha_rowsum = arma::sum(alpha,1)+beta_;
+        alpha.each_col()/=alpha_rowsum;
+        xv_ = xv_back_up ; //restore the x
+    }
 }
 
 void JRCSBase::stepM()
