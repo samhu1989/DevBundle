@@ -63,9 +63,11 @@ public:
 
     virtual void reset_iteration();
     virtual void reset_alpha();
+    virtual void reset_prob();
     virtual void compute()
     {
         reset_alpha();
+        reset_prob();
         while(!isEnd())
         {
             computeOnce();
@@ -110,11 +112,6 @@ protected:
     arma::fmat xtn_;
     arma::Mat<uint8_t> xtc_;
 
-    //sum of latent model
-    arma::fmat xtv_sum_;
-    arma::fmat xtn_sum_;
-    arma::fmat xtc_sum_;
-
     //pre-defined class label for each centroid
     arma::uvec  obj_label_;
     arma::fvec  obj_prob_;
@@ -127,6 +124,16 @@ protected:
     //latent model parameter
     arma::frowvec x_p_;
     arma::frowvec x_invvar_;
+
+    //sum of latent model
+    arma::fmat xv_sum_;
+    arma::fmat xn_sum_;
+    arma::fmat xc_sum_;
+
+    arma::frowvec var_sum;
+    arma::frowvec alpha_sum;
+    arma::frowvec alpha_sumij;
+
     float beta_;
 };
 }
