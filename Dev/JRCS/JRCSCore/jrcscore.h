@@ -62,10 +62,10 @@ public:
             );
 
     virtual void reset_iteration();
-    virtual void allocate_alpha();
+    virtual void reset_alpha();
     virtual void compute()
     {
-        allocate_alpha();
+        reset_alpha();
         while(!isEnd())
         {
             computeOnce();
@@ -74,8 +74,6 @@ public:
     }
 protected:
     virtual void computeOnce();
-    virtual void stepE();
-    virtual void stepM();
     virtual bool isEnd();
 protected:
     //object number
@@ -106,6 +104,16 @@ protected:
     MatPtr xv_ptr_;
     MatPtr xn_ptr_;
     CMatPtr xc_ptr_;
+
+    //transformed latent model centroid
+    arma::fmat xtv_;
+    arma::fmat xtn_;
+    arma::Mat<uint8_t> xtc_;
+
+    //sum of latent model
+    arma::fmat xtv_sum_;
+    arma::fmat xtn_sum_;
+    arma::fmat xtc_sum_;
 
     //pre-defined class label for each centroid
     arma::uvec  obj_label_;
