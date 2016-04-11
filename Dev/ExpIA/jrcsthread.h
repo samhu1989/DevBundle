@@ -40,6 +40,7 @@ signals:
 protected:
 private:
     Config::Ptr config_;
+    bool verbose_;
     JRCS::JRCSBase jrcs_;
 };
 

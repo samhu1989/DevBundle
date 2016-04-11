@@ -26,7 +26,8 @@ public:
             const MatPtrLst& vv,
             const MatPtrLst& vn,
             const CMatPtrLst& vc,
-            const LCMatPtrLst& vl
+            const LCMatPtrLst& vl,
+            bool verbose = false
             );
     virtual void resetw(
             const MatPtrLst& wv,
@@ -45,25 +46,8 @@ public:
             const CMatPtr& xc
             );//randomly initialize the X
 
-    virtual void reset_obj_vn(
-            float radius,
-            arma::fvec& pos,
-            arma::fmat& ov,
-            arma::fmat& on
-            );
-    virtual void reset_obj_c(
-            arma::Mat<uint8_t>& oc
-            );
-
     virtual void reset_rt();
-
-    static void rand_sphere(
-            arma::fmat& ov
-            );
-
     virtual void reset_iteration();
-    virtual void reset_alpha();
-    virtual void reset_prob();
     virtual void compute()
     {
         reset_alpha();
@@ -77,6 +61,20 @@ public:
 protected:
     virtual void computeOnce();
     virtual bool isEnd();
+    virtual void reset_obj_vn(
+            float radius,
+            arma::fvec& pos,
+            arma::fmat& ov,
+            arma::fmat& on
+            );
+    virtual void reset_obj_c(
+            arma::Mat<uint8_t>& oc
+            );
+    virtual void reset_alpha();
+    virtual void reset_prob();
+    static void rand_sphere(
+            arma::fmat& ov
+            );
 protected:
     //object number
     int obj_num_;
@@ -133,6 +131,8 @@ protected:
     arma::frowvec var_sum;
     arma::frowvec alpha_sum;
     arma::frowvec alpha_sumij;
+
+    bool verbose_;
 
     float beta_;
 };

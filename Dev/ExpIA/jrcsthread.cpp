@@ -13,6 +13,13 @@ bool JRCSThread::configure(Config::Ptr config)
         std::vector<float> objw;
         config_->getFloatVec("JRCS_obj_w",objw);
         jrcs_.reset_objw(objw);
+    }else return false;
+    if(config_->has("JRCS_verbose"))
+    {
+        if( !config_->getInt("JRCS_verbose") )verbose_=false;
+        else verbose_=true;
+    }else{
+        verbose_=true;
     }
     return true;
 }
@@ -24,7 +31,7 @@ void JRCSThread::input(
       const LCMatPtrLst& vl
      )
 {
-    jrcs_.input(vv,vn,vc,vl);
+    jrcs_.input(vv,vn,vc,vl,verbose_);
 }
 
 void JRCSThread::resetw(
@@ -44,11 +51,12 @@ void JRCSThread::resetx(
 {
     std::cerr<<"JRCSThread::resetx"<<std::endl;
     jrcs_.initx(xv,xn,xc);
+    jrcs_.reset_rt();
 }
 
 void JRCSThread::process(void)
 {
     jrcs_.compute();
-    QThread::sleep(8);
+    QThread::sleep(20);
     emit end();
 }

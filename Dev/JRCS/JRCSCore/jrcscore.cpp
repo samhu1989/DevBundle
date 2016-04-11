@@ -11,13 +11,15 @@ void JRCSBase::input(
         const MatPtrLst& vv,
         const MatPtrLst& vn,
         const CMatPtrLst& vc,
-        const LCMatPtrLst& vl
+        const LCMatPtrLst& vl,
+        bool verbose
         )
 {
     vvs_ptrlst_ = vv;
     vns_ptrlst_ = vn;
     vcs_ptrlst_ = vc;
     vls_ptrlst_ = vl;
+    verbose_ = verbose;
 }
 
 void JRCSBase::resetw(
@@ -163,6 +165,7 @@ void JRCSBase::reset_rt()
     for(iter=rt_lst_.begin();iter!=rt_lst_.end();++iter)
     {
         Ts& rt = *iter ;
+        rt.resize(obj_num_);
         #pragma omp for
         for( int i = 0 ; i < obj_num_ ; ++i )
         {
@@ -207,18 +210,23 @@ void JRCSBase::computeOnce()
     alpha_sumij.fill(0.0);
 
     //reset transformed latent center
-    xtv_ = *xv_ptr_;
-    xtn_ = *xn_ptr_;
+    if(verbose_)std::cerr<<"reset transformed latent color"<<std::endl;
     xtc_ = *xc_ptr_;
 
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
+        if(verbose_)std::cerr<<"reset transformed latent center"<<std::endl;
+        xtv_ = *xv_ptr_;
+        xtn_ = *xn_ptr_;
+
         arma::fmat& vv_ = *vvs_ptrlst_[idx];
         arma::fmat& vn_ = *vns_ptrlst_[idx];
         arma::Mat<uint8_t>& vc_ = *vcs_ptrlst_[idx];
         arma::fmat& alpha = *alpha_ptrlst_[idx];
         Ts& rt = rt_lst_[idx];
-        //step-E
+
+        if(verbose_)std::cerr<<"step-E"<<std::endl;
+        if(verbose_)std::cerr<<"transform object"<<std::endl;
         #pragma omp for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -226,9 +234,11 @@ void JRCSBase::computeOnce()
             arma::fvec t(rt[o].t,3,false,true);
             arma::fmat& objv = *objv_ptrlst_[o];
             arma::fmat& objn = *objn_ptrlst_[o];
-            objv = R*objv + t;
+            objv = R*objv;
+            objv.each_col() += t;
             objn = R*objn;
         }
+        if(verbose_)std::cerr<<"calculate alpha"<<std::endl;
         #pragma omp for
         for(int r = 0 ; r < alpha.n_rows ; ++r )
         {
@@ -255,6 +265,7 @@ void JRCSBase::computeOnce()
 
         //update RT
         //#1 calculate weighted point cloud
+        if(verbose_)std::cerr<<"calculating the weighted point cloud"<<std::endl;
         arma::fmat& wv = *wvs_ptrlst_[idx];
         arma::fmat& wn = *wns_ptrlst_[idx];
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[idx]);
@@ -278,6 +289,7 @@ void JRCSBase::computeOnce()
         wn = arma::normalise( wn );
         *wcs_ptrlst_[idx] = arma::conv_to<arma::Mat<uint8_t>>::from(wc);
 
+        if(verbose_)std::cerr<<"calculating R & t"<<std::endl;
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -319,9 +331,6 @@ void JRCSBase::computeOnce()
         arma::frowvec tmpvar = arma::sum(alpha%alpha);
         var_sum += tmpvar;
         alpha_sumij += alpha_colsum;
-        //restore xv to before transform
-        xtv_ = *xv_ptr_;
-        xtn_ = *xn_ptr_;
     }
     float N =  vvs_ptrlst_.size();
     *xv_ptr_ = xv_sum_ / N;
@@ -347,7 +356,7 @@ void JRCSBase::computeOnce()
 
 void JRCSBase::reset_alpha()
 {
-    std::cerr<<"allocating alpha"<<std::endl;
+    if(verbose_)std::cerr<<"allocating alpha"<<std::endl;
     arma::fmat& xv_ = *xv_ptr_;
     alpha_ptrlst_.clear();
     int idx=0;
@@ -356,11 +365,12 @@ void JRCSBase::reset_alpha()
         alpha_ptrlst_.emplace_back(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
         ++idx;
     }
-    std::cerr<<"done allocating alpha"<<std::endl;
+    if(verbose_)std::cerr<<"done allocating alpha"<<std::endl;
 }
 
 void JRCSBase::reset_prob()
 {
+    if(verbose_)std::cerr<<"initializing probability"<<std::endl;
     arma::fvec maxAllXYZ,minAllXYZ;
     MatPtrLst::iterator vviter;
     for( vviter = vvs_ptrlst_.begin() ; vviter != vvs_ptrlst_.end() ; ++vviter )
@@ -386,6 +396,7 @@ void JRCSBase::reset_prob()
     xn_sum_ = arma::fmat(xn_ptr_->n_rows,xn_ptr_->n_cols,arma::fill::zeros);
     xc_sum_ = arma::fmat(xc_ptr_->n_rows,xc_ptr_->n_cols,arma::fill::zeros);
 
+    x_p_ = arma::frowvec(xv_ptr_->n_cols);
     x_p_.fill(1.0/float(xv_ptr_->n_cols));
 
     var_sum = arma::frowvec(xv_ptr_->n_cols,arma::fill::zeros);
@@ -393,6 +404,7 @@ void JRCSBase::reset_prob()
     alpha_sumij = arma::frowvec(xv_ptr_->n_cols,arma::fill::zeros);
 
     beta_ = 0.05;
+    if(verbose_)std::cerr<<"done probability"<<std::endl;
 }
 
 bool JRCSBase::isEnd()
