@@ -100,6 +100,8 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
 
     std::cerr<<"JRCSView::allocate_x:reseting x"<<std::endl;
     jrcs_worker_->resetx(xv,xn,xc);
+    geo_view_->show_back();
+
     return true;
 }
 

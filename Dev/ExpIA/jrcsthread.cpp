@@ -56,7 +56,7 @@ void JRCSThread::resetx(
 
 void JRCSThread::process(void)
 {
+    jrcs_.reset_iteration();
     jrcs_.compute();
-    QThread::sleep(20);
     emit end();
 }

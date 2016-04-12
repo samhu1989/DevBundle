@@ -1,10 +1,11 @@
 #include "jrcscore.h"
+#include <QThread>
+#include <strstream>
 namespace JRCS{
 
 void JRCSBase::reset_iteration()
 {
     iter_count_ = 0;
-    obj_num_ = 3;
 }
 
 void JRCSBase::input(
@@ -244,8 +245,8 @@ void JRCSBase::computeOnce()
         {
             arma::fmat tmpm = xtv_.each_col() - vv_.col(r);
             //project distance to normal direction
-            tmpm %= xtn_;
-            alpha.row(r) = arma::square(arma::sum(tmpm));
+//            tmpm %= xtn_;
+            alpha.row(r) = arma::sum(arma::square(tmpm));
         }
 
         alpha.each_row()%=(-0.5*x_invvar_);
@@ -260,8 +261,11 @@ void JRCSBase::computeOnce()
             alpha.cols(oidx) *= obj_prob_(o);
         }
 
-        arma::fvec alpha_rowsum = arma::sum(alpha,1) + beta_;
+        arma::fvec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
         alpha.each_col() /= alpha_rowsum;
+        alpha_rowsum = arma::sum(alpha,1);
+        //smooth alpha
+
 
         //update RT
         //#1 calculate weighted point cloud
@@ -313,27 +317,50 @@ void JRCSBase::computeOnce()
                 dR = U*C*(V.t());
                 dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
             }
+            //updating objv
+            *objv_ptrlst_[o] = dR*(*objv_ptrlst_[o]);
+            (*objv_ptrlst_[o]).each_col() += dt;
+            *objn_ptrlst_[o] = dR*(*objn_ptrlst_[o]);
+            //updating R T
             R = dR*R;
             t = dR*t + dt;
-            arma::fmat tv = v.each_col() - t;
-            xv_sum_.cols(oidx) +=  R.i()*tv;
-            xn_sum_.cols(oidx) +=  R.i()*wn.cols(oidx);
-            xc_sum_.cols(oidx) += wc.cols(oidx);
         }
-        //update X var
+        //update var
         alpha_sum += alpha_colsum;
-//        arma::fmat alpha_2(alpha.n_rows,alpha.n_cols);
-//        #pragma omp parallel for
-//        for(int r=0;r<alpha_2.n_rows;++r)
-//        {
-//            alpha_2.row(r) = arma::sum(arma::square(X_.each_col() - V_.col(r)));
-//        }
-        arma::frowvec tmpvar = arma::sum(alpha%alpha);
+        arma::fmat alpha_2(alpha.n_rows,alpha.n_cols);
+        #pragma omp parallel for
+        for(int r=0;r<alpha_2.n_rows;++r)
+        {
+            alpha_2.row(r) = arma::sum(arma::square(xtv_.each_col() - vv_.col(r)));
+        }
+        arma::frowvec tmpvar = arma::sum(alpha_2%alpha);
         var_sum += tmpvar;
         alpha_sumij += alpha_colsum;
+        if(verbose_)std::cerr<<"Accumulate for updating X"<<std::endl;
+        #pragma omp parallel for
+        for(int o = 0 ; o < obj_num_ ; ++o )
+        {
+            arma::fmat R(rt[o].R,3,3,false,true);
+            arma::fvec t(rt[o].t,3,false,true);
+            arma::uvec oidx = arma::find(obj_label_==(o+1));
+            arma::fmat nearest_vv;
+            arma::fmat nearest_vn;
+            arma::fmat nearest_vc;
+            //accumulate for updating X
+            nearest_vv.each_col() -= t;
+            xv_sum_.cols(oidx) +=  R.i()*nearest_vv;
+            xn_sum_.cols(oidx) +=  R.i()*nearest_vn;
+            xc_sum_.cols(oidx) += nearest_vc;
+        }
     }
+    if(verbose_)std::cerr<<"Updating X:"<<std::endl;
     float N =  vvs_ptrlst_.size();
     *xv_ptr_ = xv_sum_ / N;
+    if(!(*xv_ptr_).is_finite()){
+        throw std::logic_error("infinite xv");
+    }
+
+    QThread::sleep(3);
     //fix the x center position
     #pragma omp for
     for(int o = 0 ; o < obj_num_ ; ++o )
@@ -403,13 +430,13 @@ void JRCSBase::reset_prob()
     alpha_sum = arma::frowvec(xv_ptr_->n_cols,arma::fill::zeros);
     alpha_sumij = arma::frowvec(xv_ptr_->n_cols,arma::fill::zeros);
 
-    beta_ = 0.05;
+    beta_ = 0.01;
     if(verbose_)std::cerr<<"done probability"<<std::endl;
 }
 
 bool JRCSBase::isEnd()
 {
-    if(iter_count_>=1)return true;
+    if(iter_count_>=30)return true;
     return false;
 }
 }
