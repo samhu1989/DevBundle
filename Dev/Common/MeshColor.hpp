@@ -17,6 +17,8 @@ ColorArray::RGBArray MeshColor<M>::vertex_colors_array(void)
     return v_colors;
 }
 
+
+
 template<typename M>
 void* MeshColor<M>::vertex_colors(void)
 {
@@ -38,21 +40,6 @@ template<typename M>
 void MeshColor<M>::fromlabel(const arma::uvec&label)
 {
     uint32_t* ptr = (uint32_t*)vertex_colors();
-    if( label.size() < v_colors.size_ ){
-        std::cerr<<"label.size() < v_colors.size_"<<std::endl;
-        return;
-    }
-    int index;
-    for(int i = 0 ; i < v_colors.size_ ; ++i )
-    {
-        if(label(i)==0)index=0;
-        else{
-            std::srand(label(i));
-            index = std::rand()%( ColorArray::DefaultColorNum_ - 1 );
-            index += 1;
-        }
-        *ptr = ColorArray::DefaultColor[index].color;
-        ++ptr;
-    }
+    ColorArray::colorfromlabel(ptr,v_colors.size_,label);
 }
 

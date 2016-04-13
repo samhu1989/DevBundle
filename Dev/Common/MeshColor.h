@@ -42,12 +42,15 @@ namespace ColorArray
         void reset(long size,uint8_t r,uint8_t g, uint8_t b);
         ~RGBArray(){if(data_)delete[]data_;}
         }RGBArray;
+
     void COMMONSHARED_EXPORT Lab2RGB(const arma::fmat& Lab, arma::Mat<uint8_t>& rgb);
     void COMMONSHARED_EXPORT RGB2Lab(const arma::Mat<uint8_t>& rgb, arma::fmat& Lab);
     void COMMONSHARED_EXPORT RGB2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab);
     void COMMONSHARED_EXPORT Lab2BGR(const arma::fmat& Lab, arma::Mat<uint8_t>& rgb);
     void COMMONSHARED_EXPORT BGR2Lab(const arma::Mat<uint8_t>& rgb, arma::fmat& Lab);
     void COMMONSHARED_EXPORT BGR2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab);
+
+    void COMMONSHARED_EXPORT colorfromlabel(uint32_t* ptr,arma::uword size,const arma::uvec& label);
 
     extern const float COMMONSHARED_EXPORT Lab_L_min;
     extern const float COMMONSHARED_EXPORT Lab_L_max;

@@ -1,6 +1,7 @@
 #include "jrcscore.h"
 #include <QThread>
 #include <strstream>
+#include "MeshColor.h"
 namespace JRCS{
 
 void JRCSBase::reset_iteration()
@@ -88,7 +89,7 @@ void JRCSBase::initx(
     uint8_t* pxc = (uint8_t*)xtc_.memptr();
     int N = obj_prob_.size();
     obj_pos_ = arma::fmat(3,N,arma::fill::zeros);
-    arma::frowvec z = arma::linspace<arma::frowvec>(float(-N),float(N),N);
+    arma::frowvec z = arma::linspace<arma::frowvec>(float(-N/2),float(N/2),N);
     obj_pos_.row(2) = z;
     max_obj_radius_ = 0.0;
     std::cerr<<"obj_pos_:"<<std::endl;
@@ -247,6 +248,7 @@ void JRCSBase::computeOnce()
             //project distance to normal direction
 //            tmpm %= xtn_;
             alpha.row(r) = arma::sum(arma::square(tmpm));
+//            alpha.row(r) = arma::square(arma::sum(tmpm));
         }
 
         alpha.each_row()%=(-0.5*x_invvar_);
@@ -264,7 +266,7 @@ void JRCSBase::computeOnce()
         arma::fvec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
         alpha.each_col() /= alpha_rowsum;
         alpha_rowsum = arma::sum(alpha,1);
-        //smooth alpha
+        //smoothing alpha
 
 
         //update RT
@@ -324,6 +326,11 @@ void JRCSBase::computeOnce()
             //updating R T
             R = dR*R;
             t = dR*t + dt;
+            //accumulate for updating X
+            arma::fmat tv = v.each_col() - t;
+            xv_sum_.cols(oidx) +=  R.i()*tv;
+            xn_sum_.cols(oidx) +=  R.i()*wn.cols(oidx);
+            xc_sum_.cols(oidx) += wc.cols(oidx);
         }
         //update var
         alpha_sum += alpha_colsum;
@@ -336,22 +343,6 @@ void JRCSBase::computeOnce()
         arma::frowvec tmpvar = arma::sum(alpha_2%alpha);
         var_sum += tmpvar;
         alpha_sumij += alpha_colsum;
-        if(verbose_)std::cerr<<"Accumulate for updating X"<<std::endl;
-        #pragma omp parallel for
-        for(int o = 0 ; o < obj_num_ ; ++o )
-        {
-            arma::fmat R(rt[o].R,3,3,false,true);
-            arma::fvec t(rt[o].t,3,false,true);
-            arma::uvec oidx = arma::find(obj_label_==(o+1));
-            arma::fmat nearest_vv;
-            arma::fmat nearest_vn;
-            arma::fmat nearest_vc;
-            //accumulate for updating X
-            nearest_vv.each_col() -= t;
-            xv_sum_.cols(oidx) +=  R.i()*nearest_vv;
-            xn_sum_.cols(oidx) +=  R.i()*nearest_vn;
-            xc_sum_.cols(oidx) += nearest_vc;
-        }
     }
     if(verbose_)std::cerr<<"Updating X:"<<std::endl;
     float N =  vvs_ptrlst_.size();
@@ -359,16 +350,14 @@ void JRCSBase::computeOnce()
     if(!(*xv_ptr_).is_finite()){
         throw std::logic_error("infinite xv");
     }
-
-    QThread::sleep(3);
     //fix the x center position
     #pragma omp for
     for(int o = 0 ; o < obj_num_ ; ++o )
     {
         arma::uvec oidx = arma::find(obj_label_==(o+1));
         arma::fmat newxv = xv_ptr_->cols(oidx);
-        arma::fvec t =  obj_pos_(o) - arma::mean(newxv,1);
-        xv_ptr_->cols(oidx) = newxv.each_col() - t;
+        arma::fvec t =  obj_pos_.col(o) - arma::mean(newxv,1);
+        xv_ptr_->cols(oidx) = newxv.each_col() + t;
     }
     *xn_ptr_ = xn_sum_ / N;
     *xn_ptr_ = arma::normalise(*xn_ptr_);
@@ -434,9 +423,37 @@ void JRCSBase::reset_prob()
     if(verbose_)std::cerr<<"done probability"<<std::endl;
 }
 
+void JRCSBase::update_color_label()
+{
+    if(verbose_)std::cerr<<"updating color label"<<std::endl;
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::fmat& alpha = *alpha_ptrlst_[idx];
+        arma::fmat obj_p(alpha.n_rows,obj_num_);
+        arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
+        #pragma omp for
+        for(int o = 0 ; o < obj_num_ ; ++o )
+        {
+            arma::uvec oidx = arma::find(obj_label_==(o+1));
+            arma::fmat sub_alpha = alpha.cols(oidx);
+            obj_p.col(o) = arma::sum(sub_alpha,1);
+        }
+        arma::uvec label(alpha.n_rows);
+        #pragma omp for
+        for(int r = 0 ; r < obj_p.n_rows ; ++r )
+        {
+            arma::uword l;
+            arma::frowvec point_prob = obj_p.row(r);
+            point_prob.max(l);
+            label(r) = l+1;
+        }
+        ColorArray::colorfromlabel((uint32_t*)vl.memptr(),vl.size(),label);
+    }
+}
+
 bool JRCSBase::isEnd()
 {
-    if(iter_count_>=30)return true;
+    if(iter_count_>=50)return true;
     return false;
 }
 }

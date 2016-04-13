@@ -55,6 +55,7 @@ public:
         while(!isEnd())
         {
             computeOnce();
+            update_color_label();
             ++iter_count_;
         }
     }
@@ -75,6 +76,7 @@ protected:
     static void rand_sphere(
             arma::fmat& ov
             );
+    virtual void update_color_label();
 protected:
     //object number
     int obj_num_;

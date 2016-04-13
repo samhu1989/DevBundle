@@ -240,6 +240,26 @@ void ColorArray::BGR2Lab(const arma::Col<uint8_t>& bgr, arma::fvec& Lab)
     RGB2Lab(rgb,Lab);
 }
 
+void ColorArray::colorfromlabel(uint32_t* ptr,arma::uword size,const arma::uvec& label)
+{
+    if( label.size() < size ){
+        std::cerr<<"label.size() < size"<<std::endl;
+        return;
+    }
+    int index;
+    for(int i = 0 ; i < size ; ++i )
+    {
+        if(label(i)==0)index=0;
+        else{
+            std::srand(label(i));
+            index = std::rand()%( ColorArray::DefaultColorNum_ - 1 );
+            index += 1;
+        }
+        *ptr = ColorArray::DefaultColor[index].color;
+        ++ptr;
+    }
+}
+
 ColorArray::RGB32 COMMONSHARED_EXPORT ColorArray::DefaultColor[DefaultColorNum_] = {
     {0XFF000000},
     {0XFFBF80FF},
