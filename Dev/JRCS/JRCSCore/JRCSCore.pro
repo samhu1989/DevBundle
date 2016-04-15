@@ -68,3 +68,8 @@ DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
 
 INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
 DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include
+
+win32: LIBS += -L$$OUT_PWD/../../Segmentation/SegmentationCore/ -lSegmentationCore
+
+INCLUDEPATH += $$PWD/../../Segmentation/SegmentationCore
+DEPENDPATH += $$PWD/../../Segmentation/SegmentationCore

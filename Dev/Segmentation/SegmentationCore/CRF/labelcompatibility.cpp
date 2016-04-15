@@ -28,14 +28,18 @@
 #include <assert.h>
 LabelCompatibility::~LabelCompatibility() {
 }
+
 void LabelCompatibility::applyTranspose( arma::mat & out, const arma::mat & Q ) const {
 	apply( out, Q );
 }
+
 arma::vec LabelCompatibility::parameters() const {
     return arma::vec();
 }
+
 void LabelCompatibility::setParameters( const arma::vec & v ) {
 }
+
 arma::vec LabelCompatibility::gradient( const arma::mat & b, const arma::mat & Q ) const {
     return arma::vec();
 }
@@ -43,17 +47,21 @@ arma::vec LabelCompatibility::gradient( const arma::mat & b, const arma::mat & Q
 
 PottsCompatibility::PottsCompatibility( float weight ): w_(weight) {
 }
+
 void PottsCompatibility::apply( arma::mat & out, const arma::mat & Q ) const {
 	out = -w_*Q;
 }
+
 arma::vec PottsCompatibility::parameters() const {
     arma::vec r(1);
 	r[0] = w_;
 	return r;
 }
+
 void PottsCompatibility::setParameters( const arma::vec & v ) {
 	w_ = v[0];
 }
+
 arma::vec PottsCompatibility::gradient( const arma::mat & b, const arma::mat & Q ) const {
     arma::vec r(1);
     r[0] = - arma::accu( b % Q );
@@ -63,28 +71,36 @@ arma::vec PottsCompatibility::gradient( const arma::mat & b, const arma::mat & Q
 
 DiagonalCompatibility::DiagonalCompatibility( const arma::vec & v ): w_(v) {
 }
+
 void DiagonalCompatibility::apply( arma::mat & out, const arma::mat & Q ) const {
     assert( w_.n_rows == Q.n_rows );
     out = arma::diagmat(w_)*Q;
 }
+
 arma::vec DiagonalCompatibility::parameters() const {
 	return w_;
 }
+
 void DiagonalCompatibility::setParameters( const arma::vec & v ) {
 	w_ = v;
 }
+
 arma::vec DiagonalCompatibility::gradient( const arma::mat & b, const arma::mat & Q ) const {
     return arma::sum( b%Q ,1);
 }
+
 MatrixCompatibility::MatrixCompatibility( const arma::mat & m ): w_(0.5*(m + m.t())) {
     assert( m.n_cols == m.n_rows );
 }
+
 void MatrixCompatibility::apply( arma::mat & out, const arma::mat & Q ) const {
 	out = w_*Q;
 }
+
 void MatrixCompatibility::applyTranspose( arma::mat & out, const arma::mat & Q ) const {
     out = w_.t()*Q;
 }
+
 arma::vec MatrixCompatibility::parameters() const {
     arma::vec r( w_.n_cols*(w_.n_rows+1)/2 );
     for( int i=0,k=0; i<w_.n_cols; i++ )
@@ -92,12 +108,14 @@ arma::vec MatrixCompatibility::parameters() const {
 			r[k] = w_(i,j);
 	return r;
 }
+
 void MatrixCompatibility::setParameters( const arma::vec & v ) {
     assert( v.n_rows == w_.n_cols*(w_.n_rows+1)/2 );
     for( int i=0,k=0; i<w_.n_cols; i++ )
         for( int j=i; j<w_.n_rows; j++, k++ )
 			w_(j,i) = w_(i,j) = v[k];
 }
+
 arma::vec MatrixCompatibility::gradient( const arma::mat & b, const arma::mat & Q ) const {
     arma::mat g = b * Q.t();
     arma::vec r( w_.n_cols*(w_.n_rows+1)/2 );

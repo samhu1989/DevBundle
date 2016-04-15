@@ -34,8 +34,11 @@ void CRF2D::process(void)
     DenseCRF2D crf(input_img_.width(),input_img_.height(),M);
     arma::mat unary = computeUnary(label_,M);
     crf.setUnaryEnergy(unary);
-    crf.addPairwiseGaussian( 3, 3, new PottsCompatibility( 3 ) );
-    crf.addPairwiseBilateral( 80, 80, 13, 13, 13, input_img_.bits() , new PottsCompatibility( 10 ) );
+    arma::mat diag(unary.n_rows,unary.n_rows,arma::fill::zeros);
+    diag.diag().fill(-3.0);
+    crf.addPairwiseGaussian( 3, 3, new MatrixCompatibility( diag ) );
+    diag.diag().fill(-10.0);
+    crf.addPairwiseBilateral( 80, 80, 13, 13, 13, input_img_.bits() , new MatrixCompatibility( diag ) );
     arma::mat Q = crf.startInference();
     arma::mat t1,t2;
     QString msg;

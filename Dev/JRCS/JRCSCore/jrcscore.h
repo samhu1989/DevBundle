@@ -3,6 +3,7 @@
 #include "jrcscore_global.h"
 #include <armadillo>
 #include <memory>
+
 namespace JRCS
 {
 class JRCSCORESHARED_EXPORT JRCSBase
@@ -59,6 +60,7 @@ public:
             ++iter_count_;
         }
     }
+    virtual void computeCompatibility(arma::mat& mu);
 protected:
     virtual void computeOnce();
     virtual bool isEnd();
@@ -125,6 +127,9 @@ protected:
     arma::frowvec x_p_;
     arma::frowvec x_invvar_;
 
+    //x compatiblity
+    arma::mat mu_;
+
     //sum of latent model
     arma::fmat xv_sum_;
     arma::fmat xn_sum_;
@@ -135,7 +140,6 @@ protected:
     arma::frowvec alpha_sumij;
 
     bool verbose_;
-
     float beta_;
 };
 }

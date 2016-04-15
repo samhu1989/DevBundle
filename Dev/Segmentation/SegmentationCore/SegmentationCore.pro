@@ -35,7 +35,8 @@ SOURCES += segmentationcore.cpp \
     CRF/permutohedral.cpp \
     CRF/unary.cpp \
     CRF/util.cpp \
-    densecrf.cpp
+    densecrf.cpp \
+    densecrf3d.cpp
 
 HEADERS += segmentationcore.h\
         segmentationcore_global.h \
@@ -68,7 +69,8 @@ HEADERS += segmentationcore.h\
     CRF/permutohedral.h \
     CRF/unary.h \
     CRF/util.h \
-    densecrf.h
+    densecrf.h \
+    densecrf3d.h
 
 unix {
     target.path = /usr/lib

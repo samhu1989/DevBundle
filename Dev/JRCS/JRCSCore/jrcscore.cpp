@@ -2,6 +2,7 @@
 #include <QThread>
 #include <strstream>
 #include "MeshColor.h"
+#include "densecrf3d.h"
 namespace JRCS{
 
 void JRCSBase::reset_iteration()
@@ -211,9 +212,12 @@ void JRCSBase::computeOnce()
     alpha_sum.fill(0.0);
     alpha_sumij.fill(0.0);
 
+
     //reset transformed latent center
     if(verbose_)std::cerr<<"reset transformed latent color"<<std::endl;
     xtc_ = *xc_ptr_;
+
+    computeCompatibility(mu_);
 
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
@@ -251,10 +255,10 @@ void JRCSBase::computeOnce()
 //            alpha.row(r) = arma::square(arma::sum(tmpm));
         }
 
-        alpha.each_row()%=(-0.5*x_invvar_);
+        alpha.each_row() %= (-0.5*x_invvar_);
         alpha = arma::exp(alpha);
-        alpha.each_row()%=arma::pow(x_invvar_,1.5);
-        alpha.each_row()%=x_p_;
+        alpha.each_row() %= arma::pow(x_invvar_,1.5);
+        alpha.each_row() %= x_p_;
 
         #pragma omp for
         for(int o = 0 ; o < obj_num_ ; ++o )
@@ -266,8 +270,30 @@ void JRCSBase::computeOnce()
         arma::fvec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
         alpha.each_col() /= alpha_rowsum;
         alpha_rowsum = arma::sum(alpha,1);
-        //smoothing alpha
 
+        //smoothing alpha
+        if(verbose_)std::cerr<<"smoothing alpha"<<std::endl;
+
+        arma::fmat vc = arma::conv_to<arma::fmat>::from(vc_);
+        DenseCRF3D crf(vv_,vn_,vc,xv_ptr_->n_cols);
+        arma::mat unary = arma::conv_to<arma::mat>::from(alpha);
+
+        crf.setUnaryEnergy(unary.t());
+        arma::fvec sxyz = { 0.1 , 0.1 , 0.1 } ;
+        crf.addPairwiseGaussian(sxyz,new MatrixCompatibility(mu_));
+        arma::fvec srgb = { 25 , 25 , 25 };
+        arma::fvec snxyz = { 0.01 , 0.01, 0.01 };
+        crf.addPairwiseBilateral(sxyz,snxyz,srgb,new MatrixCompatibility(mu_));
+
+        if(verbose_)std::cerr<<"start smoothing"<<std::endl;
+        arma::mat Q = crf.startInference();
+        arma::mat t1,t2;
+        std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+        for( int it=0; it<3; it++ ) {
+            crf.stepInference( Q, t1, t2 );
+            std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+        }
+        alpha = arma::conv_to<arma::fmat>::from(Q.t());
 
         //update RT
         //#1 calculate weighted point cloud
@@ -313,19 +339,23 @@ void JRCSBase::computeOnce()
             arma::fmat cv = v.each_col() - arma::mean(v,1);
             objv.each_col() -= arma::mean(objv,1);
             A = cv*objv.t();
+
             if(arma::svd(U,s,V,A,"std"))
             {
                 C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
                 dR = U*C*(V.t());
                 dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
             }
+
             //updating objv
             *objv_ptrlst_[o] = dR*(*objv_ptrlst_[o]);
             (*objv_ptrlst_[o]).each_col() += dt;
             *objn_ptrlst_[o] = dR*(*objn_ptrlst_[o]);
+
             //updating R T
             R = dR*R;
             t = dR*t + dt;
+
             //accumulate for updating X
             arma::fmat tv = v.each_col() - t;
             xv_sum_.cols(oidx) +=  R.i()*tv;
@@ -344,12 +374,14 @@ void JRCSBase::computeOnce()
         var_sum += tmpvar;
         alpha_sumij += alpha_colsum;
     }
+
     if(verbose_)std::cerr<<"Updating X:"<<std::endl;
     float N =  vvs_ptrlst_.size();
     *xv_ptr_ = xv_sum_ / N;
     if(!(*xv_ptr_).is_finite()){
         throw std::logic_error("infinite xv");
     }
+
     //fix the x center position
     #pragma omp for
     for(int o = 0 ; o < obj_num_ ; ++o )
@@ -365,9 +397,32 @@ void JRCSBase::computeOnce()
 
     x_invvar_ = ( (3.0*alpha_sum ) / ( var_sum + 1e-6 ) );//restore reciprocal fractions of variation
     float mu = arma::accu(alpha_sumij);
-    mu *= 1.0 + beta_;
+    mu *= ( 1.0 + beta_ );
     x_p_ = alpha_sumij;
     if( mu != 0)x_p_ /= mu;
+}
+
+void JRCSBase::computeCompatibility(arma::mat& mu)
+{
+    if(verbose_)std::cerr<<"computeCompatibility"<<std::endl;
+    mu = arma::mat(xv_ptr_->n_cols,xv_ptr_->n_cols,arma::fill::zeros);
+    #pragma omp for
+    for(int o = 0 ; o < obj_num_ ; ++o )
+    {
+        arma::uvec oidx = arma::find(obj_label_==(o+1));
+        arma::fmat xv = xv_ptr_->cols(oidx);
+        arma::mat m;
+        m = mu(oidx,oidx);
+        for(int i=0 ; i < xv.n_cols ; ++i )
+        {
+            for(int j=i+1 ; j < xv.n_cols ; ++j )
+            {
+                arma::fvec dx = xv.col(i) - xv.col(j);
+                m(i,j) = -0.1*std::exp(-arma::sum(arma::square( dx / 0.05 )));
+            }
+        }
+        mu(oidx,oidx) = m ;
+    }
 }
 
 void JRCSBase::reset_alpha()
