@@ -10,13 +10,17 @@ DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    convertmain.cpp \
+    mergemain.cpp
 
 FORMS += \
     mainwindow.ui
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    convertmain.h \
+    mergemain.h
 
 
 win32: LIBS += -L$$DESTDIR/ -lVisualizationCore

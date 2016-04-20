@@ -1,1 +1,5 @@
 http://pan.baidu.com/s/1c0kDFB6
+File Folder Format for RegistrationTool.exe -m c -g -i ../Dev_Data/synthetic/syn01/
+../Dev_Data/synthetic/syn01/source -> restore several *.ply point cloud 
+../Dev_Data/synthetic/syn01/transform -> restore the *.transform in ascii which describe how the *.ply transform to form scenes
+../Dev_Data/synthetic/syn01/target -> restore the result

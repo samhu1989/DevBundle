@@ -6,7 +6,8 @@
 #include <QLibraryInfo>
 #include <QDebug>
 #include "common.h"
-
+#include "convertmain.h"
+#include "mergemain.h"
 int print_usage(int argc, char *argv[] )
 {
     std::cerr << "Usage:"<<std::endl
@@ -14,9 +15,17 @@ int print_usage(int argc, char *argv[] )
     std::cerr << "Options" <<std::endl
               << "  -h\n"
               << "  Print this message\n"
-              << "  -m\n"
-              << "  c : Use console mode\n"
-              << "  else : Use ui mode.\n";
+              << "  -m :c Use console mode\n"
+              << "      w Use ui mode.\n"
+              << "  under console mode:\n"
+              << "  -g : generate scene\n"
+              << "  -p : convert to ply\n"
+              << "  -i : input path with -g\n"
+              << "     : input vertex with -p"
+              << "  -n : input vertex normal\n"
+              << "  -c : input vertex color\n"
+              << "  -o : output file\n";
+
    return 0;
 }
 
@@ -45,8 +54,20 @@ int uiMain(int argc, char *argv[])
 
 int cMain(int argc, char *argv[])
 {
-    std::cerr<<"cMain"<<std::endl;
-    return 0;
+    int ch;
+    opterr=0;
+    while( ( ch = getopt(argc,argv,"pg") ) != -1 )
+    {
+        switch(ch)
+        {
+        case 'p':
+            return convertMain(argc,argv);
+        case 'g':
+            return mergeMain(argc,argv);
+        default:
+            ;
+        }
+    }
 }
 
 int main(int argc, char *argv[])
@@ -63,7 +84,7 @@ int main(int argc, char *argv[])
             return print_usage(argc,argv);
         case 'm':
             if(optarg[0]=='c')return cMain(argc,argv);
-            else return uiMain(argc,argv);
+            else if(optarg[0]=='w') return uiMain(argc,argv);
         default:
             ;
         }
