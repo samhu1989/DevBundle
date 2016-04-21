@@ -16,11 +16,16 @@ bool JRCSThread::configure(Config::Ptr config)
     }else return false;
     if(config_->has("JRCS_verbose"))
     {
-        if( !config_->getInt("JRCS_verbose") )verbose_=false;
+        if(!config_->getInt("JRCS_verbose") )verbose_=false;
         else verbose_=true;
     }else{
         verbose_=true;
     }
+    if(config_->has("JRCS_smooth"))
+    {
+        if(!config_->getInt("JRCS_smooth"))jrcs_.enable_smooth(false);
+        else jrcs_.enable_smooth(true);
+    }else jrcs_.enable_smooth(true);
     return true;
 }
 

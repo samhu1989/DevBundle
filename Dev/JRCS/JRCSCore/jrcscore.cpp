@@ -271,29 +271,46 @@ void JRCSBase::computeOnce()
         alpha.each_col() /= alpha_rowsum;
         alpha_rowsum = arma::sum(alpha,1);
 
-        //smoothing alpha
-        if(verbose_)std::cerr<<"smoothing alpha"<<std::endl;
-
-        arma::fmat vc = arma::conv_to<arma::fmat>::from(vc_);
-        DenseCRF3D crf(vv_,vn_,vc,xv_ptr_->n_cols);
-        arma::mat unary = arma::conv_to<arma::mat>::from(alpha);
-
-        crf.setUnaryEnergy(unary.t());
-        arma::fvec sxyz = { 0.1 , 0.1 , 0.1 } ;
-        crf.addPairwiseGaussian(sxyz,new MatrixCompatibility(mu_));
-        arma::fvec srgb = { 25 , 25 , 25 };
-        arma::fvec snxyz = { 0.01 , 0.01, 0.01 };
-        crf.addPairwiseBilateral(sxyz,snxyz,srgb,new MatrixCompatibility(mu_));
-
-        if(verbose_)std::cerr<<"start smoothing"<<std::endl;
-        arma::mat Q = crf.startInference();
-        arma::mat t1,t2;
-        std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
-        for( int it=0; it<3; it++ ) {
-            crf.stepInference( Q, t1, t2 );
-            std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+        if(verbose_)
+        {
+            std::stringstream alphaname;
+            alphaname.str("");
+            alphaname<<"./debug/alpha/alpha_"<<idx<<"_iter_"<<iter_count_<<".fmat.arma";
+            alpha.save(alphaname.str(),arma::raw_ascii);
         }
-        alpha = arma::conv_to<arma::fmat>::from(Q.t());
+        //smoothing alpha
+        if(smooth_enabled_)
+        {
+            if(verbose_)std::cerr<<"smoothing alpha"<<std::endl;
+
+            arma::fmat vc = arma::conv_to<arma::fmat>::from(vc_);
+            DenseCRF3D crf(vv_,vn_,vc,xv_ptr_->n_cols);
+            arma::mat unary = arma::conv_to<arma::mat>::from(alpha);
+
+            crf.setUnaryEnergy(unary.t());
+            arma::fvec sxyz = { 0.05 , 0.05 , 0.05 } ;
+            crf.addPairwiseGaussian(sxyz,new MatrixCompatibility(mu_));
+            arma::fvec srgb = { 5 , 5 , 5 };
+            arma::fvec snxyz = { 0.03 , 0.03, 0.03 };
+            crf.addPairwiseBilateral(sxyz,snxyz,srgb,new MatrixCompatibility(mu_));
+
+            if(verbose_)std::cerr<<"start smoothing"<<std::endl;
+            arma::mat Q = crf.startInference();
+            arma::mat t1,t2;
+            std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+            for( int it=0; it<3; it++ ) {
+                crf.stepInference( Q, t1, t2 );
+                std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+            }
+            alpha = arma::conv_to<arma::fmat>::from(Q.t());
+            if(verbose_)
+            {
+                std::stringstream alphaname;
+                alphaname.str("");
+                alphaname<<"./debug/alpha/alpha_"<<idx<<"_iter_"<<iter_count_<<"_smooth.fmat.arma";
+                alpha.save(alphaname.str(),arma::raw_ascii);
+            }
+        }
 
         //update RT
         //#1 calculate weighted point cloud
@@ -508,7 +525,7 @@ void JRCSBase::update_color_label()
 
 bool JRCSBase::isEnd()
 {
-    if(iter_count_>=50)return true;
+    if(iter_count_>=200)return true;
     return false;
 }
 }

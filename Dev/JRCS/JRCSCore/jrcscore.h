@@ -23,6 +23,7 @@ public:
     typedef std::vector<Ts> TsLst;
     JRCSBase(){}
     virtual ~JRCSBase(){}
+    virtual inline void enable_smooth(bool enable=true){smooth_enabled_=enable;}
     virtual void input(
             const MatPtrLst& vv,
             const MatPtrLst& vn,
@@ -140,6 +141,7 @@ protected:
     arma::frowvec alpha_sumij;
 
     bool verbose_;
+    bool smooth_enabled_;
     float beta_;
 };
 }

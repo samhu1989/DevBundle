@@ -19,6 +19,8 @@ JRCSView::JRCSView(
     geo_view_->setMinimumSize(640,480);
     ui->gridLayout->addWidget(geo_view_);
     jrcs_thread_ = NULL;
+    connect(&t_,SIGNAL(timeout()),geo_view_,SLOT(updateGL()));
+    t_.setSingleShot(false);
 }
 
 bool JRCSView::configure(Config::Ptr config)
@@ -121,6 +123,7 @@ void JRCSView::start()
 {
     std::cerr<<"JRCSView::start"<<std::endl;
     jrcs_thread_->start(QThread::HighPriority);
+    t_.start(300);
 }
 
 void JRCSView::finished()
