@@ -24,6 +24,9 @@ public:
     JRCSBase(){}
     virtual ~JRCSBase(){}
     virtual inline void enable_smooth(bool enable=true){smooth_enabled_=enable;}
+    virtual inline void set_smooth_weight(float w){smooth_w_=w;}
+    virtual inline void set_max_iter(int max_iter){max_iter_ = max_iter;}
+    virtual inline void set_debug_path(const std::string& path){debug_path_=path;}
     virtual void input(
             const MatPtrLst& vv,
             const MatPtrLst& vn,
@@ -90,6 +93,9 @@ protected:
     //max radius
     float max_obj_radius_;
 
+    //max iteration number
+    int max_iter_;
+
     //input observation
     MatPtrLst vvs_ptrlst_;
     MatPtrLst vns_ptrlst_;
@@ -141,8 +147,10 @@ protected:
     arma::frowvec alpha_sumij;
 
     bool verbose_;
+    std::string debug_path_;
     bool smooth_enabled_;
     float beta_;
+    float smooth_w_;
 };
 }
 #endif // JRCSCORE_H

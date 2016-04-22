@@ -219,6 +219,14 @@ void JRCSBase::computeOnce()
 
     computeCompatibility(mu_);
 
+    if(verbose_)
+    {
+        std::stringstream muname;
+        muname.str("");
+        muname<<debug_path_<<"mu_"<<iter_count_<<".fmat.arma";
+        mu_.save(muname.str(),arma::raw_ascii);
+    }
+
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
         if(verbose_)std::cerr<<"reset transformed latent center"<<std::endl;
@@ -275,7 +283,7 @@ void JRCSBase::computeOnce()
         {
             std::stringstream alphaname;
             alphaname.str("");
-            alphaname<<"./debug/alpha/alpha_"<<idx<<"_iter_"<<iter_count_<<".fmat.arma";
+            alphaname<<debug_path_<<"alpha_"<<idx<<"_iter_"<<iter_count_<<".fmat.arma";
             alpha.save(alphaname.str(),arma::raw_ascii);
         }
         //smoothing alpha
@@ -288,26 +296,26 @@ void JRCSBase::computeOnce()
             arma::mat unary = arma::conv_to<arma::mat>::from(alpha);
 
             crf.setUnaryEnergy(unary.t());
-            arma::fvec sxyz = { 0.05 , 0.05 , 0.05 } ;
+            arma::fvec sxyz = { 0.01 , 0.01 , 0.01 } ;
             crf.addPairwiseGaussian(sxyz,new MatrixCompatibility(mu_));
-            arma::fvec srgb = { 5 , 5 , 5 };
-            arma::fvec snxyz = { 0.03 , 0.03, 0.03 };
+            arma::fvec srgb = { 13 , 13 , 13 };
+            arma::fvec snxyz = { 0.02 , 0.02, 0.02 };
             crf.addPairwiseBilateral(sxyz,snxyz,srgb,new MatrixCompatibility(mu_));
 
             if(verbose_)std::cerr<<"start smoothing"<<std::endl;
             arma::mat Q = crf.startInference();
             arma::mat t1,t2;
-            std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+            if(verbose_)std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
             for( int it=0; it<3; it++ ) {
                 crf.stepInference( Q, t1, t2 );
-                std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+                if(verbose_)std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
             }
             alpha = arma::conv_to<arma::fmat>::from(Q.t());
             if(verbose_)
             {
                 std::stringstream alphaname;
                 alphaname.str("");
-                alphaname<<"./debug/alpha/alpha_"<<idx<<"_iter_"<<iter_count_<<"_smooth.fmat.arma";
+                alphaname<<debug_path_<<"alpha_"<<idx<<"_iter_"<<iter_count_<<"_smooth.fmat.arma";
                 alpha.save(alphaname.str(),arma::raw_ascii);
             }
         }
@@ -422,6 +430,7 @@ void JRCSBase::computeOnce()
 void JRCSBase::computeCompatibility(arma::mat& mu)
 {
     if(verbose_)std::cerr<<"computeCompatibility"<<std::endl;
+    if(verbose_)std::cerr<<"smooth_weight:"<<smooth_w_<<std::endl;
     mu = arma::mat(xv_ptr_->n_cols,xv_ptr_->n_cols,arma::fill::zeros);
     #pragma omp for
     for(int o = 0 ; o < obj_num_ ; ++o )
@@ -432,10 +441,10 @@ void JRCSBase::computeCompatibility(arma::mat& mu)
         m = mu(oidx,oidx);
         for(int i=0 ; i < xv.n_cols ; ++i )
         {
-            for(int j=i+1 ; j < xv.n_cols ; ++j )
+            for(int j = i ; j < xv.n_cols ; ++j )
             {
                 arma::fvec dx = xv.col(i) - xv.col(j);
-                m(i,j) = -0.1*std::exp(-arma::sum(arma::square( dx / 0.05 )));
+                m(i,j) = - smooth_w_ * std::exp( - arma::sum( arma::square( dx / 0.5 ) ));
             }
         }
         mu(oidx,oidx) = m ;
@@ -525,7 +534,7 @@ void JRCSBase::update_color_label()
 
 bool JRCSBase::isEnd()
 {
-    if(iter_count_>=200)return true;
+    if(iter_count_>=max_iter_)return true;
     return false;
 }
 }
