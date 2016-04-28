@@ -32,6 +32,11 @@ bool JRCSView::init(Config::Ptr config)
 {
     std::cerr<<"JRCSView::init"<<std::endl;
     JRCSThread* worker = new JRCSThread();
+
+    connect(worker,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
+    connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+    connect(&t_,SIGNAL(timeout()),worker,SLOT(get_iter_info()));
+
     if(!worker->configure(config))
     {
         return false;
@@ -109,19 +114,17 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
 
 void JRCSView::move_worker_to_thread( JRCSThread* jrcs_worker )
 {
-    std::cerr<<"JRCSView::move_worker_to_thread"<<std::endl;
+    emit message(tr("JRCSView::move_worker_to_thread"),1000);
     jrcs_thread_ = new QThread();
     jrcs_worker->moveToThread(jrcs_thread_);
     connect(jrcs_thread_,SIGNAL(started()),jrcs_worker,SLOT(process()));
-    connect(jrcs_worker,SIGNAL(end()),jrcs_worker,SLOT(deleteLater()));
     connect(jrcs_worker,SIGNAL(destroyed(QObject*)),jrcs_thread_,SLOT(quit()));
-    connect(jrcs_worker,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
     connect(jrcs_thread_,SIGNAL(finished()),this,SLOT(finished()));
 }
 
 void JRCSView::start()
 {
-    std::cerr<<"JRCSView::start"<<std::endl;
+    emit message(tr("Starting"),1000);
     jrcs_thread_->start(QThread::HighPriority);
     t_.start(300);
 }
@@ -135,7 +138,7 @@ void JRCSView::finished()
         jrcs_thread_->deleteLater();
         jrcs_thread_ = NULL;
     }
-    emit message(tr("JRCSView is finished"),0);
+    emit message(tr("JRCSView is finished"),1000);
     emit closeInMdi(parentWidget());
 }
 

@@ -3,7 +3,7 @@
 #include "jrcscore_global.h"
 #include <armadillo>
 #include <memory>
-
+#include <QCoreApplication>
 namespace JRCS
 {
 class JRCSCORESHARED_EXPORT JRCSBase
@@ -21,12 +21,21 @@ public:
     }T;
     typedef std::vector<T> Ts;
     typedef std::vector<Ts> TsLst;
+    typedef enum{
+        ObjOnly,
+        ObjPointDist
+    }CompatibilityType;
+
     JRCSBase(){}
     virtual ~JRCSBase(){}
     virtual inline void enable_smooth(bool enable=true){smooth_enabled_=enable;}
     virtual inline void set_smooth_weight(float w){smooth_w_=w;}
+    virtual inline void set_max_smooth_iter(int max_iter){max_smooth_iter_=max_iter;}
     virtual inline void set_max_iter(int max_iter){max_iter_ = max_iter;}
     virtual inline void set_debug_path(const std::string& path){debug_path_=path;}
+    virtual inline void set_mu_type(const CompatibilityType& type){mu_type_=type;}
+    virtual inline int  get_iter_num(void){return iter_count_;}
+    virtual inline int  get_max_iter(void){return max_iter_;}
     virtual void input(
             const MatPtrLst& vv,
             const MatPtrLst& vn,
@@ -61,11 +70,14 @@ public:
         {
             computeOnce();
             update_color_label();
+            QCoreApplication::processEvents();
             ++iter_count_;
         }
     }
-    virtual void computeCompatibility(arma::mat& mu);
 protected:
+    virtual void obj_only(arma::mat&mu);
+    virtual void obj_point_dist(arma::mat&mu);
+    virtual void computeCompatibility(arma::mat& mu);
     virtual void computeOnce();
     virtual bool isEnd();
     virtual void reset_obj_vn(
@@ -95,6 +107,9 @@ protected:
 
     //max iteration number
     int max_iter_;
+
+    //smooth iter number
+    int max_smooth_iter_;
 
     //input observation
     MatPtrLst vvs_ptrlst_;
@@ -135,6 +150,7 @@ protected:
     arma::frowvec x_invvar_;
 
     //x compatiblity
+    CompatibilityType mu_type_;
     arma::mat mu_;
 
     //sum of latent model

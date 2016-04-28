@@ -105,6 +105,7 @@ void expAndNormalize ( arma::mat & out, const arma::mat & in ) {
         out.col(i) /= arma::accu(out.col(i));
 	}
 }
+
 void sumAndNormalize( arma::mat & out, const arma::mat & in, const arma::mat & Q ) {
     out = arma::mat( in.n_rows, in.n_cols , arma::fill::zeros );
     #pragma omp parallel for
@@ -114,6 +115,7 @@ void sumAndNormalize( arma::mat & out, const arma::mat & in, const arma::mat & Q
         out.col(i) -= in.col(i);
 	}
 }
+
 arma::mat DenseCRF::inference ( int n_iterations ) const {
     arma::mat Q( M_, N_ ), tmp1, unary( M_, N_, arma::fill::zeros ), tmp2;
 	if( unary_ )
@@ -130,6 +132,7 @@ arma::mat DenseCRF::inference ( int n_iterations ) const {
 	}
 	return Q;
 }
+
 arma::uvec DenseCRF::map ( int n_iterations ) const {
 	// Run inference
     arma::mat Q = inference( n_iterations );
@@ -150,6 +153,7 @@ arma::vec DenseCRF::unaryEnergy(const arma::uvec & l) {
 	}
 	return r;
 }
+
 arma::vec DenseCRF::pairwiseEnergy(const arma::uvec & l, int term) {
     assert( l.n_rows == N_ );
     arma::vec r( N_ ,arma::fill::zeros );
@@ -171,6 +175,7 @@ arma::vec DenseCRF::pairwiseEnergy(const arma::uvec & l, int term) {
 			r[i] = 0;
 	return r;
 }
+
 arma::mat DenseCRF::startInference() const{
     arma::mat Q( M_, N_, arma::fill::zeros );
 	// Initialize using the unary energies
@@ -289,15 +294,18 @@ double DenseCRF::gradient( int n_iterations, const ObjectiveFunction & objective
 	}
 	return r;
 }
+
 arma::vec DenseCRF::unaryParameters() const {
 	if( unary_ )
 		return unary_->parameters();
     return arma::vec();
 }
+
 void DenseCRF::setUnaryParameters( const arma::vec & v ) {
 	if( unary_ )
 		unary_->setParameters( v );
 }
+
 arma::vec DenseCRF::labelCompatibilityParameters() const {
     std::vector< arma::vec > terms;
 	for( unsigned int k=0; k<pairwise_.size(); k++ )
@@ -312,6 +320,7 @@ arma::vec DenseCRF::labelCompatibilityParameters() const {
 	}	
 	return r;
 }
+
 void DenseCRF::setLabelCompatibilityParameters( const arma::vec & v ) {
 	std::vector< int > n;
 	for( unsigned int k=0; k<pairwise_.size(); k++ )
@@ -325,6 +334,7 @@ void DenseCRF::setLabelCompatibilityParameters( const arma::vec & v ) {
 		i += n[k];
 	}	
 }
+
 arma::vec DenseCRF::kernelParameters() const {
     std::vector< arma::vec > terms;
 	for( unsigned int k=0; k<pairwise_.size(); k++ )
@@ -339,6 +349,7 @@ arma::vec DenseCRF::kernelParameters() const {
 	}	
 	return r;
 }
+
 void DenseCRF::setKernelParameters( const arma::vec & v ) {
 	std::vector< int > n;
 	for( unsigned int k=0; k<pairwise_.size(); k++ )

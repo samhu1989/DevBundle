@@ -8,6 +8,7 @@ namespace JRCS{
 void JRCSBase::reset_iteration()
 {
     iter_count_ = 0;
+    arma::arma_rng::set_seed_random();
 }
 
 void JRCSBase::input(
@@ -153,8 +154,7 @@ void JRCSBase::reset_obj_c(
         arma::Mat<uint8_t>& oc
         )
 {
-    oc.fill(0);
-    oc.row(2).fill(255);
+    oc.fill(128);
 }
 
 void JRCSBase::reset_rt()
@@ -253,14 +253,18 @@ void JRCSBase::computeOnce()
             objn = R*objn;
         }
         if(verbose_)std::cerr<<"calculate alpha"<<std::endl;
+
+        arma::fmat tmpxc = arma::conv_to<arma::fmat>::from(xtc_);
+        arma::fmat tmpvc = arma::conv_to<arma::fmat>::from(vc_);
+
         #pragma omp for
         for(int r = 0 ; r < alpha.n_rows ; ++r )
         {
-            arma::fmat tmpm = xtv_.each_col() - vv_.col(r);
-            //project distance to normal direction
-//            tmpm %= xtn_;
-            alpha.row(r) = arma::sum(arma::square(tmpm));
-//            alpha.row(r) = arma::square(arma::sum(tmpm));
+            arma::fmat tmpv = xtv_.each_col() - vv_.col(r);
+            arma::fmat tmpc = tmpxc.each_col() - tmpvc.col(r);
+            tmpc /= 1024.0;
+            alpha.row(r)  = arma::sum(arma::square(tmpv));
+            alpha.row(r) += arma::sum(arma::square(tmpc));
         }
 
         alpha.each_row() %= (-0.5*x_invvar_);
@@ -291,26 +295,28 @@ void JRCSBase::computeOnce()
         {
             if(verbose_)std::cerr<<"smoothing alpha"<<std::endl;
 
-            arma::fmat vc = arma::conv_to<arma::fmat>::from(vc_);
-            DenseCRF3D crf(vv_,vn_,vc,xv_ptr_->n_cols);
-            arma::mat unary = arma::conv_to<arma::mat>::from(alpha);
+            DenseCRF3D crf(vv_,vn_,tmpvc,xv_ptr_->n_cols);
+            arma::mat unary = arma::conv_to<arma::mat>::from(-1.0*arma::log(alpha));
 
             crf.setUnaryEnergy(unary.t());
-            arma::fvec sxyz = { 0.01 , 0.01 , 0.01 } ;
+            arma::fvec sxyz = { 0.05 , 0.05 , 0.05 } ;
             crf.addPairwiseGaussian(sxyz,new MatrixCompatibility(mu_));
-            arma::fvec srgb = { 13 , 13 , 13 };
-            arma::fvec snxyz = { 0.02 , 0.02, 0.02 };
+            arma::fvec srgb = { 10 , 10 , 10 };
+            arma::fvec snxyz = { 0.05 , 0.05, 0.05 };
             crf.addPairwiseBilateral(sxyz,snxyz,srgb,new MatrixCompatibility(mu_));
 
             if(verbose_)std::cerr<<"start smoothing"<<std::endl;
             arma::mat Q = crf.startInference();
             arma::mat t1,t2;
             if(verbose_)std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
-            for( int it=0; it<3; it++ ) {
+            for( int it=0; it<max_smooth_iter_; it++ ) {
                 crf.stepInference( Q, t1, t2 );
                 if(verbose_)std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
             }
             alpha = arma::conv_to<arma::fmat>::from(Q.t());
+            alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
+            alpha.each_col() /= alpha_rowsum;
+            alpha_rowsum = arma::sum(alpha,1);
             if(verbose_)
             {
                 std::stringstream alphaname;
@@ -327,19 +333,30 @@ void JRCSBase::computeOnce()
         arma::fmat& wn = *wns_ptrlst_[idx];
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[idx]);
         arma::frowvec alpha_colsum = arma::sum( alpha );
-
-        wv = vv_*alpha;
-        wn = vn_*alpha;
-        wc = arma::conv_to<arma::fmat>::from(vc_)*alpha;
+        arma::frowvec alpha_median = arma::median( alpha );
+        arma::fmat trunc_alpha = alpha;
 
         #pragma omp parallel for
         for(int c=0;c<alpha.n_cols;++c)
         {
-            if( 0 != alpha_colsum(c) )
+            arma::fvec col = trunc_alpha.col(c);
+            col( col < alpha_median(c) ).fill(0.0);
+            trunc_alpha.col(c) = col;
+        }
+        arma::frowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
+
+        wv = vv_*trunc_alpha;
+        wn = vn_*trunc_alpha;
+        wc = arma::conv_to<arma::fmat>::from(vc_)*trunc_alpha;
+
+        #pragma omp parallel for
+        for(int c=0;c<alpha.n_cols;++c)
+        {
+            if( 0 != trunc_alpha_colsum(c) )
             {
-                wv.col(c) /= alpha_colsum(c);
-                wn.col(c) /= alpha_colsum(c);
-                wc.col(c) /= alpha_colsum(c);
+                wv.col(c) /= trunc_alpha_colsum(c);
+                wn.col(c) /= trunc_alpha_colsum(c);
+                wc.col(c) /= trunc_alpha_colsum(c);
             }
         }
 
@@ -398,6 +415,7 @@ void JRCSBase::computeOnce()
         arma::frowvec tmpvar = arma::sum(alpha_2%alpha);
         var_sum += tmpvar;
         alpha_sumij += alpha_colsum;
+        QCoreApplication::processEvents();
     }
 
     if(verbose_)std::cerr<<"Updating X:"<<std::endl;
@@ -427,11 +445,21 @@ void JRCSBase::computeOnce()
     if( mu != 0)x_p_ /= mu;
 }
 
-void JRCSBase::computeCompatibility(arma::mat& mu)
+void JRCSBase::obj_only(arma::mat& mu)
 {
-    if(verbose_)std::cerr<<"computeCompatibility"<<std::endl;
-    if(verbose_)std::cerr<<"smooth_weight:"<<smooth_w_<<std::endl;
-    mu = arma::mat(xv_ptr_->n_cols,xv_ptr_->n_cols,arma::fill::zeros);
+    #pragma omp for
+    for(int o = 0 ; o < obj_num_ ; ++o )
+    {
+        arma::uvec oidx = arma::find(obj_label_==(o+1));
+        arma::mat m;
+        m = mu(oidx,oidx);
+        m.fill( -smooth_w_ );
+        mu(oidx,oidx) = m ;
+    }
+}
+
+void JRCSBase::obj_point_dist(arma::mat& mu)
+{
     #pragma omp for
     for(int o = 0 ; o < obj_num_ ; ++o )
     {
@@ -444,10 +472,26 @@ void JRCSBase::computeCompatibility(arma::mat& mu)
             for(int j = i ; j < xv.n_cols ; ++j )
             {
                 arma::fvec dx = xv.col(i) - xv.col(j);
-                m(i,j) = - smooth_w_ * std::exp( - arma::sum( arma::square( dx / 0.5 ) ));
+                m(i,j) = -smooth_w_ * std::exp( - arma::sum( arma::square( dx / 0.5 ) ));
             }
         }
         mu(oidx,oidx) = m ;
+    }
+}
+
+void JRCSBase::computeCompatibility(arma::mat& mu)
+{
+    if(verbose_)std::cerr<<"computeCompatibility"<<std::endl;
+    if(verbose_)std::cerr<<"smooth_weight:"<<smooth_w_<<std::endl;
+    mu = arma::mat(xv_ptr_->n_cols,xv_ptr_->n_cols,arma::fill::zeros);
+    switch(mu_type_)
+    {
+    case ObjOnly:
+        obj_only(mu);
+        break;
+    case ObjPointDist:
+        obj_point_dist(mu);
+        break;
     }
 }
 

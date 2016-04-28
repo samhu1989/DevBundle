@@ -34,10 +34,10 @@ public:
     inline int get_k(){return jrcs_.evaluate_k();}
 public slots:
     void process(void);
+    void get_iter_info(void);
 signals:
     void message(QString,int);
     void end(void);
-protected:
 private:
     Config::Ptr config_;
     bool verbose_;

@@ -66,18 +66,17 @@ protected:
             out = in*arma::diagmat(norm_);
 		else
 			out = in;
-	
 		// Filter
         arma::fmat fout = arma::conv_to<arma::fmat>::from(out);
 		if( transpose )
             lattice_.compute( fout, fout, true );
 		else
             lattice_.compute( fout, fout );
-// 			lattice_.compute( out.data(), out.data(), out.rows() );
+        // lattice_.compute( out.data(), out.data(), out.rows() );
         out = arma::conv_to<arma::mat>::from(fout);
 		// Normalize again
 		if( ntype_ == NORMALIZE_SYMMETRIC || (ntype_ == NORMALIZE_BEFORE && transpose) || (ntype_ == NORMALIZE_AFTER && !transpose))
-            out = out*arma::diagmat(norm_);
+        out = out*arma::diagmat(norm_);
 	}
 	// Compute d/df a^T*K*b
     arma::mat kernelGradient( const arma::mat & a, const arma::mat & b ) const {
@@ -182,7 +181,6 @@ PairwisePotential::PairwisePotential(const arma::mat & features, LabelCompatibil
 }
 void PairwisePotential::apply(arma::mat & out, const arma::mat & Q) const {
 	kernel_->apply( out, Q );
-	
 	// Apply the compatibility
 	compatibility_->apply( out, out );
 }

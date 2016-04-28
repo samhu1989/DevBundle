@@ -1,8 +1,9 @@
 #include "jrcsthread.h"
 #include <QThread>
+#include <QTimer>
 JRCSThread::JRCSThread(QObject* parent):QObject(parent)
 {
-
+    ;
 }
 
 bool JRCSThread::configure(Config::Ptr config)
@@ -19,8 +20,7 @@ bool JRCSThread::configure(Config::Ptr config)
     if(config_->has("JRCS_max_iter"))
     {
         jrcs_.set_max_iter(config_->getInt("JRCS_max_iter"));
-    }
-    else return false;
+    }else return false;
 
     if(config_->has("JRCS_verbose"))
     {
@@ -39,6 +39,10 @@ bool JRCSThread::configure(Config::Ptr config)
             {
                 jrcs_.set_smooth_weight(config_->getFloat("JRCS_smooth_w"));
             }else jrcs_.set_smooth_weight(1.0);
+            if(config_->has("JRCS_smooth_iter"))
+            {
+                jrcs_.set_max_smooth_iter(config_->getInt("JRCS_smooth_iter"));
+            }else jrcs_.set_max_smooth_iter(1);
         }
     }else{
         jrcs_.enable_smooth(true);
@@ -46,12 +50,22 @@ bool JRCSThread::configure(Config::Ptr config)
         {
             jrcs_.set_smooth_weight(config_->getFloat("JRCS_smooth_w"));
         }else jrcs_.set_smooth_weight(1.0);
+        if(config_->has("JRCS_smooth_iter"))
+        {
+            jrcs_.set_max_smooth_iter(config_->getInt("JRCS_smooth_iter"));
+        }else jrcs_.set_max_smooth_iter(1);
     }
 
     if(config_->has("JRCS_debug_path"))
     {
         jrcs_.set_debug_path(config_->getString("JRCS_debug_path"));
     }else jrcs_.set_debug_path("./debug/");
+
+    if(config_->has("JRCS_mu_type"))
+    {
+        if(config_->getString("JRCS_mu_type")=="ObjOnly")jrcs_.set_mu_type(JRCS::JRCSBase::ObjOnly);
+        if(config_->getString("JRCS_mu_type")=="ObjPointDist")jrcs_.set_mu_type(JRCS::JRCSBase::ObjPointDist);
+    }else jrcs_.set_mu_type(JRCS::JRCSBase::ObjOnly);
     return true;
 }
 
@@ -62,6 +76,7 @@ void JRCSThread::input(
       const LCMatPtrLst& vl
      )
 {
+    emit message(tr("JRCSThread::input"),0);
     jrcs_.input(vv,vn,vc,vl,verbose_);
 }
 
@@ -80,7 +95,7 @@ void JRCSThread::resetx(
         const CMatPtr& xc
         )
 {
-    std::cerr<<"JRCSThread::resetx"<<std::endl;
+
     jrcs_.initx(xv,xn,xc);
     jrcs_.reset_rt();
 }
@@ -90,4 +105,11 @@ void JRCSThread::process(void)
     jrcs_.reset_iteration();
     jrcs_.compute();
     emit end();
+}
+
+void JRCSThread::get_iter_info()
+{
+    QString msg;
+    msg = msg.sprintf("iter:%u/%u",jrcs_.get_iter_num(),jrcs_.get_max_iter());
+    emit message(msg,0);
 }
