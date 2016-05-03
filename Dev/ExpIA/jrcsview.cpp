@@ -17,7 +17,7 @@ JRCSView::JRCSView(
     ui->setupUi(this);
     geo_view_ = new MeshListViewerWidget();
     geo_view_->setMinimumSize(640,480);
-    ui->gridLayout->addWidget(geo_view_);
+    ui->gridLayout_2->addWidget(geo_view_);
     jrcs_thread_ = NULL;
     connect(&t_,SIGNAL(timeout()),geo_view_,SLOT(updateGL()));
     t_.setSingleShot(false);
@@ -31,19 +31,18 @@ bool JRCSView::configure(Config::Ptr config)
 bool JRCSView::init(Config::Ptr config)
 {
     std::cerr<<"JRCSView::init"<<std::endl;
-    JRCSThread* worker = new JRCSThread();
+    ui->spinBox->hide();
+    jrcs_worker_ = new JRCSThread();
+    connect(jrcs_worker_,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
+    connect(&t_,SIGNAL(timeout()),jrcs_worker_,SLOT(get_iter_info()));
 
-    connect(worker,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
-    connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
-    connect(&t_,SIGNAL(timeout()),worker,SLOT(get_iter_info()));
-
-    if(!worker->configure(config))
+    if(!jrcs_worker_->configure(config))
     {
         return false;
     }
-    input(worker);
-    if(!allocate_x(worker))return false;
-    move_worker_to_thread(worker);
+    input(jrcs_worker_);
+    if(!allocate_x(jrcs_worker_))return false;
+    move_worker_to_thread(jrcs_worker_);
     return true;
 }
 
@@ -118,7 +117,7 @@ void JRCSView::move_worker_to_thread( JRCSThread* jrcs_worker )
     jrcs_thread_ = new QThread();
     jrcs_worker->moveToThread(jrcs_thread_);
     connect(jrcs_thread_,SIGNAL(started()),jrcs_worker,SLOT(process()));
-    connect(jrcs_worker,SIGNAL(destroyed(QObject*)),jrcs_thread_,SLOT(quit()));
+    connect(jrcs_worker,SIGNAL(end()),jrcs_thread_,SLOT(quit()));
     connect(jrcs_thread_,SIGNAL(finished()),this,SLOT(finished()));
 }
 
@@ -135,16 +134,53 @@ void JRCSView::finished()
     QThread* th = qobject_cast<QThread*>(sender());
     if(th&&th==jrcs_thread_)
     {
+        t_.disconnect(geo_view_,SLOT(updateGL()));
+        t_.stop();
+        ui->spinBox->setMinimum(0);
+        ui->spinBox->setMaximum(jrcs_worker_->get_obj_n()-1);
+        ui->spinBox->setReadOnly(false);
+        jrcs_worker_->get_lbl(labels_);
+        jrcs_worker_->get_rt(rt_);
+        jrcs_worker_->deleteLater();
+        jrcs_worker_ = NULL;
         jrcs_thread_->deleteLater();
         jrcs_thread_ = NULL;
     }
     emit message(tr("JRCSView is finished"),1000);
-    emit closeInMdi(parentWidget());
+    connect(ui->spinBox,SIGNAL(valueChanged(int)),this,SLOT(align(int)));
+    ui->spinBox->show();
+    move(pos().x()+1,pos().y());
+    align(ui->spinBox->value());
 }
 
 void JRCSView::passMessage(QString msg,int t)
 {
     emit message(msg,t);
+}
+
+void JRCSView::align(int i)
+{
+    geo_view_->list().clear();
+    MeshList::iterator iter;
+    int idx = 0;
+    for(iter=inputs_.begin();iter!=inputs_.end();++iter)
+    {
+        geo_view_->list().emplace_back(new MeshBundle<DefaultMesh>());
+        geo_view_->list().back()->mesh_;
+        geo_view_->list().back()->mesh_.request_vertex_colors();
+        geo_view_->list().back()->mesh_.request_vertex_normals();
+        geo_view_->list().back()->mesh_ = (*iter)->mesh_;
+        DefaultMesh& mesh = geo_view_->list().back()->mesh_;
+        arma::fmat R(rt_[idx][i].R,3,3,false,true);
+        arma::fvec t(rt_[idx][i].t,3,false,true);
+        arma::fmat vv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
+        arma::fmat vn((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
+        vv.each_col() -= t;
+        vv = R.i()*vv;
+        vn = R.i()*vn;
+        ++idx;
+    }
+    geo_view_->show_back();
 }
 
 JRCSView::~JRCSView()

@@ -39,6 +39,7 @@ signals:
 protected slots:
     void passMessage(QString,int);
     void finished();
+    void align(int);
 protected:
     void input( JRCSThread* jrcs_worker_ );
     bool allocate_x( JRCSThread* jrcs_worker_ );
@@ -47,6 +48,8 @@ private:
     Ui::JRCSView *ui;
     MeshListViewerWidget* geo_view_;
     QThread* jrcs_thread_;
+    JRCSThread* jrcs_worker_;
+    JRCS::JRCSBase::TsLst rt_;
     MeshList& inputs_;
     LabelList& labels_;
     ModelList& objects_;

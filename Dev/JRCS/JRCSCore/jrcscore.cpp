@@ -262,7 +262,7 @@ void JRCSBase::computeOnce()
         {
             arma::fmat tmpv = xtv_.each_col() - vv_.col(r);
             arma::fmat tmpc = tmpxc.each_col() - tmpvc.col(r);
-            tmpc /= 1024.0;
+            tmpc /= (128.0*(iter_count_+1));
             alpha.row(r)  = arma::sum(arma::square(tmpv));
             alpha.row(r) += arma::sum(arma::square(tmpc));
         }
@@ -573,6 +573,36 @@ void JRCSBase::update_color_label()
             label(r) = l+1;
         }
         ColorArray::colorfromlabel((uint32_t*)vl.memptr(),vl.size(),label);
+    }
+}
+
+void JRCSBase::get_label(std::vector<arma::uvec>&lbl)
+{
+    if(lbl.size()!=vvs_ptrlst_.size()){
+        lbl.resize(vvs_ptrlst_.size());
+    }
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::fmat& alpha = *alpha_ptrlst_[idx];
+        arma::fmat obj_p(alpha.n_rows,obj_num_);
+        arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
+        #pragma omp for
+        for(int o = 0 ; o < obj_num_ ; ++o )
+        {
+            arma::uvec oidx = arma::find(obj_label_==(o+1));
+            arma::fmat sub_alpha = alpha.cols(oidx);
+            obj_p.col(o) = arma::sum(sub_alpha,1);
+        }
+        arma::uvec label(alpha.n_rows);
+        #pragma omp for
+        for(int r = 0 ; r < obj_p.n_rows ; ++r )
+        {
+            arma::uword l;
+            arma::frowvec point_prob = obj_p.row(r);
+            point_prob.max(l);
+            label(r) = l+1;
+        }
+        lbl[idx] = label;
     }
 }
 

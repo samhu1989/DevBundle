@@ -32,6 +32,12 @@
    <property name="bottomMargin">
     <number>5</number>
    </property>
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout_2"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QSpinBox" name="spinBox"/>
+   </item>
   </layout>
  </widget>
  <resources/>

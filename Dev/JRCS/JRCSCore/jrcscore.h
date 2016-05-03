@@ -36,6 +36,9 @@ public:
     virtual inline void set_mu_type(const CompatibilityType& type){mu_type_=type;}
     virtual inline int  get_iter_num(void){return iter_count_;}
     virtual inline int  get_max_iter(void){return max_iter_;}
+    virtual inline void get_rt(TsLst& rt){rt = rt_lst_;}
+    virtual inline int  get_obj_num(void){return obj_num_;}
+    virtual void get_label(std::vector<arma::uvec>&);
     virtual void input(
             const MatPtrLst& vv,
             const MatPtrLst& vn,

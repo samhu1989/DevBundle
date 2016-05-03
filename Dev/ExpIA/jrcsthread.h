@@ -31,7 +31,10 @@ public:
             const MatPtr& xn,
             const CMatPtr& xc
             );
+    inline int get_obj_n(void){return jrcs_.get_obj_num();}
     inline int get_k(){return jrcs_.evaluate_k();}
+    inline void get_rt(JRCS::JRCSBase::TsLst&rt){jrcs_.get_rt(rt);}
+    inline void get_lbl(std::vector<arma::uvec>&lbl){jrcs_.get_label(lbl);}
 public slots:
     void process(void);
     void get_iter_info(void);
