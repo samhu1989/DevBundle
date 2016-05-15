@@ -26,6 +26,7 @@
 #include "updateclustercenter.h"
 #include "looper.h"
 #include "jrcsview.h"
+#include "jrcsinitthread.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -65,8 +66,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUpdate_Cluster_Center,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionGlobal_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
-    connect(ui->actionJRCS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIterate,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS_Init,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
@@ -1050,6 +1052,25 @@ void MainWindow::start_editing()
         }
         connect(th,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         connect(th,SIGNAL(sendMatch(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionJRCS_Init)
+    {
+        JRCSInitThread* worker = new JRCSInitThread(inputs_,labels_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(process()));
+        connect(worker,SIGNAL(finished()),th,SLOT(quit()));
+        connect(worker,SIGNAL(finished()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("JRCS_Init"));
         edit_thread_ = th;
     }
     if(edit==ui->actionJRCS)

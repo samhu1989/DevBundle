@@ -261,10 +261,13 @@ void JRCSBase::computeOnce()
         for(int r = 0 ; r < alpha.n_rows ; ++r )
         {
             arma::fmat tmpv = xtv_.each_col() - vv_.col(r);
-            arma::fmat tmpc = tmpxc.each_col() - tmpvc.col(r);
-            tmpc /= (128.0*(iter_count_+1));
             alpha.row(r)  = arma::sum(arma::square(tmpv));
-            alpha.row(r) += arma::sum(arma::square(tmpc));
+            if(iter_count_<max_init_iter_)
+            {
+                arma::fmat tmpc = tmpxc.each_col() - tmpvc.col(r);
+                tmpc /= ( 256 +  2.0*iter_count_ );
+                alpha.row(r) += arma::sum(arma::square(tmpc));
+            }
         }
 
         alpha.each_row() %= (-0.5*x_invvar_);
@@ -291,7 +294,7 @@ void JRCSBase::computeOnce()
             alpha.save(alphaname.str(),arma::raw_ascii);
         }
         //smoothing alpha
-        if(smooth_enabled_)
+        if(smooth_enabled_ && iter_count_ > max_init_iter_)
         {
             if(verbose_)std::cerr<<"smoothing alpha"<<std::endl;
 
@@ -325,7 +328,6 @@ void JRCSBase::computeOnce()
                 alpha.save(alphaname.str(),arma::raw_ascii);
             }
         }
-
         //update RT
         //#1 calculate weighted point cloud
         if(verbose_)std::cerr<<"calculating the weighted point cloud"<<std::endl;
@@ -334,6 +336,17 @@ void JRCSBase::computeOnce()
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[idx]);
         arma::frowvec alpha_colsum = arma::sum( alpha );
         arma::frowvec alpha_median = arma::median( alpha );
+        arma::uvec closest_i(alpha.n_cols);
+
+        #pragma omp parallel for
+        for(int c=0;c<alpha.n_cols;++c)
+        {
+            arma::fvec col = alpha.col(c);
+            arma::uword m;
+            col.max(m);
+            closest_i(c)=m;
+        }
+
         arma::fmat trunc_alpha = alpha;
 
         #pragma omp parallel for
@@ -363,6 +376,11 @@ void JRCSBase::computeOnce()
         wn = arma::normalise( wn );
         *wcs_ptrlst_[idx] = arma::conv_to<arma::Mat<uint8_t>>::from(wc);
 
+//        arma::fmat closest_v = vv_.cols(closest_i);
+//        arma::fmat closest_n = vn_.cols(closest_i);
+//        arma::Mat<uint8_t> closest_c8 = vc_.cols(closest_i);
+//        arma::fmat closest_c = arma::conv_to<arma::fmat>::from(closest_c8);
+
         if(verbose_)std::cerr<<"calculating R & t"<<std::endl;
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
@@ -370,23 +388,43 @@ void JRCSBase::computeOnce()
             arma::fmat A;
             arma::fmat U,V;
             arma::fvec s;
-            arma::fmat C(3,3,arma::fill::eye);
             arma::fmat R(rt[o].R,3,3,false,true);
             arma::fvec t(rt[o].t,3,false,true);
             arma::fmat dR;
             arma::fvec dt;
             arma::fmat objv = *objv_ptrlst_[o];
             arma::uvec oidx = arma::find(obj_label_==(o+1));
-            arma::fmat v = wv.cols(oidx);
+            arma::fmat v;
+            v = wv.cols(oidx);
             arma::fmat cv = v.each_col() - arma::mean(v,1);
             objv.each_col() -= arma::mean(objv,1);
             A = cv*objv.t();
-
-            if(arma::svd(U,s,V,A,"std"))
+            switch(rttype_)
             {
-                C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
-                dR = U*C*(V.t());
-                dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
+            case Gamma:
+            {
+                arma::fmat B = A.submat(0,0,1,1);
+                dR = arma::fmat(3,3,arma::fill::eye);
+                if(arma::svd(U,s,V,B,"std"))
+                {
+                    arma::fmat C(2,2,arma::fill::eye);
+                    C(1,1) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+                    arma::fmat dR2D = U*C*(V.t());
+                    dR.submat(0,0,1,1) = dR2D;
+                    dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
+                }
+            }
+                break;
+            default:
+            {
+                if(arma::svd(U,s,V,A,"std"))
+                {
+                    arma::fmat C(3,3,arma::fill::eye);
+                    C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+                    dR = U*C*(V.t());
+                    dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
+                }
+            }
             }
 
             //updating objv
@@ -401,8 +439,14 @@ void JRCSBase::computeOnce()
             //accumulate for updating X
             arma::fmat tv = v.each_col() - t;
             xv_sum_.cols(oidx) +=  R.i()*tv;
-            xn_sum_.cols(oidx) +=  R.i()*wn.cols(oidx);
+//            if(iter_count_>max_init_iter_)
+//            {
+//                xn_sum_.cols(oidx) +=  R.i()*closest_n.cols(oidx);
+//                xc_sum_.cols(oidx) += closest_c.cols(oidx);
+//            }else{
+            xn_sum_.cols(oidx) += R.i()*wn.cols(oidx);
             xc_sum_.cols(oidx) += wc.cols(oidx);
+//            }
         }
         //update var
         alpha_sum += alpha_colsum;

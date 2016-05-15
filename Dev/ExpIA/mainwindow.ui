@@ -96,9 +96,11 @@
     <addaction name="menuUpdate_Object_Model"/>
     <addaction name="actionUpdate_Cluster_Center"/>
     <addaction name="menuUpdate_Label"/>
-    <addaction name="actionJRCS"/>
     <addaction name="separator"/>
     <addaction name="actionIterate"/>
+    <addaction name="separator"/>
+    <addaction name="actionJRCS"/>
+    <addaction name="actionJRCS_Init"/>
    </widget>
    <widget class="QMenu" name="menuReplay">
     <property name="title">
@@ -288,6 +290,11 @@
   <action name="actionJRCS">
    <property name="text">
     <string>JRCS</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Init">
+   <property name="text">
+    <string>JRCS_Init</string>
    </property>
   </action>
  </widget>

@@ -37,7 +37,8 @@ SOURCES += main.cpp\
     tests.cpp \
     looper.cpp \
     jrcsthread.cpp \
-    jrcsview.cpp
+    jrcsview.cpp \
+    jrcsinitthread.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -59,7 +60,8 @@ HEADERS  += mainwindow.h \
     tests.h \
     looper.h \
     jrcsthread.h \
-    jrcsview.h
+    jrcsview.h \
+    jrcsinitthread.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

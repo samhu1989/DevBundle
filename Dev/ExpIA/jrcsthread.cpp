@@ -22,6 +22,11 @@ bool JRCSThread::configure(Config::Ptr config)
         jrcs_.set_max_iter(config_->getInt("JRCS_max_iter"));
     }else return false;
 
+    if(config_->has("JRCS_max_init"))
+    {
+        jrcs_.set_max_init_iter(config_->getInt("JRCS_max_init"));
+    }else jrcs_.set_max_init_iter(config_->getInt("JRCS_max_iter")/2);
+
     if(config_->has("JRCS_verbose"))
     {
         if(!config_->getInt("JRCS_verbose") )verbose_=false;
@@ -66,6 +71,12 @@ bool JRCSThread::configure(Config::Ptr config)
         if(config_->getString("JRCS_mu_type")=="ObjOnly")jrcs_.set_mu_type(JRCS::JRCSBase::ObjOnly);
         if(config_->getString("JRCS_mu_type")=="ObjPointDist")jrcs_.set_mu_type(JRCS::JRCSBase::ObjPointDist);
     }else jrcs_.set_mu_type(JRCS::JRCSBase::ObjOnly);
+
+    if(config_->has("JRCS_rt_type"))
+    {
+        if(config_->getString("JRCS_rt_type")=="Gamma")jrcs_.set_rt_type(JRCS::JRCSBase::Gamma);
+    }else jrcs_.set_rt_type(JRCS::JRCSBase::All);
+
     return true;
 }
 

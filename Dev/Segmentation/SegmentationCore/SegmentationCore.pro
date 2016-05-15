@@ -36,7 +36,9 @@ SOURCES += segmentationcore.cpp \
     CRF/unary.cpp \
     CRF/util.cpp \
     densecrf.cpp \
-    densecrf3d.cpp
+    densecrf3d.cpp \
+    hierarchicalization.cpp \
+    pcaplaneequ.cpp
 
 HEADERS += segmentationcore.h\
         segmentationcore_global.h \
@@ -70,7 +72,9 @@ HEADERS += segmentationcore.h\
     CRF/unary.h \
     CRF/util.h \
     densecrf.h \
-    densecrf3d.h
+    densecrf3d.h \
+    hierarchicalization.h \
+    pcaplaneequ.h
 
 unix {
     target.path = /usr/lib
