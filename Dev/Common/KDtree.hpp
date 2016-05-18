@@ -18,7 +18,7 @@ struct MeshKDTreeInterface{
         const float d0=p1[0]-p2[3*idx];
         const float d1=p1[1]-p2[3*idx+1];
         const float d2=p1[2]-p2[3*idx+2];
-        return d0*d0+d1*d1+d2*d2;
+        return std::sqrt(d0*d0+d1*d1+d2*d2);
     }
     inline float kdtree_get_pt(const size_t idx, int dim) const
     {
@@ -49,7 +49,7 @@ struct ArmaKDTreeInterface{
         const float d0=p1[0]-p2[3*idx];
         const float d1=p1[1]-p2[3*idx+1];
         const float d2=p1[2]-p2[3*idx+2];
-        return d0*d0+d1*d1+d2*d2;
+        return std::sqrt(d0*d0+d1*d1+d2*d2);
     }
     inline float kdtree_get_pt(const size_t idx, int dim) const
     {

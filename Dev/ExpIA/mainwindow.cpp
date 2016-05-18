@@ -1070,6 +1070,7 @@ void MainWindow::start_editing()
         connect(worker,SIGNAL(finished()),th,SLOT(quit()));
         connect(worker,SIGNAL(finished()),worker,SLOT(deleteLater()));
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(worker,SIGNAL(showbox(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
         th->setObjectName(tr("JRCS_Init"));
         edit_thread_ = th;
     }

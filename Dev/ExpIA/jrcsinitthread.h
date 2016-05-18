@@ -9,6 +9,7 @@ class JRCSInitThread:public QObject
 signals:
     void finished();
     void message(QString,int);
+    void showbox(int,MeshBundle<DefaultMesh>::Ptr);
 public:
     JRCSInitThread(
             MeshBundle<DefaultMesh>::PtrList& inputs,

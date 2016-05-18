@@ -25,7 +25,10 @@ void JRCSInitThread::process()
         emit message(msg,0);
         MeshBundle<DefaultMesh>& mesh = **iter;
         seg_.compute(mesh.mesh_);
-        seg_.getObjectLabel(labels_[index]);
+        seg_.getPlaneLabel(labels_[index]);
+        MeshBundle<DefaultMesh>::Ptr boxptr(new MeshBundle<DefaultMesh>);
+        seg_.getObjectBox(boxptr->mesh_);
+        emit showbox(index,boxptr);
         mesh.custom_color_.fromlabel(labels_[index]);
         ++ index;
     }

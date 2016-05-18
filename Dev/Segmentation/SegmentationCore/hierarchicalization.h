@@ -14,6 +14,7 @@ typedef struct
 
 typedef struct
 {
+    arma::fmat boxmat;
     arma::fvec center;
     float width;
     float height;
@@ -46,26 +47,28 @@ public:
     bool configure(Config::Ptr config);
     void compute(DefaultMesh&);
     void getObjectLabel(arma::uvec&lbl);
+    void getObjectBox(DefaultMesh&);
     void getPlaneLabel(arma::uvec&lbl);
-    void getNonPlaneLabel(arma::uvec&lbl);
 protected:
     void reset(const DefaultMesh&);
     void build(DefaultMesh&);
-    void calsize(const arma::fmat& cloud,const arma::uword&);
+    void calsize(const arma::fmat& cloud,const arma::uword);
     void calneighbor(DefaultMesh&);
     float calarea(float size_x, float size_y, float size_z);
     BBox calbbox(arma::fmat&);
     float angle(const arma::fvec&,const arma::fvec&);
-    void regiongrow(const arma::fmat& cloud,const arma::uword&);
-    void planegrow(const arma::uword&);
+    void regiongrow(const arma::fmat& cloud,const arma::uword);
 private:
     uint32_t iden;
     uint32_t planenum;
     std::vector<IdNode> idtree_;
     std::vector<Neighbor> nei;	//output, every voxel's neighborhood
     arma::ivec label_;
+    bool  force_new_normal_;
     float neighbor_radius_;
-    float anglethres_;
+    float anglethres_tight_;
+    float anglethres_relax_;
+    float point2plane_th_;
 };
 
 

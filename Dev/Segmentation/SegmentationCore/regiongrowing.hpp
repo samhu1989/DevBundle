@@ -442,7 +442,8 @@ RegionGrowing<M>::findPointNeighbours ()
           search_->knnSearch(&pts_ptr[3*pi], neighbour_number_,knnNeighbors,knnDistance);
           for(int k=0;k<neighbour_number_;++k)
           {
-              if( std::sqrt(knnDistance[k]) <= neighbour_radius_ )point_neighbours_[pi].push_back(indices_(knnNeighbors[k]));
+              if( knnDistance[k] > neighbour_radius_ && neighbour_radius_ > 0.0 )continue;
+              point_neighbours_[pi].push_back(indices_(knnNeighbors[k]));
           }
       }
   }
