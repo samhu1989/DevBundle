@@ -52,7 +52,9 @@ void JRCSView::input( JRCSThread* jrcs_worker_ )
     MeshList::iterator iter;
     MatPtrLst vv,vn;
     CMatPtrLst vc;
-    LCMatPtrLst vl;
+    LCMatPtrLst vlc;
+    bool use_init_label_ = true;
+    uint32_t index = 0;
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         MeshBundle<DefaultMesh>& mesh = **iter;
@@ -60,9 +62,21 @@ void JRCSView::input( JRCSThread* jrcs_worker_ )
         vv.emplace_back(new arma::fmat((float*)mesh.mesh_.points(),3,N,false,true));
         vn.emplace_back(new arma::fmat((float*)mesh.mesh_.vertex_normals(),3,N,false,true));
         vc.emplace_back(new arma::Mat<uint8_t>((uint8_t*)mesh.mesh_.vertex_colors(),3,N,false,true));
-        vl.emplace_back(new arma::Col<uint32_t>((uint32_t*)mesh.custom_color_.vertex_colors(),N,false,true));
+        vlc.emplace_back(new arma::Col<uint32_t>((uint32_t*)mesh.custom_color_.vertex_colors(),N,false,true));
+        arma::uvec& lbl = labels_[index];
+        if( arma::max(lbl) == arma::min(lbl) ) use_init_label_ = false;
+        ++ index;
     }
-    jrcs_worker_->input(vv,vn,vc,vl);
+    if(use_init_label_)
+    {
+        LMatPtrLst vl;
+        std::vector<arma::uvec>::iterator liter;
+        for(liter=labels_.begin();liter!=labels_.end();++liter)
+        {
+            vl.emplace_back(new arma::uvec(*liter));
+        }
+        jrcs_worker_->input_with_label(vv,vn,vc,vlc,vl);
+    }else jrcs_worker_->input(vv,vn,vc,vlc);
 }
 
 bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )

@@ -20,9 +20,11 @@ public:
     typedef std::vector<ObjModel::Ptr> ModelList;
     typedef JRCSThread::MatPtr MatPtr;
     typedef JRCSThread::CMatPtr CMatPtr;
+    typedef JRCSThread::LMatPtr LMatPtr;
     typedef JRCSThread::MatPtrLst MatPtrLst;
     typedef JRCSThread::CMatPtrLst CMatPtrLst;
     typedef JRCSThread::LCMatPtrLst LCMatPtrLst;
+    typedef JRCSThread::LMatPtrLst LMatPtrLst;
     explicit JRCSView(
             MeshList& inputs,
             LabelList& labels,

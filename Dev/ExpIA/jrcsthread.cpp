@@ -91,6 +91,18 @@ void JRCSThread::input(
     jrcs_.input(vv,vn,vc,vl,verbose_);
 }
 
+void JRCSThread::input_with_label(
+      const MatPtrLst& vv,
+      const MatPtrLst& vn,
+      const CMatPtrLst& vc,
+      const LCMatPtrLst& vlc,
+      const LMatPtrLst& vl
+     )
+{
+    emit message(tr("JRCSThread::input_with_label"),0);
+    jrcs_.input_with_label(vv,vn,vc,vlc,vl,verbose_);
+}
+
 void JRCSThread::resetw(
        const MatPtrLst& wv,
        const MatPtrLst& wn,

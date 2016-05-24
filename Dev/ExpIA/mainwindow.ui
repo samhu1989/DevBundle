@@ -117,6 +117,7 @@
      <string>Tests</string>
     </property>
     <addaction name="actionLAPACKE_dggsvd"/>
+    <addaction name="actionInside_Bounding_Box"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -295,6 +296,11 @@
   <action name="actionJRCS_Init">
    <property name="text">
     <string>JRCS_Init</string>
+   </property>
+  </action>
+  <action name="actionInside_Bounding_Box">
+   <property name="text">
+    <string>Inside Bounding Box</string>
    </property>
   </action>
  </widget>

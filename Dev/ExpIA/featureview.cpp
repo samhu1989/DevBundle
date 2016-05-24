@@ -91,11 +91,11 @@ void featureview::extract_patch_features()
                 arma::mat V;
                 arma::vec s;
                 arma::eig_sym(s,V,(centered_feature*centered_feature.t()));
-                emit message(tr("Init Feature Base with PCA"),0);
+                emit message(tr("Init Feature Base with PCA"),1000);
                 std::cerr<<"Init Feature Base with PCA"<<std::endl;
                 arma::uvec sort_index = arma::sort_index(s,"descend");
                 feature_base_ = arma::join_rows(mean,V.cols(sort_index.head(custom_dim)));
-                emit message(tr("Reset Feature Base with PCA"),0);
+                emit message(tr("Reset Feature Base with PCA"),1000);
                 std::cerr<<"Reset Feature Base with PCA"<<std::endl;
             }
             std::vector<arma::mat>::iterator fiter;

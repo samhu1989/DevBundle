@@ -41,6 +41,38 @@ void get2DMBB(arma::fmat& input,arma::uword axis,arma::fmat& box)
     }
 }
 //axis means the dimenssion according to the axis
+
+bool in2DMBB(arma::fmat& box ,arma::fvec& p)
+{
+//    std::cerr<<"in2DMBB(arma::fmat& box ,arma::fvec& p)"<<std::endl;
+    arma::fvec P2P(3,arma::fill::zeros);
+    P2P.rows(0,1) = p - box.col(1);
+    arma::fvec P1P2(3,arma::fill::zeros);
+    P1P2.rows(0,1) = box.col(1) - box.col(0);
+    arma::fvec P3P(3,arma::fill::zeros);
+    P3P.rows(0,1) = p - box.col(2);
+    arma::fvec P3P4(3,arma::fill::zeros);
+    P3P4.rows(0,1) = box.col(3) - box.col(2);
+    arma::fvec P1P(3,arma::fill::zeros);
+    P1P.rows(0,1) = p - box.col(0);
+    arma::fvec P1P4(3,arma::fill::zeros);
+    P1P4.rows(0,1) = box.col(3) - box.col(0);
+    arma::fvec P2P3(3,arma::fill::zeros);
+    P2P3.rows(0,1) = box.col(2) - box.col(1);
+//    std::cerr<<"P2P"<<std::endl;
+//    std::cerr<<P2P<<std::endl;
+//    std::cerr<<P1P2<<std::endl;
+//    std::cerr<<P3P<<std::endl;
+//    std::cerr<<P3P4<<std::endl;
+//    std::cerr<<"cross:"<<std::endl;
+//    std::cerr<<arma::cross(P2P,P1P2)<<std::endl;
+//    std::cerr<<arma::cross(P3P,P3P4)<<std::endl;
+//    std::cerr<<arma::cross(P1P,P1P4)<<std::endl;
+//    std::cerr<<arma::cross(P2P,P2P3)<<std::endl;
+    return      (arma::dot(arma::cross(P2P,P1P2),arma::cross(P3P,P3P4))>=0)
+           &&   (arma::dot(arma::cross(P1P,P1P4),arma::cross(P2P,P2P3))<=0);
+}
+
 void get3DMBB(arma::fmat& input,arma::uword axis,arma::fmat& box)
 {
     if(3!=input.n_rows)std::logic_error("3!=input.n_rows");

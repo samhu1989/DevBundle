@@ -1,10 +1,11 @@
 #include "hierarchicalization.h"
 #include "pcaplaneequ.h"
+#include <queue>
+#include <hash_map>
 Hierarchicalization::Hierarchicalization()
 {
 
 }
-
 
 bool Hierarchicalization::configure(Config::Ptr config)
 {
@@ -63,6 +64,27 @@ void Hierarchicalization::getObjectLabel(arma::uvec&result)
     result = arma::conv_to<arma::uvec>::from(lbl);
 }
 
+void Hierarchicalization::getBBoxLabel(arma::uvec&result)
+{
+    std::vector<IdNode>::iterator iter;
+    uint32_t obj_cnt_ = 1;
+    uint32_t idx = 0;
+    result = arma::uvec(label_.size(),arma::fill::zeros);
+    for(iter=idtree_.begin();iter!=idtree_.end();++iter)
+    {
+        if(iter->is_obj_)
+        {
+            if(!iter->bbox_.boxmat.empty())
+            {
+                arma::uvec within_index = withinBox(iter->bbox_.boxmat);
+                result(within_index).fill(obj_cnt_);
+                ++obj_cnt_;
+            }
+        }
+        ++idx;
+    }
+}
+
 void Hierarchicalization::getPlaneLabel(arma::uvec&result)
 {
     arma::ivec lbl = label_;
@@ -94,7 +116,7 @@ void Hierarchicalization::calneighbor(DefaultMesh& mesh)
     for(index=0;index<mesh.n_vertices();++index)
     {
         search_result.clear();
-        tree.radiusSearch(pptr,neighbor_radius_,search_result,nanoflann::SearchParams(3));
+        tree.radiusSearch(pptr,neighbor_radius_,search_result,nanoflann::SearchParams(2));
         nei[index].index.clear();
         for(riter=search_result.begin();riter!=search_result.end();++riter)
         {
@@ -178,9 +200,12 @@ void Hierarchicalization::getObjectBox(DefaultMesh& mesh)
     {
         if(iter->is_obj_)
         {
-            buildBB(mesh);
-            if(boxes.empty())boxes =  iter->bbox_.boxmat;
-            else boxes = arma::join_rows(boxes,iter->bbox_.boxmat);
+            if(!iter->bbox_.boxmat.empty())
+            {
+                buildBB(mesh);
+                if(boxes.empty())boxes =  iter->bbox_.boxmat;
+                else boxes = arma::join_rows(boxes,iter->bbox_.boxmat);
+            }
         }
     }
     arma::fmat meshboxmat((float*)mesh.points(),3,mesh.n_vertices(),false,true);
@@ -190,6 +215,7 @@ void Hierarchicalization::getObjectBox(DefaultMesh& mesh)
 void Hierarchicalization::build(DefaultMesh& mesh)
 {
     arma::fmat v((float*)mesh.points(),3,mesh.n_vertices(),false,true);
+    cloud_ = v;
     calsize(v,0);
 
     //width first search
@@ -198,8 +224,7 @@ void Hierarchicalization::build(DefaultMesh& mesh)
     listf = 0;
     listr = 1;
     iden = 0;
-
-    std::cerr<<"start build"<<std::endl;
+//    std::cerr<<"start build"<<std::endl;
 
     while (listf<listr)
     {
@@ -281,7 +306,6 @@ BBox Hierarchicalization::calbbox(arma::fmat& pts)
     return result;
 }
 
-
 void Hierarchicalization::regiongrow(const arma::fmat& cloud,const arma::uword targetid)
 {
     arma::uword num = cloud.n_cols;
@@ -361,9 +385,9 @@ void Hierarchicalization::regiongrow(const arma::fmat& cloud,const arma::uword t
             size_y = y_max-y_min;
             size_z = z_max-z_min;
             plane_area = calarea(size_x, size_y, size_z);
-            if (plane_area>(area/7))
+            if (plane_area>(area/7.5))
             {
-                std::cerr<<"plane found"<<std::endl;
+//                std::cerr<<"plane found"<<std::endl;
                 //printf("list size = %d , plane_area = %5.3f , total_area = %5.3f \n", list.size(), plane_area, area);
                 iden++;
                 for (j=0; j<list.size(); j++)
@@ -430,9 +454,18 @@ void Hierarchicalization::regiongrow(const arma::fmat& cloud,const arma::uword t
 
             float volcompare;
             volcompare = temp_box.width * temp_box.height * temp_box.depth/(idtree_[targetid].size_x*idtree_[targetid].size_y*idtree_[targetid].size_z);
-            if ((list.size()>100)&&(volcompare<0.4))
+            float min_max_compare;
+            float min,max;
+            min = temp_box.width;
+            max = temp_box.width;
+            if(temp_box.height<min)min=temp_box.height;
+            if(temp_box.height>max)max=temp_box.height;
+            if(temp_box.depth<min)min=temp_box.depth;
+            if(temp_box.depth>max)max=temp_box.depth;
+            min_max_compare = min / max;
+            if ( (list.size()>100) && (volcompare<0.4) && min_max_compare > 0.22 )
             {
-                std::cerr<<"obj found"<<std::endl;
+//                std::cerr<<"obj found"<<std::endl;
                 iden++;
                 for (j=0; j<list.size(); j++)
                     label_[list[j]] = iden;
@@ -451,5 +484,55 @@ void Hierarchicalization::regiongrow(const arma::fmat& cloud,const arma::uword t
                 idtree_[targetid].child_obj_.push_back(tempnode.id_);
             }
         }
-    std::cerr<<"End region grow"<<std::endl;
+//    std::cerr<<"End region grow"<<std::endl;
+}
+
+arma::uvec Hierarchicalization::withinNode(arma::uword index)
+{
+//    std::cerr<<"Hierarchicalization::withinNode"<<std::endl;
+    arma::uvec result;
+    std::queue<arma::uword> queue;
+    std::vector<arma::uword>::iterator iter;
+    queue.push(index);
+    while(!queue.empty())
+    {
+        IdNode& node = idtree_[queue.front()];
+        for(iter=node.child_obj_.begin();iter!=node.child_obj_.end();++iter)
+        {
+            queue.push(*iter);
+        }
+        for(iter=node.child_plane_.begin();iter!=node.child_plane_.end();++iter)
+        {
+            queue.push(*iter);
+        }
+        arma::uvec r = arma::find(label_==queue.front());
+        if(result.empty())result = r;
+        else result = arma::join_cols(result,r);
+        queue.pop();
+    }
+//    std::cerr<<"Hierarchicalization::withinNode Done"<<std::endl;
+    return result;
+}
+
+arma::uvec Hierarchicalization::withinBox(const arma::fmat& box)
+{
+//    std::cerr<<"Hierarchicalization::withinBox"<<std::endl;
+    arma::uvec result(cloud_.n_cols,arma::fill::zeros);
+    assert(box.n_rows==3);
+    assert(box.n_cols==8);
+    arma::fmat _2dmbb = box.submat(0,0,1,3);
+    #pragma omp for
+    for(uint32_t index=0;index<cloud_.n_cols;++index)
+    {
+        arma::fvec v = cloud_.col(index);
+        bool flag = true;
+        if( v(2) < box(2,0) ) flag = false;
+        if( v(2) > box(2,4) ) flag = false;
+        arma::fvec _2dv = v.rows(0,1);
+        if( !in2DMBB(_2dmbb,_2dv) ) flag = false;
+        if(flag)result(index)=1;
+    }
+    result = arma::find( result == 1 );
+//    std::cerr<<"Hierarchicalization::withinBox Done"<<std::endl;
+    return result;
 }

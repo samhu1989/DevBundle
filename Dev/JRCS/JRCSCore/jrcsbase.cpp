@@ -1,4 +1,4 @@
-#include "jrcscore.h"
+#include "jrcsbase.h"
 #include <QThread>
 #include <strstream>
 #include "MeshColor.h"
@@ -8,7 +8,6 @@ namespace JRCS{
 void JRCSBase::reset_iteration()
 {
     iter_count_ = 0;
-    arma::arma_rng::set_seed_random();
 }
 
 void JRCSBase::input(
@@ -23,6 +22,22 @@ void JRCSBase::input(
     vns_ptrlst_ = vn;
     vcs_ptrlst_ = vc;
     vls_ptrlst_ = vl;
+    verbose_ = verbose;
+}
+
+void JRCSBase::input_with_label(
+        const MatPtrLst& vv,
+        const MatPtrLst& vn,
+        const CMatPtrLst& vc,
+        const LCMatPtrLst& vlc,
+        const LMatPtrLst& vl,
+        bool verbose
+        )
+{
+    vvs_ptrlst_ = vv;
+    vns_ptrlst_ = vn;
+    vcs_ptrlst_ = vc;
+    vls_ptrlst_ = vlc;
     verbose_ = verbose;
 }
 
@@ -211,7 +226,6 @@ void JRCSBase::computeOnce()
     var_sum.fill(0.0);
     alpha_sum.fill(0.0);
     alpha_sumij.fill(0.0);
-
 
     //reset transformed latent center
     if(verbose_)std::cerr<<"reset transformed latent color"<<std::endl;
@@ -468,7 +482,6 @@ void JRCSBase::computeOnce()
     if(!(*xv_ptr_).is_finite()){
         throw std::logic_error("infinite xv");
     }
-
     //fix the x center position
     #pragma omp for
     for(int o = 0 ; o < obj_num_ ; ++o )
@@ -543,11 +556,12 @@ void JRCSBase::reset_alpha()
 {
     if(verbose_)std::cerr<<"allocating alpha"<<std::endl;
     arma::fmat& xv_ = *xv_ptr_;
-    alpha_ptrlst_.clear();
     int idx=0;
-    while(alpha_ptrlst_.size()<vvs_ptrlst_.size())
+    while( idx < vvs_ptrlst_.size() )
     {
-        alpha_ptrlst_.emplace_back(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
+        if(idx>=alpha_ptrlst_.size())alpha_ptrlst_.emplace_back(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
+        else if((alpha_ptrlst_[idx]->n_rows!=vvs_ptrlst_[idx]->n_cols)||(alpha_ptrlst_[idx]->n_cols!=xv_.n_cols))
+        alpha_ptrlst_[idx].reset(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
         ++idx;
     }
     if(verbose_)std::cerr<<"done allocating alpha"<<std::endl;
@@ -655,4 +669,5 @@ bool JRCSBase::isEnd()
     if(iter_count_>=max_iter_)return true;
     return false;
 }
+
 }

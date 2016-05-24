@@ -15,6 +15,8 @@ public:
     typedef std::vector<CMatPtr> CMatPtrLst;
     typedef std::shared_ptr<arma::Col<uint32_t>> LCMatPtr;
     typedef std::vector<LCMatPtr> LCMatPtrLst;
+    typedef std::shared_ptr<arma::uvec> LMatPtr;
+    typedef std::vector<LMatPtr> LMatPtrLst;
     typedef struct{
         float R[9];
         float t[3];
@@ -31,7 +33,7 @@ public:
         Beta,
         Gamma
     }RotationType;
-    JRCSBase(){}
+    JRCSBase(){arma::arma_rng::set_seed_random();}
     virtual ~JRCSBase(){}
     virtual inline void enable_smooth(bool enable=true){smooth_enabled_=enable;}
     virtual inline void set_smooth_weight(float w){smooth_w_=w;}
@@ -52,6 +54,14 @@ public:
             const MatPtrLst& vn,
             const CMatPtrLst& vc,
             const LCMatPtrLst& vl,
+            bool verbose = false
+            );
+    virtual void input_with_label(
+            const MatPtrLst& vv,
+            const MatPtrLst& vn,
+            const CMatPtrLst& vc,
+            const LCMatPtrLst& vlc,
+            const LMatPtrLst& vl,
             bool verbose = false
             );
     virtual void resetw(

@@ -26,5 +26,33 @@ inline void extractMesh(const IM& input,const arma::uvec& indices,OM& output)
         nOut = nIn.cols(indices);
     }
 }
+template <typename OM>
+inline void extractMesh(
+        const arma::fmat& vv,
+        const arma::fmat& vn,
+        const arma::Mat<uint8_t>& vc,
+        const arma::uvec& indices,
+        OM& output
+        )
+{
+    typedef typename OM::Point P;
+    for( uint32_t i=0 ; i < indices.size() ; ++i )
+    {
+        arma::uword index = indices(i);
+        output.add_vertex(P(vv(0,index),vv(1,index),vv(2,index)));
+    }
+    if(!vc.empty())
+    {
+        output.request_vertex_colors();
+        arma::Mat<uint8_t> cOut((uint8_t*)output.vertex_colors(),3,output.n_vertices(),false,true);
+        cOut = vc.cols(indices);
+    }
+    if(!vn.empty())
+    {
+        output.request_vertex_normals();
+        arma::fmat nOut((float*)output.vertex_normals(),3,output.n_vertices(),false,true);
+        nOut = vn.cols(indices);
+    }
+}
 #endif // EXTRACTMESH
 

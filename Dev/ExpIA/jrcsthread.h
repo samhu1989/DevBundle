@@ -3,7 +3,7 @@
 #include "common.h"
 #include <QObject>
 #include "objectmodel.h"
-#include "jrcscore.h"
+#include "jrcsbase.h"
 class JRCSThread:public QObject
 {
     Q_OBJECT
@@ -13,6 +13,8 @@ public:
     typedef JRCS::JRCSBase::MatPtrLst MatPtrLst;
     typedef JRCS::JRCSBase::CMatPtrLst CMatPtrLst;
     typedef JRCS::JRCSBase::LCMatPtrLst LCMatPtrLst;
+    typedef JRCS::JRCSBase::LMatPtr LMatPtr;
+    typedef JRCS::JRCSBase::LMatPtrLst LMatPtrLst;
     JRCSThread(QObject* parent=0);
     bool configure(Config::Ptr);
     void input(
@@ -20,6 +22,13 @@ public:
           const MatPtrLst& vn,
           const CMatPtrLst& vc,
           const LCMatPtrLst& vl
+         );
+    void input_with_label(
+          const MatPtrLst& vv,
+          const MatPtrLst& vn,
+          const CMatPtrLst& vc,
+          const LCMatPtrLst& vlc,
+          const LMatPtrLst& vl
          );
     void resetw(
            const MatPtrLst& wv,

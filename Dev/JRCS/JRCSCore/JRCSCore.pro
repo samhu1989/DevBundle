@@ -13,10 +13,14 @@ QMAKE_CXXFLAGS += -fopenmp
 LIBS += -lgomp -lpthread
 DEFINES += JRCSCORE_LIBRARY
 
-SOURCES += jrcscore.cpp
+SOURCES += \
+    jrcsbase.cpp \
+    jrcsinitbase.cpp
 
-HEADERS += jrcscore.h\
-        jrcscore_global.h
+HEADERS +=\
+        jrcscore_global.h \
+    jrcsbase.h \
+    jrcsinitbase.h
 
 unix {
     target.path = /usr/lib
@@ -73,3 +77,8 @@ win32: LIBS += -L$$OUT_PWD/../../Segmentation/SegmentationCore/ -lSegmentationCo
 
 INCLUDEPATH += $$PWD/../../Segmentation/SegmentationCore
 DEPENDPATH += $$PWD/../../Segmentation/SegmentationCore
+
+win32: LIBS += -L$$OUT_PWD/../../Feature/FeatureCore/ -lFeatureCore
+
+INCLUDEPATH += $$PWD/../../Feature/FeatureCore
+DEPENDPATH += $$PWD/../../Feature/FeatureCore

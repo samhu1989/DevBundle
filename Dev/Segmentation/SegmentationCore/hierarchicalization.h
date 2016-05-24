@@ -46,9 +46,10 @@ public:
     Hierarchicalization();
     bool configure(Config::Ptr config);
     void compute(DefaultMesh&);
-    void getObjectLabel(arma::uvec&lbl);
+    void getObjectLabel(arma::uvec&);
+    void getBBoxLabel(arma::uvec&);
     void getObjectBox(DefaultMesh&);
-    void getPlaneLabel(arma::uvec&lbl);
+    void getPlaneLabel(arma::uvec&);
 protected:
     void reset(const DefaultMesh&);
     void build(DefaultMesh&);
@@ -58,11 +59,14 @@ protected:
     BBox calbbox(arma::fmat&);
     float angle(const arma::fvec&,const arma::fvec&);
     void regiongrow(const arma::fmat& cloud,const arma::uword);
+    arma::uvec withinNode(arma::uword);
+    arma::uvec withinBox(const arma::fmat&);
 private:
     uint32_t iden;
     uint32_t planenum;
     std::vector<IdNode> idtree_;
     std::vector<Neighbor> nei;	//output, every voxel's neighborhood
+    arma::fmat cloud_;
     arma::ivec label_;
     bool  force_new_normal_;
     float neighbor_radius_;
