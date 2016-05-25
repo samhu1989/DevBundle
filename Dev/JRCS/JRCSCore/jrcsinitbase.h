@@ -26,9 +26,11 @@ public:
             bool verbose
             );
 protected:
+    bool check_centers();
     void extract_patch_features();
+    void pca();
     void learn();
-    void assign();
+    void generate_alpha();
 private:
     //inputs:
     MatPtrLst vv_;
