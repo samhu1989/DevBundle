@@ -35,6 +35,7 @@ protected:
     void extract_patch_features();
     void pca();
     void learn();
+    void assign();
     void generate_alpha();
 private:
     //inputs:
@@ -52,6 +53,7 @@ private:
     std::vector<arma::urowvec> input_patch_label_value_;
     std::vector<arma::mat> patch_features_;
     std::vector<arma::uvec> patch_sizes_;
+    std::vector<arma::mat> patch_alpha_;
     arma::mat feature_base_;
     arma::mat feature_centers_;
     arma::gmm_diag gmm_;

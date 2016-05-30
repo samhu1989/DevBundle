@@ -162,6 +162,11 @@ void JRCSInitBase::learn()
     feature_centers_ = gmm_.means;
 }
 
+void JRCSInitBase::assign()
+{
+    ;
+}
+
 void JRCSInitBase::generate_alpha()
 {
     alpha_.resize(vv_.size());
