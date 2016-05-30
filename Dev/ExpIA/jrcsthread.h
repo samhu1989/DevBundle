@@ -52,7 +52,7 @@ signals:
     void end(void);
 private:
     Config::Ptr config_;
-    bool verbose_;
+    int verbose_;
     JRCS::JRCSBase jrcs_;
 };
 

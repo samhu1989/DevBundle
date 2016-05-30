@@ -3,7 +3,80 @@
 #include <strstream>
 #include "MeshColor.h"
 #include "densecrf3d.h"
+
 namespace JRCS{
+
+bool JRCSBase::configure(Config::Ptr config)
+{
+    config_ = config;
+    if(config_->has("JRCS_obj_w"))
+    {
+        std::vector<float> objw;
+        config_->getFloatVec("JRCS_obj_w",objw);
+        reset_objw(objw);
+    }else return false;
+
+    if(config_->has("JRCS_max_iter"))
+    {
+        set_max_iter(config_->getInt("JRCS_max_iter"));
+    }else return false;
+
+    if(config_->has("JRCS_max_init"))
+    {
+        set_max_init_iter(config_->getInt("JRCS_max_init"));
+    }else set_max_init_iter(config_->getInt("JRCS_max_iter")/2);
+
+    if(config_->has("JRCS_verbose"))
+    {
+        verbose_=config_->getInt("JRCS_verbose");
+    }else{
+        verbose_=-1;
+    }
+
+    if(config_->has("JRCS_smooth"))
+    {
+        if(!config_->getInt("JRCS_smooth"))enable_smooth(false);
+        else{
+            enable_smooth(true);
+            if(config_->has("JRCS_smooth_w"))
+            {
+                set_smooth_weight(config_->getFloat("JRCS_smooth_w"));
+            }else set_smooth_weight(1.0);
+            if(config_->has("JRCS_smooth_iter"))
+            {
+                set_max_smooth_iter(config_->getInt("JRCS_smooth_iter"));
+            }else set_max_smooth_iter(1);
+        }
+    }else{
+        enable_smooth(true);
+        if(config_->has("JRCS_smooth_w"))
+        {
+            set_smooth_weight(config_->getFloat("JRCS_smooth_w"));
+        }else set_smooth_weight(1.0);
+        if(config_->has("JRCS_smooth_iter"))
+        {
+            set_max_smooth_iter(config_->getInt("JRCS_smooth_iter"));
+        }else set_max_smooth_iter(1);
+    }
+
+    if(config_->has("JRCS_debug_path"))
+    {
+        set_debug_path(config_->getString("JRCS_debug_path"));
+    }else set_debug_path("./debug/");
+
+    if(config_->has("JRCS_mu_type"))
+    {
+        if(config_->getString("JRCS_mu_type")=="ObjOnly")set_mu_type(JRCS::JRCSBase::ObjOnly);
+        if(config_->getString("JRCS_mu_type")=="ObjPointDist")set_mu_type(JRCS::JRCSBase::ObjPointDist);
+    }else set_mu_type(JRCS::JRCSBase::ObjOnly);
+
+    if(config_->has("JRCS_rt_type"))
+    {
+        if(config_->getString("JRCS_rt_type")=="Gamma")set_rt_type(JRCS::JRCSBase::Gamma);
+    }else set_rt_type(JRCS::JRCSBase::All);
+    return true;
+}
+
 
 void JRCSBase::reset_iteration()
 {
@@ -14,15 +87,13 @@ void JRCSBase::input(
         const MatPtrLst& vv,
         const MatPtrLst& vn,
         const CMatPtrLst& vc,
-        const LCMatPtrLst& vl,
-        bool verbose
+        const LCMatPtrLst& vl
         )
 {
     vvs_ptrlst_ = vv;
     vns_ptrlst_ = vn;
     vcs_ptrlst_ = vc;
     vls_ptrlst_ = vl;
-    verbose_ = verbose;
 }
 
 void JRCSBase::input_with_label(
@@ -30,15 +101,14 @@ void JRCSBase::input_with_label(
         const MatPtrLst& vn,
         const CMatPtrLst& vc,
         const LCMatPtrLst& vlc,
-        const LMatPtrLst& vl,
-        bool verbose
+        const LMatPtrLst& vl
         )
 {
     vvs_ptrlst_ = vv;
     vns_ptrlst_ = vn;
     vcs_ptrlst_ = vc;
     vls_ptrlst_ = vlc;
-    verbose_ = verbose;
+    vll_ptrlst_ = vl;
 }
 
 void JRCSBase::resetw(
@@ -96,10 +166,37 @@ void JRCSBase::initx(
     xtv_ = *xv_ptr_;
     xtn_ = *xn_ptr_;
     xtc_ = *xc_ptr_;
-    std::cerr<<"obj_prob:"<<std::endl;
-    std::cerr<<obj_prob_<<std::endl;
+
     int k = xv_ptr_->n_cols;
-    std::cerr<<k<<std::endl;
+    if(verbose_>0)std::cerr<<"k:"<<k<<std::endl;
+
+    init_alpha_ = false;
+    if(!vll_ptrlst_.empty())
+    {
+        init_.reset(new JRCSInitBase());
+        init_->configure(config_);
+        if(init_->init_with_label(
+                    k,
+                    vvs_ptrlst_,
+                    vns_ptrlst_,
+                    vcs_ptrlst_,
+                    vls_ptrlst_,
+                    vll_ptrlst_,
+                    verbose_)
+           )init_alpha_=true;
+    }
+    if(verbose_>0)std::cerr<<"manually obj_prob:"<<std::endl;
+    if(verbose_>0)std::cerr<<obj_prob_<<std::endl;
+    if(init_alpha_)
+    {
+        init_->getObjProb(obj_prob_);
+    }
+    if(verbose_>0)
+    {
+        std::cerr<<"manually obj_prob is ignored"<<std::endl;
+        std::cerr<<"new obj_prob:"<<std::endl;
+        std::cerr<<obj_prob_<<std::endl;
+    }
     int r_k = k;
     float* pxv = (float*)xtv_.memptr();
     float* pxn = (float*)xtn_.memptr();
@@ -215,7 +312,7 @@ int JRCSBase::evaluate_k()
         k_lst(idx) = (*iter)->n_cols;
         ++idx;
     }
-    return ( arma::median(k_lst) / 2 + 5 ) ;//half of the median size but at least five;
+    return ( arma::median(k_lst) + 5 ) ;//median size but at least five;
 }
 
 void JRCSBase::computeOnce()
@@ -228,12 +325,12 @@ void JRCSBase::computeOnce()
     alpha_sumij.fill(0.0);
 
     //reset transformed latent center
-    if(verbose_)std::cerr<<"reset transformed latent color"<<std::endl;
+    if(verbose_>0)std::cerr<<"reset transformed latent color"<<std::endl;
     xtc_ = *xc_ptr_;
 
     computeCompatibility(mu_);
 
-    if(verbose_)
+    if(verbose_>1)
     {
         std::stringstream muname;
         muname.str("");
@@ -243,7 +340,7 @@ void JRCSBase::computeOnce()
 
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
-        if(verbose_)std::cerr<<"reset transformed latent center"<<std::endl;
+        if(verbose_>0)std::cerr<<"reset transformed latent center"<<std::endl;
         xtv_ = *xv_ptr_;
         xtn_ = *xn_ptr_;
 
@@ -253,8 +350,8 @@ void JRCSBase::computeOnce()
         arma::fmat& alpha = *alpha_ptrlst_[idx];
         Ts& rt = rt_lst_[idx];
 
-        if(verbose_)std::cerr<<"step-E"<<std::endl;
-        if(verbose_)std::cerr<<"transform object"<<std::endl;
+        if(verbose_>0)std::cerr<<"step-E"<<std::endl;
+        if(verbose_>0)std::cerr<<"transform object"<<std::endl;
         #pragma omp for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -266,41 +363,46 @@ void JRCSBase::computeOnce()
             objv.each_col() += t;
             objn = R*objn;
         }
-        if(verbose_)std::cerr<<"calculate alpha"<<std::endl;
+
 
         arma::fmat tmpxc = arma::conv_to<arma::fmat>::from(xtc_);
         arma::fmat tmpvc = arma::conv_to<arma::fmat>::from(vc_);
 
-        #pragma omp for
-        for(int r = 0 ; r < alpha.n_rows ; ++r )
+        if(verbose_>0)std::cerr<<"calculate alpha"<<std::endl;
+        if( (iter_count_>0) || (!init_alpha_) )
         {
-            arma::fmat tmpv = xtv_.each_col() - vv_.col(r);
-            alpha.row(r)  = arma::sum(arma::square(tmpv));
-            if(iter_count_<max_init_iter_)
+            #pragma omp for
+            for(int r = 0 ; r < alpha.n_rows ; ++r )
             {
-                arma::fmat tmpc = tmpxc.each_col() - tmpvc.col(r);
-                tmpc /= ( 256 +  2.0*iter_count_ );
-                alpha.row(r) += arma::sum(arma::square(tmpc));
+                arma::fmat tmpv = xtv_.each_col() - vv_.col(r);
+                alpha.row(r)  = arma::sum(arma::square(tmpv));
+                if(iter_count_<max_init_iter_)
+                {
+                    arma::fmat tmpc = tmpxc.each_col() - tmpvc.col(r);
+                    tmpc /= ( 256 +  2.0*iter_count_ );
+                    alpha.row(r) += arma::sum(arma::square(tmpc));
+                }
+            }
+
+            alpha.each_row() %= (-0.5*x_invvar_);
+            alpha = arma::exp(alpha);
+            alpha.each_row() %= arma::pow(x_invvar_,1.5);
+            alpha.each_row() %= x_p_;
+
+            #pragma omp for
+            for(int o = 0 ; o < obj_num_ ; ++o )
+            {
+                arma::uvec oidx = arma::find(obj_label_==(o+1));
+                alpha.cols(oidx) *= obj_prob_(o);
             }
         }
 
-        alpha.each_row() %= (-0.5*x_invvar_);
-        alpha = arma::exp(alpha);
-        alpha.each_row() %= arma::pow(x_invvar_,1.5);
-        alpha.each_row() %= x_p_;
-
-        #pragma omp for
-        for(int o = 0 ; o < obj_num_ ; ++o )
-        {
-            arma::uvec oidx = arma::find(obj_label_==(o+1));
-            alpha.cols(oidx) *= obj_prob_(o);
-        }
-
+        //normalise alpha
         arma::fvec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
         alpha.each_col() /= alpha_rowsum;
         alpha_rowsum = arma::sum(alpha,1);
 
-        if(verbose_)
+        if(verbose_>1)
         {
             std::stringstream alphaname;
             alphaname.str("");
@@ -310,7 +412,7 @@ void JRCSBase::computeOnce()
         //smoothing alpha
         if(smooth_enabled_ && iter_count_ > max_init_iter_)
         {
-            if(verbose_)std::cerr<<"smoothing alpha"<<std::endl;
+            if(verbose_>0)std::cerr<<"smoothing alpha"<<std::endl;
 
             DenseCRF3D crf(vv_,vn_,tmpvc,xv_ptr_->n_cols);
             arma::mat unary = arma::conv_to<arma::mat>::from(-1.0*arma::log(alpha));
@@ -322,19 +424,19 @@ void JRCSBase::computeOnce()
             arma::fvec snxyz = { 0.05 , 0.05, 0.05 };
             crf.addPairwiseBilateral(sxyz,snxyz,srgb,new MatrixCompatibility(mu_));
 
-            if(verbose_)std::cerr<<"start smoothing"<<std::endl;
+            if(verbose_>0)std::cerr<<"start smoothing"<<std::endl;
             arma::mat Q = crf.startInference();
             arma::mat t1,t2;
-            if(verbose_)std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+            if(verbose_>0)std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
             for( int it=0; it<max_smooth_iter_; it++ ) {
                 crf.stepInference( Q, t1, t2 );
-                if(verbose_)std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
+                if(verbose_>0)std::cerr<<"kl = "<<crf.klDivergence(Q)<<std::endl;
             }
             alpha = arma::conv_to<arma::fmat>::from(Q.t());
             alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
             alpha.each_col() /= alpha_rowsum;
             alpha_rowsum = arma::sum(alpha,1);
-            if(verbose_)
+            if(verbose_>1)
             {
                 std::stringstream alphaname;
                 alphaname.str("");
@@ -344,7 +446,7 @@ void JRCSBase::computeOnce()
         }
         //update RT
         //#1 calculate weighted point cloud
-        if(verbose_)std::cerr<<"calculating the weighted point cloud"<<std::endl;
+        if(verbose_>0)std::cerr<<"calculating the weighted point cloud"<<std::endl;
         arma::fmat& wv = *wvs_ptrlst_[idx];
         arma::fmat& wn = *wns_ptrlst_[idx];
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[idx]);
@@ -395,7 +497,7 @@ void JRCSBase::computeOnce()
 //        arma::Mat<uint8_t> closest_c8 = vc_.cols(closest_i);
 //        arma::fmat closest_c = arma::conv_to<arma::fmat>::from(closest_c8);
 
-        if(verbose_)std::cerr<<"calculating R & t"<<std::endl;
+        if(verbose_>0)std::cerr<<"calculating R & t"<<std::endl;
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -476,7 +578,7 @@ void JRCSBase::computeOnce()
         QCoreApplication::processEvents();
     }
 
-    if(verbose_)std::cerr<<"Updating X:"<<std::endl;
+    if(verbose_>0)std::cerr<<"Updating X:"<<std::endl;
     float N =  vvs_ptrlst_.size();
     *xv_ptr_ = xv_sum_ / N;
     if(!(*xv_ptr_).is_finite()){
@@ -538,8 +640,8 @@ void JRCSBase::obj_point_dist(arma::mat& mu)
 
 void JRCSBase::computeCompatibility(arma::mat& mu)
 {
-    if(verbose_)std::cerr<<"computeCompatibility"<<std::endl;
-    if(verbose_)std::cerr<<"smooth_weight:"<<smooth_w_<<std::endl;
+    if(verbose_>0)std::cerr<<"computeCompatibility"<<std::endl;
+    if(verbose_>0)std::cerr<<"smooth_weight:"<<smooth_w_<<std::endl;
     mu = arma::mat(xv_ptr_->n_cols,xv_ptr_->n_cols,arma::fill::zeros);
     switch(mu_type_)
     {
@@ -554,22 +656,29 @@ void JRCSBase::computeCompatibility(arma::mat& mu)
 
 void JRCSBase::reset_alpha()
 {
-    if(verbose_)std::cerr<<"allocating alpha"<<std::endl;
-    arma::fmat& xv_ = *xv_ptr_;
-    int idx=0;
-    while( idx < vvs_ptrlst_.size() )
+    if(init_alpha_)
     {
-        if(idx>=alpha_ptrlst_.size())alpha_ptrlst_.emplace_back(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
-        else if((alpha_ptrlst_[idx]->n_rows!=vvs_ptrlst_[idx]->n_cols)||(alpha_ptrlst_[idx]->n_cols!=xv_.n_cols))
-        alpha_ptrlst_[idx].reset(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
-        ++idx;
+       assert(init_&&(init_.use_count()>0));
+       init_->getAlpha(alpha_ptrlst_);
+    }else
+    {
+        if(verbose_>0)std::cerr<<"allocating alpha"<<std::endl;
+        arma::fmat& xv_ = *xv_ptr_;
+        int idx=0;
+        while( idx < vvs_ptrlst_.size() )
+        {
+            if(idx>=alpha_ptrlst_.size())alpha_ptrlst_.emplace_back(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
+            else if((alpha_ptrlst_[idx]->n_rows!=vvs_ptrlst_[idx]->n_cols)||(alpha_ptrlst_[idx]->n_cols!=xv_.n_cols))
+            alpha_ptrlst_[idx].reset(new arma::fmat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
+            ++idx;
+        }
+        if(verbose_>0)std::cerr<<"done allocating alpha"<<std::endl;
     }
-    if(verbose_)std::cerr<<"done allocating alpha"<<std::endl;
 }
 
 void JRCSBase::reset_prob()
 {
-    if(verbose_)std::cerr<<"initializing probability"<<std::endl;
+    if(verbose_>0)std::cerr<<"initializing probability"<<std::endl;
     arma::fvec maxAllXYZ,minAllXYZ;
     MatPtrLst::iterator vviter;
     for( vviter = vvs_ptrlst_.begin() ; vviter != vvs_ptrlst_.end() ; ++vviter )
@@ -603,12 +712,12 @@ void JRCSBase::reset_prob()
     alpha_sumij = arma::frowvec(xv_ptr_->n_cols,arma::fill::zeros);
 
     beta_ = 0.01;
-    if(verbose_)std::cerr<<"done probability"<<std::endl;
+    if(verbose_>0)std::cerr<<"done probability"<<std::endl;
 }
 
 void JRCSBase::update_color_label()
 {
-    if(verbose_)std::cerr<<"updating color label"<<std::endl;
+    if(verbose_>0)std::cerr<<"updating color label"<<std::endl;
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
         arma::fmat& alpha = *alpha_ptrlst_[idx];

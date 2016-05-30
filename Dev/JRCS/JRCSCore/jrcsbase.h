@@ -4,6 +4,7 @@
 #include <armadillo>
 #include <memory>
 #include <QCoreApplication>
+#include "jrcsinitbase.h"
 namespace JRCS
 {
 class JRCSCORESHARED_EXPORT JRCSBase
@@ -35,6 +36,9 @@ public:
     }RotationType;
     JRCSBase(){arma::arma_rng::set_seed_random();}
     virtual ~JRCSBase(){}
+
+    virtual bool configure(Config::Ptr config);
+
     virtual inline void enable_smooth(bool enable=true){smooth_enabled_=enable;}
     virtual inline void set_smooth_weight(float w){smooth_w_=w;}
     virtual inline void set_max_smooth_iter(int max_iter){max_smooth_iter_=max_iter;}
@@ -53,16 +57,14 @@ public:
             const MatPtrLst& vv,
             const MatPtrLst& vn,
             const CMatPtrLst& vc,
-            const LCMatPtrLst& vl,
-            bool verbose = false
+            const LCMatPtrLst& vl
             );
     virtual void input_with_label(
             const MatPtrLst& vv,
             const MatPtrLst& vn,
             const CMatPtrLst& vc,
             const LCMatPtrLst& vlc,
-            const LMatPtrLst& vl,
-            bool verbose = false
+            const LMatPtrLst& vl
             );
     virtual void resetw(
             const MatPtrLst& wv,
@@ -140,6 +142,7 @@ protected:
     MatPtrLst vns_ptrlst_;
     CMatPtrLst vcs_ptrlst_;
     LCMatPtrLst vls_ptrlst_;
+    LMatPtrLst vll_ptrlst_;
     TsLst rt_lst_;
 
     //results
@@ -186,12 +189,16 @@ protected:
     arma::frowvec alpha_sum;
     arma::frowvec alpha_sumij;
 
-    bool verbose_;
+    int verbose_;
     std::string debug_path_;
     bool smooth_enabled_;
     RotationType rttype_;
     float beta_;
     float smooth_w_;
+    bool init_alpha_;
+private:
+    std::shared_ptr<JRCSInitBase> init_;
+    Config::Ptr config_;
 };
 }
 #endif // JRCSCORE_H

@@ -3,6 +3,8 @@
 #include <memory>
 #include <armadillo>
 #include <common.h>
+namespace JRCS
+{
 class JRCSInitBase
 {
 public:
@@ -15,16 +17,19 @@ public:
     typedef std::shared_ptr<arma::uvec> LMatPtr;
     typedef std::vector<LMatPtr> LMatPtrLst;
     JRCSInitBase();
-    bool configure(Config::Ptr config);
-    void init_alpha_with_label(
-            MatPtrLst& alpha,
+    virtual bool configure(Config::Ptr config);
+    virtual bool init_with_label(
+            const int k,
             const MatPtrLst& vv,
             const MatPtrLst& vn,
             const CMatPtrLst& vc,
             const LCMatPtrLst& vlc,
             const LMatPtrLst& vl,
-            bool verbose
+            int verbose
             );
+    virtual void getAlpha(MatPtrLst&);
+    virtual void getObjProb(arma::fvec&);
+
 protected:
     bool check_centers();
     void extract_patch_features();
@@ -33,18 +38,25 @@ protected:
     void generate_alpha();
 private:
     //inputs:
+    int k_;
     MatPtrLst vv_;
     MatPtrLst vn_;
     CMatPtrLst vc_;
     LCMatPtrLst vlc_;
     LMatPtrLst vl_;
-    //
+    //output
+    MatPtrLst alpha_;
+
+
+    //clustering
     std::vector<arma::urowvec> input_patch_label_value_;
     std::vector<arma::mat> patch_features_;
+    std::vector<arma::uvec> patch_sizes_;
     arma::mat feature_base_;
     arma::mat feature_centers_;
     arma::gmm_diag gmm_;
+    int verbose_;
     Config::Ptr config_;
 };
-
+}
 #endif // JRCSINITBASE_H

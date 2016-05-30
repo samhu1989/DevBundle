@@ -1,22 +1,31 @@
 #include "jrcsinitbase.h"
 #include "featurecore.h"
+namespace JRCS
+{
 JRCSInitBase::JRCSInitBase()
 {
     ;
 }
 
 
-void JRCSInitBase::init_alpha_with_label(
-        MatPtrLst& alpha,
+bool JRCSInitBase::init_with_label(
+        const int k,
         const MatPtrLst& vv,
         const MatPtrLst& vn,
         const CMatPtrLst& vc,
         const LCMatPtrLst& vlc,
         const LMatPtrLst& vl,
-        bool verbose
+        int verbose
         )
 {
-    ;
+    k_ = k;
+    vv_ = vv;
+    vn_ = vn;
+    vc_ = vc;
+    vl_ = vl;
+    vlc_ = vlc;
+    verbose_ = verbose;
+    return true;
 }
 
 bool JRCSInitBase::configure(Config::Ptr config)
@@ -50,10 +59,14 @@ void JRCSInitBase::extract_patch_features()
                     input_patch_label_value_.back()[0] = label_value;
                     patch_features_.emplace_back(feature.size(),1);
                     patch_features_.back().col(0) = feature;
+                    patch_sizes_.emplace_back(1);
+                    patch_sizes_.back().row(0) = extracted_mesh.n_vertices();
                 }else{
                     input_patch_label_value_.back().insert_cols(0,1);
                     input_patch_label_value_.back()[0] = label_value;
                     patch_features_.back().insert_cols(0,feature);
+                    patch_sizes_.back().insert_rows(0,1);
+                    patch_sizes_.back().row(0) = extracted_mesh.n_vertices();
                 }
             }
             ++ label_value;
@@ -151,5 +164,26 @@ void JRCSInitBase::learn()
 
 void JRCSInitBase::generate_alpha()
 {
+    alpha_.resize(vv_.size());
+    size_t index = 0;
+    MatPtrLst::iterator iter;
+    for( iter = alpha_.begin() ; iter != alpha_.end() ; ++iter )
+    {
+        iter->reset(new arma::fmat(vv_[index]->n_cols,k_,arma::fill::zeros));
+        arma::fmat& alpha = **iter;
+        //
+        ++index;
+    }
+}
+
+void JRCSInitBase::getAlpha(MatPtrLst& alpha)
+{
+    ;
+}
+
+void JRCSInitBase::getObjProb(arma::fvec& obj_prob)
+{
+    ;
+}
 
 }

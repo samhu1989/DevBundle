@@ -9,75 +9,13 @@ JRCSThread::JRCSThread(QObject* parent):QObject(parent)
 bool JRCSThread::configure(Config::Ptr config)
 {
     config_ = config;
-
-    if(config_->has("JRCS_obj_w"))
-    {
-        std::vector<float> objw;
-        config_->getFloatVec("JRCS_obj_w",objw);
-        jrcs_.reset_objw(objw);
-    }else return false;
-
-    if(config_->has("JRCS_max_iter"))
-    {
-        jrcs_.set_max_iter(config_->getInt("JRCS_max_iter"));
-    }else return false;
-
-    if(config_->has("JRCS_max_init"))
-    {
-        jrcs_.set_max_init_iter(config_->getInt("JRCS_max_init"));
-    }else jrcs_.set_max_init_iter(config_->getInt("JRCS_max_iter")/2);
-
     if(config_->has("JRCS_verbose"))
     {
-        if(!config_->getInt("JRCS_verbose") )verbose_=false;
-        else verbose_=true;
+        verbose_=config_->getInt("JRCS_verbose");
     }else{
-        verbose_=true;
+        verbose_=-1;
     }
-
-    if(config_->has("JRCS_smooth"))
-    {
-        if(!config_->getInt("JRCS_smooth"))jrcs_.enable_smooth(false);
-        else{
-            jrcs_.enable_smooth(true);
-            if(config_->has("JRCS_smooth_w"))
-            {
-                jrcs_.set_smooth_weight(config_->getFloat("JRCS_smooth_w"));
-            }else jrcs_.set_smooth_weight(1.0);
-            if(config_->has("JRCS_smooth_iter"))
-            {
-                jrcs_.set_max_smooth_iter(config_->getInt("JRCS_smooth_iter"));
-            }else jrcs_.set_max_smooth_iter(1);
-        }
-    }else{
-        jrcs_.enable_smooth(true);
-        if(config_->has("JRCS_smooth_w"))
-        {
-            jrcs_.set_smooth_weight(config_->getFloat("JRCS_smooth_w"));
-        }else jrcs_.set_smooth_weight(1.0);
-        if(config_->has("JRCS_smooth_iter"))
-        {
-            jrcs_.set_max_smooth_iter(config_->getInt("JRCS_smooth_iter"));
-        }else jrcs_.set_max_smooth_iter(1);
-    }
-
-    if(config_->has("JRCS_debug_path"))
-    {
-        jrcs_.set_debug_path(config_->getString("JRCS_debug_path"));
-    }else jrcs_.set_debug_path("./debug/");
-
-    if(config_->has("JRCS_mu_type"))
-    {
-        if(config_->getString("JRCS_mu_type")=="ObjOnly")jrcs_.set_mu_type(JRCS::JRCSBase::ObjOnly);
-        if(config_->getString("JRCS_mu_type")=="ObjPointDist")jrcs_.set_mu_type(JRCS::JRCSBase::ObjPointDist);
-    }else jrcs_.set_mu_type(JRCS::JRCSBase::ObjOnly);
-
-    if(config_->has("JRCS_rt_type"))
-    {
-        if(config_->getString("JRCS_rt_type")=="Gamma")jrcs_.set_rt_type(JRCS::JRCSBase::Gamma);
-    }else jrcs_.set_rt_type(JRCS::JRCSBase::All);
-
-    return true;
+    return jrcs_.configure(config);
 }
 
 void JRCSThread::input(
@@ -88,7 +26,7 @@ void JRCSThread::input(
      )
 {
     emit message(tr("JRCSThread::input"),0);
-    jrcs_.input(vv,vn,vc,vl,verbose_);
+    jrcs_.input(vv,vn,vc,vl);
 }
 
 void JRCSThread::input_with_label(
@@ -100,7 +38,7 @@ void JRCSThread::input_with_label(
      )
 {
     emit message(tr("JRCSThread::input_with_label"),0);
-    jrcs_.input_with_label(vv,vn,vc,vlc,vl,verbose_);
+    jrcs_.input_with_label(vv,vn,vc,vlc,vl);
 }
 
 void JRCSThread::resetw(
