@@ -164,7 +164,24 @@ void JRCSInitBase::learn()
 
 void JRCSInitBase::assign()
 {
-    ;
+    std::vector<arma::mat>::iterator fiter;
+    size_t index = 0;
+    for(fiter=patch_features_.begin();fiter!=patch_features_.end();++fiter)
+    {
+        assign(*fiter,patch_prob_[index]);
+        ++index;
+    }
+}
+
+void JRCSInitBase::assign(const arma::mat& f,arma::fmat& p)
+{
+    p = arma::fmat(gmm_.n_gaus(),f.n_cols,arma::fill::zeros);
+    for(size_t i = 0 ; i < gmm_.n_gaus() ; ++i )
+    {
+        arma::rowvec pi = gmm_.log_p(f,i);
+        p.row(i) = arma::conv_to<arma::frowvec>::from(pi);
+    }
+    p = arma::exp(p);
 }
 
 void JRCSInitBase::generate_alpha()
@@ -183,12 +200,25 @@ void JRCSInitBase::generate_alpha()
 
 void JRCSInitBase::getAlpha(MatPtrLst& alpha)
 {
-    ;
+    alpha = alpha_;
 }
 
 void JRCSInitBase::getObjProb(arma::fvec& obj_prob)
 {
-    ;
+    std::vector<arma::uvec>::iterator iter;
+    size_t index = 0;
+    for(iter=patch_sizes_.begin();iter!=patch_sizes_.end();++iter)
+    {
+        arma::fmat& p = patch_prob_[index];
+        arma::fvec size = arma::conv_to<arma::fvec>::from(*iter);
+        if(obj_prob.n_rows!=p.n_rows)
+        {
+            obj_prob = arma::fvec(p.n_rows,arma::fill::zeros);
+        }
+        obj_prob += (p*size);
+    }
+    float sum = arma::accu(obj_prob);
+    obj_prob /= sum;
 }
 
 }
