@@ -59,6 +59,7 @@ void JRCSThread::resetx(
 
     jrcs_.initx(xv,xn,xc);
     jrcs_.reset_rt();
+    if(verbose_>0)std::cerr<<"Done resetx"<<std::endl;
 }
 
 void JRCSThread::process(void)

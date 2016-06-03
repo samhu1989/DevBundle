@@ -38,6 +38,7 @@ protected:
     void assign();
     void assign(const arma::mat& f,arma::fmat& p);
     void generate_alpha();
+    void generate_prob();
 private:
     //inputs:
     int k_;
@@ -48,6 +49,7 @@ private:
     LMatPtrLst vl_;
     //output
     MatPtrLst alpha_;
+    arma::fvec prob_;
 
 
     //clustering

@@ -1,5 +1,6 @@
 #include "jrcsinitbase.h"
 #include "featurecore.h"
+#include <armadillo>
 namespace JRCS
 {
 JRCSInitBase::JRCSInitBase()
@@ -25,6 +26,19 @@ bool JRCSInitBase::init_with_label(
     vl_ = vl;
     vlc_ = vlc;
     verbose_ = verbose;
+
+    if(verbose_>0)std::cerr<<"extract_patch_features()"<<std::endl;
+    extract_patch_features();
+    if(verbose_>0)std::cerr<<"pca()"<<std::endl;
+    pca();
+    if(verbose_>0)std::cerr<<"learn()"<<std::endl;
+    learn();
+    if(verbose_>0)std::cerr<<"assign()"<<std::endl;
+    assign();
+    if(verbose_>0)std::cerr<<"generate_prob()"<<std::endl;
+    generate_prob();
+    if(verbose_>0)std::cerr<<"generate_alpha()"<<std::endl;
+    generate_alpha();
     return true;
 }
 
@@ -166,6 +180,7 @@ void JRCSInitBase::assign()
 {
     std::vector<arma::mat>::iterator fiter;
     size_t index = 0;
+    patch_prob_.resize(patch_features_.size());
     for(fiter=patch_features_.begin();fiter!=patch_features_.end();++fiter)
     {
         assign(*fiter,patch_prob_[index]);
@@ -176,24 +191,58 @@ void JRCSInitBase::assign()
 void JRCSInitBase::assign(const arma::mat& f,arma::fmat& p)
 {
     p = arma::fmat(gmm_.n_gaus(),f.n_cols,arma::fill::zeros);
+    std::cerr<<"p("<<p.n_rows<<","<<p.n_cols<<")"<<std::endl;
     for(size_t i = 0 ; i < gmm_.n_gaus() ; ++i )
     {
         arma::rowvec pi = gmm_.log_p(f,i);
-        p.row(i) = arma::conv_to<arma::frowvec>::from(pi);
+        p.row(i) = arma::conv_to<arma::frowvec>::from( arma::exp( pi ) );
     }
-    p = arma::exp(p);
+    std::cerr<<"done assigning"<<std::endl;
 }
 
 void JRCSInitBase::generate_alpha()
 {
     alpha_.resize(vv_.size());
-    size_t index = 0;
+    size_t index;
     MatPtrLst::iterator iter;
+    std::vector<arma::urowvec>::iterator liter = input_patch_label_value_.begin();
+    arma::uword r_k = k_;
+    arma::uvec obj_size(prob_.size());
+    arma::fvec prob = prob_;
+    //determine the gaussian numbers for each object
+    for(int oi = 0 ; oi < prob_.size() ; ++ oi )
+    {
+        obj_size(oi) = arma::uword(float(k_)*float(prob(oi)));
+        obj_size(oi) = std::max(arma::uword(9),obj_size(oi));
+        obj_size(oi) = std::min(r_k,obj_size(oi));
+        r_k -= obj_size(oi);
+    }
+    //calculate the column index by gaussian numbers
+    std::vector<arma::uvec> cols;
+    arma::uword sum = 0;
+    for(int oi = 0 ; oi < obj_size.size() ; ++oi )
+    {
+        cols.emplace_back(obj_size[oi],arma::fill::zeros);
+        cols.back() = arma::linspace<arma::uvec>(sum,sum+obj_size[oi]-1,obj_size[oi]);
+        sum += obj_size[oi];
+    }
+    //fill alpha
+    index = 0;
     for( iter = alpha_.begin() ; iter != alpha_.end() ; ++iter )
     {
         iter->reset(new arma::fmat(vv_[index]->n_cols,k_,arma::fill::zeros));
         arma::fmat& alpha = **iter;
-        //
+        arma::fmat& prob = patch_prob_[index];
+        arma::uvec& label = *vl_[index];
+        #pragma omp parallel for
+        for(int c=0;c<prob.n_cols;++c)
+        {
+            arma::uvec rows = arma::find(label==(c+1));
+            for(int r=0;r<prob.n_rows;++r)
+            {
+                alpha(rows,cols[r]).fill(prob(r,c));
+            }
+        }
         ++index;
     }
 }
@@ -203,7 +252,7 @@ void JRCSInitBase::getAlpha(MatPtrLst& alpha)
     alpha = alpha_;
 }
 
-void JRCSInitBase::getObjProb(arma::fvec& obj_prob)
+void JRCSInitBase::generate_prob()
 {
     std::vector<arma::uvec>::iterator iter;
     size_t index = 0;
@@ -211,14 +260,20 @@ void JRCSInitBase::getObjProb(arma::fvec& obj_prob)
     {
         arma::fmat& p = patch_prob_[index];
         arma::fvec size = arma::conv_to<arma::fvec>::from(*iter);
-        if(obj_prob.n_rows!=p.n_rows)
+        if(prob_.n_rows!=p.n_rows)
         {
-            obj_prob = arma::fvec(p.n_rows,arma::fill::zeros);
+            prob_ = arma::fvec(p.n_rows,arma::fill::zeros);
         }
-        obj_prob += (p*size);
+        prob_ += (p*size);
+        ++index;
     }
-    float sum = arma::accu(obj_prob);
-    obj_prob /= sum;
+    float sum = arma::accu(prob_);
+    prob_ /= sum;
+}
+
+void JRCSInitBase::getObjProb(arma::fvec& obj_prob)
+{
+    obj_prob = prob_;
 }
 
 }
