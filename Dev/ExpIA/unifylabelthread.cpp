@@ -199,7 +199,7 @@ void UnifyLabelThread::assign(
     {
         for(size_t findex = 0; findex < N_feature ; ++findex)
         {
-            log_p(gindex,findex) = -arma::norm( gmm_.means.col(gindex) - feature_mat.col(findex) );
+            log_p(gindex,findex) = std::exp(-arma::norm( gmm_.means.col(gindex) - feature_mat.col(findex)));
         }
     }
 //    std::cerr<<"2"<<std::endl;

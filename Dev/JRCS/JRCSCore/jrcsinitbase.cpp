@@ -66,6 +66,7 @@ void JRCSInitBase::extract_patch_features()
                 extractMesh<DefaultMesh>(*vv_[lindex],*vn_[lindex],*vc_[lindex],extracted_label,extracted_mesh);
                 arma::vec feature;
                 extract_patch_feature(extracted_mesh,feature,config_);
+                assert(feature.is_finite());
 //                feature_dim = feature.size();
                 if( input_patch_label_value_.size() <= lindex )
                 {
@@ -109,8 +110,15 @@ void JRCSInitBase::pca()
                 arma::mat centered_feature = feature_data.each_col() - mean;
                 arma::mat V;
                 arma::vec s;
-                arma::eig_sym(s,V,(centered_feature*centered_feature.t()));
-                std::cerr<<"using PCA"<<std::endl;
+                arma::mat A = (centered_feature*centered_feature.t());
+                arma::eig_sym(s,V,A);
+                if(verbose_>0){
+                    std::cerr<<"using PCA"<<std::endl;
+                    std::cerr<<A;
+                    std::cerr<<std::endl;
+                    std::cerr<<"s:"<<std::endl;
+                    std::cerr<<s<<std::endl;
+                }
 //                emit message(tr("Init Feature Base with PCA"),0);
 //                std::cerr<<"Init Feature Base with PCA"<<std::endl;
                 arma::uvec sort_index = arma::sort_index(s,"descend");
@@ -163,7 +171,7 @@ void JRCSInitBase::learn()
     }
     feature_dim = data.n_rows;
     if(!check_centers()){
-        std::cerr<<"choose frame "<<max_patch_num_index<<" with "<<max_patch_num<<"patches as clustering center"<<std::endl;
+        if(verbose_>0)std::cerr<<"choose frame "<<max_patch_num_index<<" with "<<max_patch_num<<"patches as clustering center"<<std::endl;
         feature_centers_ = patch_features_[max_patch_num_index];
     }
     gmm_.reset(feature_centers_.n_rows,feature_centers_.n_cols);
@@ -190,14 +198,20 @@ void JRCSInitBase::assign()
 
 void JRCSInitBase::assign(const arma::mat& f,arma::fmat& p)
 {
+    uint32_t N_feature = f.n_cols;
     p = arma::fmat(gmm_.n_gaus(),f.n_cols,arma::fill::zeros);
-    std::cerr<<"p("<<p.n_rows<<","<<p.n_cols<<")"<<std::endl;
+    if(verbose_>0)std::cerr<<"p("<<p.n_rows<<","<<p.n_cols<<")"<<std::endl;
     for(size_t i = 0 ; i < gmm_.n_gaus() ; ++i )
     {
-        arma::rowvec pi = gmm_.log_p(f,i);
+        arma::rowvec pi(N_feature);
+        #pragma omp parallel for
+        for(size_t findex = 0; findex < N_feature ; ++findex)
+        {
+            pi(findex) = - arma::norm( gmm_.means.col(i) - f.col(findex) );
+        }
         p.row(i) = arma::conv_to<arma::frowvec>::from( arma::exp( pi ) );
     }
-    std::cerr<<"done assigning"<<std::endl;
+    if(verbose_>0)std::cerr<<"done assigning"<<std::endl;
 }
 
 void JRCSInitBase::generate_alpha()
@@ -234,10 +248,11 @@ void JRCSInitBase::generate_alpha()
         arma::fmat& alpha = **iter;
         arma::fmat& prob = patch_prob_[index];
         arma::uvec& label = *vl_[index];
+        alpha.fill(1.0/float(k_));
         #pragma omp parallel for
         for(int c=0;c<prob.n_cols;++c)
         {
-            arma::uvec rows = arma::find(label==(c+1));
+            arma::uvec rows = arma::find(label==input_patch_label_value_[index](c));
             for(int r=0;r<prob.n_rows;++r)
             {
                 alpha(rows,cols[r]).fill(prob(r,c));

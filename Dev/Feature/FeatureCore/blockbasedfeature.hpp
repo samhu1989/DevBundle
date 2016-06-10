@@ -11,6 +11,7 @@ void BlockBasedFeature<Mesh>::extract(const Mesh& mesh, arma::vec& feature)
 {
     feature = arma::vec(12,arma::fill::zeros);
     size_t N = mesh.n_vertices();
+    assert(N>2);
     arma::fmat points((float*)mesh.points(),3,N,false,true);
     arma::fmat box;
     get3DMBB(points,2,box);
@@ -69,24 +70,39 @@ void BlockBasedFeature<Mesh>::extract(const Mesh& mesh, arma::vec& feature)
         feature( 3 + minidx ) += 1.0;
         feature( 6 + minidx ) += dists( minidx , idx );
     }
-    feature(6) /= feature(3);
-    feature(7) /= feature(4);
-    feature(8) /= feature(5);
+    if(feature(3)>0)feature(6) /= feature(3);
+    if(feature(4)>0)feature(7) /= feature(4);
+    if(feature(5)>0)feature(8) /= feature(5);
     for(size_t idx=0;idx<points.n_cols;++idx)
     {
        arma::uword minidx;
        double mindist = dists.col(idx).min(minidx);
        feature( 9 + minidx ) += std::pow( mindist - feature( 6 + minidx ) , 2.0 );
     }
-    feature(9) /= ( feature(3) - 1.0 );
-    feature(9) = std::sqrt(feature(9));
-    feature(10) /= ( feature(4) - 1.0 );
-    feature(10) = std::sqrt(feature(10));
-    feature(11) /= ( feature(5) - 1.0 );
-    feature(11) = std::sqrt(feature(11));
+    if(feature(3)>1)
+    {
+        feature(9) /= ( feature(3) - 1.0 );
+        feature(9) = std::sqrt(feature(9));
+    }else {feature(9)=0;}
+    if(feature(4)>1)
+    {
+        feature(10) /= ( feature(4) - 1.0 );
+        feature(10) = std::sqrt(feature(10));
+    }else {feature(10)=0;}
+    if(feature(5)>1)
+    {
+        feature(11) /= ( feature(5) - 1.0 );
+        feature(11) = std::sqrt(feature(11));
+    }else {feature(11)=0;}
     feature(3) /= N;
     feature(4) /= N;
     feature(5) /= N;
+    if(!feature.is_finite())
+    {
+        std::cerr<<"infinite block feature"<<std::endl;
+        std::cerr<<feature<<std::endl;
+    }
+    assert(feature.is_finite());
 }
 }
 

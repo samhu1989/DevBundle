@@ -5,6 +5,7 @@ void extract_patch_feature(DefaultMesh&mesh,arma::vec&feature,Config::Ptr config
     arma::vec block_feature;//length width height
     Feature::BlockBasedFeature<DefaultMesh> block_feature_extractor;
     block_feature_extractor.extract(mesh,block_feature);
+    assert(block_feature.is_finite());
     arma::vec color_hist;
     if("RGB"==config_->getString("Color_Space"))
     {
@@ -24,6 +25,7 @@ void extract_patch_feature(DefaultMesh&mesh,arma::vec&feature,Config::Ptr config
                     );
         color_hist_extractor.extract(mesh,color_hist);
     }
+    assert(color_hist.is_finite());
     if(config_->has("Feature_height_w"))
     {
         block_feature(2) *= config_->getFloat("Feature_height_w");

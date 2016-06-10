@@ -1,8 +1,8 @@
 @echo off
 call setEnv
-set ipath=%DATA_PATH%03\input\
-set opath=%DATA_PATH%03\input_binary\
-set spath=%BASE_PATH%mlx\fn2vn.mlx
+set ipath=%DATA_PATH%05\input_extracted\
+set opath=%DATA_PATH%03\input_down\
+set spath=%BASE_PATH%MeshLabTool\mlx\down.mlx
 @echo %ipath%
 @echo %opath%
 @echo %spath%
