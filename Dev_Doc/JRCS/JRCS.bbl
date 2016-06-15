@@ -1,0 +1,38 @@
+\begin{thebibliography}{\protect\citename{Evangelidis et~al\mbox{.} }2014}
+
+\bibitem[\protect\citename{Bouaziz et~al\mbox{.} }2013]{sparseicp_sgp13}
+{\sc Bouaziz, S., Tagliasacchi, A., and Pauly, M.}
+\newblock 2013.
+\newblock Sparse iterative closest point.
+\newblock {\em Computer Graphics Forum (Symposium on Geometry Processing) 32},
+  5, 1--11.
+
+\bibitem[\protect\citename{Evangelidis et~al\mbox{.}
+  }2014]{Evangelidis-ECCV-2014}
+{\sc Evangelidis, G., Kounades-Bastian, D., Horaud, R., and E.Z., P.}
+\newblock 2014.
+\newblock A generative model for the joint registration of multiple point sets.
+\newblock In {\em European Conference on Computer Vision (ECCV)}.
+
+\bibitem[\protect\citename{Jia et~al\mbox{.} }2015]{Jia20153D}
+{\sc Jia, Z., Gallagher, A.~C., Saxena, A., and Chen, T.}
+\newblock 2015.
+\newblock 3{D} reasoning from blocks to stability.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence
+  37}, 5, 905--918.
+
+\bibitem[\protect\citename{Krähenbühl and Koltun }2012]{Kr2012Efficient}
+{\sc Krähenbühl, P., and Koltun, V.}
+\newblock 2012.
+\newblock Efficient inference in fully connected crfs with gaussian edge
+  potentials.
+\newblock In {\em Advances in Neural Information Processing Systems}, 109--117.
+
+\bibitem[\protect\citename{Wang et~al\mbox{.} }2013]{WangImageiccv2013}
+{\sc Wang, F., Huang, Q., and Guibas, L.}
+\newblock 2013.
+\newblock Image co-segmentation via consistent functional maps.
+\newblock In {\em Computer Vision (ICCV), 2013 IEEE International Conference
+  on}, 849--856.
+
+\end{thebibliography}
