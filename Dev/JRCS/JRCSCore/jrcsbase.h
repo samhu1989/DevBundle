@@ -196,7 +196,7 @@ protected:
     float beta_;
     float smooth_w_;
     bool init_alpha_;
-private:
+
     std::shared_ptr<JRCSInitBase> init_;
     Config::Ptr config_;
 };

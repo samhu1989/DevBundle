@@ -332,7 +332,7 @@ void JRCSBase::computeOnce()
     if(verbose_>0)std::cerr<<"reset transformed latent color"<<std::endl;
     xtc_ = *xc_ptr_;
 
-    computeCompatibility(mu_);
+    if(smooth_enabled_)computeCompatibility(mu_);
 
     if(verbose_>1)
     {
