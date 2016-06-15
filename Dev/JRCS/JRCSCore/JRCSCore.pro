@@ -15,12 +15,14 @@ DEFINES += JRCSCORE_LIBRARY
 
 SOURCES += \
     jrcsbase.cpp \
-    jrcsinitbase.cpp
+    jrcsinitbase.cpp \
+    jrcsnaive.cpp
 
 HEADERS +=\
         jrcscore_global.h \
     jrcsbase.h \
-    jrcsinitbase.h
+    jrcsinitbase.h \
+    jrcsnaive.h
 
 unix {
     target.path = /usr/lib
