@@ -12,17 +12,18 @@ In which the $\alpha_{mik}=P(z_{mi}=k|v_{mi};\Theta)$,
 	\label{alg:jrcs}
 	\textbf{Input:}~~\\
 	$\{V_m\}$:Observed point clouds\\
-	$\Theta^0$:Initial parameter set~~\\
+	$\{\alpha_{mik}^0\}$:Initial posterior probabilities~~\\
 	\textbf{Output:}~~\\
-	$\Theta^q}$:Final parameter set~~
+	$\Theta^q$:Final parameter set~~
 	\begin{enumerate}
-		\item $q\leftarrow1$
+		\item $q\leftarrow0$
 		\item \textbf{repeat}
-		\item E-step: Use $\Theta^{q-1}$ to estimate posterior probabilities $\alpha^q_{mik}=P(z_{mi}|v_{mi};\Theta^{q-1})$
 		\item CM-step-a: Use $\alpha^q_{mik}$, $x^{q-1}_k$ to estimate $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$
-		\item CM-step-b: Use $\alpha^q_{mik}$, $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$ to estimate the Gaussian centers $x_k^q$.
+		\item CM-step-b: Use $\alpha^q_{mik}$, $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$ to estimate the Gaussian centers $x_k^q$
 		\item CM-step-c: Use $\alpha^q_{mik}$, $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$ to estimate the covariances $\Sigma_k^q$
-		\item CM-step-c: Use $\alpha^q_{mik}$ to estimate the priors $p_k^q$
+		\item CM-step-d: Use $\alpha^q_{mik}$ to estimate the priors $p_k^q$,$p_n^q$
+		\item E-step: Use $\Theta^{q-1}$ to estimate posterior probabilities. $\alpha^q_{mik}=P(z_{mi}|v_{mi};\Theta^{q-1})$
+		\item $q \leftarrow q+1$
 		\item \textbf{until} Convergence
 		\item \textbf{return} $\Theta^q$
 	\end{enumerate}
@@ -32,7 +33,7 @@ A key advantage motivates our formulation is that the soft correspondence can be
 \textbf{Initial Segment based on Planar Fitting}\\
 \textbf{Block Based Feature Extraction and Clustering}\\
 The result of Clustering:
-$$P(B_{mj} \in C_n})$$
+$$P(B_{mj} \in C_n)$$
 \textbf{Soft Correspondence Initialization}\\
 Then the $\alpha$ is initialized as:
 $$\alpha_{ijk}=P(B_{mj} \in C_n)$$

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  15 JUN 2016 15:12
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  18 JUN 2016 22:40
 entering extended mode
 **JRCS.tex
 (JRCS.tex
@@ -455,30 +455,12 @@ MS/cmsy/m/n/9 j\OML/cmm/m/it/9 z[] \OT1/cmr/m/n/9 = \OML/cmm/m/it/9 k\OT1/cmr/m
 
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 11.
-! Extra }, or forgotten $.
-l.17 	$\Theta^q}
-                $:Final parameter set~~
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-! Extra }, or forgotten $.
-l.35 $$P(B_{mj} \in C_n}
-                        )$$
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
 [1{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}
 
 
 ])
 (experiment&discussion.tex
-<images/synthetic_data.pdf, id=52, 952.55875pt x 484.81125pt>
+<images/synthetic_data.pdf, id=53, 952.55875pt x 484.81125pt>
 File: images/synthetic_data.pdf Graphic file (type pdf)
 
 <use images/synthetic_data.pdf>
@@ -489,7 +471,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 16--70
 
  []
 
-<images/result_iter_18.png, id=54, 992.70876pt x 958.58125pt>
+<images/result_iter_18.png, id=55, 992.70876pt x 958.58125pt>
 File: images/result_iter_18.png Graphic file (type png)
 
 <use images/result_iter_18.png>
@@ -500,21 +482,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 71--108
 
  []
 
-<images/init_input.png, id=56, 954.56625pt x 481.8pt>
+<images/init_input.png, id=57, 954.56625pt x 481.8pt>
 File: images/init_input.png Graphic file (type png)
 
 <use images/init_input.png>
 Package pdftex.def Info: images/init_input.png used on input line 111.
 (pdftex.def)             Requested size: 505.89pt x 255.33807pt.
 
-<images/init_seg.png, id=57, 956.57375pt x 483.8075pt>
+<images/init_seg.png, id=58, 956.57375pt x 483.8075pt>
 File: images/init_seg.png Graphic file (type png)
 
 <use images/init_seg.png>
 Package pdftex.def Info: images/init_seg.png used on input line 117.
 (pdftex.def)             Requested size: 505.89pt x 255.86308pt.
 
-<images/init_cluster.png, id=58, 956.57375pt x 484.81125pt>
+<images/init_cluster.png, id=59, 956.57375pt x 484.81125pt>
 File: images/init_cluster.png Graphic file (type png)
 
 <use images/init_cluster.png>
@@ -537,8 +519,8 @@ Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 188.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 188.
  ) 
 Here is how much of TeX's memory you used:
- 7682 strings out of 493698
- 114600 string characters out of 3144415
+ 7683 strings out of 493698
+ 114607 string characters out of 3144415
  213623 words of memory out of 3000000
  10838 multiletter control sequences out of 15000+200000
  26038 words of font info for 53 fonts, out of 3000000 for 9000
@@ -558,9 +540,9 @@ iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy9.pfb><D:/Program Files/MiKTeX 2.9
 /fonts/type1/urw/helvetic/uhvb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/u
 rw/times/utmb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.p
 fb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on JRCS.pdf (5 pages, 308020 bytes).
+Output written on JRCS.pdf (5 pages, 308391 bytes).
 PDF statistics:
- 159 PDF objects out of 1000 (max. 8388607)
- 44 named destinations out of 1000 (max. 500000)
+ 160 PDF objects out of 1000 (max. 8388607)
+ 45 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -74,7 +74,9 @@ HEADERS += segmentationcore.h\
     densecrf.h \
     densecrf3d.h \
     hierarchicalization.h \
-    pcaplaneequ.h
+    pcaplaneequ.h \
+    regiongrowingrgb.h \
+    regiongrowingrgb.hpp
 
 unix {
     target.path = /usr/lib
