@@ -14,6 +14,7 @@ public:
     using RegionGrowing<M>::normals_;
     using RegionGrowing<M>::normal_flag_;
     using RegionGrowing<M>::curvature_flag_;
+    using RegionGrowing<M>::curvatures_;
     using RegionGrowing<M>::residual_flag_;
     using RegionGrowing<M>::residual_threshold_;
     using RegionGrowing<M>::neighbour_number_;

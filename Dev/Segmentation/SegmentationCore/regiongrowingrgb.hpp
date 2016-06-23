@@ -149,6 +149,68 @@ RegionGrowingRGB<M>::extract (std::vector<arma::uvec>& clusters)
   deinitCompute ();
 }
 
+template<typename M> void
+RegionGrowingRGB<M>::extract(arma::uvec& clusters)
+{
+  clusters_.clear ();
+  clusters = arma::uvec(input_->n_vertices(),arma::fill::zeros);
+  point_neighbours_.clear ();
+  point_labels_.clear ();
+  num_pts_in_segment_.clear ();
+  point_distances_.clear ();
+  segment_neighbours_.clear ();
+  segment_distances_.clear ();
+  segment_labels_.clear ();
+  number_of_segments_ = 0;
+
+  bool segmentation_is_possible = initCompute ();
+  if ( !segmentation_is_possible )
+  {
+    deinitCompute ();
+    return;
+  }
+
+  segmentation_is_possible = prepareForSegmentation ();
+  if ( !segmentation_is_possible )
+  {
+    deinitCompute ();
+    return;
+  }
+
+  findPointNeighbours();
+  applySmoothRegionGrowingAlgorithm();
+  RegionGrowing<M>::assembleRegions();
+
+  findSegmentNeighbours();
+  applyRegionMergingAlgorithm();
+
+  std::vector<arma::uvec>::iterator cluster_iter = clusters_.begin ();
+  while (cluster_iter != clusters_.end ())
+  {
+       if (static_cast<int> (cluster_iter->size()) < min_pts_per_cluster_ ||
+           static_cast<int> (cluster_iter->size()) > max_pts_per_cluster_)
+       {
+            cluster_iter = clusters_.erase (cluster_iter);
+       }
+       else
+            cluster_iter++;
+  }
+  arma::uword label = 1;
+  while (cluster_iter != clusters_.end ())
+  {
+       if (static_cast<int> (cluster_iter->size()) < min_pts_per_cluster_ ||
+           static_cast<int> (cluster_iter->size()) > max_pts_per_cluster_)
+       {
+            cluster_iter = clusters_.erase (cluster_iter);
+       }
+       else
+            cluster_iter++;
+       clusters(*cluster_iter).fill(label);
+       ++label;
+  }
+  deinitCompute ();
+}
+
 template <typename M> bool
 RegionGrowingRGB<M>::prepareForSegmentation ()
 {
@@ -501,18 +563,18 @@ RegionGrowingRGB<M>::assembleRegions(std::vector<unsigned int>& num_pts_in_regio
     clusters_.resize (num_regions, segment);
     for (int i_seg = 0; i_seg < num_regions; i_seg++)
     {
-        clusters_[i_seg].indices.resize (num_pts_in_region[i_seg]);
+        clusters_[i_seg].resize (num_pts_in_region[i_seg]);
     }
 
     std::vector<int> counter;
     counter.resize (num_regions, 0);
-    int point_number = static_cast<int> (indices_->size ());
+    int point_number = static_cast<int> (indices_.size ());
     for (int i_point = 0; i_point < point_number; i_point++)
     {
-         int point_index = (*indices_)[i_point];
+         int point_index = indices_(i_point);
          int index = point_labels_[point_index];
          index = segment_labels_[index];
-         clusters_[index].indices[ counter[index] ] = point_index;
+         clusters_[index][ counter[index]] = point_index;
          counter[index] += 1;
     }
 
@@ -520,22 +582,22 @@ RegionGrowingRGB<M>::assembleRegions(std::vector<unsigned int>& num_pts_in_regio
    if (clusters_.empty ())
      return;
 
-   std::vector<pcl::PointIndices>::iterator itr1, itr2;
+   std::vector<arma::uvec>::iterator itr1, itr2;
    itr1 = clusters_.begin ();
    itr2 = clusters_.end () - 1;
 
    while (itr1 < itr2)
    {
-     while (!(itr1->indices.empty ()) && itr1 < itr2)
+     while (!(itr1->empty ()) && itr1 < itr2)
        itr1++;
-     while (  itr2->indices.empty ()  && itr1 < itr2)
+     while (  itr2->empty ()  && itr1 < itr2)
        itr2--;
 
      if (itr1 != itr2)
-       itr1->indices.swap (itr2->indices);
+       itr1->swap(*itr2);
     }
 
-     if (itr2->indices.empty ())
+     if (itr2->empty ())
      clusters_.erase (itr2, clusters_.end ());
 }
 
@@ -549,12 +611,13 @@ RegionGrowingRGB<M>::validatePoint (int initial_seed, int point, int nghbr, bool
     point_color.resize (3, 0);
     std::vector<unsigned int> nghbr_color;
     nghbr_color.resize (3, 0);
-   point_color[0] = input_->points[point].r;
-   point_color[1] = input_->points[point].g;
-   point_color[2] = input_->points[point].b;
-   nghbr_color[0] = input_->points[nghbr].r;
-   nghbr_color[1] = input_->points[nghbr].g;
-   nghbr_color[2] = input_->points[nghbr].b;
+   uint8_t* color = (uint8_t*)input_->vertex_colors();
+   point_color[0] = (unsigned int)(color[3*point+0]);
+   point_color[1] = (unsigned int)(color[3*point+1]);
+   point_color[2] = (unsigned int)(color[3*point+2]);
+   nghbr_color[0] = (unsigned int)(color[3*nghbr+0]);
+   nghbr_color[1] = (unsigned int)(color[3*nghbr+1]);
+   nghbr_color[2] = (unsigned int)(color[3*nghbr+2]);
    float difference = calculateColorimetricalDifference (point_color, nghbr_color);
    if (difference > color_p2p_threshold_)
      return (false);
@@ -564,52 +627,51 @@ RegionGrowingRGB<M>::validatePoint (int initial_seed, int point, int nghbr, bool
    // check the angle between normals if needed
    if (normal_flag_)
    {
-     float data[4];
-     data[0] = input_->points[point].data[0];
-     data[1] = input_->points[point].data[1];
-     data[2] = input_->points[point].data[2];
-     data[3] = input_->points[point].data[3];
+     float data[3];
+     float *p = (float*)input_->points();
+     data[0] = p[3*point+0];
+     data[1] = p[3*point+1];
+     data[2] = p[3*point+2];
 
-     Eigen::Map<Eigen::Vector3f> initial_point (static_cast<float*> (data));
-     Eigen::Map<Eigen::Vector3f> initial_normal (static_cast<float*> (normals_->points[point].normal));
+     arma::fvec::fixed<3> initial_point (static_cast<float*> (data));
+     arma::fvec::fixed<3> initial_normal (static_cast<float*>(normals_+3*point));
      if (smooth_mode_flag_ == true)
     {
-       Eigen::Map<Eigen::Vector3f> nghbr_normal (static_cast<float*> (normals_->points[nghbr].normal));
-       float dot_product = fabsf (nghbr_normal.dot (initial_normal));
+       arma::fvec::fixed<3> nghbr_normal (static_cast<float*>(normals_+3*nghbr));
+       float dot_product = fabs(arma::dot(nghbr_normal,initial_normal));
        if (dot_product < cosine_threshold)
          return (false);
      }
      else
      {
-       Eigen::Map<Eigen::Vector3f> nghbr_normal (static_cast<float*> (normals_->points[nghbr].normal));
-       Eigen::Map<Eigen::Vector3f> initial_seed_normal (static_cast<float*> (normals_->points[initial_seed].normal));
-       float dot_product = fabsf (nghbr_normal.dot (initial_seed_normal));
+       arma::fvec::fixed<3> nghbr_normal (static_cast<float*> (normals_+3*nghbr));
+       arma::fvec::fixed<3> initial_seed_normal (static_cast<float*> (normals_+3*initial_seed));
+       float dot_product = fabs(arma::dot(nghbr_normal,initial_seed_normal));
        if (dot_product < cosine_threshold)
          return (false);
      }
    }
 
    // check the curvature if needed
-   if (curvature_flag_ && normals_->points[nghbr].curvature > curvature_threshold_)
+   if (curvature_flag_ && curvatures_.get()[3*nghbr] > curvature_threshold_)
      is_a_seed = false;
 
    // check the residual if needed
    if (residual_flag_)
    {
-     float data_p[4];
-     data_p[0] = input_->points[point].data[0];
-     data_p[1] = input_->points[point].data[1];
-     data_p[2] = input_->points[point].data[2];
-     data_p[3] = input_->points[point].data[3];
-     float data_n[4];
-     data_n[0] = input_->points[nghbr].data[0];
-     data_n[1] = input_->points[nghbr].data[1];
-     data_n[2] = input_->points[nghbr].data[2];
-     data_n[3] = input_->points[nghbr].data[3];
-     Eigen::Map<Eigen::Vector3f> nghbr_point (static_cast<float*> (data_n));
-     Eigen::Map<Eigen::Vector3f> initial_point (static_cast<float*> (data_p));
-     Eigen::Map<Eigen::Vector3f> initial_normal (static_cast<float*> (normals_->points[point].normal));
-     float residual = fabsf (initial_normal.dot (initial_point - nghbr_point));
+     float *p = (float*)input_->points();
+     float data_p[3];
+     data_p[0] = p[3*point+0];
+     data_p[1] = p[3*point+1];
+     data_p[2] = p[3*point+2];
+     float data_n[3];
+     data_n[0] = p[3*nghbr+0];
+     data_n[1] = p[3*nghbr+1];
+     data_n[2] = p[3*nghbr+2];
+     arma::fvec::fixed<3> nghbr_point (static_cast<float*> (data_n));
+     arma::fvec::fixed<3> initial_point (static_cast<float*> (data_p));
+     arma::fvec::fixed<3> initial_normal (static_cast<float*> (normals_+3*point));
+     float residual = fabs(arma::dot(initial_normal,(initial_point - nghbr_point)));
          if (residual > residual_threshold_)
            is_a_seed = false;
     }
@@ -668,18 +730,20 @@ RegionGrowingRGB<M>::getSegmentFromPoint (int index, arma::uvec& cluster)
      }
      // if we have already made the segmentation, then find the segment
      // to which this point belongs
-     std::vector <arma::uvec>::iterator i_segment;
+     std::vector<arma::uvec>::iterator i_segment;
+     std::vector<arma::uword> cluster_vec;
      for (i_segment = clusters_.begin (); i_segment != clusters_.end (); i_segment++)
      {
        bool segment_was_found = false;
-       for (size_t i_point = 0; i_point < i_segment->indices.size (); i_point++)
+       for (size_t i_point = 0; i_point < i_segment->size (); i_point++)
        {
-         if (i_segment->indices[i_point] == index)
+         if ((*i_segment)[i_point] == index)
          {
-            segment_was_found = true;
-           cluster.indices.clear ();
-           cluster.indices.reserve (i_segment->indices.size ());
-           std::copy (i_segment->indices.begin (), i_segment->indices.end (), std::back_inserter (cluster.indices));
+           segment_was_found = true;
+           cluster_vec.clear ();
+           cluster_vec.reserve(i_segment->size ());
+           std::copy (i_segment->begin(), i_segment->end (), std::back_inserter (cluster_vec));
+           cluster = arma::uvec(cluster_vec);
            break;
          }
        }

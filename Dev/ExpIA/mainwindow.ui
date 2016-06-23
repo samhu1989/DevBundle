@@ -101,6 +101,7 @@
     <addaction name="separator"/>
     <addaction name="actionJRCS"/>
     <addaction name="actionJRCS_Init"/>
+    <addaction name="actionRegionGrowRGB"/>
    </widget>
    <widget class="QMenu" name="menuReplay">
     <property name="title">
@@ -301,6 +302,11 @@
   <action name="actionInside_Bounding_Box">
    <property name="text">
     <string>Inside Bounding Box</string>
+   </property>
+  </action>
+  <action name="actionRegionGrowRGB">
+   <property name="text">
+    <string>RegionGrowRGB</string>
    </property>
   </action>
  </widget>
