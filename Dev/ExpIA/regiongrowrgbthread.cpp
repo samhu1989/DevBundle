@@ -16,6 +16,17 @@ RegionGrowRGBThread::RegionGrowRGBThread(
 bool RegionGrowRGBThread::configure(Config::Ptr config)
 {
     config_ = config;
+    if(config_->has("JRCS_verbose"))
+    {
+        verbose_=config_->getInt("JRCS_verbose");
+    }
+    if(!config_->has("NormalEstimation_k"))return false;
+    if(!config_->has("RegionGrow_k"))return false;
+    if(!config_->has("RegionGrow_r"))return false;
+    if(!config_->has("RegionGrow_cluster_min_num"))return false;
+    if(!config_->has("RegionGrow_cluster_max_num"))return false;
+    if(!config_->has("RegionGrow_max_norm_angle"))return false;
+    return true;
 }
 
 void RegionGrowRGBThread::process(void)
@@ -27,7 +38,7 @@ void RegionGrowRGBThread::process(void)
     }
     InputIterator iiter;
     OutputIterator oiter;
-    Segmentation::RegionGrowing<DefaultMesh> seg;
+    Segmentation::RegionGrowingRGB<DefaultMesh> seg;
 
     seg.setNumberOfNeighbours(config_->getInt("RegionGrow_k"));
     seg.setMinClusterSize(config_->getInt("RegionGrow_cluster_min_num"));
@@ -35,6 +46,8 @@ void RegionGrowRGBThread::process(void)
     seg.setSmoothnessThreshold(config_->getFloat("RegionGrow_max_norm_angle")*M_PI/180.0);
     seg.setCurvatureThreshold(std::numeric_limits<float>::max());
     seg.setRadiusOfNeighbours(config_->getFloat("RegionGrow_r"));
+
+    if(verbose_>0)std::cerr<<"RegionGrowRGBThread::process(void)"<<std::endl;
 
     oiter = labels_.begin();
     timer_.restart();
@@ -61,25 +74,30 @@ void RegionGrowRGBThread::process(void)
             seg.getCurvatures() = curvature;
             seg.extract(*oiter);
         }
+//        std::cerr<<"done region grow"<<std::endl;
         //assigning unknown to cloest
         arma::uvec knownIndices = arma::find( *oiter != 0 );
         arma::uvec unknownIndices = arma::find( *oiter == 0 );
-        arma::fmat data((float*)input.mesh_.points(),3,input.mesh_.n_vertices(),false,true);
-        arma::fmat knownData = data.cols(knownIndices);
-        arma::fmat unknownData = data.cols(unknownIndices);
-        ArmaKDTreeInterface<arma::fmat> points(knownData);
-        KDTreeSingleIndexAdaptor<
-                L2_Simple_Adaptor<float,ArmaKDTreeInterface<arma::fmat>>,
-                ArmaKDTreeInterface<arma::fmat>,
-                3,arma::uword>
-                kdtree(3,points,KDTreeSingleIndexAdaptorParams(1));
-        kdtree.buildIndex();
-        arma::uvec rindices(1);
-        arma::fvec dists(1);
-        for(size_t i = 0 ; i < unknownData.n_cols ; ++i )
+        if((!knownIndices.empty())&&!(unknownIndices.empty()))
         {
-            kdtree.knnSearch(unknownData.colptr(i),1,rindices.memptr(),dists.memptr());
-            (*oiter)(unknownIndices(i)) = (*oiter)(knownIndices(rindices(0)));
+            arma::fmat data((float*)input.mesh_.points(),3,input.mesh_.n_vertices(),false,true);
+            std::cerr<<"data.n_cols:"<<data.n_cols<<std::endl;
+            arma::fmat knownData = data.cols(knownIndices);
+            arma::fmat unknownData = data.cols(unknownIndices);
+            ArmaKDTreeInterface<arma::fmat> points(knownData);
+            KDTreeSingleIndexAdaptor<
+                    L2_Simple_Adaptor<float,ArmaKDTreeInterface<arma::fmat>>,
+                    ArmaKDTreeInterface<arma::fmat>,
+                    3,arma::uword>
+                    kdtree(3,points,KDTreeSingleIndexAdaptorParams(1));
+            kdtree.buildIndex();
+            arma::uvec rindices(1);
+            arma::fvec dists(1);
+            for(size_t i = 0 ; i < unknownData.n_cols ; ++i )
+            {
+                kdtree.knnSearch(unknownData.colptr(i),1,rindices.memptr(),dists.memptr());
+                (*oiter)(unknownIndices(i)) = (*oiter)(knownIndices(rindices(0)));
+            }
         }
         input.custom_color_.fromlabel(*oiter);
         ++oiter;

@@ -163,12 +163,16 @@ RegionGrowingRGB<M>::extract(arma::uvec& clusters)
   segment_labels_.clear ();
   number_of_segments_ = 0;
 
+//  std::cerr<<"0"<<std::endl;
+
   bool segmentation_is_possible = initCompute ();
   if ( !segmentation_is_possible )
   {
     deinitCompute ();
     return;
   }
+
+//  std::cerr<<"1"<<std::endl;
 
   segmentation_is_possible = prepareForSegmentation ();
   if ( !segmentation_is_possible )
@@ -177,12 +181,21 @@ RegionGrowingRGB<M>::extract(arma::uvec& clusters)
     return;
   }
 
+//  std::cerr<<"2"<<std::endl;
+
   findPointNeighbours();
   applySmoothRegionGrowingAlgorithm();
   RegionGrowing<M>::assembleRegions();
 
+//  std::cerr<<"3"<<std::endl;
+
   findSegmentNeighbours();
+
+//  std::cerr<<"3.5"<<std::endl;
+
   applyRegionMergingAlgorithm();
+
+//  std::cerr<<"4"<<std::endl;
 
   std::vector<arma::uvec>::iterator cluster_iter = clusters_.begin ();
   while (cluster_iter != clusters_.end ())
@@ -195,19 +208,14 @@ RegionGrowingRGB<M>::extract(arma::uvec& clusters)
        else
             cluster_iter++;
   }
+//  std::cerr<<"5"<<std::endl;
   arma::uword label = 1;
-  while (cluster_iter != clusters_.end ())
+  while(cluster_iter != clusters_.end ())
   {
-       if (static_cast<int> (cluster_iter->size()) < min_pts_per_cluster_ ||
-           static_cast<int> (cluster_iter->size()) > max_pts_per_cluster_)
-       {
-            cluster_iter = clusters_.erase (cluster_iter);
-       }
-       else
-            cluster_iter++;
        clusters(*cluster_iter).fill(label);
        ++label;
   }
+//  std::cerr<<"6"<<std::endl;
   deinitCompute ();
 }
 
@@ -267,6 +275,7 @@ RegionGrowingRGB<M>::findPointNeighbours ()
 {
     int point_number = static_cast<int> (indices_.size());
     point_neighbours_.resize (input_->n_vertices());
+    point_distances_.resize (input_->n_vertices());
     float* pts_ptr = (float*)input_->points();
 //    std::vector<std::pair<arma::uword,float>> radiusResult;
     arma::uword* knnNeighbors = new arma::uword[neighbour_number_];
@@ -282,18 +291,21 @@ RegionGrowingRGB<M>::findPointNeighbours ()
         for(int k=0;k<neighbour_number_;++k)
         {
             point_neighbours_[pi].push_back(indices_(knnNeighbors[k]));
+            point_distances_[pi].push_back(knnDistance[k]);
         }
-
     }
 }
 
 template <typename M> void
 RegionGrowingRGB<M>::findSegmentNeighbours()
 {
+//  std::cerr<<"RegionGrowingRGB<M>::findSegmentNeighbours(0)"<<std::endl;
+//  std::cerr<<"number of segments:"<<number_of_segments_<<std::endl;
   std::vector<int> neighbours;
   std::vector<float> distances;
   segment_neighbours_.resize (number_of_segments_, neighbours);
   segment_distances_.resize (number_of_segments_, distances);
+//  std::cerr<<"RegionGrowingRGB<M>::findSegmentNeighbours(1)"<<std::endl;
   for (int i_seg = 0; i_seg < number_of_segments_; i_seg++)
   {
        std::vector<int> nghbrs;
@@ -302,6 +314,7 @@ RegionGrowingRGB<M>::findSegmentNeighbours()
        segment_neighbours_[i_seg].swap (nghbrs);
        segment_distances_[i_seg].swap (dist);
   }
+//  std::cerr<<"RegionGrowingRGB<M>::findSegmentNeighbours(2)"<<std::endl;
 }
 
 template<typename M> void
@@ -312,31 +325,44 @@ RegionGrowingRGB<M>::findRegionsKNN(
         std::vector<float>& dist
         )
 {
+//  std::cerr<<"RegionGrowingRGB<M>::findRegionsKNN(0)"<<std::endl;
   std::vector<float> distances;
   float max_dist = std::numeric_limits<float>::max ();
   distances.resize (clusters_.size (), max_dist);
 
   int number_of_points = num_pts_in_segment_[index];
   //loop throug every point in this segment and check neighbours
+//  std::cerr<<"num_pts_in_segment_.size():"<<num_pts_in_segment_.size()<<std::endl;
+//  std::cerr<<"clusters_.size():"<<clusters_.size()<<std::endl;
+//  std::cerr<<"index:"<<index<<std::endl;
+//  std::cerr<<"point_labels_:"<<point_labels_.size()<<std::endl;
   for (int i_point = 0; i_point < number_of_points; i_point++)
   {
+    assert( i_point < clusters_[index].size());
     int point_index = static_cast<int>(clusters_[index](i_point));
-    int number_of_neighbours = static_cast<int> (point_neighbours_[point_index].size ());
+    assert( point_index < point_neighbours_.size() );
+    int number_of_neighbours = static_cast<int>(point_neighbours_[point_index].size ());
     //loop throug every neighbour of the current point, find out to which segment it belongs
     //and if it belongs to neighbouring segment and is close enough then remember segment and its distance
+//    std::cerr<<"RegionGrowingRGB<M>::findRegionsKNN(0.1)"<<std::endl;
     for (int i_nghbr = 0; i_nghbr < number_of_neighbours; i_nghbr++)
     {
         // find segment
         int segment_index = -1;
         segment_index = point_labels_[point_neighbours_[point_index][i_nghbr]];
-        if ( segment_index != index )
+        assert( (segment_index < distances.size()) );
+        if ( (segment_index != index) && ( segment_index > 0 ) )
         {
            // try to push it to the queue
-           if (distances[segment_index] > point_distances_[point_index][i_nghbr])
+           assert( point_index < point_distances_.size() );
+           assert( i_nghbr < point_distances_[point_index].size() );
+           if ( distances[segment_index] > point_distances_[point_index][i_nghbr] )
              distances[segment_index] = point_distances_[point_index][i_nghbr];
         }
      }
+//    std::cerr<<"RegionGrowingRGB<M>::findRegionsKNN(0.2)"<<std::endl;
   }// next point
+//  std::cerr<<"RegionGrowingRGB<M>::findRegionsKNN(1)"<<std::endl;
 
   std::priority_queue<std::pair<float, int> > segment_neighbours;
   for (int i_seg = 0; i_seg < number_of_segments_; i_seg++)
@@ -348,7 +374,7 @@ RegionGrowingRGB<M>::findRegionsKNN(
             segment_neighbours.pop ();
     }
   }
-
+//  std::cerr<<"RegionGrowingRGB<M>::findRegionsKNN(2)"<<std::endl;
   int size = std::min<int> (static_cast<int> (segment_neighbours.size ()), nghbr_number);
   nghbrs.resize (size, 0);
   dist.resize (size, 0);
@@ -360,6 +386,7 @@ RegionGrowingRGB<M>::findRegionsKNN(
     segment_neighbours.pop();
     counter++;
   }
+//  std::cerr<<"RegionGrowingRGB<M>::findRegionsKNN(3)"<<std::endl;
 }
 
 template <typename M> void
