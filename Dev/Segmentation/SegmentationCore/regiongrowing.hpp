@@ -504,6 +504,7 @@ RegionGrowing<M>::applySmoothRegionGrowingAlgorithm ()
         break;
       }
     }
+//    std::cerr<<"pts_in_segments:"<<pts_in_segment<<std::endl;
   }
 }
 

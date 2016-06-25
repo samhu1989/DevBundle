@@ -46,6 +46,8 @@ void RegionGrowRGBThread::process(void)
     seg.setSmoothnessThreshold(config_->getFloat("RegionGrow_max_norm_angle")*M_PI/180.0);
     seg.setCurvatureThreshold(std::numeric_limits<float>::max());
     seg.setRadiusOfNeighbours(config_->getFloat("RegionGrow_r"));
+    seg.setPointColorThreshold(5.0);
+    seg.setRegionColorThreshold(6.0);
 
     if(verbose_>0)std::cerr<<"RegionGrowRGBThread::process(void)"<<std::endl;
 
@@ -81,7 +83,7 @@ void RegionGrowRGBThread::process(void)
         if((!knownIndices.empty())&&!(unknownIndices.empty()))
         {
             arma::fmat data((float*)input.mesh_.points(),3,input.mesh_.n_vertices(),false,true);
-            std::cerr<<"data.n_cols:"<<data.n_cols<<std::endl;
+//            std::cerr<<"data.n_cols:"<<data.n_cols<<std::endl;
             arma::fmat knownData = data.cols(knownIndices);
             arma::fmat unknownData = data.cols(unknownIndices);
             ArmaKDTreeInterface<arma::fmat> points(knownData);

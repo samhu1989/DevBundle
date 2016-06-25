@@ -43,6 +43,12 @@ RegionGrowingRGB<M>::setPointColorThreshold(float thresh)
     color_p2p_threshold_ = thresh * thresh;
 }
 
+template <typename M> void
+RegionGrowingRGB<M>::setRegionColorThreshold (float thresh)
+{
+    color_r2r_threshold_ = thresh * thresh;
+}
+
 template <typename M> float
 RegionGrowingRGB<M>::getRegionColorThreshold () const
 {
@@ -150,10 +156,11 @@ RegionGrowingRGB<M>::extract (std::vector<arma::uvec>& clusters)
 }
 
 template<typename M> void
-RegionGrowingRGB<M>::extract(arma::uvec& clusters)
+RegionGrowingRGB<M>::extract(arma::uvec& labels)
 {
+  std::vector<arma::uvec> clusters;
   clusters_.clear ();
-  clusters = arma::uvec(input_->n_vertices(),arma::fill::zeros);
+  clusters.clear();
   point_neighbours_.clear ();
   point_labels_.clear ();
   num_pts_in_segment_.clear ();
@@ -187,33 +194,37 @@ RegionGrowingRGB<M>::extract(arma::uvec& clusters)
   applySmoothRegionGrowingAlgorithm();
   RegionGrowing<M>::assembleRegions();
 
-//  std::cerr<<"3"<<std::endl;
 
+//  std::cerr<<"clusters_.size():"<<clusters_.size()<<std::endl;
   findSegmentNeighbours();
-
-//  std::cerr<<"3.5"<<std::endl;
-
   applyRegionMergingAlgorithm();
 
 //  std::cerr<<"4"<<std::endl;
 
-  std::vector<arma::uvec>::iterator cluster_iter = clusters_.begin ();
-  while (cluster_iter != clusters_.end ())
+  clusters.resize (clusters_.size ());
+  std::vector<arma::uvec>::iterator cluster_iter_input = clusters.begin ();
+  for (std::vector<arma::uvec>::const_iterator cluster_iter = clusters_.begin (); cluster_iter != clusters_.end (); cluster_iter++)
   {
-       if (static_cast<int> (cluster_iter->size()) < min_pts_per_cluster_ ||
-           static_cast<int> (cluster_iter->size()) > max_pts_per_cluster_)
-       {
-            cluster_iter = clusters_.erase (cluster_iter);
-       }
-       else
-            cluster_iter++;
+    if ((static_cast<int> (cluster_iter->size ()) >= min_pts_per_cluster_) &&
+        (static_cast<int> (cluster_iter->size ()) <= max_pts_per_cluster_))
+    {
+      *cluster_iter_input = *cluster_iter;
+      cluster_iter_input++;
+    }
   }
-//  std::cerr<<"5"<<std::endl;
-  arma::uword label = 1;
-  while(cluster_iter != clusters_.end ())
+  clusters_ = std::vector<arma::uvec> (clusters.begin (), cluster_iter_input);
+  clusters.resize(clusters_.size());
+  arma::uword baselabel=0;
+  if(indices_.size()!=labels.size())
   {
-       clusters(*cluster_iter).fill(label);
-       ++label;
+      arma::uvec tmplabel = labels;
+      tmplabel.elem(indices_).fill(0);
+      baselabel = arma::max(tmplabel);
+  }
+  int l;
+  for(l=0;l<clusters.size();++l)
+  {
+      labels.elem(clusters[l]).fill(arma::uword(baselabel+l+1));
   }
 //  std::cerr<<"6"<<std::endl;
   deinitCompute ();
