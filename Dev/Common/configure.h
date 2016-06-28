@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <QMap>
+#include <vector>
 class COMMONSHARED_EXPORT Config
 {
 public:

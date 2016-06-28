@@ -31,7 +31,7 @@ void dggsvd(
     arma::vec beta(n,arma::fill::zeros);
     U = arma::mat(m,m,arma::fill::zeros);
     V = arma::mat(p,p,arma::fill::zeros);
-    LAPACKE_dggsvd(LAPACK_COL_MAJOR,
+    LAPACKE_dggsvd3(LAPACK_COL_MAJOR,
                    'U','V','Q',
                    m,n,p,&k,&l,
                    A_.memptr(),m,

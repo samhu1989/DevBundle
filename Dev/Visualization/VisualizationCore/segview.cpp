@@ -27,12 +27,13 @@ void SegView::paintEvent(QPaintEvent* e)
             for(int x=0;x<img.width();++x)
             {
                 int h,s,l,ch_l;
-                QColor cv = img_.pixelColor(x,y);
+                QColor cv(img_.pixel(x,y));
                 arma::uword ci = map_.key( label_(x+y*img_.width()) );
                 QColor ch = QColor::fromRgb(ci);
                 cv.getHsl(&h,&s,&l);
                 ch.getHsl(&h,&s,&ch_l);
-                img.setPixelColor(x,y,QColor::fromHsl(h,s,(ch_l+l)/2));
+                QColor combine = QColor::fromHsl(h,s,(ch_l+l)/2);
+                img.setPixel(x,y,combine.rgb());
             }
         ui->label->setPixmap(QPixmap::fromImage(img));
     }else{
