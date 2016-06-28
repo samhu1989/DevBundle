@@ -1,8 +1,6 @@
 #ifndef COLORHISTOGRAM_HPP
 #define COLORHISTOGRAM_HPP
 #include "colorhistogram.h"
-#include "common.h"
-#include <armadillo>
 namespace Feature
 {
 template<typename Mesh>
@@ -33,6 +31,26 @@ void ColorHistogramLab<Mesh>::extract(const Mesh&m,arma::vec&hist)
     hist *= hist.size();
 }
 template<typename Mesh>
+void ColorHistogramLab<Mesh>::extract(const Mesh&m,std::vector<double>&hist)
+{
+    hist.resize((NL_+ 1)*(Na_+1)*(Nb_+1),1.0);
+    arma::Mat<uint8_t> rgb_mat((uint8_t*)m.vertex_colors(),3,m.n_vertices(),false,true);
+    arma::fmat Lab_mat;
+    ColorArray::RGB2Lab(rgb_mat,Lab_mat);
+    double sum = 0.0;
+    for( size_t index = 0 ; index < Lab_mat.n_cols ; ++index )
+    {
+        arma::fvec Lab = Lab_mat.col(index);
+        hist[( indexL(Lab(0))*Na_ + indexa(Lab(1)) )*Nb_ + indexb(Lab(2))]+= 1.0 ;
+        sum += 1.0;
+    }
+    #pragma omp parallel for
+    for(int i=0;i<hist.size();++i)
+    {
+        hist[i] *= (hist.size()/sum);
+    }
+}
+template<typename Mesh>
 void ColorHistogramLab<Mesh>::extract(const Mesh& m,arma::fvec& feature)
 {
     arma::vec ff;
@@ -49,6 +67,25 @@ ColorHistogramRGB<Mesh>::ColorHistogramRGB(
     stepr_ = 255.0 / Nr_;
     stepg_ = 255.0 / Ng_;
     stepb_ = 255.0 / Nb_;
+}
+template<typename Mesh>
+void ColorHistogramRGB<Mesh>::extract(const Mesh&m,std::vector<double>&hist)
+{
+    hist.resize(Nr_*Ng_*Nb_ ,1.0);
+    arma::Mat<uint8_t> rgb_mat((uint8_t*)m.vertex_colors(),3,m.n_vertices(),false,true);
+    arma::fmat frgb_mat = arma::conv_to<arma::fmat>::from(rgb_mat);
+    double sum = .0;
+    for( size_t index = 0 ; index < frgb_mat.n_cols ; ++index )
+    {
+        arma::fvec rgb = frgb_mat.col(index);
+        hist[( indexr(rgb(0))*Ng_ + indexg(rgb(1)) )*Nb_ + indexb(rgb(2))] += 1.0 ;
+        sum += 1.0;
+    }
+    #pragma omp parallel for
+    for(int i=0;i<hist.size();++i)
+    {
+        hist[i] *= (hist.size()/sum);
+    }
 }
 template<typename Mesh>
 void ColorHistogramRGB<Mesh>::extract(const Mesh&m,arma::vec&hist)

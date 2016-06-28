@@ -65,7 +65,17 @@ void JRCSInitBase::extract_patch_features()
             {
                 extractMesh<DefaultMesh>(*vv_[lindex],*vn_[lindex],*vc_[lindex],extracted_label,extracted_mesh);
                 arma::vec feature;
+                if(verbose_>0)
+                {
+                    std::cerr<<"start extract_patch_feature"<<std::endl;
+                    std::cerr<<"label_value:"<<label_value<<std::endl;
+                    std::cerr<<"extracted_mesh.n_vertices():"<<extracted_mesh.n_vertices()<<std::endl;
+                }
                 extract_patch_feature(extracted_mesh,feature,config_);
+                if(verbose_>0)
+                {
+                    std::cerr<<"done extract_patch_feature"<<std::endl;
+                }
                 assert(feature.is_finite());
 //                feature_dim = feature.size();
                 if( input_patch_label_value_.size() <= lindex )

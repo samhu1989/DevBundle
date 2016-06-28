@@ -1,5 +1,6 @@
 #ifndef COLORHISTOGRAM_H
 #define COLORHISTOGRAM_H
+#include <armadillo>
 #include "common.h"
 namespace Feature
 {
@@ -14,6 +15,7 @@ public:
             );
     void extract(const Mesh&,arma::vec&);
     void extract(const Mesh&,arma::fvec&);
+    void extract(const Mesh&,std::vector<double>&hist);
 protected:
     inline uint64_t indexL(float L)
     {
@@ -46,6 +48,7 @@ public:
             );
     void extract(const Mesh&,arma::vec&);
     void extract(const Mesh&,arma::fvec&);
+    void extract(const Mesh&,std::vector<double>&hist);
 protected:
     inline uint64_t indexr(float r)
     {
@@ -71,5 +74,4 @@ private:
     float stepb_;
 };
 }
-#include "colorhistogram.hpp"
 #endif // COLORHISTOGRAM_H

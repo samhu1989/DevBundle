@@ -26,6 +26,8 @@ bool RegionGrowRGBThread::configure(Config::Ptr config)
     if(!config_->has("RegionGrow_cluster_min_num"))return false;
     if(!config_->has("RegionGrow_cluster_max_num"))return false;
     if(!config_->has("RegionGrow_max_norm_angle"))return false;
+    if(!config_->has("RegionGrow_p2p_color_th"))return false;
+    if(!config_->has("RegionGrow_r2r_color_th"))return false;
     return true;
 }
 
@@ -44,10 +46,11 @@ void RegionGrowRGBThread::process(void)
     seg.setMinClusterSize(config_->getInt("RegionGrow_cluster_min_num"));
     seg.setMaxClusterSize(config_->getInt("RegionGrow_cluster_max_num"));
     seg.setSmoothnessThreshold(config_->getFloat("RegionGrow_max_norm_angle")*M_PI/180.0);
-    seg.setCurvatureThreshold(std::numeric_limits<float>::max());
+    seg.setCurvatureThreshold(config_->getFloat("RegionGrow_max_curvatrue"));
     seg.setRadiusOfNeighbours(config_->getFloat("RegionGrow_r"));
-    seg.setPointColorThreshold(5.0);
-    seg.setRegionColorThreshold(6.0);
+    seg.setDistanceThreshold(config_->getFloat("RegionGrow_r"));
+    seg.setPointColorThreshold(config_->getFloat("RegionGrow_p2p_color_th"));
+    seg.setRegionColorThreshold(config_->getFloat("RegionGrow_r2r_color_th"));
 
     if(verbose_>0)std::cerr<<"RegionGrowRGBThread::process(void)"<<std::endl;
 

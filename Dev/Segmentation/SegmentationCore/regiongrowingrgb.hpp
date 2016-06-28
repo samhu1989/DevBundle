@@ -553,9 +553,13 @@ template <typename M> float
 RegionGrowingRGB<M>::calculateColorimetricalDifference (std::vector<unsigned int>& first_color, std::vector<unsigned int>& second_color) const
 {
   float difference = 0.0f;
-  difference += float ((first_color[0] - second_color[0]) * (first_color[0] - second_color[0]));
-  difference += float ((first_color[1] - second_color[1]) * (first_color[1] - second_color[1]));
-  difference += float ((first_color[2] - second_color[2]) * (first_color[2] - second_color[2]));
+  arma::Col<uint8_t> first_rgb = arma::conv_to<arma::Col<uint8_t>>::from(first_color);
+  arma::Col<uint8_t> second_rgb = arma::conv_to<arma::Col<uint8_t>>::from(second_color);
+  arma::fvec::fixed<3> first_Lab,second_Lab;
+  ColorArray::RGB2Lab(first_rgb,first_Lab);
+  ColorArray::RGB2Lab(second_rgb,second_Lab);
+  difference += float ( ( first_Lab(1) - second_Lab(1) ) * (first_Lab(1) - second_Lab(1)));
+  difference += float ((first_Lab(2) - second_Lab(2)) * (first_Lab(2) - second_Lab(2)));
   return (difference);
 }
 
