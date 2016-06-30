@@ -4,7 +4,9 @@
 #include <QThread>
 #include <QImage>
 #include <armadillo>
-
+#include <QTimer>
+#include "common.h"
+#include "meshpairviewerwidget.h"
 namespace Ui {
 class MainWindow;
 }
@@ -15,18 +17,30 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-public slots:
+protected slots:
     void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
 
     void load_img(void);
     void load_annotation(void);
 
+    void load_mesh(void);
+    void read_mesh(const QString& filename);
+    void view_mesh(void);
+
     void start_editing();
     void finish_editing();
+
+protected:
+    bool open_mesh(DefaultMesh&,const std::string&);
+
 protected:
     QImage input_img_;
     arma::uvec annotation_;
     QHash<arma::uword,arma::uword> colortolabel_;
+
+    MeshBundle<DefaultMesh>::Ptr input_mesh_;
+    std::shared_ptr<MeshPairViewerWidget> input_mesh_view_;
+    QTimer gl_timer_;
 private:
     Ui::MainWindow *ui;
     QThread* edit_thread_;

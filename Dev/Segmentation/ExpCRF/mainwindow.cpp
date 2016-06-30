@@ -7,6 +7,9 @@
 #include "segview.h"
 #include <QMdiSubWindow>
 #include "densecrf.h"
+#include <OpenMesh/Tools/Utils/Timer.hh>
+#include "visualizationcore.h"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     edit_thread_(NULL),
@@ -17,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCRF3D,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionLoad_Image,SIGNAL(triggered(bool)),this,SLOT(load_img()));
     connect(ui->actionLoad_Annotation,SIGNAL(triggered(bool)),this,SLOT(load_annotation()));
+    connect(ui->actionLoad_Input_Mesh,SIGNAL(triggered(bool)),this,SLOT(load_mesh()));
 }
 
 MainWindow::~MainWindow()
@@ -83,6 +87,134 @@ void MainWindow::load_annotation(void)
         QString msg = "Failed to load "+fileName+"\n";
         QMessageBox::critical(this, windowTitle(), msg);
     }
+}
+
+void MainWindow::load_mesh(void)
+{
+    QString fileNames = QFileDialog::getOpenFileName(this,
+        tr("Open Source file"),
+        tr("../Dev_Data/"),
+        tr(
+        "PLY Files (*.ply);;"
+        "OBJ Files (*.obj);;"
+        "OFF Files (*.off);;"
+        "STL Files (*.stl);;"
+        "All Files (*)"));
+    if (!fileNames.isEmpty())
+    {
+        read_mesh(fileNames);
+        view_mesh();
+    };
+}
+
+void MainWindow::read_mesh(const QString &filename)
+{
+    input_mesh_.reset(new MeshBundle<DefaultMesh>);
+    ui->statusBar->showMessage(tr("Loading:")+filename,5);
+    open_mesh(input_mesh_->mesh_,filename.toStdString());
+    QFileInfo info(filename);
+    input_mesh_->name_ = info.completeBaseName().toStdString();
+}
+
+void MainWindow::view_mesh(void)
+{
+    gl_timer_.stop();
+    ui->mdiArea->closeAllSubWindows();
+    ui->actionLabel_Mask->setChecked(false);
+    MeshBundle<DefaultMesh>::Ptr& bundle_ptr = input_mesh_;
+    input_mesh_view_.reset( new MeshPairViewerWidget(this) );
+    input_mesh_view_->first_ptr() = bundle_ptr;
+    input_mesh_view_->setMinimumSize(300,200);
+    input_mesh_view_->set_center_at_mesh(bundle_ptr->mesh_);
+    input_mesh_view_->setWindowTitle(QString::fromStdString(bundle_ptr->name_));
+    connect(ui->actionLabel_Mask,SIGNAL(toggled(bool)),input_mesh_view_.get(),SLOT(use_custom_color(bool)));
+    connect(&gl_timer_,SIGNAL(timeout()),input_mesh_view_.get(),SLOT(updateGL()));
+    showInMdi((QWidget*)input_mesh_view_.get(),Qt::Widget|Qt::WindowMinMaxButtonsHint);
+    gl_timer_.start(100);
+}
+
+bool MainWindow::open_mesh(DefaultMesh& mesh_,const std::string&_filename)
+{
+    OpenMesh::FPropHandleT< DefaultMesh::Point > fp_normal_base_;
+
+    mesh_.request_face_normals();
+    mesh_.request_face_colors();
+    mesh_.request_vertex_normals();
+    mesh_.request_vertex_colors();
+    mesh_.request_vertex_texcoords2D();
+
+    using namespace OpenMesh;
+
+    IO::Options io_opt_;
+    io_opt_ += OpenMesh::IO::Options::VertexColor;
+    io_opt_ += OpenMesh::IO::Options::VertexNormal;
+    io_opt_ += OpenMesh::IO::Options::VertexTexCoord;
+    io_opt_ += OpenMesh::IO::Options::FaceColor;
+    io_opt_ += OpenMesh::IO::Options::FaceNormal;
+    io_opt_ += OpenMesh::IO::Options::FaceTexCoord;
+    std::cout << "Loading from file '" << _filename << "'\n";
+    if ( IO::read_mesh(mesh_, _filename, io_opt_ ) )
+    {
+      // store read option
+//      io_opt_ = _opt;
+
+      // update face and vertex normals
+      if ( ! io_opt_.check( IO::Options::FaceNormal ) )
+        mesh_.update_face_normals();
+      else
+        std::cerr << "File provides face normals\n";
+
+      if ( ! io_opt_.check( IO::Options::VertexNormal ) )
+        mesh_.update_vertex_normals();
+      else
+        std::cerr << "File provides vertex normals\n";
+
+
+      // check for possible color information
+      if ( io_opt_.check( IO::Options::VertexColor ) )
+      {
+        std::cerr << "File provides vertex colors\n";
+      }
+      else
+        mesh_.release_vertex_colors();
+
+      if ( io_opt_.check( IO::Options::FaceColor ) )
+      {
+        std::cerr << "File provides face colors\n";
+      }
+      else
+        mesh_.release_face_colors();
+
+      if ( io_opt_.check( IO::Options::VertexTexCoord ) )
+        std::cerr << "File provides texture coordinates\n";
+
+      // info
+      std::clog << mesh_.n_vertices() << " vertices, "
+            << mesh_.n_edges()    << " edge, "
+            << mesh_.n_faces()    << " faces\n";
+
+      // base point for displaying face normals
+      {
+        OpenMesh::Utils::Timer t;
+        t.start();
+        mesh_.add_property( fp_normal_base_ );
+        DefaultMesh::FaceIter f_it = mesh_.faces_begin();
+        DefaultMesh::FaceVertexIter fv_it;
+        for (;f_it != mesh_.faces_end(); ++f_it)
+        {
+          DefaultMesh::Point v(0,0,0);
+          for( fv_it=mesh_.fv_iter(*f_it); fv_it.is_valid(); ++fv_it)
+            v += OpenMesh::vector_cast<DefaultMesh::Normal>(mesh_.point(*fv_it));
+          v *= 1.0f/3.0f;
+          mesh_.property( fp_normal_base_, *f_it ) = v;
+        }
+        t.stop();
+        std::clog << "Computed base point for displaying face normals ["
+                  << t.as_string() << "]" << std::endl;
+      }
+      return true;
+    }
+    return false;
 }
 
 void MainWindow::start_editing()
