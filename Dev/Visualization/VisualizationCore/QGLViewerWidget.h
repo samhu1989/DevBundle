@@ -88,9 +88,12 @@ public:
 
   // Destructor.
   virtual ~QGLViewerWidget();
-
 public slots:
   void setBackgroundColor(QColor);
+  void rect_select(bool select){
+      rect_select_=select;
+      rect_selecting_ = false;
+  }
 
 private:
 
@@ -210,6 +213,10 @@ private:
   OpenMesh::Vec3f  last_point_3D_;
   bool             last_point_ok_;
   bool             show_coordinates_;
+
+  bool             rect_select_;
+  bool             rect_selecting_;
+  QPoint           rect_point_2D_;
 
   float coord_[18];
   GLushort coord_index_[6];

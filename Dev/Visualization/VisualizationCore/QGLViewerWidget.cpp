@@ -135,6 +135,8 @@ QGLViewerWidget::init(void)
 	   this, SLOT(slotDrawMode(QAction*)));
 
 
+  rect_select_ = false;
+  rect_selecting_ = false;
   // init draw modes
   n_draw_modes_ = 0;
   //draw_mode_ = 4;
@@ -332,7 +334,14 @@ QGLViewerWidget::mousePressEvent( QMouseEvent* _event )
       arma::fvec w0,w1;
       map_to_world(p0,w0);
       map_to_world(p1,w1);
-      selections_.emplace_back(new RayPointSelection(w0,w1));
+      if(rect_select_)
+      {
+          BoxPointsSelection* box_select = new BoxPointsSelection();
+          box_select->setNear(w0);
+          rect_point_2D_ = _event->pos();
+          selections_.emplace_back(box_select);
+          rect_selecting_ = true;
+      }else selections_.emplace_back(new RayPointSelection(w0,w1));
   }else
   {
     last_point_ok_ = map_to_sphere( last_point_2D_=_event->pos(),
@@ -367,74 +376,94 @@ QGLViewerWidget::mouseMoveEvent( QMouseEvent* _event )
 
   // enable GL context
   makeCurrent();
-
-  
-  // move in z direction
-  if ( (_event->buttons() == (LeftButton+MidButton)) ||
-	  (_event->buttons() == LeftButton && _event->modifiers() == ControlModifier))
+  if(rect_selecting_)
   {
-    float value_y = radius_ * dy * 3.0 / h;
-    translate(Vec3f(0.0, 0.0, value_y));
-  }
-	
-
-  // move in x,y direction
-  else if ( (_event->buttons() == MidButton) ||
-			(_event->buttons() == LeftButton && _event->modifiers() == AltModifier) )
-  {
-    float z = - (modelview_matrix_[ 2]*center_[0] + 
-		 modelview_matrix_[ 6]*center_[1] + 
-		 modelview_matrix_[10]*center_[2] + 
-		 modelview_matrix_[14]) /
-                (modelview_matrix_[ 3]*center_[0] + 
-	         modelview_matrix_[ 7]*center_[1] + 
-	         modelview_matrix_[11]*center_[2] + 
-	         modelview_matrix_[15]);
-
-    float aspect     = w / h;
-    float near_plane = 0.01 * radius_;
-    float top        = tan(fovy()/2.0f*M_PI/180.0f) * near_plane;
-    float right      = aspect*top;
-
-    translate(Vec3f( 2.0*dx/w*right/near_plane*z, 
-		    -2.0*dy/h*top/near_plane*z, 
-		     0.0f));
-  }
-
-
-	
-  // rotate
-  else if (_event->buttons() == LeftButton) {
-
-    if (last_point_ok_) {
-      if ((newPoint_hitSphere = map_to_sphere(newPoint2D, newPoint3D))) {
-        Vec3f axis = last_point_3D_ % newPoint3D;
-        if (axis.sqrnorm() < 1e-7) {
-          axis = Vec3f(1, 0, 0);
-        } else {
-          axis.normalize();
-        }
-        // find the amount of rotation
-        Vec3f d = last_point_3D_ - newPoint3D;
-        float t = 0.5 * d.norm() / TRACKBALL_RADIUS;
-        if (t < -1.0)
-          t = -1.0;
-        else if (t > 1.0)
-          t = 1.0;
-        float phi = 2.0 * asin(t);
-        float angle = phi * 180.0 / M_PI;
-        rotate(axis, angle);
+      if(_event->button() == LeftButton && _event->modifiers() == ShiftModifier)
+      {
+          arma::fmat::fixed<3,4> rect;
+          Vec3f  tmp3d;
+          arma::fvec tmp3d_v(tmp3d.data(),3,false,true);
+          QPoint p0 = rect_point_2D_;
+          QPoint p2 = _event->pos();
+          QPoint p1(p0.x(),p2.y());
+          QPoint p3(p2.x(),p0.y());
+          arma::fvec w0(rect.colptr(0),3,false,true);
+          arma::fvec w1(rect.colptr(1),3,false,true);
+          arma::fvec w2(rect.colptr(2),3,false,true);
+          arma::fvec w3(rect.colptr(3),3,false,true);
+          map_to_far(p0,tmp3d);
+          map_to_world(tmp3d_v,w0);
+          map_to_far(p1,tmp3d);
+          map_to_world(tmp3d_v,w1);
+          map_to_far(p2,tmp3d);
+          map_to_world(tmp3d_v,w2);
+          map_to_far(p3,tmp3d);
+          map_to_world(tmp3d_v,w3);
+          if(rect_select_)
+          {
+              BoxPointsSelection* box_select =  dynamic_cast<BoxPointsSelection*>(selections_.back().get());
+              box_select->setRect(rect);
+          }
       }
-    }
+  }else
+  {
+      // move in z direction
+      if ( (_event->buttons() == (LeftButton+MidButton)) ||
+           (_event->buttons() == LeftButton && _event->modifiers() == ControlModifier))
+      {
+          float value_y = radius_ * dy * 3.0 / h;
+          translate(Vec3f(0.0, 0.0, value_y));
+      }
+      // move in x,y direction
+      else if ( (_event->buttons() == MidButton) ||
+                (_event->buttons() == LeftButton && _event->modifiers() == AltModifier) )
+      {
+          float z = - (modelview_matrix_[ 2]*center_[0] +
+                  modelview_matrix_[ 6]*center_[1] +
+                  modelview_matrix_[10]*center_[2] +
+                  modelview_matrix_[14]) /
+                  (modelview_matrix_[ 3]*center_[0] +
+                  modelview_matrix_[ 7]*center_[1] +
+                  modelview_matrix_[11]*center_[2] +
+                  modelview_matrix_[15]);
 
+          float aspect     = w / h;
+          float near_plane = 0.01 * radius_;
+          float top        = tan(fovy()/2.0f*M_PI/180.0f) * near_plane;
+          float right      = aspect*top;
+
+          translate(Vec3f( 2.0*dx/w*right/near_plane*z,
+                           -2.0*dy/h*top/near_plane*z,
+                           0.0f));
+      }
+      // rotate
+      else if (_event->buttons() == LeftButton) {
+          if (last_point_ok_) {
+              if ((newPoint_hitSphere = map_to_sphere(newPoint2D, newPoint3D))) {
+                  Vec3f axis = last_point_3D_ % newPoint3D;
+                  if (axis.sqrnorm() < 1e-7) {
+                      axis = Vec3f(1, 0, 0);
+                  } else {
+                      axis.normalize();
+                  }
+                  // find the amount of rotation
+                  Vec3f d = last_point_3D_ - newPoint3D;
+                  float t = 0.5 * d.norm() / TRACKBALL_RADIUS;
+                  if (t < -1.0)
+                      t = -1.0;
+                  else if (t > 1.0)
+                      t = 1.0;
+                  float phi = 2.0 * asin(t);
+                  float angle = phi * 180.0 / M_PI;
+                  rotate(axis, angle);
+              }
+          }
+      }
   }
-
-
   // remember this point
   last_point_2D_ = newPoint2D;
   last_point_3D_ = newPoint3D;
   last_point_ok_ = newPoint_hitSphere;
-
   // trigger redraw
   updateGL();
 }
@@ -444,9 +473,10 @@ QGLViewerWidget::mouseMoveEvent( QMouseEvent* _event )
 
 
 void
-QGLViewerWidget::mouseReleaseEvent( QMouseEvent* /* _event */ )
+QGLViewerWidget::mouseReleaseEvent( QMouseEvent* _event )
 {  
-   last_point_ok_ = false;
+    rect_selecting_ = false;
+    last_point_ok_ = false;
 }
 
 
@@ -668,8 +698,6 @@ QGLViewerWidget::map_to_world(const arma::fvec& nds,arma::fvec& w)
 
 
 //----------------------------------------------------------------------------
-
-
 void
 QGLViewerWidget::update_projection_matrix()
 {

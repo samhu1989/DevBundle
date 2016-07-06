@@ -27,9 +27,9 @@ public:
     template<typename Mesh>
     inline void selectAll(Mesh&,arma::uvec&,double);
     template<typename Mesh>
-    inline void selectAt(size_t,Mesh&,arma::uvec&,double);
+    inline bool selectAt(size_t,Mesh&,arma::uvec&,double);
     template<typename Mesh>
-    inline void selectAt(PointSelections::iterator,Mesh&,arma::uvec&,double);
+    inline bool selectAt(PointSelections::iterator,Mesh&,arma::uvec&,double);
     void debugSelections();
 };
 
@@ -48,5 +48,26 @@ private:
     arma::fvec from_;
     arma::fvec toward_;
 };
+
+class BoxPointsSelection:public PointSelectionBase
+{
+public:
+    typedef std::shared_ptr<BoxPointsSelection> Ptr;
+    BoxPointsSelection():
+        PointSelectionBase(PointSelectionBase::BoxPoints),
+        rect_w_(3,4,arma::fill::zeros)
+    {
+        ;
+    }
+    template<typename Mesh>
+    inline void select(Mesh&,arma::uvec&,double);
+    virtual void debugSelection();
+    inline void setNear(const arma::fvec& v){near_=v;}
+    inline void setRect(const arma::fmat& rect){rect_w_=rect;}
+private:
+    arma::fvec near_;
+    arma::fmat rect_w_;
+};
+
 #include "qglpointselection.hpp"
 #endif // QGLPOINTSELECTION_H

@@ -5,17 +5,21 @@
 template<typename Mesh>
 inline void PointSelections::selectAll(Mesh&m,arma::uvec&indices,double radius)
 {
-    for(iterator iter=begin();iter!=end();++iter)
+    for(iterator iter=begin();iter!=end();  )
     {
         arma::uvec result;
-        selectAt(iter,m,result,radius);
-        indices = arma::join_cols(indices,result);
+        if(selectAt(iter,m,result,radius))
+        {
+            indices = arma::join_cols(indices,result);
+            iter = erase(iter);
+        }else{
+            ++iter;
+        }
     }
-    clear();
 }
 
 template<typename Mesh>
-inline void PointSelections::selectAt(size_t index,Mesh&m,arma::uvec&indices,double radius)
+inline bool PointSelections::selectAt(size_t index,Mesh&m,arma::uvec&indices,double radius)
 {
     PointSelectionBase::Ptr ptr = (*this)[index];
     if(ptr&&0!=ptr.use_count())
@@ -28,14 +32,23 @@ inline void PointSelections::selectAt(size_t index,Mesh&m,arma::uvec&indices,dou
                 p->select<Mesh>(m,indices,radius);
             }
             break;
+        case PointSelectionBase::BoxPoints:
+            {
+                BoxPointsSelection::Ptr p = std::dynamic_pointer_cast<BoxPointsSelection>(ptr);
+                p->debugSelection();
+
+                return false;
+            }
+            break;
         default:
             std::cerr<<"Invalid Selection Type"<<std::endl;
         }
     }
+    return true;
 }
 
 template<typename Mesh>
-inline void PointSelections::selectAt(PointSelections::iterator iter,Mesh&m,arma::uvec&indices,double radius)
+inline bool PointSelections::selectAt(PointSelections::iterator iter,Mesh&m,arma::uvec&indices,double radius)
 {
     PointSelectionBase::Ptr ptr = *iter;
     if(ptr&&0!=ptr.use_count())
@@ -48,10 +61,18 @@ inline void PointSelections::selectAt(PointSelections::iterator iter,Mesh&m,arma
                 p->select<Mesh>(m,indices,radius);
             }
             break;
+        case PointSelectionBase::BoxPoints:
+            {
+                BoxPointsSelection::Ptr p = std::dynamic_pointer_cast<BoxPointsSelection>(ptr);
+                p->debugSelection();
+                return false;
+            }
+            break;
         default:
             std::cerr<<"Invalid Selection Type"<<std::endl;
         }
     }
+    return true;
 }
 
 

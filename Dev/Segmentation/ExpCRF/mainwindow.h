@@ -6,7 +6,7 @@
 #include <armadillo>
 #include <QTimer>
 #include "common.h"
-#include "meshpairviewerwidget.h"
+#include "MeshLabelViewerWidget.h"
 namespace Ui {
 class MainWindow;
 }
@@ -35,11 +35,11 @@ protected:
 
 protected:
     QImage input_img_;
-    arma::uvec annotation_;
+    std::shared_ptr<arma::uvec> annotation_;
     QHash<arma::uword,arma::uword> colortolabel_;
 
     MeshBundle<DefaultMesh>::Ptr input_mesh_;
-    std::shared_ptr<MeshPairViewerWidget> input_mesh_view_;
+    std::shared_ptr<MeshLabelViewerWidget> input_mesh_view_;
     QTimer gl_timer_;
 private:
     Ui::MainWindow *ui;

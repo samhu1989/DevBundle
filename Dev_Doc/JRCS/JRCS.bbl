@@ -28,6 +28,13 @@
   potentials.
 \newblock In {\em Advances in Neural Information Processing Systems}, 109--117.
 
+\bibitem[\protect\citename{Ovsjanikov et~al\mbox{.}
+  }2012]{Ovsjanikov2012Functional}
+{\sc Ovsjanikov, M., Ben-Chen, M., Solomon, J., Butscher, A., and Guibas, L.}
+\newblock 2012.
+\newblock Functional maps: a flexible representation of maps between shapes.
+\newblock {\em Acm Transactions on Graphics 31}, 4, 13--15.
+
 \bibitem[\protect\citename{Wang et~al\mbox{.} }2013]{WangImageiccv2013}
 {\sc Wang, F., Huang, Q., and Guibas, L.}
 \newblock 2013.

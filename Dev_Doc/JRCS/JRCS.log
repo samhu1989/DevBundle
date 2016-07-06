@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  18 JUN 2016 22:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  4 JUL 2016 09:07
 entering extended mode
 **JRCS.tex
 (JRCS.tex
@@ -431,14 +431,14 @@ LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <9> not available
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <8> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 126.
  (introduction.tex)
-(relatedwork.tex) (method.tex
+(relatedwork.tex
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
 (Font)              scaled to size 9.19998pt on input line 3.
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <10> not available
 (Font)              Font shape `OT1/phv/b/n' tried instead on input line 3.
 LaTeX Font Info:    Font shape `OT1/phv/b/n' will be
 (Font)              scaled to size 9.19998pt on input line 3.
-
+) (method.tex
 Underfull \hbox (badness 10000) in paragraph at lines 21--31
 
  []
@@ -460,7 +460,7 @@ put line 11.
 
 ])
 (experiment&discussion.tex
-<images/synthetic_data.pdf, id=53, 952.55875pt x 484.81125pt>
+<images/synthetic_data.pdf, id=56, 952.55875pt x 484.81125pt>
 File: images/synthetic_data.pdf Graphic file (type pdf)
 
 <use images/synthetic_data.pdf>
@@ -471,7 +471,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 16--70
 
  []
 
-<images/result_iter_18.png, id=55, 992.70876pt x 958.58125pt>
+<images/result_iter_18.png, id=58, 992.70876pt x 958.58125pt>
 File: images/result_iter_18.png Graphic file (type png)
 
 <use images/result_iter_18.png>
@@ -482,21 +482,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 71--108
 
  []
 
-<images/init_input.png, id=57, 954.56625pt x 481.8pt>
+<images/init_input.png, id=60, 954.56625pt x 481.8pt>
 File: images/init_input.png Graphic file (type png)
 
 <use images/init_input.png>
 Package pdftex.def Info: images/init_input.png used on input line 111.
 (pdftex.def)             Requested size: 505.89pt x 255.33807pt.
 
-<images/init_seg.png, id=58, 956.57375pt x 483.8075pt>
+<images/init_seg.png, id=61, 956.57375pt x 483.8075pt>
 File: images/init_seg.png Graphic file (type png)
 
 <use images/init_seg.png>
 Package pdftex.def Info: images/init_seg.png used on input line 117.
 (pdftex.def)             Requested size: 505.89pt x 255.86308pt.
 
-<images/init_cluster.png, id=59, 956.57375pt x 484.81125pt>
+<images/init_cluster.png, id=62, 956.57375pt x 484.81125pt>
 File: images/init_cluster.png Graphic file (type png)
 
 <use images/init_cluster.png>
@@ -519,10 +519,10 @@ Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 188.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 188.
  ) 
 Here is how much of TeX's memory you used:
- 7683 strings out of 493698
- 114607 string characters out of 3144415
- 213623 words of memory out of 3000000
- 10838 multiletter control sequences out of 15000+200000
+ 7686 strings out of 493698
+ 114676 string characters out of 3144415
+ 214700 words of memory out of 3000000
+ 10839 multiletter control sequences out of 15000+200000
  26038 words of font info for 53 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
  43i,15n,75p,580b,436s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -540,9 +540,9 @@ iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy9.pfb><D:/Program Files/MiKTeX 2.9
 /fonts/type1/urw/helvetic/uhvb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/u
 rw/times/utmb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.p
 fb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on JRCS.pdf (5 pages, 308391 bytes).
+Output written on JRCS.pdf (5 pages, 309402 bytes).
 PDF statistics:
- 160 PDF objects out of 1000 (max. 8388607)
- 45 named destinations out of 1000 (max. 500000)
+ 163 PDF objects out of 1000 (max. 8388607)
+ 47 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

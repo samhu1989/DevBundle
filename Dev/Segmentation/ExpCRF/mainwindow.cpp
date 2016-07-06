@@ -49,7 +49,7 @@ void MainWindow::load_img(void)
         "Images Files (*.ppm,*.png,*jpg)"));
     if (fileName.isEmpty())return;
     ui->mdiArea->closeAllSubWindows();
-    annotation_.clear();
+    annotation_.reset(new arma::uvec());
     colortolabel_.clear();
     if(!input_img_.load(fileName))
     {
@@ -60,7 +60,7 @@ void MainWindow::load_img(void)
     input_img_ = input_img_.convertToFormat(QImage::Format_RGB888);
     QFileInfo info(fileName);
     input_img_.setText(tr("Path"),info.fileName());
-    SegView* segview = new SegView(input_img_,annotation_,colortolabel_);
+    SegView* segview = new SegView(input_img_,*annotation_,colortolabel_);
     segview->view_label(ui->actionLabel_Mask->isChecked());
     connect(ui->actionLabel_Mask,SIGNAL(triggered(bool)),segview,SLOT(view_label(bool)));
     showInMdi(segview);
@@ -79,11 +79,11 @@ void MainWindow::load_annotation(void)
     if(!img.isNull())
     {
         img = img.convertToFormat(QImage::Format_RGB888);
-        annotation_ = DenseCRF2D::getLabelingImg(img.bits(),img.byteCount()/3,255,colortolabel_);
+        *annotation_ = DenseCRF2D::getLabelingImg(img.bits(),img.byteCount()/3,255,colortolabel_);
     }else{
-        annotation_.load(fileName.toStdString());
+        annotation_->load(fileName.toStdString());
     }
-    if(annotation_.empty()){
+    if(annotation_->empty()){
         QString msg = "Failed to load "+fileName+"\n";
         QMessageBox::critical(this, windowTitle(), msg);
     }
@@ -122,11 +122,8 @@ void MainWindow::view_mesh(void)
     ui->mdiArea->closeAllSubWindows();
     ui->actionLabel_Mask->setChecked(false);
     MeshBundle<DefaultMesh>::Ptr& bundle_ptr = input_mesh_;
-    input_mesh_view_.reset( new MeshPairViewerWidget(this) );
-    input_mesh_view_->first_ptr() = bundle_ptr;
-    input_mesh_view_->setMinimumSize(300,200);
-    input_mesh_view_->set_center_at_mesh(bundle_ptr->mesh_);
-    input_mesh_view_->setWindowTitle(QString::fromStdString(bundle_ptr->name_));
+    input_mesh_view_.reset( new MeshLabelViewerWidget(this) );
+    input_mesh_view_->set_mesh(bundle_ptr);
     connect(ui->actionLabel_Mask,SIGNAL(toggled(bool)),input_mesh_view_.get(),SLOT(use_custom_color(bool)));
     connect(&gl_timer_,SIGNAL(timeout()),input_mesh_view_.get(),SLOT(updateGL()));
     showInMdi((QWidget*)input_mesh_view_.get(),Qt::Widget|Qt::WindowMinMaxButtonsHint);
@@ -231,7 +228,7 @@ void MainWindow::start_editing()
         QMessageBox::critical(this, windowTitle(), msg);
         return;
     }
-    if(annotation_.empty())
+    if(annotation_->empty())
     {
         QString msg = "Please Load Annotation First\n";
         QMessageBox::critical(this, windowTitle(), msg);
@@ -241,7 +238,7 @@ void MainWindow::start_editing()
     if(edit==ui->actionCRF)
     {
         edit_thread_ = new QThread();
-        CRF2D* worker = new CRF2D(input_img_,annotation_);
+        CRF2D* worker = new CRF2D(input_img_,*annotation_);
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         worker->moveToThread(edit_thread_);
         edit_thread_->setObjectName("CRF2D");
