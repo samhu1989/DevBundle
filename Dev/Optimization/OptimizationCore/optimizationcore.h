@@ -4,7 +4,7 @@
 #include "optimizationcore_global.h"
 namespace Optimization
 {
-class EnergyFunction{
+class OPTIMIZATIONCORESHARED_EXPORT EnergyFunction{
 public:
     virtual arma::vec initialValue() = 0;
     virtual double gradient( const arma::vec & x, arma::vec & dx ) = 0;
@@ -15,7 +15,7 @@ public:
     virtual ~EnergyFunction(){}
 };
 
-class Optimizer{
+class OPTIMIZATIONCORESHARED_EXPORT Optimizer{
 public:
     arma::vec minimize(EnergyFunction& efun,int restart ,bool verbose = false);
 };

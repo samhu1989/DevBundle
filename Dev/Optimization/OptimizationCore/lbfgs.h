@@ -3,7 +3,7 @@
 #include "optimizationcore.h"
 #include "LBFGS/lbfgscore.h"
 namespace Optimization{
-class LBFGS : public Optimizer
+class OPTIMIZATIONCORESHARED_EXPORT LBFGS : public Optimizer
 {
 public:
     LBFGS();

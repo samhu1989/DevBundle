@@ -23,8 +23,6 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 DESTDIR = $$OUT_PWD/../../../Dev_RunTime/bin
 
-LIBS += -lopenblas
-
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu
 
@@ -45,3 +43,13 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$DESTDIR/ -lOptimizationCore
 
 INCLUDEPATH += $$PWD/../OptimizationCore
 DEPENDPATH += $$PWD/../OptimizationCore
+
+#win32: LIBS += -L$$PWD/../../../3rdParty/CSDP/lib/ -lsdp
+
+#INCLUDEPATH += $$PWD/../../../3rdParty/CSDP/include
+#DEPENDPATH += $$PWD/../../../3rdParty/CSDP/include
+
+#win32:!win32-g++: PRE_TARGETDEPS += $$PWD/../../../3rdParty/CSDP/lib/sdp.lib
+#else:win32-g++: PRE_TARGETDEPS += $$PWD/../../../3rdParty/CSDP/lib/libsdp.a
+
+LIBS += -lopenblas
