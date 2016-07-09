@@ -61,7 +61,7 @@ public:
         As.emplace_back(3);
         arma::mat a00 = {{3,1},{1,3}};
         As[0][0] = a00;
-        As[0][1] = arma::mat(3,3,arma::fill::zeros);
+        As[0][1].clear();
         arma::vec a02 = {1,0};
         As[0][2] = a02;
         As.emplace_back(3);
@@ -71,17 +71,61 @@ public:
         arma::vec a12 = {0,1};
         As[1][2] = a12;
         setAs(As);
+        ey_<<0.75<<1.00<<arma::endr;
+        arma::vec value;
+        value<<0.25<<-0.25<<-0.25<<0.25<<2.00<<2.00<<0.75<<1.00<<arma::endr;
+        arma::umat location;
+        location<<0<<1<<0<<1<<3<<4<<5<<6<<arma::endr
+                <<0<<0<<1<<1<<3<<4<<5<<6<<arma::endr;
+        eZ_ = arma::sp_mat(location,value);
+        value.clear();
+        value<<0.125<<0.125<<0.125<<0.125<<0.667<<arma::endr;
+        location.clear();
+        location<<0<<1<<0<<1<<2<<arma::endr
+                <<0<<0<<1<<1<<2<<arma::endr;
+        eX_ = arma::sp_mat(location,value);
     }
     bool test()
     {
         if(!init())return false;
         if(!solve())return false;
+        arma::vec y;
+        arma::sp_mat Z;
         arma::sp_mat X;
+        gety(y);
+        getZ(Z);
         getX(X);
-        std::cout<<"Result X:"<<std::endl;
-        std::cout<<X<<std::endl;
-        return true;
+        bool pass = true;
+        if(!arma::approx_equal(y,ey_,"absdiff",1e-10))
+        {
+            pass = false;
+            std::cerr<<"result y:"<<std::endl;
+            std::cerr<<y<<std::endl;
+            std::cerr<<"expect y:"<<std::endl;
+            std::cerr<<ey_<<std::endl;
+        }
+        if(!arma::approx_equal(Z,eZ_,"absdiff",1e-10))
+        {
+            pass = false;
+            std::cerr<<"result Z:"<<std::endl;
+            std::cerr<<Z<<std::endl;
+            std::cerr<<"expect Z:"<<std::endl;
+            std::cerr<<eZ_<<std::endl;
+        }
+        if(!arma::approx_equal(X,eX_,"absdiff",1e-10))
+        {
+            pass = false;
+            std::cerr<<"result X:"<<std::endl;
+            std::cerr<<X<<std::endl;
+            std::cerr<<"expect X:"<<std::endl;
+            std::cerr<<eX_<<std::endl;
+        }
+        return pass;
     }
+private:
+    arma::vec ey_;
+    arma::sp_mat eX_;
+    arma::sp_mat eZ_;
 };
 
 void OptimizationTest::SDP_Example()

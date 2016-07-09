@@ -540,7 +540,7 @@ void JRCSBase::computeOnce()
                 }
             }
                 break;
-            default:
+            default: 
             {
                 if(arma::svd(U,s,V,A,"std"))
                 {
@@ -590,9 +590,9 @@ void JRCSBase::computeOnce()
 
     if(verbose_>0)std::cerr<<"Updating X:"<<std::endl;
     float N =  vvs_ptrlst_.size();
-    assert(xv_sum_.is_finite());
+    assert(xv_sum_.has_inf()||xv_sum_.has_nan());
     *xv_ptr_ = xv_sum_;
-    assert((*xv_ptr_).is_finite());
+    assert((*xv_ptr_).has_inf()||(*xv_ptr_).has_nan());
     //fix the x center position
     #pragma omp parallel for
     for(int o = 0 ; o < obj_num_ ; ++o )

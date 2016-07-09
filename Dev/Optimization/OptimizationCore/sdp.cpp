@@ -80,7 +80,88 @@ void SDP::setC(const std::vector<arma::mat>&iC)
 void SDP::setAs(const std::vector<std::vector<arma::mat>>& As)
 {
     k_ = As.size();
-    ;
+    struct constraintmatrix* constraints = (struct constraintmatrix *)malloc((k_+1)*sizeof(struct constraintmatrix));
+    struct sparseblock* blockptr;
+    if(NULL==constraints)
+    {
+        std::cerr<<"Couldn't allocate storage for constraints"<<std::endl;
+    }
+    int index = 1;
+    std::vector<std::vector<arma::mat>>::const_iterator asiter;
+
+    for(asiter=As.cbegin();asiter!=As.cend();++asiter)
+    {
+        constraints[index].blocks=NULL;
+        //the link list can start with block at tail
+        int bindex = asiter->size();
+        std::vector<arma::mat>::const_reverse_iterator aiter;
+        for(aiter=asiter->crbegin();aiter!=asiter->crend();++aiter)
+        {
+            if(!aiter->empty())
+            {
+                blockptr=(struct sparseblock*)malloc(sizeof(struct sparseblock));
+                if(NULL==blockptr)
+                {
+                    assert(blockptr);
+                }
+                blockptr->blocknum = bindex;
+                blockptr->blocksize = aiter->n_rows;
+                blockptr->constraintnum = index;
+                blockptr->next = NULL;
+                blockptr->nextbyblock=NULL;
+                arma::vec nz = arma::nonzeros(*aiter);
+                blockptr->numentries=nz.size();
+                blockptr->entries=(double*)malloc((blockptr->numentries+1)*sizeof(double));
+                if(NULL==blockptr->entries)
+                {
+                    assert(blockptr->entries);
+                }
+                blockptr->iindices=(unsigned short*)malloc((blockptr->numentries+1)*sizeof(unsigned short));
+                if(NULL==blockptr->iindices)
+                {
+                    assert(blockptr->iindices);
+                }
+                blockptr->jindices=(unsigned short*)malloc((blockptr->numentries+1)*sizeof(unsigned short));
+                if(NULL==blockptr->jindices)
+                {
+                    assert(blockptr->jindices);
+                }
+                if(aiter->n_rows==aiter->n_cols)
+                {
+                    int r,c;
+                    int i=1;
+                    for(r=0;r<aiter->n_rows;++r)
+                        for(c=0;c<aiter->n_cols;++c)
+                        {
+                           if((*aiter)(r,c))
+                           {
+                               blockptr->entries[i]=(*aiter)(r,c);
+                               blockptr->iindices[i]=r;
+                               blockptr->jindices[i]=c;
+                               ++i;
+                           }
+                        }
+                }else{//diag block
+                    int i=1;
+                    for(int r=0;r<aiter->n_rows;++r)
+                    {
+                        if((*aiter)(r))
+                        {
+                            blockptr->entries[i]=(*aiter)(r);
+                            blockptr->iindices[i]=r;
+                            blockptr->jindices[i]=r;
+                            ++i;
+                        }
+                    }
+                }
+                blockptr->next=constraints[index].blocks;
+                constraints[index].blocks=blockptr;
+            }
+            --bindex;
+        }
+        ++index;
+    }
+    constraints_ = (void*)constraints;
 }
 
 void SDP::setb(const arma::vec& b)
@@ -134,15 +215,112 @@ std::string SDP::info()const
 }
 void SDP::gety(arma::vec& y)
 {
-    ;
+    arma::vec tmp(y_,k_+1,false,true);
+    y = tmp.tail(k_);
 }
-void SDP::getX(arma::sp_mat& X)
+void SDP::getX(arma::sp_mat& Xmat)
 {
-    ;
+    struct blockmatrix* X = (struct blockmatrix*)X_;
+    arma::uword N = 0;
+    for(int bn=1;bn<=X->nblocks;++bn)
+    {
+        struct blockrec& block = X->blocks[bn];
+        N += block.blocksize*block.blocksize;
+    }
+    std::vector<double> value;
+    value.reserve(N);
+    std::vector<arma::uword> rows;
+    rows.reserve(N);
+    std::vector<arma::uword> cols;
+    cols.reserve(N);
+    arma::uword global_r=0,global_c=0;
+    for(int bn=1;bn<=X->nblocks;++bn)
+    {
+        struct blockrec& block = X->blocks[bn];
+        if(block.blockcategory==MATRIX)
+        {
+            for(int dr=1;dr<=block.blocksize;++dr)
+                for(int dc=1;dc<=block.blocksize;++dc)
+                {
+                    if(0.0!=block.data.mat[ijtok(dr,dc,block.blocksize)])
+                    {
+                        value.push_back(block.data.mat[ijtok(dr,dc,block.blocksize)]);
+                        rows.push_back(global_r+dr-1);
+                        cols.push_back(global_c+dc-1);
+                    }
+                }
+        }
+        if(block.blockcategory==DIAG)
+        {
+            for(int di=1;di<=block.blocksize;++di)
+            {
+                if(block.data.vec[di]!=0.0)
+                {
+                    value.push_back(block.data.vec[di]);
+                    rows.push_back(global_r+di-1);
+                    cols.push_back(global_c+di-1);
+                }
+            }
+        }
+        global_r += block.blocksize;
+        global_c += block.blocksize;
+    }
+    arma::umat location(2,rows.size());
+    location.row(0) = arma::urowvec(rows.data(),rows.size(),false,true);
+    location.row(1) = arma::urowvec(cols.data(),rows.size(),false,true);
+    Xmat = arma::sp_mat(location,arma::vec(value.data(),value.size(),false,true));
 }
-void SDP::getZ(arma::sp_mat& Z)
+void SDP::getZ(arma::sp_mat& Zmat)
 {
-    ;
+    struct blockmatrix* Z = (struct blockmatrix*)Z_;
+    arma::uword N = 0;
+    for(int bn=1;bn<=Z->nblocks;++bn)
+    {
+        struct blockrec& block = Z->blocks[bn];
+        N += block.blocksize*block.blocksize;
+    }
+    std::vector<double> value;
+    value.reserve(N);
+    std::vector<arma::uword> rows;
+    rows.reserve(N);
+    std::vector<arma::uword> cols;
+    cols.reserve(N);
+    arma::uword global_r=0,global_c=0;
+    for(int bn=1;bn<=Z->nblocks;++bn)
+    {
+        struct blockrec& block = Z->blocks[bn];
+        if(block.blockcategory==MATRIX)
+        {
+            for(int dr=1;dr<=block.blocksize;++dr)
+                for(int dc=1;dc<=block.blocksize;++dc)
+                {
+                    if(0.0!=block.data.mat[ijtok(dr,dc,block.blocksize)])
+                    {
+                        value.push_back(block.data.mat[ijtok(dr,dc,block.blocksize)]);
+                        rows.push_back(global_r+dr-1);
+                        cols.push_back(global_c+dc-1);
+                    }
+                }
+        }
+        if(block.blockcategory==DIAG)
+        {
+            for(int di=1;di<=block.blocksize;++di)
+            {
+                if(block.data.vec[di]!=0.0)
+                {
+                    value.push_back(block.data.vec[di]);
+                    rows.push_back(global_r+di-1);
+                    cols.push_back(global_c+di-1);
+                }
+            }
+        }
+        global_r += block.blocksize;
+        global_c += block.blocksize;
+    }
+    arma::umat location(2,rows.size());
+    location.row(0) = arma::urowvec(rows.data(),rows.size(),false,true);
+    location.row(1) = arma::urowvec(cols.data(),rows.size(),false,true);
+    Zmat = arma::sp_mat(location,arma::vec(value.data(),value.size(),false,true));
 }
 SDP::~SDP()
 {

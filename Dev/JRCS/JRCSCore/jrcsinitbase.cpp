@@ -76,7 +76,7 @@ void JRCSInitBase::extract_patch_features()
                 {
                     std::cerr<<"done extract_patch_feature"<<std::endl;
                 }
-                assert(feature.is_finite());
+                assert(feature.has_inf()||feature.has_nan());
 //                feature_dim = feature.size();
                 if( input_patch_label_value_.size() <= lindex )
                 {
