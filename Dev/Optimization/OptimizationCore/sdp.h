@@ -14,6 +14,7 @@ public:
     void setb(const arma::vec&);
     bool init(void);
     bool solve(void);
+    void debug_prob(char*);
     void gety(arma::vec &y);
     void getX(arma::sp_mat& X);
     void getZ(arma::sp_mat& Z);

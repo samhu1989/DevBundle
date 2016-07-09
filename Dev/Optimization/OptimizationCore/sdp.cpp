@@ -72,6 +72,7 @@ void SDP::setC(const std::vector<arma::mat>&iC)
             tmp.tail(size) = iblock;
         }
         ++C.nblocks; //increase nblocks only when the allocate is successfully done
+        n_ += C.blocks[index].blocksize;
         ++index;
     }
     C_ =(void*)Cptr;
@@ -136,8 +137,8 @@ void SDP::setAs(const std::vector<std::vector<arma::mat>>& As)
                            if((*aiter)(r,c))
                            {
                                blockptr->entries[i]=(*aiter)(r,c);
-                               blockptr->iindices[i]=r;
-                               blockptr->jindices[i]=c;
+                               blockptr->iindices[i]=r+1;
+                               blockptr->jindices[i]=c+1;
                                ++i;
                            }
                         }
@@ -148,8 +149,8 @@ void SDP::setAs(const std::vector<std::vector<arma::mat>>& As)
                         if((*aiter)(r))
                         {
                             blockptr->entries[i]=(*aiter)(r);
-                            blockptr->iindices[i]=r;
-                            blockptr->jindices[i]=r;
+                            blockptr->iindices[i]=r+1;
+                            blockptr->jindices[i]=r+1;
                             ++i;
                         }
                     }
@@ -179,12 +180,16 @@ void SDP::setb(const arma::vec& b)
 bool SDP::init()
 {
     struct blockmatrix* C = (struct blockmatrix*)C_;
-    struct blockmatrix* X = (struct blockmatrix*)X_;
-    struct blockmatrix* Z = (struct blockmatrix*)Z_;
     struct constraintmatrix* constraints = (struct constraintmatrix*)constraints_;
     if(NULL==C)return false;
     if(NULL==constraints)return false;
     if(NULL==b_)return false;
+    X_ = (void*)(new struct blockmatrix);
+    struct blockmatrix* X = (struct blockmatrix*)X_;
+    if(NULL==X)return false;
+    Z_ = (void*)(new struct blockmatrix);
+    struct blockmatrix* Z = (struct blockmatrix*)Z_;
+    if(NULL==Z)return false;
     initsoln(n_,k_,*C,b_,constraints,X,&y_,Z);
     return true;
 }
@@ -220,6 +225,7 @@ void SDP::gety(arma::vec& y)
 }
 void SDP::getX(arma::sp_mat& Xmat)
 {
+    if(!X_)return;
     struct blockmatrix* X = (struct blockmatrix*)X_;
     arma::uword N = 0;
     for(int bn=1;bn<=X->nblocks;++bn)
@@ -272,6 +278,7 @@ void SDP::getX(arma::sp_mat& Xmat)
 }
 void SDP::getZ(arma::sp_mat& Zmat)
 {
+    if(!Z_)return;
     struct blockmatrix* Z = (struct blockmatrix*)Z_;
     arma::uword N = 0;
     for(int bn=1;bn<=Z->nblocks;++bn)
@@ -322,6 +329,15 @@ void SDP::getZ(arma::sp_mat& Zmat)
     location.row(1) = arma::urowvec(cols.data(),rows.size(),false,true);
     Zmat = arma::sp_mat(location,arma::vec(value.data(),value.size(),false,true));
 }
+
+void SDP::debug_prob(char* path)
+{
+    struct blockmatrix* Cptr = (struct blockmatrix*)C_;
+    struct blockmatrix& C = *Cptr;
+    struct constraintmatrix* constraints = (struct constraintmatrix*)constraints_;
+    write_prob(path,7,2,C,b_,constraints);
+}
+
 SDP::~SDP()
 {
     struct blockmatrix* C = (struct blockmatrix*)C_;

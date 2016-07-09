@@ -56,6 +56,8 @@ public:
         C.push_back(c1);
         C.emplace_back(2,1,arma::fill::zeros);//input diag block
         setC(C);
+        arma::vec b={1.0,2.0};
+        setb(b);
         std::vector<std::vector<arma::mat>> As;
         As.reserve(2);
         As.emplace_back(3);
@@ -77,21 +79,28 @@ public:
         arma::umat location;
         location<<0<<1<<0<<1<<3<<4<<5<<6<<arma::endr
                 <<0<<0<<1<<1<<3<<4<<5<<6<<arma::endr;
-        eZ_ = arma::sp_mat(location,value);
+        eZ_ = arma::sp_mat(location,value,7,7);
         value.clear();
         value<<0.125<<0.125<<0.125<<0.125<<0.667<<arma::endr;
         location.clear();
         location<<0<<1<<0<<1<<2<<arma::endr
                 <<0<<0<<1<<1<<2<<arma::endr;
-        eX_ = arma::sp_mat(location,value);
+        eX_ = arma::sp_mat(location,value,7,7);
     }
-    bool test()
+    bool test(void)
     {
-        if(!init())return false;
-        if(!solve())return false;
+        if(!init()){
+            std::cout<<"failed in init()"<<std::endl;
+            return false;
+        }
+        if(!solve()){
+            std::cout<<"failed in solve()"<<std::endl;
+            return false;
+        }
         arma::vec y;
         arma::sp_mat Z;
         arma::sp_mat X;
+        debug_prob("./debug/prob.dat-s");
         gety(y);
         getZ(Z);
         getX(X);
@@ -99,26 +108,26 @@ public:
         if(!arma::approx_equal(y,ey_,"absdiff",1e-10))
         {
             pass = false;
-            std::cerr<<"result y:"<<std::endl;
-            std::cerr<<y<<std::endl;
-            std::cerr<<"expect y:"<<std::endl;
-            std::cerr<<ey_<<std::endl;
+            std::cout<<"result y:"<<std::endl;
+            std::cout<<y<<std::endl;
+            std::cout<<"expect y:"<<std::endl;
+            std::cout<<ey_<<std::endl;
         }
         if(!arma::approx_equal(Z,eZ_,"absdiff",1e-10))
         {
             pass = false;
-            std::cerr<<"result Z:"<<std::endl;
-            std::cerr<<Z<<std::endl;
-            std::cerr<<"expect Z:"<<std::endl;
-            std::cerr<<eZ_<<std::endl;
+            std::cout<<"result Z:"<<std::endl;
+            std::cout<<arma::mat(Z)<<std::endl;
+            std::cout<<"expect Z:"<<std::endl;
+            std::cout<<arma::mat(eZ_)<<std::endl;
         }
         if(!arma::approx_equal(X,eX_,"absdiff",1e-10))
         {
             pass = false;
-            std::cerr<<"result X:"<<std::endl;
-            std::cerr<<X<<std::endl;
-            std::cerr<<"expect X:"<<std::endl;
-            std::cerr<<eX_<<std::endl;
+            std::cout<<"result X:"<<std::endl;
+            std::cout<<arma::mat(X)<<std::endl;
+            std::cout<<"expect X:"<<std::endl;
+            std::cout<<arma::mat(eX_)<<std::endl;
         }
         return pass;
     }
