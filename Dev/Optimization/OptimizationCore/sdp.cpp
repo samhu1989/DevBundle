@@ -110,8 +110,27 @@ void SDP::setAs(const std::vector<std::vector<arma::mat>>& As)
                 blockptr->constraintnum = index;
                 blockptr->next = NULL;
                 blockptr->nextbyblock=NULL;
-                arma::vec nz = arma::nonzeros(*aiter);
-                blockptr->numentries=nz.size();
+                blockptr->numentries=0;
+                if(aiter->n_rows==aiter->n_cols)
+                {
+                    int r,c;
+                    for(r=0;r<aiter->n_rows;++r)
+                        for(c=r;c<aiter->n_cols;++c)
+                        {
+                           if((*aiter)(r,c))
+                           {
+                               blockptr->numentries++;
+                           }
+                        }
+                }else{//diag block
+                    for(int r=0;r<aiter->n_rows;++r)
+                    {
+                        if((*aiter)(r))
+                        {
+                            blockptr->numentries++;
+                        }
+                    }
+                }
                 blockptr->entries=(double*)malloc((blockptr->numentries+1)*sizeof(double));
                 if(NULL==blockptr->entries)
                 {
@@ -132,7 +151,7 @@ void SDP::setAs(const std::vector<std::vector<arma::mat>>& As)
                     int r,c;
                     int i=1;
                     for(r=0;r<aiter->n_rows;++r)
-                        for(c=0;c<aiter->n_cols;++c)
+                        for(c=r;c<aiter->n_cols;++c)
                         {
                            if((*aiter)(r,c))
                            {
@@ -371,9 +390,9 @@ SDP::~SDP()
             ptr=constraints[i].blocks;
             while (ptr != NULL)
             {
-                free(ptr->entries);
-                free(ptr->iindices);
-                free(ptr->jindices);
+                if(ptr->entries)free(ptr->entries);
+                if(ptr->iindices)free(ptr->iindices);
+                if(ptr->jindices)free(ptr->jindices);
                 oldptr=ptr;
                 ptr=ptr->next;
                 free(oldptr);

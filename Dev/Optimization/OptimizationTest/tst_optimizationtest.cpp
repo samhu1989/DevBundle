@@ -105,7 +105,7 @@ public:
         getZ(Z);
         getX(X);
         bool pass = true;
-        if(!arma::approx_equal(y,ey_,"absdiff",1e-10))
+        if(!arma::approx_equal(y,ey_,"reldiff",.5e-3))
         {
             pass = false;
             std::cout<<"result y:"<<std::endl;
@@ -113,7 +113,7 @@ public:
             std::cout<<"expect y:"<<std::endl;
             std::cout<<ey_<<std::endl;
         }
-        if(!arma::approx_equal(Z,eZ_,"absdiff",1e-10))
+        if(!arma::approx_equal(Z,eZ_,"absdiff",.5e-3))
         {
             pass = false;
             std::cout<<"result Z:"<<std::endl;
@@ -121,13 +121,15 @@ public:
             std::cout<<"expect Z:"<<std::endl;
             std::cout<<arma::mat(eZ_)<<std::endl;
         }
-        if(!arma::approx_equal(X,eX_,"absdiff",1e-10))
+        if(!arma::approx_equal(X,eX_,"absdiff",.5e-3))
         {
             pass = false;
             std::cout<<"result X:"<<std::endl;
             std::cout<<arma::mat(X)<<std::endl;
             std::cout<<"expect X:"<<std::endl;
             std::cout<<arma::mat(eX_)<<std::endl;
+            std::cout<<"error:"<<std::endl;
+            std::cout<<arma::abs(arma::mat(X)-arma::mat(eX_))<<std::endl;
         }
         return pass;
     }
