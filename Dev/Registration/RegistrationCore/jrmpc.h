@@ -139,5 +139,4 @@ namespace Registration {
         int X_updated_;
     };
 }
-#include <jrmpc.hpp>
 #endif // JRMPC_H

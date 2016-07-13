@@ -26,8 +26,6 @@ namespace Registration
             P_.col(c) /= p_sum(c);
         }
     }
-
-
 }
 
 

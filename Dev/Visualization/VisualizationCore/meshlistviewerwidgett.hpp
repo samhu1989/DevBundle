@@ -2,7 +2,8 @@
 #define MESHLISTVIEWERWIDGETT_HPP
 #include "MeshListViewerWidgetT.h"
 #include <QKeyEvent>
-
+#include <QString>
+#include <armadillo>
 using namespace OpenMesh;
 using namespace Qt;
 
@@ -13,58 +14,84 @@ MeshListViewerWidgetT<M>::open_mesh(const char* _filename,Mesh& mesh_,Stripifier
   // load mesh
   // calculate normals
   // set scene center and radius
+  QString fname(_filename);
+  bool open_arma = false;
+  if(fname.endsWith("mat.arma"))
+  {
+      arma::fmat pts;
+      pts.load(_filename);
+//      std::cerr<<"pts("<<pts.n_rows<<","<<pts.n_cols<<")"<<std::endl;
+      for( int i=0 ; i < pts.n_cols ; ++i )
+      {
+          mesh_.add_vertex(typename M::Point(pts(0,i),pts(1,i),pts(2,i)));
+      }
+//      std::cerr<<"mesh_.n_vertices():"<<mesh_.n_vertices()<<std::endl;
+      if(0<mesh_.n_vertices())open_arma=true;
+  }
 
   mesh_.request_face_normals();
   mesh_.request_face_colors();
   mesh_.request_vertex_normals();
   mesh_.request_vertex_colors();
   mesh_.request_vertex_texcoords2D();
-
   std::cout << "Loading from file '" << _filename << "'\n";
-  if ( IO::read_mesh(mesh_, _filename, _opt ) )
+  if ( open_arma || IO::read_mesh(mesh_, _filename, _opt )  )
   {
+      if(open_arma)
+      {
+          _opt -= OpenMesh::IO::Options::VertexColor;
+          _opt -= OpenMesh::IO::Options::VertexNormal;
+          _opt -= OpenMesh::IO::Options::VertexTexCoord;
+          _opt -= OpenMesh::IO::Options::FaceColor;
+          _opt -= OpenMesh::IO::Options::FaceNormal;
+          _opt -= OpenMesh::IO::Options::FaceTexCoord;
+          mesh_.release_face_normals();
+          mesh_.release_face_colors();
+          mesh_.release_vertex_normals();
+          mesh_.release_vertex_colors();
+          mesh_.release_vertex_texcoords2D();
+      }
     // store read option
     opt_ = _opt;
-
     // update face and vertex normals
-    if ( ! opt_.check( IO::Options::FaceNormal ) )
+    if ( ! opt_.check( IO::Options::FaceNormal ) && !open_arma )
       mesh_.update_face_normals();
-    else
+    else if(!open_arma)
       std::cout << "File provides face normals\n";
 
-    if ( ! opt_.check( IO::Options::VertexNormal ) )
+    if ( ! opt_.check( IO::Options::VertexNormal ) && !open_arma )
       mesh_.update_vertex_normals();
-    else
+    else if(!open_arma)
       std::cout << "File provides vertex normals\n";
 
 
     // check for possible color information
-    if ( opt_.check( IO::Options::VertexColor ) )
+    if ( opt_.check( IO::Options::VertexColor ) && !open_arma )
     {
       std::cout << "File provides vertex colors\n";
       add_draw_mode("Colored Vertices");
     }
-    else
+    else if(!open_arma)
       mesh_.release_vertex_colors();
 
-    if ( _opt.check( IO::Options::FaceColor ) )
+    if ( _opt.check( IO::Options::FaceColor ) && !open_arma )
     {
       std::cout << "File provides face colors\n";
       add_draw_mode("Solid Colored Faces");
       add_draw_mode("Smooth Colored Faces");
     }
-    else
+    else if(!open_arma)
       mesh_.release_face_colors();
 
-    if ( _opt.check( IO::Options::VertexTexCoord ) )
+    if ( _opt.check( IO::Options::VertexTexCoord ) && !open_arma )
       std::cout << "File provides texture coordinates\n";
 
     // info
     std::clog << mesh_.n_vertices() << " vertices, "
           << mesh_.n_edges()    << " edge, "
           << mesh_.n_faces()    << " faces\n";
-
     // base point for displaying face normals
+    if(mesh_.has_face_normals())
     {
       OpenMesh::Utils::Timer t;
       t.start();

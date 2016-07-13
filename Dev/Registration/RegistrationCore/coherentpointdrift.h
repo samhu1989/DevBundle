@@ -123,5 +123,5 @@ namespace Registration {
         ResPtr ResPtr_;
     };
 }
-#include "coherentpointdrift.hpp"
+
 #endif // COHERENTPOINTDRIFT_H

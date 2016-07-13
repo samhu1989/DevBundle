@@ -14,12 +14,11 @@ namespace Registration{
         virtual bool init(MeshList&,Config::Ptr&);
         virtual bool init(MeshList&,std::vector<arma::uword>&,Config::Ptr&);
         typename Reg::ResPtr result(void);
-        const std::string& errorString(void){ return reg_->errorForThread(); }
+        const std::string& errorString(void){return reg_->errorForThread();}
     protected:
         virtual void compute(void);
     protected:
         Reg* reg_;
     };
 }
-#include <RegistrationThreadT.hpp>
 #endif // REGISTRATIONTHREAD_H

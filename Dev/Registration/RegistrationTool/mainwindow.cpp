@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionCPDRigid3D,SIGNAL(triggered(bool)),this,SLOT(start_registration()));
     connect(ui->actionJRMPC,SIGNAL(triggered(bool)),this,SLOT(start_registration()));
+    connect(ui->actionPMSDP,SIGNAL(triggered(bool)),this,SLOT(start_registration()));
 
     connect(&timer,SIGNAL(timeout()),w,SLOT(updateGL()));
     timer.setSingleShot(false);
@@ -55,6 +56,21 @@ void MainWindow::start_registration(void)
     if(s==ui->actionCPDRigid3D)
     {
         CPDR3D_DM_R_Thread* thread = new CPDR3D_DM_R_Thread();
+        Config::Ptr config_ptr;
+        if(!thread->init(w->list(),config_ptr))
+        {
+            QString msg = "Fail to Initialize the Registration:\n '";
+            msg += QString::fromStdString(thread->errorString());
+            QMessageBox::critical( NULL, windowTitle(), msg);
+            return;
+        }else{
+            connect(thread,SIGNAL(finished()),this,SLOT(finish_registration()));
+        }
+        alg_thread = thread;
+    }
+    if(s==ui->actionPMSDP)
+    {
+        PMSDP_Thread* thread = new PMSDP_Thread();
         Config::Ptr config_ptr;
         if(!thread->init(w->list(),config_ptr))
         {

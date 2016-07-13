@@ -10,10 +10,15 @@
 #include "jrmpcv2.h"
 #include "coherentpointdrift.h"
 #include "RegistrationThreadT.h"
+#include "pmsdp.h"
 //CPDRigid3D DefaultMesh Registration Thread:
 template class REGISTRATIONCORESHARED_EXPORT Registration::CPDRigid3D<DefaultMesh>;
 template class REGISTRATIONCORESHARED_EXPORT Registration::JRMPC<DefaultMesh>;
 template class REGISTRATIONCORESHARED_EXPORT Registration::JRMPCV2<DefaultMesh>;
+template class REGISTRATIONCORESHARED_EXPORT Registration::PMSDP<DefaultMesh>;
+template class REGISTRATIONCORESHARED_EXPORT Registration::RegistrationThreadT<Registration::CPDRigid3D<DefaultMesh>,DefaultMesh>;
+template class REGISTRATIONCORESHARED_EXPORT Registration::RegistrationThreadT<Registration::JRMPC<DefaultMesh>,DefaultMesh>;
+template class REGISTRATIONCORESHARED_EXPORT Registration::RegistrationThreadT<Registration::PMSDP<DefaultMesh>,DefaultMesh>;
 class REGISTRATIONCORESHARED_EXPORT CPDR3D_DM_R_Thread:public Registration::RegistrationThreadT<Registration::CPDRigid3D<DefaultMesh>,DefaultMesh>
 {
     Q_OBJECT
@@ -64,6 +69,28 @@ public:
     JRMPCV2_Thread(QObject* parent=0):JRMPC_Thread(parent)
     {
         reg_ = new Registration::JRMPCV2<DefaultMesh>();
+    }
+public slots:
+    void quit()
+    {
+        reg_->quit();
+    }
+protected:
+    void run(void)
+    {
+        compute();
+    }
+private:
+};
+
+class REGISTRATIONCORESHARED_EXPORT PMSDP_Thread:public Registration::RegistrationThreadT<Registration::PMSDP<DefaultMesh>,DefaultMesh>
+{
+    Q_OBJECT
+public:
+    PMSDP_Thread(QObject* parent=0):
+        Registration::RegistrationThreadT<Registration::PMSDP<DefaultMesh>,DefaultMesh>(parent)
+    {
+        reg_ = new Registration::PMSDP<DefaultMesh>();
     }
 public slots:
     void quit()

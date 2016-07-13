@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="contextMenuPolicy">
@@ -46,6 +46,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionCPDRigid3D"/>
+    <addaction name="actionPMSDP"/>
     <addaction name="actionJRMPC"/>
    </widget>
    <addaction name="menuFile"/>
@@ -92,6 +93,11 @@
   <action name="actionJRMPC">
    <property name="text">
     <string>JRMPC</string>
+   </property>
+  </action>
+  <action name="actionPMSDP">
+   <property name="text">
+    <string>PMSDP</string>
    </property>
   </action>
  </widget>

@@ -27,7 +27,9 @@ HEADERS += registrationcore.h\
     jrmpc.h \
     jrmpc.hpp \
     jrmpcv2.h \
-    jrmpcv2.hpp
+    jrmpcv2.hpp \
+    pmsdp.h \
+    pmsdp.hpp
 
 unix {
     target.path = /usr/lib
@@ -51,6 +53,11 @@ win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdPa
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/OpenMesh/lib/libOpenMeshCored.a
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/OpenMesh/lib/OpenMeshCore.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/OpenMesh/lib/OpenMeshCored.lib
+
+win32: LIBS += -L$$DESTDIR/ -lOptimizationCore
+
+INCLUDEPATH += $$PWD/../../Optimization/OptimizationCore
+DEPENDPATH += $$PWD/../../Optimization/OptimizationCore
 
 LIBS += -lopenblas
 

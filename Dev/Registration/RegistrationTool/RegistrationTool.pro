@@ -50,6 +50,11 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenM
 win32:CONFIG(release, debug|release): LIBS += -lfreeglut
 else:win32:CONFIG(debug, debug|release): LIBS += -lfreeglut
 
+win32: LIBS += -L$$DESTDIR/ -lOptimizationCore
+
+INCLUDEPATH += $$PWD/../../Optimization/OptimizationCore
+DEPENDPATH += $$PWD/../../Optimization/OptimizationCore
+
 LIBS += -lopenblas
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu

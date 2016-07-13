@@ -14,7 +14,11 @@ public:
     using typename JRMPC<M>::MeshList;
     JRMPCV2():JRMPC<M>(){;}
     virtual bool configure(Config::Ptr&,InfoPtr&);
-    virtual bool initForThread(void *meshlistptr,std::vector<arma::uword>&valid_index,InfoPtr info);
+    virtual bool initForThread(
+            void *meshlistptr,
+            std::vector<arma::uword>&valid_index,
+            InfoPtr info
+            );
     virtual void reset(
             const std::vector<std::shared_ptr<arma::fmat>>&v,
             const std::vector<std::shared_ptr<arma::fmat>>&vn,
@@ -45,5 +49,4 @@ protected:
 };
 
 }
-#include "jrmpcv2.hpp"
 #endif // LJRMPC_H
