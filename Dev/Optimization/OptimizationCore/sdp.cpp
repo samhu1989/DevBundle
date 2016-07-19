@@ -136,12 +136,12 @@ void SDP::setAs(const std::vector<std::vector<arma::mat>>& As)
                 {
                     assert(blockptr->entries);
                 }
-                blockptr->iindices=(unsigned short*)malloc((blockptr->numentries+1)*sizeof(unsigned short));
+                blockptr->iindices=(int*)malloc((blockptr->numentries+1)*sizeof(int));
                 if(NULL==blockptr->iindices)
                 {
                     assert(blockptr->iindices);
                 }
-                blockptr->jindices=(unsigned short*)malloc((blockptr->numentries+1)*sizeof(unsigned short));
+                blockptr->jindices=(int*)malloc((blockptr->numentries+1)*sizeof(int));
                 if(NULL==blockptr->jindices)
                 {
                     assert(blockptr->jindices);
@@ -194,6 +194,18 @@ void SDP::setb(const arma::vec& b)
     };
     arma::vec tmp(b_,b.size()+1,false,true);
     tmp.tail(b.size()) = b;
+}
+
+void SDP::setb(const std::vector<double>& b)
+{
+    b_=(double *)malloc((b.size()+1)*sizeof(double));
+    if (b_==NULL)
+    {
+        std::cerr<<"Couldn't allocate storage for b with size:"<<b.size()<<std::endl;
+        return;
+    };
+    arma::vec tmp(b_,b.size()+1,false,true);
+    tmp.tail(b.size()) = arma::vec((double*)b.data(),(arma::uword)b.size(),false,true);
 }
 
 bool SDP::init()

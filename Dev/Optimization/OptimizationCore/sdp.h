@@ -12,6 +12,7 @@ public:
     void setC(const std::vector<arma::mat>&);
     void setAs(const std::vector<std::vector<arma::mat>>&);
     void setb(const arma::vec&);
+    void setb(const std::vector<double>&);
     bool init(void);
     bool solve(void);
     void debug_prob(char*);

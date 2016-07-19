@@ -9,6 +9,7 @@ template<typename M>
 class PMSDP:public RegistrationBase{
     using RegistrationBase::end_;
 public:
+    typedef typename std::vector<typename MeshBundle<M>::Ptr> MeshList;
     typedef struct Result{
         float R[9];
         float t[3];
@@ -21,11 +22,7 @@ public:
     PMSDP();
     virtual ~PMSDP();
     bool configure(Config::Ptr&,InfoPtr&);
-    virtual bool initForThread(void*,InfoPtr&){
-        std::cerr<<"PMSDP::initForThread(void*,InfoPtr&)"<<std::endl;
-        std::cerr<<"Under Implementation"<<std::endl;
-        return false;
-    }
+    virtual bool initForThread(void*,InfoPtr&);
     virtual bool initForThread(void*,std::vector<arma::uword>&,InfoPtr&){
         std::cerr<<"PMSDP::initForThread(void*,std::vector<arma::uword>&,InfoPtr&)"<<std::endl;
         std::cerr<<"Under Implementation"<<std::endl;
@@ -48,6 +45,8 @@ protected:
 private:
     Optimization::SDP sdp_;
     ResPtr res_ptr_;
+    arma::mat P_;
+    arma::mat Q_;
 };
 }
 #endif // PMSDP_H

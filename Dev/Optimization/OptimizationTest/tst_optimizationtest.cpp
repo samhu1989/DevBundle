@@ -131,6 +131,10 @@ public:
             std::cout<<"error:"<<std::endl;
             std::cout<<arma::abs(arma::mat(X)-arma::mat(eX_))<<std::endl;
         }
+        std::cout<<"result Z:"<<std::endl;
+        std::cout<<arma::mat(Z)<<std::endl;
+        std::cout<<"result X:"<<std::endl;
+        std::cout<<arma::mat(X)<<std::endl;
         return pass;
     }
 private:
