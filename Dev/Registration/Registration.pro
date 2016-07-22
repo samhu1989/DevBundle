@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     RegistrationCore \
-    RegistrationTool
+    RegistrationTool \
+    PMSDP_MATLAB_proxy

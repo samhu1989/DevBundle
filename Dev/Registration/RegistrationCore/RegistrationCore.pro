@@ -4,7 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       -=  gui
+QT       -= gui
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = RegistrationCore
 TEMPLATE = lib
@@ -15,7 +17,8 @@ DEFINES += REGISTRATIONCORE_LIBRARY
 
 SOURCES += registrationcore.cpp \
     coherentpointdrift.cpp \
-    RegistrationBase.cpp
+    RegistrationBase.cpp \
+    pmsdp_matlab.cpp
 
 HEADERS += registrationcore.h\
         registrationcore_global.h \
@@ -29,7 +32,8 @@ HEADERS += registrationcore.h\
     jrmpcv2.h \
     jrmpcv2.hpp \
     pmsdp.h \
-    pmsdp.hpp
+    pmsdp.hpp \
+    pmsdp_matlab.h
 
 unix {
     target.path = /usr/lib
@@ -86,3 +90,5 @@ DEPENDPATH += $$PWD/../../../3rdParty/SuperLU/include
 
 INCLUDEPATH += $$PWD/../../../3rdParty/NanoFlann/include
 DEPENDPATH += $$PWD/../../../3rdParty/NanoFlann/include
+
+

@@ -4,6 +4,7 @@
 #include <armadillo>
 #include "common.h"
 #include "sdp.h"
+#include "pmsdp_matlab.h"
 namespace Registration{
 template<typename M>
 class PMSDP:public RegistrationBase{
@@ -32,21 +33,27 @@ public:
     {
         generateObj();
         generateConstraint();
-        assert(sdp_.init());
-        assert(sdp_.solve());
-        projectRX();
+        if(!sdp_.init())
+        {
+            computeByMatlab();
+        }else{
+            assert(sdp_.solve());
+            projectRX();
+        }
     }
     //configure info from global configure
     ResPtr result(void){return res_ptr_;}
 protected:
-    virtual void generateObj();
-    virtual void generateConstraint();
-    virtual void projectRX();
+    virtual void computeByMatlab(void);
+    virtual void generateObj(void);
+    virtual void generateConstraint(void);
+    virtual void projectRX(void);
 private:
     Optimization::SDP sdp_;
     ResPtr res_ptr_;
-    arma::mat P_;
-    arma::mat Q_;
+    std::shared_ptr<arma::fmat> P_;
+    std::shared_ptr<arma::fmat> Q_;
+    std::shared_ptr<PMSDP_MATLAB> pmsdp_matlab_;
 };
 }
 #endif // PMSDP_H
