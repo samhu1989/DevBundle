@@ -99,10 +99,10 @@
     <addaction name="separator"/>
     <addaction name="actionIterate"/>
     <addaction name="separator"/>
-    <addaction name="actionJRCS"/>
+    <addaction name="actionSort_AGD"/>
     <addaction name="actionJRCS_Init"/>
     <addaction name="actionRegionGrowRGB"/>
-    <addaction name="actionSort_AGD"/>
+    <addaction name="actionJRCS"/>
    </widget>
    <widget class="QMenu" name="menuReplay">
     <property name="title">

@@ -28,6 +28,7 @@
 #include "jrcsview.h"
 #include "jrcsinitthread.h"
 #include "regiongrowrgbthread.h"
+#include "sort_agd.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -71,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionJRCS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
@@ -1095,6 +1097,25 @@ void MainWindow::start_editing()
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         connect(worker,SIGNAL(showbox(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
         th->setObjectName(tr("JRCS_Init"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionSort_AGD)
+    {
+        Sort_AGD* worker = new Sort_AGD(inputs_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(process()));
+        connect(worker,SIGNAL(finished()),th,SLOT(quit()));
+        connect(worker,SIGNAL(finished()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("Sort_AGD"));
         edit_thread_ = th;
     }
     if(edit==ui->actionJRCS)
