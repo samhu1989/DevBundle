@@ -76,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
     connect(ui->actionSupervoxel_Color,SIGNAL(triggered(bool)),this,SLOT(showSVColor()));
     connect(ui->actionFeature_View,SIGNAL(triggered(bool)),this,SLOT(showFeature()));
+    connect(ui->actionIndex_By_Color,SIGNAL(triggered(bool)),this,SLOT(showIndex()));
 
     connect(ui->actionLAPACKE_dggsvd,SIGNAL(triggered(bool)),this,SLOT(LAPACKE_dggsvd_test()));
     connect(ui->actionInside_Bounding_Box,SIGNAL(triggered(bool)),this,SLOT(Inside_BBox_test()));
@@ -1285,6 +1286,19 @@ void MainWindow::showFeature()
     connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));
     v->init();
     v->show();
+}
+
+void MainWindow::showIndex()
+{
+    if(inputs_.empty())return;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter;
+    for(iter=inputs_.begin();iter!=inputs_.end();++iter)
+    {
+        if(!*iter||0==(*iter).use_count())continue;
+        MeshBundle<DefaultMesh>& m = **iter;
+        m.custom_color_.fromIndex();
+    }
+    ui->actionCustom_Color->setChecked(true);
 }
 
 MainWindow::~MainWindow()

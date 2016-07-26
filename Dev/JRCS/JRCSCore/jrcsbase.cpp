@@ -507,6 +507,7 @@ void JRCSBase::computeOnce()
 //        arma::fmat closest_c = arma::conv_to<arma::fmat>::from(closest_c8);
 
         if(verbose_>0)std::cerr<<"calculating R & t"<<std::endl;
+        if(verbose_>0)std::cerr<<"rate0:"<<rate0<<","<<"rate1:"<<rate1<<std::endl;
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -563,13 +564,7 @@ void JRCSBase::computeOnce()
 
             //accumulate for updating X
             arma::fmat tv = v.each_col() - t;
-
             xv_sum_.cols(oidx) =  rate0*xv_sum_.cols(oidx)+rate1*(R.i()*tv);
-//            if(iter_count_>max_init_iter_)
-//            {
-//                xn_sum_.cols(oidx) +=  R.i()*closest_n.cols(oidx);
-//                xc_sum_.cols(oidx) += closest_c.cols(oidx);
-//            }else{
             xn_sum_.cols(oidx) = rate0*xn_sum_.cols(oidx)+rate1*R.i()*wn.cols(oidx);
             xc_sum_.cols(oidx) = rate0*xc_sum_.cols(oidx)+rate1*wc.cols(oidx);
 //            }
@@ -589,10 +584,10 @@ void JRCSBase::computeOnce()
     }
 
     if(verbose_>0)std::cerr<<"Updating X:"<<std::endl;
-    float N =  vvs_ptrlst_.size();
-    assert(xv_sum_.has_inf()||xv_sum_.has_nan());
+//    float N =  vvs_ptrlst_.size();
+    assert(xv_sum_.is_finite());
     *xv_ptr_ = xv_sum_;
-    assert((*xv_ptr_).has_inf()||(*xv_ptr_).has_nan());
+//    assert((*xv_ptr_).has_inf()||(*xv_ptr_).has_nan());
     //fix the x center position
     #pragma omp parallel for
     for(int o = 0 ; o < obj_num_ ; ++o )

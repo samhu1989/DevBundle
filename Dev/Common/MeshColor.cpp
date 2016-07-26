@@ -1,5 +1,6 @@
 #include "MeshColor.h"
 #include "common_global.h"
+#include <QColor>
 const float ColorArray::Lab_L_min = 0;
 const float ColorArray::Lab_L_max = 100;
 const float ColorArray::Lab_ab_min = -120;
@@ -257,6 +258,19 @@ void ColorArray::colorfromlabel(uint32_t* ptr,arma::uword size,const arma::uvec&
         }
         *ptr = ColorArray::DefaultColor[index].color;
         ++ptr;
+    }
+}
+
+
+
+void ColorArray::colorfromIndex(uint32_t* ptr,arma::uword size)
+{
+    #pragma omp parallel for
+    for(int i = 0 ; i < size ; ++i )
+    {
+        QColor color;
+        color.setHsvF(0.9*qreal(i)/qreal(size),0.6,0.9);
+        ptr[i] = color.rgba();
     }
 }
 

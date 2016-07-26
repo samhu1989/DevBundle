@@ -51,6 +51,7 @@ namespace ColorArray
     void COMMONSHARED_EXPORT BGR2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab);
 
     void COMMONSHARED_EXPORT colorfromlabel(uint32_t* ptr,arma::uword size,const arma::uvec& label);
+    void COMMONSHARED_EXPORT colorfromIndex(uint32_t* ptr,arma::uword size);
 
     extern const float COMMONSHARED_EXPORT Lab_L_min;
     extern const float COMMONSHARED_EXPORT Lab_L_max;
@@ -68,6 +69,7 @@ public:
     ColorArray::RGBArray vertex_colors_array(void);
     void* vertex_colors(void);
     void fromlabel(const arma::uvec&);
+    void fromIndex(void);
 protected:
     ColorArray::RGBArray v_colors;
 private:

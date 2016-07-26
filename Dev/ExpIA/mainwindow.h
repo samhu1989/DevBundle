@@ -72,6 +72,7 @@ protected slots:
     void viewObj();
     void showSVColor();
     void showFeature();
+    void showIndex();
 
 protected slots:
     void LAPACKE_dggsvd_test(void){TEST::LAPACKE_dggsvd_test();}

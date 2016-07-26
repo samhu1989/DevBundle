@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     jrcsthread.cpp \
     jrcsview.cpp \
     jrcsinitthread.cpp \
-    regiongrowrgbthread.cpp
+    regiongrowrgbthread.cpp \
+    sort_agd.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -63,7 +64,8 @@ HEADERS  += mainwindow.h \
     jrcsthread.h \
     jrcsview.h \
     jrcsinitthread.h \
-    regiongrowrgbthread.h
+    regiongrowrgbthread.h \
+    sort_agd.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
@@ -138,6 +140,11 @@ win32: LIBS += -L$$DESTDIR/ -lRegistrationCore
 
 INCLUDEPATH += $$PWD/../Registration/RegistrationCore
 DEPENDPATH += $$PWD/../Registration/RegistrationCore
+
+win32: LIBS += -L$$DESTDIR/ -lOptimizationCore
+
+INCLUDEPATH += $$PWD/../Optimization/OptimizationCore
+DEPENDPATH += $$PWD/../Optimization/OptimizationCore
 
 win32: LIBS += -L$$DESTDIR/ -lFilterCore
 
