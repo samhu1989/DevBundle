@@ -121,6 +121,7 @@
     </property>
     <addaction name="actionLAPACKE_dggsvd"/>
     <addaction name="actionInside_Bounding_Box"/>
+    <addaction name="actionAGD_test"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -322,6 +323,11 @@
    </property>
    <property name="toolTip">
     <string>Sort AGD</string>
+   </property>
+  </action>
+  <action name="actionAGD_test">
+   <property name="text">
+    <string>AGD_test</string>
    </property>
   </action>
  </widget>

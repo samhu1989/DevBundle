@@ -13,7 +13,7 @@ public:
             );
     bool configure(Config::Ptr);
 public slots:
-    void process();
+    void process(void);
 signals:
     void finished();
     void message(QString,int);

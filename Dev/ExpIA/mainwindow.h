@@ -77,6 +77,7 @@ protected slots:
 protected slots:
     void LAPACKE_dggsvd_test(void){TEST::LAPACKE_dggsvd_test();}
     void Inside_BBox_test(void){TEST::Inside_BBox_test();}
+    void agd_test(void){TEST::agd_test();}
 
 private:
     Ui::MainWindow *ui;

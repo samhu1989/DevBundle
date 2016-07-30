@@ -6,6 +6,9 @@
 #include <assert.h>
 #include "dggsvd.h"
 #include "common.h"
+#include "agd.h"
+#include "voxelgraph.h"
+#include "voxelgraph.hpp"
 namespace TEST {
 void LAPACKE_dggsvd_test()
 {
@@ -56,6 +59,36 @@ void Inside_BBox_test()
     {
         std::cerr<<"Success in Inside_BBox_test()"<<std::endl;
     }
+}
+void agd_test()
+{
+    Feature::AGD<DefaultMesh> agd;
+    arma::vec adg_vec;
+
+    DefaultMesh m;
+    m.add_vertex(DefaultMesh::Point(0,0,0));
+    m.add_vertex(DefaultMesh::Point(1,0,0));
+    m.add_vertex(DefaultMesh::Point(2,0,0));
+    m.add_vertex(DefaultMesh::Point(1,1,0));
+    m.add_vertex(DefaultMesh::Point(2,1,0));
+    m.add_vertex(DefaultMesh::Point(3,1,0));
+    m.add_vertex(DefaultMesh::Point(1,2,0));
+    m.add_vertex(DefaultMesh::Point(2,2,0));
+    m.add_vertex(DefaultMesh::Point(3,2,0));
+    m.add_vertex(DefaultMesh::Point(0,3,0));
+
+    VoxelGraph<DefaultMesh> graph(m);
+
+    graph.voxel_centers = arma::fmat((float*)m.points(),3,m.n_vertices(),true,true);
+    graph.voxel_label = arma::linspace<arma::uvec>(1,m.n_vertices(),m.n_vertices());
+    graph.voxel_neighbors = {
+        {0,1,1,2,3,4,4,5,6,6,7},
+        {1,2,3,4,4,5,7,8,7,9,8}
+                            };
+
+    agd.extract(graph,adg_vec);
+    std::cerr<<"agd_vec:"<<std::endl;
+    std::cerr<<adg_vec<<std::endl;
 }
 }
 #endif // TESTS

@@ -43,10 +43,10 @@ void SuperVoxelClustering<M>::extract(arma::uvec&labels)
     int max_depth = 1 + static_cast<int> (1.8f*seed_resolution_/voxel_resolution_);
     expandSupervoxels (max_depth);
     makeLabels(labels);
-    arma::uvec nz = arma::find(labels!=0);
-    std::cerr<<"Numbers:"<<std::endl;
-    std::cerr<<nz.size()<<std::endl;
-    std::cerr<<input_->n_vertices()<<std::endl;
+//    arma::uvec nz = arma::find(labels!=0);
+//    std::cerr<<"Numbers:"<<std::endl;
+//    std::cerr<<nz.size()<<std::endl;
+//    std::cerr<<input_->n_vertices()<<std::endl;
     deinitCompute ();
 }
 
@@ -103,30 +103,35 @@ void SuperVoxelClustering<M>::getSupervoxelAdjacency(arma::Mat<uint16_t>&neighbo
         std::vector<uint32_t> neighbors;
         supervoxel.getNeighbors(neighbors);
         uint32_t label = supervoxel.getLabel();
-        labeltoindex[label] = index;
+//        std::cerr<<label<<std::endl;
+        if(labeltoindex.find(label)==labeltoindex.end());
+        {
+            labeltoindex[label] = index;
+            ++index;
+        }
         std::vector<uint32_t>::iterator labeliter;
         for(labeliter=neighbors.begin();labeliter!=neighbors.end();++labeliter)
         {
             uint32_t s,b;
-            if(label<*labeliter){
-                b = label;
-                s = *labeliter;
+            if(label < *labeliter){
+                s = label;
+                b = *labeliter;
             }else if(label==*labeliter)
             {
                 continue;
             }else{
-                b = *labeliter;
-                s = label;
+                b = label;
+                s = *labeliter;
             }
             if(0==mem(s,b))
             {
                 mem(s,b)=1;
-                result.push_back(uint16_t(s));
-                result.push_back(uint16_t(b));
+                result.push_back(uint16_t(label));
+                result.push_back(uint16_t(*labeliter));
             }
         }
-        ++index;
     }
+
     std::vector<uint16_t>::iterator riter;
     for(riter=result.begin();riter!=result.end();++riter)
     {
@@ -237,22 +242,22 @@ void SuperVoxelClustering<M>::computeVoxelData()
         if(!indices.is_empty())voxels_.emplace_back(new Vox(*input_,indices));
         else{ std::cerr<<"encounter an empty voxel in octree"<<std::endl; }
     }
-    std::cerr<<"Compute Voxel Data N:"<<voxels_.size()<<std::endl;
+//    std::cerr<<"Compute Voxel Data N:"<<voxels_.size()<<std::endl;
     OctreeVoxelAdjacency<SuperVoxelOctree> adjacency(*adjacency_octree_);
     adjacency.template computeNeighbor<Vox>( voxels_ );
-//    int min_neighbor_n = 1000;
-//    int max_neighbor_n = 0;
-//    VoxelIter iter;
-//    size_t num = 0;
-//    for(iter=voxels_.begin();iter!=voxels_.end();++iter)
-//    {
-//        int n = (*iter)->neighbors_.size();
-//        if(n<min_neighbor_n)min_neighbor_n=n;
-//        if(n>max_neighbor_n)max_neighbor_n=n;
-//        num += (*iter)->indices().size();
-//    }
+    int min_neighbor_n = 1000;
+    int max_neighbor_n = 0;
+    VoxelIter iter;
+    size_t num = 0;
+    for(iter=voxels_.begin();iter!=voxels_.end();++iter)
+    {
+        int n = (*iter)->neighbors_.size();
+        if(n<min_neighbor_n)min_neighbor_n=n;
+        if(n>max_neighbor_n)max_neighbor_n=n;
+        num += (*iter)->indices().size();
+    }
 //    std::cerr<<"num points:"<<num<<std::endl;
-//    std::cerr<<"Neighbor N("<<min_neighbor_n<<","<<max_neighbor_n<<")"<<std::endl;
+    std::cerr<<"Neighbor N("<<min_neighbor_n<<","<<max_neighbor_n<<")"<<std::endl;
 }
 
 template<typename M>
@@ -298,7 +303,7 @@ void SuperVoxelClustering<M>::selectInitialSupervoxelSeeds(std::vector<uint32_t>
         int num = kdtree.radiusSearch(
                     &(points_ptr[3*seed_indices_orig[i]]),
                     search_radius,
-                    neighbors,nanoflann::SearchParams()
+                    neighbors,nanoflann::SearchParams(3)
                     );
         if( num > min_points )
         {
@@ -315,6 +320,7 @@ void SuperVoxelClustering<M>::createSupervoxels(std::vector<uint32_t> &seed_indi
     uint32_t label = 0;
     for(iter=seed_indices.begin();iter!=seed_indices.end();++iter)
     {
+        if(voxels_[*iter]->neighbors_.size()<6)continue;
         supervoxels_.emplace_back(new SuperVoxel<M>(*this,label));
         voxels_[*iter]->dist2parent_ = 0.0;
         supervoxels_.back()->addVoxel(voxels_[*iter]);
@@ -510,9 +516,9 @@ void SuperVoxel<M>::removeVoxel(typename Voxel<M>::Ptr ptr)
 template<typename M>
 void SuperVoxel<M>::addVoxel(typename Voxel<M>::Ptr ptr)
 {
-    if(label_==40){
-        std::cerr<<"40add"<<ptr->Id_<<std::endl;
-    }
+//    if(label_==40){
+//        std::cerr<<"40add"<<ptr->Id_<<std::endl;
+//    }
     voxels.push_back(ptr);
 }
 

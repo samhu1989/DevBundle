@@ -269,7 +269,7 @@ void ColorArray::colorfromIndex(uint32_t* ptr,arma::uword size)
     for(int i = 0 ; i < size ; ++i )
     {
         QColor color;
-        color.setHsvF(0.9*qreal(i)/qreal(size),0.6,0.9);
+        color.setHsvF(0.75*qreal(i)/qreal(size),0.6,0.9);
         ptr[i] = color.rgba();
     }
 }
