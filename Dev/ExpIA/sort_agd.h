@@ -16,7 +16,7 @@ public slots:
     void process(void);
 signals:
     void finished();
-    void message(QString,int);
+    void message(QString,int t=0);
 protected:
     void sort(const arma::vec& agd,MeshBundle<DefaultMesh>& m);
 private:

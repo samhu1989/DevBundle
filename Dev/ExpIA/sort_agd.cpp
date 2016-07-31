@@ -1,5 +1,6 @@
 #include "sort_agd.h"
 #include "agd.h"
+#include <QTime>
 Sort_AGD::Sort_AGD(
         MeshBundle<DefaultMesh>::PtrList& inputs,
         QObject *parent
@@ -28,32 +29,25 @@ void Sort_AGD::process(void)
     InputList::iterator iter;
     Feature::AGD<DefaultMesh> agd;
     QString msg;
+    QTime t;
     uint32_t index = 0;
+    t.restart();
     for(iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         MeshBundle<DefaultMesh>& m = **iter;
         arma::vec agd_vec;
-        emit message(msg.sprintf("Processing %u/%u",index,inputs_.size()),-1);
         agd.extract(m.graph_,agd_vec);
         sort(agd_vec,m);
         ++index;
-        emit message(msg.sprintf("Processing %u/%u",index,inputs_.size()),-1);
+        emit message(msg.sprintf("Done %u/%u",index,inputs_.size()));
     }
-    emit message(tr("Sort_AGD::process() is finishing"),-1);
+    emit message(msg.sprintf("Used %f(ms) in average for %u frames",float(t.elapsed())/float(inputs_.size()),inputs_.size()));
     emit finished();
 }
 
 void Sort_AGD::sort(const arma::vec& agd,MeshBundle<DefaultMesh>& m)
 {
     std::cerr<<"sorting"<<std::endl;
-//    std::cerr<<"agd.min():"<<agd.min()<<std::endl;
-//    std::cerr<<"agd.max():"<<agd.max()<<std::endl;
-//    std::cerr<<"agd:"<<std::endl;
-//    std::cerr<<agd<<std::endl;
-//    std::cerr<<"graph_.voxel_centers:"<<std::endl;
-//    std::cerr<<m.graph_.voxel_centers<<std::endl;
-//    std::cerr<<"graph_.voxel_neighbors:"<<std::endl;
-//    std::cerr<<m.graph_.voxel_neighbors<<std::endl;
     arma::uvec descend_index = arma::sort_index(agd,"descend");
     arma::uvec descend_label(m.graph_.voxel_label.size(),arma::fill::zeros);
     arma::uvec::iterator iter_index;
@@ -64,14 +58,8 @@ void Sort_AGD::sort(const arma::vec& agd,MeshBundle<DefaultMesh>& m)
         descend_label.subvec(current_process,current_process+current_index.size()-1) = current_index;
         current_process += current_index.size();
     }
-//    std::cerr<<"descend label:"<<std::endl;
-//    std::cerr<<descend_label<<std::endl;
     arma::fmat v((float*)m.mesh_.points(),3,m.mesh_.n_vertices(),false,true);
-//    std::cerr<<"v before:"<<std::endl;
-//    std::cerr<<v<<std::endl;
     v = v.cols(descend_label);
-//    std::cerr<<"v after:"<<std::endl;
-//    std::cerr<<v<<std::endl;
     if(m.mesh_.has_vertex_normals())
     {
         arma::fmat n((float*)m.mesh_.vertex_normals(),3,m.mesh_.n_vertices(),false,true);
