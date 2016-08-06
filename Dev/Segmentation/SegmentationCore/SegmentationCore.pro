@@ -76,7 +76,9 @@ HEADERS += segmentationcore.h\
     hierarchicalization.h \
     pcaplaneequ.h \
     regiongrowingrgb.h \
-    regiongrowingrgb.hpp
+    regiongrowingrgb.hpp \
+    normalizedcuts.h \
+    normalizedcuts.hpp
 
 unix {
     target.path = /usr/lib
@@ -104,7 +106,7 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3r
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/OpenMesh/lib/OpenMeshCore.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../3rdParty/OpenMesh/lib/OpenMeshCored.lib
 
-LIBS += -lopenblas
+LIBS += -lopenblas -larpack
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu

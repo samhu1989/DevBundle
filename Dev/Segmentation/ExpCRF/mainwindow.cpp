@@ -9,7 +9,7 @@
 #include "densecrf.h"
 #include <OpenMesh/Tools/Utils/Timer.hh>
 #include "visualizationcore.h"
-
+#include "ncut2d.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     edit_thread_(NULL),
@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->actionCRF,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionCRF3D,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionNCut2D,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionLoad_Image,SIGNAL(triggered(bool)),this,SLOT(load_img()));
     connect(ui->actionLoad_Annotation,SIGNAL(triggered(bool)),this,SLOT(load_annotation()));
     connect(ui->actionLoad_Input_Mesh,SIGNAL(triggered(bool)),this,SLOT(load_mesh()));
@@ -245,6 +246,17 @@ void MainWindow::start_editing()
         connect(edit_thread_,SIGNAL(started()),worker,SLOT(process()));
         connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
         connect(worker,SIGNAL(destroyed(QObject*)),edit_thread_,SLOT(quit()));
+    }
+    if(edit==ui->actionNCut2D)
+    {
+        edit_thread_ = new QThread();
+        NCut2D* worker = new NCut2D(input_img_,*annotation_);
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        worker->moveToThread(edit_thread_);
+        edit_thread_->setObjectName("NCut2D");
+        connect(edit_thread_,SIGNAL(started()),worker,SLOT(process()));
+        connect(worker,SIGNAL(end()),edit_thread_,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
     }
     connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
     edit_thread_->start(QThread::HighPriority);

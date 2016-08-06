@@ -16,10 +16,12 @@ LIBS += -lgomp -lpthread
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    crf2d.cpp
+    crf2d.cpp \
+    ncut2d.cpp
 
 HEADERS  += mainwindow.h \
-    crf2d.h
+    crf2d.h \
+    ncut2d.h
 
 FORMS    += mainwindow.ui
 

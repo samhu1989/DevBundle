@@ -55,6 +55,7 @@
     </property>
     <addaction name="actionCRF"/>
     <addaction name="actionCRF3D"/>
+    <addaction name="actionNCut2D"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -98,6 +99,11 @@
    </property>
    <property name="text">
     <string>Label Mask</string>
+   </property>
+  </action>
+  <action name="actionNCut2D">
+   <property name="text">
+    <string>NCut2D</string>
    </property>
   </action>
  </widget>

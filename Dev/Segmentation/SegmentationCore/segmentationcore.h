@@ -8,6 +8,7 @@
 #include "segmentationcore_global.h"
 #include "sac_segmentation.h"
 #include "graphcut.h"
+#include "normalizedcuts.h"
 namespace Segmentation
 {
 template class SEGMENTATIONCORESHARED_EXPORT  Voxel<DefaultMesh>;
@@ -16,6 +17,6 @@ template class SEGMENTATIONCORESHARED_EXPORT  DefaultVoxelDistFunctor<DefaultMes
 template class SEGMENTATIONCORESHARED_EXPORT  SuperVoxelClustering<DefaultMesh>;
 template class SEGMENTATIONCORESHARED_EXPORT  RegionGrowing<DefaultMesh>;
 template class SEGMENTATIONCORESHARED_EXPORT  RegionGrowingRGB<DefaultMesh>;
+template class SEGMENTATIONCORESHARED_EXPORT  NormalizedCuts<DefaultMesh>;
 }
-
 #endif // SEGMENTATIONCORE_H
