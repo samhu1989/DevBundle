@@ -58,6 +58,17 @@ void getRotationFromXY(
     transformation(2,0)=tmp2[0]; transformation(2,1)=tmp2[1]; transformation(2,2)=tmp2[2];
 }
 
+arma::mat getRotationMatrix2D(const arma::vec& center,double theta,double scale)
+{
+    double th = theta*M_PI/180.0;
+    double c = std::cos(th);
+    double s = std::sin(th);
+    double x = center(0);
+    double y = center(1);
+    arma::mat tmp = {{scale*c,-s,x},{s,scale*c,y}};
+    return tmp;
+}
+
 
 
 

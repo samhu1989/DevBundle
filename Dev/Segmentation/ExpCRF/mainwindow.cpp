@@ -229,15 +229,15 @@ void MainWindow::start_editing()
         QMessageBox::critical(this, windowTitle(), msg);
         return;
     }
-    if(annotation_->empty())
-    {
-        QString msg = "Please Load Annotation First\n";
-        QMessageBox::critical(this, windowTitle(), msg);
-        return;
-    }
     QAction* edit = qobject_cast<QAction*>(sender());
     if(edit==ui->actionCRF)
     {
+        if( annotation_->empty() )
+        {
+            QString msg = "Please Load Annotation First\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
         edit_thread_ = new QThread();
         CRF2D* worker = new CRF2D(input_img_,*annotation_);
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
@@ -250,6 +250,7 @@ void MainWindow::start_editing()
     if(edit==ui->actionNCut2D)
     {
         edit_thread_ = new QThread();
+        if(!annotation_)annotation_.reset(new arma::uvec());
         NCut2D* worker = new NCut2D(input_img_,*annotation_);
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         worker->moveToThread(edit_thread_);
@@ -267,7 +268,7 @@ void MainWindow::finish_editing()
     if(edit_thread_)
     {
         QString msg = edit_thread_->objectName() + "is Finished";
-        QMessageBox::critical(this, windowTitle(), msg);
+        QMessageBox::information(this, windowTitle(), msg);
         edit_thread_->deleteLater();
         edit_thread_ = NULL;
     }

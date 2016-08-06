@@ -22,8 +22,10 @@ protected:
     void decompose();
     void clustering();
     void computeLabel();
-protected:
     //for image
+public:
+    void createKernels(std::vector<arma::mat>&kernels);
+protected:
     double scale0_;
     double scale1_;
     double scale2_;
@@ -40,7 +42,6 @@ protected:
         return - arma::dot(dif,dif)/scale;
     }
     void getGaussianKernel2D(double sigma1, double sigma2, double angle, int size, arma::mat &kernel);
-    void createKernels(std::vector<arma::mat>&kernels);
     void blurImage(const QImage&,arma::mat&);
 private:
     std::shared_ptr<arma::sp_mat> W_;

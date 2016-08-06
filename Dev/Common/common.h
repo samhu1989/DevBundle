@@ -23,6 +23,7 @@ template class COMMONSHARED_EXPORT unibn::Octree<arma::fvec,DefaultOctreeContain
 typedef unibn::Octree<arma::fvec,DefaultOctreeContainer> DefaultOctree;
 void COMMONSHARED_EXPORT getRotationFromZY(const arma::fvec&,const arma::fvec&,arma::fmat&);
 void COMMONSHARED_EXPORT getRotationFromXY(const arma::fvec&,const arma::fvec&,arma::fmat&);
+arma::mat COMMONSHARED_EXPORT getRotationMatrix2D(const arma::vec& center,double theta,double scale);
 inline void getRotation(float x, float y, float z, float roll, float pitch, float yaw,arma::fmat& t)
 {
    float A=cosf(yaw),  B=sinf(yaw),  C=cosf(pitch), D=sinf(pitch),
