@@ -371,16 +371,18 @@ arma::uword DenseCRF2D::getColor( const unsigned char * c ){
 arma::uvec DenseCRF2D::getLabelingImg( const unsigned char * im, int N, int M, ColorLabelMap& map){
     arma::uvec res(N);
     //printf("%d %d %d \n",im[0],im[1],im[2]);
+    ColorLabelMap tmp;
     for( int k=0; k<N; k++ ){
         // Map the color to a label
         arma::uword c = getColor( im + 3*k );
         arma::uword i;
-        if(map.end()==map.find(c))
+        if(tmp.end()==tmp.find(c))
         {
-            i = map.size()+1;
-            map.insert(c,i);
+            i = tmp.size()+1;
+            tmp.insert(c,i);
+            map.insert(i,c);
         }else{
-            i = map[c];
+            i = tmp[c];
         }
         res[k] = c?i:-1;
     }

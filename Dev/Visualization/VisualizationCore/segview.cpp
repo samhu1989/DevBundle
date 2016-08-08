@@ -30,20 +30,19 @@ void SegView::paintEvent(QPaintEvent* e)
             {
                 int h,s,l,ch_l;
                 QColor cv(img_.pixel(x,y));
-                if(map_.find(label_(x+y*img_.width()))==map_.end())
+                if( map_.find( label_(x+y*img_.width()) )==map_.end())
                 {
                     std::srand(label_(x+y*img_.width())+1);
                     int index = std::rand()%( ColorArray::DefaultColorNum_ - 1 );
                     index += 1;
                     map_.insert(label_(x+y*img_.width()),arma::uword(ColorArray::DefaultColor[index].color));
-//                    qDebug()<<map_;
                 }
                 arma::uword ci = map_.value( label_(x+y*img_.width()) );
                 QColor ch = QColor::fromRgb(ci);
                 cv.getHsv(&h,&s,&l);
                 ch.getHsv(&h,&s,&ch_l);
-                QColor combine = QColor::fromHsv(h,s,(ch_l+l)/2);
-                img.setPixel(x,y,combine.rgb());
+                QColor combine = QColor::fromHsv(h,s,(2*ch_l+l)/3);
+                img.setPixel(x,y,ch.rgb());
             }
         ui->label->setPixmap(QPixmap::fromImage(img));
     }else{

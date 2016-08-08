@@ -20,8 +20,10 @@ protected:
     void computeW_Mesh(typename MeshBundle<Mesh>::Ptr m);
     void computeW_Graph(typename MeshBundle<Mesh>::Ptr m);
     void decompose();
-    void clustering();
-    void computeLabel();
+    void clustering_GMM();
+    void computeLabel_GMM();
+    void bicut();
+    void multicut();
     //for image
 public:
     void createKernels(std::vector<arma::mat>&kernels);

@@ -80,6 +80,7 @@ void MainWindow::load_annotation(void)
     if(!img.isNull())
     {
         img = img.convertToFormat(QImage::Format_RGB888);
+        colortolabel_.clear();
         *annotation_ = DenseCRF2D::getLabelingImg(img.bits(),img.byteCount()/3,255,colortolabel_);
     }else{
         annotation_->load(fileName.toStdString());
