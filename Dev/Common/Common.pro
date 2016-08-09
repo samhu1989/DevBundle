@@ -29,7 +29,8 @@ HEADERS += common.h\
     mbb.h \
     voxelgraph.h \
     voxelgraph.hpp \
-    extractmesh.hpp
+    extractmesh.hpp \
+    fn_eigs_sym_custom.hpp
 
 unix {
     target.path = /usr/lib

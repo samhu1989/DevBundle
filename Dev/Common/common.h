@@ -9,6 +9,7 @@
 #include "configure.h"
 #include "mbb.h"
 #include "voxelgraph.h"
+
 #ifndef M_PI
 #  define M_PI 3.1415926535897932
 #endif
@@ -77,5 +78,5 @@ inline void fitPlane(
         coeff(3) = - arma::dot(coeff.head(3),center);
     }
 }
-
+#include <fn_eigs_sym_custom.hpp>
 #endif // COMMON_H
