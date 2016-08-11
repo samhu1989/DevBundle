@@ -14,6 +14,10 @@ public:
     {
         return ( Ref_.n_vertices() != voxel_label.size() ) || ( 0==voxel_centers.n_cols );
     }
+    size_t size(void)
+    {
+        return voxel_centers.n_cols;
+    }
     bool save(const std::string&);
     bool load(const std::string&);
     void sv2pix(const arma::uvec& sv,arma::uvec& pix);//supervoxel label to pixel label
@@ -45,7 +49,7 @@ public:
     arma::fmat voxel_normals;
     arma::uvec voxel_size;
     arma::uvec voxel_label;//start from one
-    arma::Mat<uint16_t> voxel_neighbors;
+    arma::Mat<uint16_t> voxel_neighbors;//start from zero
 private:
     const Mesh& Ref_;//the ref Mesh that bound with this custom color
 };

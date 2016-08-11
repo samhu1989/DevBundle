@@ -28,14 +28,13 @@ protected:
 public:
     void createKernels(std::vector<arma::mat>&kernels);
 protected:
-    double scale0_;
-    double scale1_;
-    double scale2_;
+    double d_scale_;
+    double c_scale_;
+    double f_scale_;
     uint32_t kernel_size_;
     inline double distanceAffinity(double x1, double y1, double x2, double y2,double scale)
     {
         return -((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))/scale;
-
     }
     template<typename vec>
     inline double vecAffinity(const vec& x,const vec& y,double scale)
@@ -45,6 +44,18 @@ protected:
     }
     void getGaussianKernel2D(double sigma1, double sigma2, double angle, int size, arma::mat &kernel);
     void blurImage(const QImage&,arma::mat&);
+    //for graph and mesh
+protected:
+    template<typename vec>
+    inline double convexity(const vec& p0,const vec&n0,const vec&p1,const vec& n1,double eps)
+    {
+        eps = eps > 0?eps:std::numeric_limits<double>::epsilon();
+        vec dir = arma::normalise(p1-p0);
+        double dif = std::acos(arma::dot(n0,dir)) - std::acos(arma::dot(n1,dir));
+        if(dif<-eps)return 0.0;
+        else if(dif>eps)return 1.0;
+        else return 0.5*dif/eps+0.5;
+    }
 private:
     std::shared_ptr<arma::sp_mat> W_;
     arma::sp_mat A_;

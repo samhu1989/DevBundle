@@ -40,7 +40,9 @@ SOURCES += main.cpp\
     jrcsview.cpp \
     jrcsinitthread.cpp \
     regiongrowrgbthread.cpp \
-    sort_agd.cpp
+    sort_agd.cpp \
+    ncut.cpp \
+    mainwindow_edit.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -65,7 +67,8 @@ HEADERS  += mainwindow.h \
     jrcsview.h \
     jrcsinitthread.h \
     regiongrowrgbthread.h \
-    sort_agd.h
+    sort_agd.h \
+    ncut.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

@@ -103,6 +103,7 @@
     <addaction name="actionJRCS_Init"/>
     <addaction name="actionRegionGrowRGB"/>
     <addaction name="actionJRCS"/>
+    <addaction name="actionNCut"/>
    </widget>
    <widget class="QMenu" name="menuReplay">
     <property name="title">
@@ -328,6 +329,11 @@
   <action name="actionAGD_test">
    <property name="text">
     <string>AGD_test</string>
+   </property>
+  </action>
+  <action name="actionNCut">
+   <property name="text">
+    <string>NCut</string>
    </property>
   </action>
  </widget>

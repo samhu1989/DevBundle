@@ -6,16 +6,39 @@ NormalizedCuts<Mesh>::NormalizedCuts()
 {
     k_ = 40;
     tol_ = 0.01;
-    scale0_ = 1.0;
-    scale1_ = 1.0;
-    scale2_ = 1.0;
+    d_scale_ = 1.0;
+    c_scale_ = 1.0;
+    f_scale_ = 1.0;
     kernel_size_ = 7;
     max_N_ = 10;
 }
 template<typename Mesh>
 bool NormalizedCuts<Mesh>::configure(Config::Ptr config)
 {
-    ;
+    if(config->has("NCut_k")){
+        k_ = config->getInt("NCut_k");
+    }
+    if(config->has("NCut_GMM_tol"))
+    {
+        tol_ = config->getDouble("NCut_GMM_tol");
+    }
+    if(config->has("NCut_GMM_Max_n"))
+    {
+        max_N_ = config->getInt("NCut_GMM_Max_n");
+    }
+    if(config->has("NCut_Dist_Scale"))
+    {
+        d_scale_ = config->getDouble("NCut_Dist_Scale");
+    }
+    if(config->has("NCut_Color_Scale"))
+    {
+        c_scale_ = config->getDouble("NCut_Color_Scale");
+    }
+    if(config->has("NCut_Feature_Scale"))
+    {
+        f_scale_ = config->getDouble("NCut_Feature_Scale");
+    }
+    return true;
 }
 template<typename Mesh>
 void NormalizedCuts<Mesh>::cutW(std::shared_ptr<arma::sp_mat>w,arma::uvec&label)
@@ -31,8 +54,6 @@ void NormalizedCuts<Mesh>::cutImage(const QImage&img,arma::uvec&label)
 {
     computeW_Image(img);
     decompose();
-//    clustering_GMM();
-//    computeLabel_GMM();
     bicut();
     getLabel(label);
 }
@@ -94,20 +115,7 @@ double assoc(arma::sp_mat& A, arma::vec& v, double threshold,bool a)
 template<typename Mesh>
 void NormalizedCuts<Mesh>::multicut()
 {
-//    arma::vec v = Y_.col(0);
-//    label_ = arma::uvec(v.size(),arma::fill::zeros);
-//    #pragma omp parallel for
-//    for(size_t i=0;i<v.size();i++)
-//    {
-//        if(v(i)<best_threshold)
-//        {
-//            label_(i)=1;
-//        }
-//        else
-//        {
-//            label_(i)=2;
-//        }
-//    }
+    throw std::logic_error("void NormalizedCuts<Mesh>::multicut(): not implemented");
 }
 
 template<typename Mesh>
@@ -171,11 +179,16 @@ void NormalizedCuts<Mesh>::getGaussianKernel2D(double sigma1,double sigma2,doubl
 template<typename Mesh>
 void NormalizedCuts<Mesh>::createKernels(std::vector<arma::mat>&kernels)
 {
-    kernels.resize(4);
-    #pragma omp for
+    kernels.resize(6);
+    #pragma omp parallel for
     for(uint32_t idx=0;idx<4;++idx)
     {
-        getGaussianKernel2D(1.0+0.5*idx,0.5+0.5*idx,0.0,kernel_size_,kernels[idx]);
+        getGaussianKernel2D(1.0+0.5*idx,1.0+0.5*idx,0.0,kernel_size_,kernels[idx]);
+    }
+    #pragma omp parallel for
+    for(uint32_t idx=4;idx<6;++idx)
+    {
+        getGaussianKernel2D(2.0,1.5,idx*90.0,kernel_size_,kernels[idx]);
     }
 }
 
@@ -194,8 +207,6 @@ void NormalizedCuts<Mesh>::blurImage(const QImage& img,arma::mat& blured)
 {
     arma::Mat<uint8_t> imgMat((uint8_t*)img.bits(),4,img.byteCount()/4,false,true);
     arma::Mat<uint8_t> tmp  = imgMat.rows(0,2);
-//    arma::fmat ftmp;
-//    ColorArray::RGB2Lab(tmp,ftmp);
     arma::mat imgDMat = arma::conv_to<arma::mat>::from(tmp);
     std::vector<arma::mat> kernels;
     std::cerr<<"createKernels"<<std::endl;
@@ -239,9 +250,9 @@ void NormalizedCuts<Mesh>::computeW_Image(const QImage& img)
                 {
                     uint32_t wj = i*img8888.width()+j;
                     if( (*W_)(wi,wj) != 0.0 )continue;
-                    double affinity = distanceAffinity(r,c,i,j,scale0_);
-                    affinity += vecAffinity<arma::vec>(imgDMat.col(wi),imgDMat.col(wj),scale1_);
-//                    affinity += vecAffinity<arma::vec>(bluredMat.col(wi),bluredMat.col(wj),scale2_);
+                    double affinity = distanceAffinity(r,c,i,j,d_scale_);
+                    affinity += vecAffinity<arma::vec>(imgDMat.col(wi),imgDMat.col(wj),c_scale_);
+//                    affinity += vecAffinity<arma::vec>(bluredMat.col(wi),bluredMat.col(wj),f_scale_);
                     (*W_)(wi,wj) = std::exp(affinity);
                     (*W_)(wj,wi) = (*W_)(wi,wj);
                 }
@@ -250,16 +261,38 @@ void NormalizedCuts<Mesh>::computeW_Image(const QImage& img)
     }
     std::cerr<<"End W"<<std::endl;
 }
+
 template<typename Mesh>
 void NormalizedCuts<Mesh>::computeW_Mesh(typename MeshBundle<Mesh>::Ptr m)
 {
     ;
 }
+
 template<typename Mesh>
 void NormalizedCuts<Mesh>::computeW_Graph(typename MeshBundle<Mesh>::Ptr m)
 {
-    ;
+    MeshBundle<Mesh>& mesh = *m;
+    VoxelGraph<Mesh>& graph = mesh.graph_;
+    size_t N = graph.size();
+    W_.reset(new arma::sp_mat(N,N));
+    *W_ = arma::speye(N,N);
+    for(arma::Mat<uint16_t>::iterator niter=graph.voxel_neighbors.begin();niter!=graph.voxel_neighbors.end();   )
+    {
+        uint16_t wi = *niter;
+        ++niter;
+        uint16_t wj = *niter;
+        ++niter;
+        double affinity = vecAffinity<arma::fvec>(
+                    graph.voxel_centers.col(wi),
+                    graph.voxel_centers.col(wj),
+                    d_scale_
+                    );
+        (*W_)(wi,wj) = std::exp(affinity);
+        (*W_)(wj,wi) = (*W_)(wi,wj);
+    }
+
 }
+
 template<typename Mesh>
 void NormalizedCuts<Mesh>::decompose()
 {
@@ -292,11 +325,12 @@ template<typename Mesh>
 void NormalizedCuts<Mesh>::clustering_GMM()
 {
     arma::mat Yt = Y_.t();
+    arma::uword k = Yt.n_rows;
     arma::mat last_means;
     arma::mat last_covs;
     arma::mat last_hefts;
     arma::mat means = arma::mean(Yt,1);
-    arma::mat covs(k_,1);
+    arma::mat covs(k,1);
     std::cerr<<Yt.n_rows<<","<<Yt.n_cols<<std::endl;
     covs.col(0) = arma::var(Yt,0,1);
     arma::rowvec hefts(1,1,arma::fill::ones);
