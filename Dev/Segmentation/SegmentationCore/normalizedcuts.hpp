@@ -287,7 +287,15 @@ void NormalizedCuts<Mesh>::computeW_Graph(typename MeshBundle<Mesh>::Ptr m)
                     graph.voxel_centers.col(wj),
                     d_scale_
                     );
-        (*W_)(wi,wj) = std::exp(affinity);
+        affinity = std::exp(affinity);
+        affinity *= convexity<arma::fvec>(
+                    graph.voxel_centers.col(wi),
+                    graph.voxel_normals.col(wi),
+                    graph.voxel_centers.col(wj),
+                    graph.voxel_normals.col(wj),
+                    100.0*std::numeric_limits<float>::max()
+                    );
+        (*W_)(wi,wj) = affinity;
         (*W_)(wj,wi) = (*W_)(wi,wj);
     }
 

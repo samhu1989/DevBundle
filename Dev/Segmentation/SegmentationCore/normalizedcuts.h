@@ -49,7 +49,7 @@ protected:
     template<typename vec>
     inline double convexity(const vec& p0,const vec&n0,const vec&p1,const vec& n1,double eps)
     {
-        eps = eps > 0?eps:std::numeric_limits<double>::epsilon();
+        eps = eps > 0?100.0*eps:std::numeric_limits<double>::epsilon();
         vec dir = arma::normalise(p1-p0);
         double dif = std::acos(arma::dot(n0,dir)) - std::acos(arma::dot(n1,dir));
         if(dif<-eps)return 0.0;
