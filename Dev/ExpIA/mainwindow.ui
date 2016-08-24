@@ -87,6 +87,15 @@
      <addaction name="actionV0"/>
      <addaction name="actionV1"/>
     </widget>
+    <widget class="QMenu" name="menuNCut">
+     <property name="title">
+      <string>NCut</string>
+     </property>
+     <addaction name="actionCut_Graph"/>
+     <addaction name="separator"/>
+     <addaction name="actionDebug_Convexity"/>
+     <addaction name="actionDebug_W"/>
+    </widget>
     <addaction name="actionGlobal_Align"/>
     <addaction name="actionExtract_Background"/>
     <addaction name="actionRemove_Zero_Label"/>
@@ -103,7 +112,7 @@
     <addaction name="actionJRCS_Init"/>
     <addaction name="actionRegionGrowRGB"/>
     <addaction name="actionJRCS"/>
-    <addaction name="actionNCut"/>
+    <addaction name="menuNCut"/>
    </widget>
    <widget class="QMenu" name="menuReplay">
     <property name="title">
@@ -331,9 +340,19 @@
     <string>AGD_test</string>
    </property>
   </action>
-  <action name="actionNCut">
+  <action name="actionCut_Graph">
    <property name="text">
-    <string>NCut</string>
+    <string>Cut Graph</string>
+   </property>
+  </action>
+  <action name="actionDebug_Convexity">
+   <property name="text">
+    <string>Debug Convexity</string>
+   </property>
+  </action>
+  <action name="actionDebug_W">
+   <property name="text">
+    <string>Debug W</string>
    </property>
   </action>
  </widget>

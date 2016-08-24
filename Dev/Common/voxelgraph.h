@@ -50,6 +50,7 @@ public:
     arma::uvec voxel_size;
     arma::uvec voxel_label;//start from one
     arma::Mat<uint16_t> voxel_neighbors;//start from zero
+    arma::Mat<uint8_t> voxel_edge_colors;
 private:
     const Mesh& Ref_;//the ref Mesh that bound with this custom color
 };

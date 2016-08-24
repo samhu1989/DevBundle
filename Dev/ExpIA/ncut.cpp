@@ -39,3 +39,25 @@ void NCut::process()
     }
     emit end();
 }
+
+void NCut::debug_convexity()
+{
+    MeshBundle<DefaultMesh>::PtrList::iterator iiter;
+    for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
+    {
+        MeshBundle<DefaultMesh>::Ptr mesh_ptr = *iiter;
+        cuts_.debug_convexity(mesh_ptr);
+    }
+    emit end();
+}
+
+void NCut::debug_W()
+{
+    MeshBundle<DefaultMesh>::PtrList::iterator iiter;
+    for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
+    {
+        MeshBundle<DefaultMesh>::Ptr mesh_ptr = *iiter;
+        cuts_.debug_W(mesh_ptr);
+    }
+    emit end();
+}

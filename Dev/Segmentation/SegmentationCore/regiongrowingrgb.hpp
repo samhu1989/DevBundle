@@ -3,6 +3,7 @@
 #include "regiongrowingrgb.h"
 #include <queue>
 #include <cmath>
+
 namespace Segmentation{
 template<typename M>
 RegionGrowingRGB<M>::RegionGrowingRGB():

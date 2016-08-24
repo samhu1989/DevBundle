@@ -31,6 +31,7 @@ protected:
     double d_scale_;
     double c_scale_;
     double f_scale_;
+    double convex_scale_;
     uint32_t kernel_size_;
     inline double distanceAffinity(double x1, double y1, double x2, double y2,double scale)
     {
@@ -45,6 +46,9 @@ protected:
     void getGaussianKernel2D(double sigma1, double sigma2, double angle, int size, arma::mat &kernel);
     void blurImage(const QImage&,arma::mat&);
     //for graph and mesh
+public:
+    void debug_convexity(typename MeshBundle<Mesh>::Ptr m);
+    void debug_W(typename MeshBundle<Mesh>::Ptr m);
 protected:
     template<typename vec>
     inline double convexity(const vec& p0,const vec&n0,const vec&p1,const vec& n1,double eps)

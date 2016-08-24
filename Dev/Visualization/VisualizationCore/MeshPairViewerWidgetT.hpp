@@ -562,9 +562,15 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
   {
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer(3,GL_FLOAT,0,static_cast<GLfloat*>(b.graph_.voxel_centers.memptr()));
+      if( !b.graph_.voxel_edge_colors.empty() && ( b.graph_.voxel_centers.n_cols == b.graph_.voxel_edge_colors.n_cols ) )
+      {
+          glEnableClientState(GL_COLOR_ARRAY);
+          glColorPointer(b.graph_.voxel_edge_colors.n_rows, GL_UNSIGNED_BYTE, 0, b.graph_.voxel_edge_colors.memptr());
+      }
       glLineWidth(2.0);
       glDrawElements(GL_LINES,b.graph_.voxel_neighbors.size(),GL_UNSIGNED_SHORT,static_cast<GLushort*>(b.graph_.voxel_neighbors.memptr()));
       glDisableClientState(GL_VERTEX_ARRAY);
+      glDisableClientState(GL_COLOR_ARRAY);
   }
 }
 

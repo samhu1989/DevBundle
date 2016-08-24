@@ -18,6 +18,8 @@ signals:
 public slots:
     bool configure(Config::Ptr);
     void process();
+    void debug_convexity();
+    void debug_W();
 private:
     MeshBundle<DefaultMesh>::PtrList& inputs_;
     std::vector<arma::uvec>& labels_;
