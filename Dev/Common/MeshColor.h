@@ -50,6 +50,7 @@ namespace ColorArray
     void COMMONSHARED_EXPORT BGR2Lab(const arma::Mat<uint8_t>& rgb, arma::fmat& Lab);
     void COMMONSHARED_EXPORT BGR2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab);
 
+    void COMMONSHARED_EXPORT colorfromValue(uint32_t* ptr,arma::uword size,const arma::vec& value);
     void COMMONSHARED_EXPORT colorfromlabel(uint32_t* ptr,arma::uword size,const arma::uvec& label);
     void COMMONSHARED_EXPORT colorfromIndex(uint32_t* ptr,arma::uword size);
 

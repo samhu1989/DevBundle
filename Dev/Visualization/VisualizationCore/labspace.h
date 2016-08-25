@@ -29,10 +29,10 @@ public:
         case L:
             setMinimumSize(50,256);
             setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
-            L_ = QImage(128,128,QImage::Format_RGB888);
+            L_ = QImage(128,128,QImage::Format_RGBA8888);
             std::cerr<<"L size:"<<L_.byteCount()<<std::endl;
             PL_ = std::make_shared<arma::Mat<uint8_t>>
-                     ((uint8_t*)L_.bits(),3,L_.byteCount()/3,false,true);
+                     ((uint8_t*)L_.bits(),4,L_.byteCount()/4,false,true);
             break;
         case ab:
             setMinimumSize(256,256);
@@ -49,7 +49,13 @@ public:
         switch(m_)
         {
         case L:
-            L_.fill(Qt::blue);
+            {
+                arma::Col<uint32_t> color_bar(L_.height());
+                uint32_t* ptr = (uint32_t*)color_bar.memptr();
+                ColorArray::colorfromIndex(ptr,color_bar.size());
+                arma::Mat<uint32_t> Lmat((uint32_t*)L_.bits(),L_.width(),L_.height(),false,true);
+                Lmat.each_row() = color_bar.t();
+            }
             break;
         case ab:
             Lab_ = arma::fmat(L50ab_->n_rows,L50ab_->n_cols);

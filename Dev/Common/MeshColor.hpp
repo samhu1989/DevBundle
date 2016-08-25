@@ -17,8 +17,6 @@ ColorArray::RGBArray MeshColor<M>::vertex_colors_array(void)
     return v_colors;
 }
 
-
-
 template<typename M>
 void* MeshColor<M>::vertex_colors(void)
 {

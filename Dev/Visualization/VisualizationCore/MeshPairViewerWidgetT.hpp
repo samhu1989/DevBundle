@@ -536,8 +536,6 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
     }
     glColor3f(1.0, 1.0, 1.0);
   }
-
-
   else if( _draw_mode == "Points" ) // -----------------------------------------
   {
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -560,17 +558,44 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
     glDisableClientState(GL_COLOR_ARRAY);
   }else if( _draw_mode == "VoxelGraph" )
   {
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glVertexPointer(3,GL_FLOAT,0,static_cast<GLfloat*>(b.graph_.voxel_centers.memptr()));
-      if( !b.graph_.voxel_edge_colors.empty() && ( b.graph_.voxel_centers.n_cols == b.graph_.voxel_edge_colors.n_cols ) )
-      {
-          glEnableClientState(GL_COLOR_ARRAY);
-          glColorPointer(b.graph_.voxel_edge_colors.n_rows, GL_UNSIGNED_BYTE, 0, b.graph_.voxel_edge_colors.memptr());
-      }
       glLineWidth(2.0);
-      glDrawElements(GL_LINES,b.graph_.voxel_neighbors.size(),GL_UNSIGNED_SHORT,static_cast<GLushort*>(b.graph_.voxel_neighbors.memptr()));
-      glDisableClientState(GL_VERTEX_ARRAY);
-      glDisableClientState(GL_COLOR_ARRAY);
+      glDisable(GL_LIGHTING);
+      if( !b.graph_.voxel_edge_colors.empty() && ( b.graph_.voxel_neighbors.n_cols == b.graph_.voxel_edge_colors.n_cols ) )
+      {
+          GLubyte* c_ptr = (GLubyte*)b.graph_.voxel_edge_colors.memptr();
+          arma::Mat<uint16_t>::iterator iter;
+          glBegin(GL_LINES);
+          for(iter=b.graph_.voxel_neighbors.begin();iter!=b.graph_.voxel_neighbors.end();++(++iter))
+          {
+              if(b.graph_.voxel_edge_colors.n_rows==4){
+                  glColor4ubv(c_ptr);
+              }
+              if(b.graph_.voxel_edge_colors.n_rows==3){
+                  glColor3ubv(c_ptr);
+              }
+              glVertex3fv((GLfloat*)b.graph_.voxel_centers.colptr(*iter));
+              if(b.graph_.voxel_edge_colors.n_rows==4){
+                  glColor4ubv(c_ptr);
+              }
+              if(b.graph_.voxel_edge_colors.n_rows==3){
+                  glColor3ubv(c_ptr);
+              }
+              glVertex3fv((GLfloat*)b.graph_.voxel_centers.colptr(*(iter+1)));
+              if(b.graph_.voxel_edge_colors.n_rows==4){
+                  c_ptr+=4;
+              }
+              if(b.graph_.voxel_edge_colors.n_rows==3){
+                  c_ptr+=3;
+              }
+          }
+          glEnd();
+      }else
+      {
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glVertexPointer(3,GL_FLOAT,0,static_cast<GLfloat*>(b.graph_.voxel_centers.memptr()));
+          glDrawElements(GL_LINES,b.graph_.voxel_neighbors.size(),GL_UNSIGNED_SHORT,static_cast<GLushort*>(b.graph_.voxel_neighbors.memptr()));
+          glDisableClientState(GL_VERTEX_ARRAY);
+      }
   }
 }
 

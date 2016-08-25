@@ -316,8 +316,9 @@ void NormalizedCuts<Mesh>::debug_convexity(typename MeshBundle<Mesh>::Ptr m)
     MeshBundle<Mesh>& mesh = *m;
     VoxelGraph<Mesh>& graph = mesh.graph_;
     size_t N = graph.size();
-    graph.voxel_edge_colors = arma::Mat<uint8_t>(4,graph.voxel_centers.n_cols,arma::fill::zeros);
+    graph.voxel_edge_colors = arma::Mat<uint8_t>(4,graph.voxel_neighbors.n_cols,arma::fill::zeros);
     arma::vec conv(graph.voxel_edge_colors.n_cols,arma::fill::zeros);
+    arma::vec::iterator conv_iter = conv.begin();
     for(arma::Mat<uint16_t>::iterator niter=graph.voxel_neighbors.begin();niter!=graph.voxel_neighbors.end();   )
     {
         uint16_t wi = *niter;
@@ -331,22 +332,17 @@ void NormalizedCuts<Mesh>::debug_convexity(typename MeshBundle<Mesh>::Ptr m)
                     graph.voxel_normals.col(wj),
                     convex_scale_
                     );
-        conv(wi) += affinity;
-        conv(wj) += affinity;
+        *conv_iter = affinity;
+        ++conv_iter;
     };
     //to do convert convexity to color
     double max = arma::max(conv);
     double min = arma::min(conv);
     conv -= min;
     conv /= ( max - min );
+    assert(conv.is_finite());
     uint32_t* ptr = (uint32_t*)graph.voxel_edge_colors.memptr();
-    #pragma omp parallel for
-    for( arma::uword index=0 ; index < graph.voxel_edge_colors.n_cols ; ++index )
-    {
-        QColor color;
-        color.setHslF(0.75*conv(index),0.6,0.9);
-        ptr[index] = qRgb(color.blue(),color.green(),color.red());;
-    }
+    ColorArray::colorfromValue(ptr,graph.voxel_edge_colors.n_cols,conv);
 }
 template<typename Mesh>
 void NormalizedCuts<Mesh>::debug_W(typename MeshBundle<Mesh>::Ptr m)
@@ -354,8 +350,9 @@ void NormalizedCuts<Mesh>::debug_W(typename MeshBundle<Mesh>::Ptr m)
     MeshBundle<Mesh>& mesh = *m;
     VoxelGraph<Mesh>& graph = mesh.graph_;
     size_t N = graph.size();
-    graph.voxel_edge_colors = arma::Mat<uint8_t>(4,graph.voxel_centers.n_cols,arma::fill::zeros);
+    graph.voxel_edge_colors = arma::Mat<uint8_t>(4,graph.voxel_neighbors.n_cols,arma::fill::zeros);
     arma::vec wv(graph.voxel_edge_colors.n_cols,arma::fill::zeros);
+    arma::vec::iterator wv_iter = wv.begin();
     for(arma::Mat<uint16_t>::iterator niter=graph.voxel_neighbors.begin();niter!=graph.voxel_neighbors.end();   )
     {
         uint16_t wi = *niter;
@@ -369,22 +366,16 @@ void NormalizedCuts<Mesh>::debug_W(typename MeshBundle<Mesh>::Ptr m)
                     graph.voxel_normals.col(wj),
                     convex_scale_
                     );
-        wv(wi) += affinity;
-        wv(wj) += affinity;
+        *wv_iter = affinity;
     };
     //to do convert convexity to color
     double max = arma::max(wv);
     double min = arma::min(wv);
     wv -= min;
     wv /= ( max - min );
+    assert(wv.is_finite());
     uint32_t* ptr = (uint32_t*)graph.voxel_edge_colors.memptr();
-    #pragma omp parallel for
-    for( arma::uword index=0 ; index < graph.voxel_edge_colors.n_cols ; ++index )
-    {
-        QColor color;
-        color.setHslF(0.75*wv(index),0.6,0.9);
-        ptr[index] = qRgb(color.blue(),color.green(),color.red());;
-    }
+    ColorArray::colorfromValue(ptr,graph.voxel_edge_colors.n_cols,wv);
 }
 template<typename Mesh>
 void NormalizedCuts<Mesh>::decompose()
