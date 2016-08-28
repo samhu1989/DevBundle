@@ -293,23 +293,19 @@ void NormalizedCuts<Mesh>::computeW_Graph(typename MeshBundle<Mesh>::Ptr m)
                     graph.voxel_centers.col(wj),
                     d_scale_
                     );
-        affinity += vecAffinity<arma::Col<uint8_t>>(
-                    graph.voxel_colors.col(wi),
-                    graph.voxel_colors.col(wj),
-                    c_scale_
-                    );
         affinity = std::exp(affinity);
-        affinity *= convexity<arma::fvec>(
+        affinity += convexity<arma::fvec>(
                     graph.voxel_centers.col(wi),
                     graph.voxel_normals.col(wi),
                     graph.voxel_centers.col(wj),
                     graph.voxel_normals.col(wj),
                     convex_scale_
                     );
-        (*W_)(wi,wj) = affinity;
+        (*W_)(wi,wj) = 0.5*affinity;
         (*W_)(wj,wi) = (*W_)(wi,wj);
     }
 }
+
 template<typename Mesh>
 void NormalizedCuts<Mesh>::debug_convexity(typename MeshBundle<Mesh>::Ptr m)
 {
@@ -338,11 +334,82 @@ void NormalizedCuts<Mesh>::debug_convexity(typename MeshBundle<Mesh>::Ptr m)
     //to do convert convexity to color
     double max = arma::max(conv);
     double min = arma::min(conv);
+    std::cerr<<"Convexity["<<min<<","<<max<<"]"<<std::endl;
     conv -= min;
     conv /= ( max - min );
     assert(conv.is_finite());
     uint32_t* ptr = (uint32_t*)graph.voxel_edge_colors.memptr();
     ColorArray::colorfromValue(ptr,graph.voxel_edge_colors.n_cols,conv);
+}
+
+template<typename Mesh>
+void NormalizedCuts<Mesh>::debug_color(typename MeshBundle<Mesh>::Ptr m)
+{
+    MeshBundle<Mesh>& mesh = *m;
+    VoxelGraph<Mesh>& graph = mesh.graph_;
+    size_t N = graph.size();
+    graph.voxel_edge_colors = arma::Mat<uint8_t>(4,graph.voxel_neighbors.n_cols,arma::fill::zeros);
+    arma::fmat Lab;
+    ColorArray::RGB2Lab(graph.voxel_colors,Lab);
+    arma::fmat ab = Lab.rows(0,1);
+    arma::vec wv(graph.voxel_edge_colors.n_cols,arma::fill::zeros);
+    arma::vec::iterator wv_iter = wv.begin();
+    for(arma::Mat<uint16_t>::iterator niter=graph.voxel_neighbors.begin();niter!=graph.voxel_neighbors.end();   )
+    {
+        uint16_t wi = *niter;
+        ++niter;
+        uint16_t wj = *niter;
+        ++niter;
+        double affinity = vecAffinity<arma::fvec>(
+                    ab.col(wi),
+                    ab.col(wj),
+                    c_scale_
+                    );
+        *wv_iter = std::exp(affinity);
+        ++wv_iter;
+    };
+    //to do convert convexity to color
+    double max = arma::max(wv);
+    double min = arma::min(wv);
+    std::cerr<<"Color["<<min<<","<<max<<"]"<<std::endl;
+    wv -= min;
+    wv /= ( max - min );
+    assert(wv.is_finite());
+    uint32_t* ptr = (uint32_t*)graph.voxel_edge_colors.memptr();
+    ColorArray::colorfromValue(ptr,graph.voxel_edge_colors.n_cols,wv);
+}
+template<typename Mesh>
+void NormalizedCuts<Mesh>::debug_dist(typename MeshBundle<Mesh>::Ptr m)
+{
+    MeshBundle<Mesh>& mesh = *m;
+    VoxelGraph<Mesh>& graph = mesh.graph_;
+    size_t N = graph.size();
+    graph.voxel_edge_colors = arma::Mat<uint8_t>(4,graph.voxel_neighbors.n_cols,arma::fill::zeros);
+    arma::vec wv(graph.voxel_edge_colors.n_cols,arma::fill::zeros);
+    arma::vec::iterator wv_iter = wv.begin();
+    for(arma::Mat<uint16_t>::iterator niter=graph.voxel_neighbors.begin();niter!=graph.voxel_neighbors.end();   )
+    {
+        uint16_t wi = *niter;
+        ++niter;
+        uint16_t wj = *niter;
+        ++niter;
+        double affinity = vecAffinity<arma::fvec>(
+                    graph.voxel_centers.col(wi),
+                    graph.voxel_centers.col(wj),
+                    d_scale_
+                    );
+        *wv_iter = std::exp(affinity);
+        ++wv_iter;
+    };
+    //to do convert convexity to color
+    double max = arma::max(wv);
+    double min = arma::min(wv);
+    std::cerr<<"Dist["<<min<<","<<max<<"]"<<std::endl;
+    wv -= min;
+    wv /= ( max - min );
+    assert(wv.is_finite());
+    uint32_t* ptr = (uint32_t*)graph.voxel_edge_colors.memptr();
+    ColorArray::colorfromValue(ptr,graph.voxel_edge_colors.n_cols,wv);
 }
 template<typename Mesh>
 void NormalizedCuts<Mesh>::debug_W(typename MeshBundle<Mesh>::Ptr m)
@@ -359,7 +426,13 @@ void NormalizedCuts<Mesh>::debug_W(typename MeshBundle<Mesh>::Ptr m)
         ++niter;
         uint16_t wj = *niter;
         ++niter;
-        double affinity = convexity<arma::fvec>(
+        double affinity = vecAffinity<arma::fvec>(
+                    graph.voxel_centers.col(wi),
+                    graph.voxel_centers.col(wj),
+                    d_scale_
+                    );
+        affinity = std::exp(affinity);
+        affinity += convexity<arma::fvec>(
                     graph.voxel_centers.col(wi),
                     graph.voxel_normals.col(wi),
                     graph.voxel_centers.col(wj),
@@ -367,16 +440,19 @@ void NormalizedCuts<Mesh>::debug_W(typename MeshBundle<Mesh>::Ptr m)
                     convex_scale_
                     );
         *wv_iter = affinity;
+        ++wv_iter;
     };
     //to do convert convexity to color
     double max = arma::max(wv);
     double min = arma::min(wv);
+    std::cerr<<"W=["<<min<<","<<max<<"]"<<std::endl;
     wv -= min;
     wv /= ( max - min );
     assert(wv.is_finite());
     uint32_t* ptr = (uint32_t*)graph.voxel_edge_colors.memptr();
     ColorArray::colorfromValue(ptr,graph.voxel_edge_colors.n_cols,wv);
 }
+
 template<typename Mesh>
 void NormalizedCuts<Mesh>::decompose()
 {

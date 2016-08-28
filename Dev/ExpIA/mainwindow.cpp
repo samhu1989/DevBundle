@@ -60,6 +60,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionDebug_Convexity,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionDebug_Color,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionDebug_Dist,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionDebug_W,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionCut_Graph,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 

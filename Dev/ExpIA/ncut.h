@@ -19,6 +19,8 @@ public slots:
     bool configure(Config::Ptr);
     void process();
     void debug_convexity();
+    void debug_color();
+    void debug_dist();
     void debug_W();
 private:
     MeshBundle<DefaultMesh>::PtrList& inputs_;

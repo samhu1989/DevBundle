@@ -51,6 +51,28 @@ void NCut::debug_convexity()
     emit end();
 }
 
+void NCut::debug_color()
+{
+    MeshBundle<DefaultMesh>::PtrList::iterator iiter;
+    for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
+    {
+        MeshBundle<DefaultMesh>::Ptr mesh_ptr = *iiter;
+        cuts_.debug_color(mesh_ptr);
+    }
+    emit end();
+}
+
+void NCut::debug_dist()
+{
+    MeshBundle<DefaultMesh>::PtrList::iterator iiter;
+    for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
+    {
+        MeshBundle<DefaultMesh>::Ptr mesh_ptr = *iiter;
+        cuts_.debug_dist(mesh_ptr);
+    }
+    emit end();
+}
+
 void NCut::debug_W()
 {
     MeshBundle<DefaultMesh>::PtrList::iterator iiter;

@@ -94,6 +94,8 @@
      <addaction name="actionCut_Graph"/>
      <addaction name="separator"/>
      <addaction name="actionDebug_Convexity"/>
+     <addaction name="actionDebug_Color"/>
+     <addaction name="actionDebug_Dist"/>
      <addaction name="actionDebug_W"/>
     </widget>
     <addaction name="actionGlobal_Align"/>
@@ -353,6 +355,16 @@
   <action name="actionDebug_W">
    <property name="text">
     <string>Debug W</string>
+   </property>
+  </action>
+  <action name="actionDebug_Color">
+   <property name="text">
+    <string>Debug Color</string>
+   </property>
+  </action>
+  <action name="actionDebug_Dist">
+   <property name="text">
+    <string>Debug Dist</string>
    </property>
   </action>
  </widget>

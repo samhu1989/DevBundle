@@ -267,6 +267,44 @@ void MainWindow::start_editing()
         th->setObjectName(tr("NCut_Debug_Convexity"));
         edit_thread_ = th;
     }
+    if(edit==ui->actionDebug_Color)
+    {
+        NCut* worker = new NCut(inputs_,labels_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(debug_color()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("NCut_Debug_Color"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionDebug_Dist)
+    {
+        NCut* worker = new NCut(inputs_,labels_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(debug_dist()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("NCut_Debug_Dist"));
+        edit_thread_ = th;
+    }
     if(edit==ui->actionDebug_W)
     {
         NCut* worker = new NCut(inputs_,labels_);

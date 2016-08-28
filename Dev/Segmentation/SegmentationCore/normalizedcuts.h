@@ -48,6 +48,8 @@ protected:
     //for graph and mesh
 public:
     void debug_convexity(typename MeshBundle<Mesh>::Ptr m);
+    void debug_color(typename MeshBundle<Mesh>::Ptr m);
+    void debug_dist(typename MeshBundle<Mesh>::Ptr m);
     void debug_W(typename MeshBundle<Mesh>::Ptr m);
 protected:
     template<typename vec>
