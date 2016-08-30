@@ -7,6 +7,16 @@ namespace Segmentation{
 template<typename Mesh>
 class NormalizedCuts
 {
+    typedef enum{
+        N,//normalized cut
+        M, //min cut
+        G  //Global Point Signature
+    }TYPE;
+    typedef enum{
+        GMM,
+        Kmean,
+        Bisection
+    }CLUSTERING;
 public:
     NormalizedCuts();
     bool configure(Config::Ptr);
@@ -19,9 +29,39 @@ protected:
     void computeW_Image(const QImage& img);
     void computeW_Mesh(typename MeshBundle<Mesh>::Ptr m);
     void computeW_Graph(typename MeshBundle<Mesh>::Ptr m);
-    void decompose();
+    void decompose()
+    {
+        switch(type_)
+        {
+        case N:decomposeNormarlized();break;
+        case M:decomposeMin();break;
+        case G:decomposeGSP();break;
+        default:decomposeNormarlized();
+        }
+    }
+    void decomposeNormarlized();
+    void decomposeMin();
+    void decomposeGSP();
+    void clustering()
+    {
+        switch(clustering_type_)
+        {
+        case GMM:
+            clustering_GMM();
+            computeLabel_GMM();
+            break;
+        case Bisection:bicut();break;
+        case Kmean:
+            clustering_Kmean();
+            computeLabel_Kmean();
+            break;
+        default:bicut();
+        }
+    }
     void clustering_GMM();
     void computeLabel_GMM();
+    void clustering_Kmean();
+    void computeLabel_Kmean();
     void bicut();
     void multicut();
     //for image
@@ -62,7 +102,9 @@ protected:
         else if(dif>eps)return 1.0;
         else return 0.5*dif/eps+0.5;
     }
-private:
+protected:
+    TYPE type_;
+    CLUSTERING  clustering_type_;
     std::shared_ptr<arma::sp_mat> W_;
     arma::sp_mat A_;
     arma::vec lambda_;
@@ -70,7 +112,9 @@ private:
     arma::vec th_;
     arma::uvec label_;
     double tol_;
+    double eps_;
     arma::uword k_;
+    arma::uword clustering_k_;
     arma::uword max_N_;
     arma::gmm_diag gmm_;
 };

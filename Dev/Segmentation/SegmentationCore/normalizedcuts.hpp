@@ -5,7 +5,9 @@ namespace Segmentation{
 template<typename Mesh>
 NormalizedCuts<Mesh>::NormalizedCuts()
 {
+    type_ = N;
     k_ = 40;
+    clustering_k_ = 5;
     tol_ = 0.01;
     d_scale_ = 1.0;
     c_scale_ = 1.0;
@@ -13,10 +15,29 @@ NormalizedCuts<Mesh>::NormalizedCuts()
     convex_scale_ = 10.0*std::numeric_limits<float>::epsilon();
     kernel_size_ = 7;
     max_N_ = 10;
+    eps_ = 0.0;
 }
 template<typename Mesh>
 bool NormalizedCuts<Mesh>::configure(Config::Ptr config)
 {
+    if(config->has("NCut_Type"))
+    {
+        if(config->getString("NCut_Type")=="Min"||config->getString("NCut_Type")=="min")type_=M;
+        if(config->getString("NCut_Type")=="GSP"||config->getString("NCut_Type")=="gsp")type_=G;
+    }
+    if(config->has("NCut_Clustering"))
+    {
+        if(config->getString("NCut_Clustering")=="GMM")clustering_type_=GMM;
+        if(config->getString("NCut_Clustering")=="Bisection")clustering_type_=Bisection;
+        if(config->getString("NCut_Clustering")=="Kmean")clustering_type_=Kmean;
+    }
+    if(config->has("NCut_Clustering_k"))
+    {
+        clustering_k_ = config->getInt("NCut_Clustering_k");
+    }
+    if(config->has("NCut_eps")){
+        eps_ = config->getDouble("NCut_eps");
+    }
     if(config->has("NCut_k")){
         k_ = config->getInt("NCut_k");
     }
@@ -51,8 +72,7 @@ void NormalizedCuts<Mesh>::cutW(std::shared_ptr<arma::sp_mat>w,arma::uvec&label)
 {
     W_ = w;
     decompose();
-    clustering_GMM();
-    computeLabel_GMM();
+    clustering();
     getLabel(label);
 }
 template<typename Mesh>
@@ -60,7 +80,7 @@ void NormalizedCuts<Mesh>::cutImage(const QImage&img,arma::uvec&label)
 {
     computeW_Image(img);
     decompose();
-    bicut();
+    clustering();
     getLabel(label);
 }
 template<typename Mesh>
@@ -68,8 +88,7 @@ void NormalizedCuts<Mesh>::cutMesh(typename MeshBundle<Mesh>::Ptr m,arma::uvec&l
 {
     computeW_Mesh(m);
     decompose();
-    clustering_GMM();
-    computeLabel_GMM();
+    clustering();
     getLabel(label);
 }
 template<typename Mesh>
@@ -77,8 +96,7 @@ void NormalizedCuts<Mesh>::cutGraph(typename MeshBundle<Mesh>::Ptr m,arma::uvec&
 {
     computeW_Graph(m);
     decompose();
-    clustering_GMM();
-    computeLabel_GMM();
+    clustering();
     getLabel(label);
 }
 
@@ -127,6 +145,7 @@ void NormalizedCuts<Mesh>::multicut()
 template<typename Mesh>
 void NormalizedCuts<Mesh>::bicut()
 {
+    std::cerr<<"Bisection"<<std::endl;
     double best_threshold=0.0;
     arma::vec v = Y_.col(0);
     label_ = arma::uvec(v.size(),arma::fill::zeros);
@@ -454,10 +473,15 @@ void NormalizedCuts<Mesh>::debug_W(typename MeshBundle<Mesh>::Ptr m)
 }
 
 template<typename Mesh>
-void NormalizedCuts<Mesh>::decompose()
+void NormalizedCuts<Mesh>::decomposeNormarlized()
 {
-    std::cerr<<"normalized laplacian:"<<std::endl;
+    std::cerr<<"NormalizedCut:"<<std::endl;
     arma::vec D = arma::vectorise(arma::mat(arma::sum(*W_)));
+    arma::uvec zeroIndex = arma::find(D <= 0);
+    if(!zeroIndex.empty())
+    {
+        zeroIndex.print("zeroIndex:");
+    }
     arma::vec sqrt_D = arma::sqrt(D);
     arma::vec inv_sqrt_D = 1.0 / sqrt_D;
     arma::sp_mat Dmat = arma::speye<arma::sp_mat>(W_->n_rows,W_->n_cols);
@@ -465,25 +489,72 @@ void NormalizedCuts<Mesh>::decompose()
     Dmat.diag() = D;
     inv_sqrt_Dmat.diag() = inv_sqrt_D;
     A_ = inv_sqrt_Dmat*( Dmat - (*W_) )*inv_sqrt_Dmat;
-    double eps = std::min(std::abs(arma::min(arma::min(A_))),std::abs(arma::max(arma::max(A_))));
-    std::cerr<<"eps:"<<eps<<std::endl;
-    A_.diag() += 1e-3*eps;
 //    QTime time;
 //    arma::mat(A_).save("./debug/label/A_"+time.currentTime().toString("hh_mm_ss").toStdString()+".arma",arma::raw_ascii);
     bool success = false;
-    double stol = 10.0;
+    double stol = 50.0;
     double etol = std::numeric_limits<double>::epsilon();
     success = arma_custom::eigs_sym(lambda_,Y_,A_,(k_+1),"sm",stol,etol);
     if(!success)std::cerr<<"Failed on decomposition, Please relax the tol"<<std::endl;//failed
-    lambda_.print("lambda_:");
-    arma::uvec index = arma::find( lambda_ <= 1e-3*eps );
-    index.print("index:");
+//    lambda_.print("lambda_:");
+    std::cerr<<"eps:"<<eps_<<std::endl;
+    arma::uvec index = arma::find( lambda_ <= eps_ );
+//    index.print("index:");
     if(!index.empty())Y_.shed_cols(index(0),index(index.size()-1));
     Y_.each_col() %= inv_sqrt_D;
+}
+
+template<typename Mesh>
+void NormalizedCuts<Mesh>::decomposeMin()
+{
+    std::cerr<<"MinCut:"<<std::endl;
+    arma::vec D = arma::vectorise(arma::mat(arma::sum(*W_)));
+    arma::sp_mat Dmat = arma::speye<arma::sp_mat>(W_->n_rows,W_->n_cols);
+    Dmat.diag() = D;
+    A_ = Dmat - (*W_);
+//    double eps = std::min(std::abs(arma::min(arma::min(A_))),std::abs(arma::max(arma::max(A_))));
+//    double eps = std::numeric_limits<float>::epsilon();
+//    QTime time;
+//    arma::mat(A_).save("./debug/label/A_"+time.currentTime().toString("hh_mm_ss").toStdString()+".arma",arma::raw_ascii);
+    bool success = false;
+    double stol = 50.0;
+    double etol = std::numeric_limits<double>::epsilon();
+    success = arma_custom::eigs_sym(lambda_,Y_,A_,(k_+1),"sm",stol,etol);
+    if(!success)std::cerr<<"Failed on decomposition, Please relax the tol"<<std::endl;//failed
+//    lambda_.print("lambda_:");
+    arma::uvec index = arma::find( lambda_ <= eps_ );
+    std::cerr<<"eps:"<<eps_<<std::endl;
+//    index.print("index:");
+    if(!index.empty())Y_.shed_cols(index(0),index(index.size()-1));
+}
+
+template<typename Mesh>
+void NormalizedCuts<Mesh>::decomposeGSP()
+{
+    std::cerr<<"GSP:"<<std::endl;
+    arma::vec D = arma::vectorise(arma::mat(arma::sum(*W_)));
+    arma::sp_mat Dmat = arma::speye<arma::sp_mat>(W_->n_rows,W_->n_cols);
+    Dmat.diag() = D;
+    A_ = Dmat - (*W_);
+    bool success = false;
+    double stol = 50.0;
+    double etol = std::numeric_limits<double>::epsilon();
+    success = arma_custom::eigs_sym(lambda_,Y_,A_,(k_+1),"sm",stol,etol);
+    if(!success)std::cerr<<"Failed on decomposition, Please relax the tol"<<std::endl;//failed
+//    lambda_.print("lambda_:");
+    arma::uvec index = arma::find( lambda_ <= 0.0 );
+//    index.print("index:");
+    if(!index.empty()){
+        lambda_.shed_rows(index(0),index(index.size()-1));
+        Y_.shed_cols(index(0),index(index.size()-1));
+    }
+    arma::vec sqrt_lambda_ = arma::sqrt(lambda_);
+    Y_.each_row() /= sqrt_lambda_.t();
 }
 template<typename Mesh>
 void NormalizedCuts<Mesh>::clustering_GMM()
 {
+    std::cerr<<"GMM"<<std::endl;
     arma::mat Yt = Y_.t();
     arma::uword k = Yt.n_rows;
     arma::mat last_means;
@@ -516,7 +587,7 @@ void NormalizedCuts<Mesh>::clustering_GMM()
         hefts.fill(1.0/double(means.n_cols));
         //
         gmm_.set_params(means,covs,hefts);
-        gmm_.learn(Yt,means.n_cols,arma::eucl_dist,arma::keep_existing,0,10,1e-10,false);
+        gmm_.learn(Yt,means.n_cols,arma::eucl_dist,arma::keep_existing,0,20,1e-10,false);
         if(gmm_.n_gaus()>max_N_){
             std::cerr<<"NormalizedCuts<Mesh>::clustering():reach max_N:"<<max_N_<<std::endl;
             break;
@@ -534,6 +605,25 @@ void NormalizedCuts<Mesh>::clustering_GMM()
 }
 template<typename Mesh>
 void NormalizedCuts<Mesh>::computeLabel_GMM()
+{
+    label_ = (gmm_.assign(Y_.t(),arma::eucl_dist)).t();
+    label_ += 1;
+}
+template<typename Mesh>
+void NormalizedCuts<Mesh>::clustering_Kmean()
+{
+    std::cerr<<"Kmean"<<std::endl;
+    std::cerr<<"Clustering_k_:"<<clustering_k_<<std::endl;
+    arma::vec kratio(1);
+    std::mt19937 engine;  // Mersenne twister random number engine
+    std::uniform_real_distribution<double> distr(0.0, 1.0);
+    kratio.imbue( [&]() { return distr(engine); } );
+    arma::uword k = kratio(0) * double(clustering_k_) + clustering_k_;
+    arma::mat Yt = Y_.t();
+    gmm_.learn(Yt,k,arma::eucl_dist,arma::random_spread,20,0,1e-10,true);
+}
+template<typename Mesh>
+void NormalizedCuts<Mesh>::computeLabel_Kmean()
 {
     label_ = (gmm_.assign(Y_.t(),arma::eucl_dist)).t();
     label_ += 1;
