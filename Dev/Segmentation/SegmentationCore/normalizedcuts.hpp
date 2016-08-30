@@ -587,7 +587,7 @@ void NormalizedCuts<Mesh>::clustering_GMM()
         hefts.fill(1.0/double(means.n_cols));
         //
         gmm_.set_params(means,covs,hefts);
-        gmm_.learn(Yt,means.n_cols,arma::eucl_dist,arma::keep_existing,0,20,1e-10,false);
+        gmm_.learn(Yt,means.n_cols,arma::eucl_dist,arma::keep_existing,0,50,1e-10,false);
         if(gmm_.n_gaus()>max_N_){
             std::cerr<<"NormalizedCuts<Mesh>::clustering():reach max_N:"<<max_N_<<std::endl;
             break;
@@ -620,7 +620,7 @@ void NormalizedCuts<Mesh>::clustering_Kmean()
     kratio.imbue( [&]() { return distr(engine); } );
     arma::uword k = kratio(0) * double(clustering_k_) + clustering_k_;
     arma::mat Yt = Y_.t();
-    gmm_.learn(Yt,k,arma::eucl_dist,arma::random_spread,20,0,1e-10,true);
+    gmm_.learn(Yt,k,arma::eucl_dist,arma::random_spread,50,0,1e-10,true);
 }
 template<typename Mesh>
 void NormalizedCuts<Mesh>::computeLabel_Kmean()
