@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>608</width>
-    <height>489</height>
+    <width>711</width>
+    <height>495</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>608</width>
+     <width>711</width>
      <height>23</height>
     </rect>
    </property>
@@ -98,6 +98,13 @@
      <addaction name="actionDebug_Dist"/>
      <addaction name="actionDebug_W"/>
     </widget>
+    <widget class="QMenu" name="menuRobust_Region_Detection">
+     <property name="title">
+      <string>Robust Region Detection</string>
+     </property>
+     <addaction name="actionBase_Segments"/>
+     <addaction name="actionConsensus_Segment"/>
+    </widget>
     <addaction name="actionGlobal_Align"/>
     <addaction name="actionExtract_Background"/>
     <addaction name="actionRemove_Zero_Label"/>
@@ -115,6 +122,7 @@
     <addaction name="actionRegionGrowRGB"/>
     <addaction name="actionJRCS"/>
     <addaction name="menuNCut"/>
+    <addaction name="menuRobust_Region_Detection"/>
    </widget>
    <widget class="QMenu" name="menuReplay">
     <property name="title">
@@ -169,11 +177,6 @@
   <action name="actionConfigure">
    <property name="text">
     <string>Configure</string>
-   </property>
-  </action>
-  <action name="actionUpdate_Color_Model">
-   <property name="text">
-    <string>Update Color Model</string>
    </property>
   </action>
   <action name="actionAutomatically">
@@ -365,6 +368,16 @@
   <action name="actionDebug_Dist">
    <property name="text">
     <string>Debug Dist</string>
+   </property>
+  </action>
+  <action name="actionBase_Segments">
+   <property name="text">
+    <string>Base Segments</string>
+   </property>
+  </action>
+  <action name="actionConsensus_Segment">
+   <property name="text">
+    <string>Consensus Segment</string>
    </property>
   </action>
  </widget>

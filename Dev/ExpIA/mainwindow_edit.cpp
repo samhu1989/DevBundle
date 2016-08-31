@@ -16,6 +16,7 @@
 #include "globalalign.h"
 #include "extractbackground.h"
 #include "inpatchgraphcut.h"
+#include "robustcut.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -322,6 +323,26 @@ void MainWindow::start_editing()
         connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         th->setObjectName(tr("NCut_Debug_W"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionBase_Segments)
+    {
+        RobustCut* worker = new RobustCut(inputs_,labels_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(base_segments()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(this,SIGNAL(keyPressSignal(QKeyEvent*)),worker,SLOT(keyPressEvent(QKeyEvent*)));
+        th->setObjectName(tr("Base_Segments"));
         edit_thread_ = th;
     }
     if(edit==ui->actionSort_AGD)

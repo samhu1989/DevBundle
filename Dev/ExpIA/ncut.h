@@ -12,11 +12,11 @@ public:
             std::vector<arma::uvec>& labels,
             QObject *parent = 0
             );
+    bool configure(Config::Ptr);
 signals:
     void end();
     void message(QString,int);
 public slots:
-    bool configure(Config::Ptr);
     void process();
     void debug_convexity();
     void debug_color();

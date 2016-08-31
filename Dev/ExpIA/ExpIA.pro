@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     regiongrowrgbthread.cpp \
     sort_agd.cpp \
     ncut.cpp \
-    mainwindow_edit.cpp
+    mainwindow_edit.cpp \
+    robustcut.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -68,7 +69,8 @@ HEADERS  += mainwindow.h \
     jrcsinitthread.h \
     regiongrowrgbthread.h \
     sort_agd.h \
-    ncut.h
+    ncut.h \
+    robustcut.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

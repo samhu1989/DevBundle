@@ -23,6 +23,7 @@ public:
 signals:
     void close_views();
     void object_updated();
+    void keyPressSignal(QKeyEvent*);
 
 public slots:
     void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
@@ -61,6 +62,8 @@ protected slots:
 
     void save_scene_layout(const std::string&);
     void save_scene_model(const std::string&);
+
+    void keyPressEvent(QKeyEvent* event){emit keyPressSignal(event);}
 
     void start_editing();
     void update_object();

@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionDebug_Dist,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionDebug_W,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionCut_Graph,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionBase_Segments,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));

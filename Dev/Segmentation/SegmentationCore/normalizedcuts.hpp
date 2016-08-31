@@ -23,7 +23,7 @@ bool NormalizedCuts<Mesh>::configure(Config::Ptr config)
     if(config->has("NCut_Type"))
     {
         if(config->getString("NCut_Type")=="Min"||config->getString("NCut_Type")=="min")type_=M;
-        if(config->getString("NCut_Type")=="GSP"||config->getString("NCut_Type")=="gsp")type_=G;
+        if(config->getString("NCut_Type")=="GPS"||config->getString("NCut_Type")=="gps")type_=G;
     }
     if(config->has("NCut_Clustering"))
     {
@@ -531,7 +531,7 @@ void NormalizedCuts<Mesh>::decomposeMin()
 template<typename Mesh>
 void NormalizedCuts<Mesh>::decomposeGSP()
 {
-    std::cerr<<"GSP:"<<std::endl;
+    std::cerr<<"GPS:"<<std::endl;
     arma::vec D = arma::vectorise(arma::mat(arma::sum(*W_)));
     arma::sp_mat Dmat = arma::speye<arma::sp_mat>(W_->n_rows,W_->n_cols);
     Dmat.diag() = D;

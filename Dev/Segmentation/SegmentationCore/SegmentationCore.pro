@@ -78,7 +78,9 @@ HEADERS += segmentationcore.h\
     regiongrowingrgb.h \
     regiongrowingrgb.hpp \
     normalizedcuts.h \
-    normalizedcuts.hpp
+    normalizedcuts.hpp \
+    robustregion.hpp \
+    robustregion.h
 
 unix {
     target.path = /usr/lib
