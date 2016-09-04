@@ -5,12 +5,7 @@ namespace Segmentation{
 template<typename Mesh>
 RobustRegionDetection<Mesh>::RobustRegionDetection():NormalizedCuts<Mesh>()
 {
-    n_segments_ = 5;
-}
-template<typename Mesh>
-bool RobustRegionDetection<Mesh>::configure(Config::Ptr)
-{
-    ;
+    n_base_segments_ = 5;
 }
 template<typename Mesh>
 void RobustRegionDetection<Mesh>::cutGraph(typename MeshBundle<Mesh>::Ptr m,arma::uvec& label)
@@ -24,8 +19,8 @@ template<typename Mesh>
 void RobustRegionDetection<Mesh>::generate_base_segments()
 {
     assert(W_&&(0<W_.use_count()));
-    base_segments_ = arma::umat(W_->n_rows,n_segments_,arma::fill::zeros);
-    for(arma::uword i_segments_ = 0 ; i_segments_ < n_segments_ ; ++ i_segments_ )
+    base_segments_ = arma::umat(W_->n_rows,n_base_segments_,arma::fill::zeros);
+    for(arma::uword i_segments_ = 0 ; i_segments_ < n_base_segments_ ; ++ i_segments_ )
     {
         decomposeGSP();
         clustering_Kmean();

@@ -3,6 +3,7 @@
 #include "common.h"
 #include <armadillo>
 #include <QImage>
+#include <random>
 namespace Segmentation{
 template<typename Mesh>
 class NormalizedCuts
@@ -117,6 +118,8 @@ protected:
     arma::uword clustering_k_;
     arma::uword max_N_;
     arma::gmm_diag gmm_;
+    std::mt19937 rand_engine_;  // Mersenne twister random number engine
+    std::uniform_int_distribution<arma::uword> distr_;
 };
 }
 #endif // NORMALIZEDCUTS_H

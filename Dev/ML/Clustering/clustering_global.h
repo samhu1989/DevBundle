@@ -1,0 +1,10 @@
+#ifndef CLUSTERING_GLOBAL_H
+#define CLUSTERING_GLOBAL_H
+#include <QtCore/qglobal.h>
+#if defined(CLUSTERING_LIBRARY)
+#  define CLUSTERINGSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define CLUSTERINGSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // CLUSTERING_GLOBAL_H

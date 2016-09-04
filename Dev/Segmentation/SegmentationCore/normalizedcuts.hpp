@@ -3,7 +3,7 @@
 #include <QColor>
 namespace Segmentation{
 template<typename Mesh>
-NormalizedCuts<Mesh>::NormalizedCuts()
+NormalizedCuts<Mesh>::NormalizedCuts():rand_engine_(std::random_device{}())
 {
     type_ = N;
     k_ = 40;
@@ -614,13 +614,11 @@ void NormalizedCuts<Mesh>::clustering_Kmean()
 {
     std::cerr<<"Kmean"<<std::endl;
     std::cerr<<"Clustering_k_:"<<clustering_k_<<std::endl;
-    arma::vec kratio(1);
-    std::mt19937 engine;  // Mersenne twister random number engine
-    std::uniform_real_distribution<double> distr(0.0, 1.0);
-    kratio.imbue( [&]() { return distr(engine); } );
-    arma::uword k = kratio(0) * double(clustering_k_) + clustering_k_;
+    distr_ = std::uniform_int_distribution<arma::uword>(clustering_k_,2*clustering_k_);
+    arma::uword k = distr_(rand_engine_);
+    std::cerr<<"Using "<<k<<" means"<<std::endl;
     arma::mat Yt = Y_.t();
-    gmm_.learn(Yt,k,arma::eucl_dist,arma::random_spread,50,0,1e-10,true);
+    gmm_.learn(Yt,k,arma::eucl_dist,arma::random_subset,50,0,1e-10,false);
 }
 template<typename Mesh>
 void NormalizedCuts<Mesh>::computeLabel_Kmean()
