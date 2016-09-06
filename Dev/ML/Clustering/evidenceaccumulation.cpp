@@ -1,6 +1,6 @@
 #include "evidenceaccumulation.h"
 namespace Clustering{
-PEAC::PEAC()
+PEAC::PEAC():distr_(0.0001,1.0),rand_engine_(std::random_device{}())
 {
     ;
 }
@@ -26,14 +26,13 @@ void PEAC::compute()
 {
     initY();
     computeCandN();
-    initPList();
     initA();
     initG();
     initPQ();
     arma::uword t = 0 ;
     while( t < max_iter_ )
     {
-        bestDY_ = pq_.front().value_;
+        getBestD();
         computeStep();
         computeY();
         computeA();
@@ -47,42 +46,77 @@ void PEAC::compute()
 void PEAC::computeCandN()
 {
      N_ = iE_.n_rows;
-     arma::uword index;
      #pragma omp parallel for
-     for(index=0;index<iP_.n_cols;++index)
+     for(arma::uword index=0;index<iP_.n_cols;++index)
      {
          arma::uvec pair = iP_.col(index);
          arma::uvec sig0 = iE_.col(pair(0));
          arma::uvec sig1 = iE_.col(pair(1));
-         arma::uvec index = arma::find( sig0 == sig1 );
-         C_(pair(0),pair(1)) = double(index.size())/N_;
+         arma::uvec equal = arma::find( sig0 == sig1 );
+         C_(pair(0),pair(1)) = double(equal.size())/N_;
          C_(pair(1),pair(0)) = C_(pair(0),pair(1));
      }
 }
 
-void PEAC::initPList()
-{
-    ;
-}
-
 void PEAC::initY()
 {
-    ;
+    oldY_.reset(new arma::mat(iE_.n_rows,iE_.n_cols));
+    oldY_->imbue([&](){ return distr_(rand_engine_);});
+    arma::rowvec sum = arma::sum(*oldY_);
+    oldY_->each_row() /= sum;
+
+    newY_.reset(new arma::mat(iE_.n_rows,iE_.n_cols));
+    newY_->imbue([&](){ return distr_(rand_engine_);});
+    sum = arma::sum(*newY_);
+    newY_->each_row() /= sum;
 }
 
 void PEAC::initA()
 {
-    ;
+    oldA_.reset(new arma::sp_mat(iE_.n_cols,iE_.n_cols));
+    newA_.reset(new arma::sp_mat(iE_.n_cols,iE_.n_cols));
+    for(arma::uword index=0;index<iP_.n_cols;++index)
+    {
+        arma::uvec pair = iP_.col(index);
+        arma::uword i = pair(0);
+        arma::uword j = pair(1);
+        (*oldA_)(i,j) = arma::accu(newY_->col(i)%newY_->col(j));
+        (*newA_)(i,j) = (*oldA_)(i,j);
+    }
 }
 
 void PEAC::initG()
 {
-    ;
+    G_ = arma::mat(iE_.n_rows,iE_.n_cols,arma::fill::zeros);
+    for(arma::uword index=0;index<iP_.n_cols;++index)
+    {
+        arma::uvec pair = iP_.col(index);
+        arma::uword i = pair(0);
+        arma::uword j = pair(1);
+        G_.col(i) += N_*newY_->col(j)*((*newA_)(i,j) - C_(i,j));
+        G_.col(j) += N_*newY_->col(i)*((*newA_)(i,j) - C_(i,j));
+    }
 }
 
 void PEAC::initPQ()
 {
-    ;
+    pq_.resize(iE_.n_cols);
+    #pragma omp parallel for
+    for(arma::uword i=0;i<iE_.n_cols;++i)
+    {
+        Triplet& tri = pq_[i];
+        tri.index_ = i;
+        arma::vec gY = G_.col(i);
+        gY.min(tri.value_.alpha_);
+        arma::uvec index = arma::find(newY_->col(i)!=0);
+        arma::vec subgY = gY(index);
+        arma::uword mi;
+        subgY.max(mi);
+        tri.value_.beta_ = index(mi);
+        tri.value_.gamma_ = i;
+        tri.prior_ = gY(tri.value_.beta_) - gY(tri.value_.alpha_);
+    }
+    std::make_heap(pq_.begin(),pq_.end(),std::greater<Triplet>());
 }
 
 void PEAC::computeD()
@@ -90,24 +124,70 @@ void PEAC::computeD()
     ;
 }
 
+void PEAC::getBestD()
+{
+    bestDY_ = pq_.front().value_;
+    std::vector<arma::uword> Pgamma_vec;
+    Pgamma_vec.reserve(iE_.n_cols);
+    for(arma::uword index=0;index<iP_.n_cols;++index)
+    {
+        arma::uvec pair = iP_.col(index);
+        arma::uword i = pair(0);
+        arma::uword j = pair(1);
+        if(i==bestDY_.gamma_)
+        {
+            Pgamma_vec.push_back(j);
+        }
+        if(j==bestDY_.gamma_)
+        {
+            Pgamma_vec.push_back(i);
+        }
+    }
+    Pgamma_ = arma::uvec(Pgamma_vec);
+}
+
 void PEAC::computeStep()
 {
-    ;
+    double d;
+    d = G_(bestDY_.beta_,bestDY_.gamma_) - G_(bestDY_.alpha_,bestDY_.gamma_);
+    arma::rowvec Ya = (*newY_).row(bestDY_.alpha_);
+    arma::rowvec Yb = (*newY_).row(bestDY_.beta_);
+    double frac = arma::accu(arma::square(Ya(Pgamma_) - Yb(Pgamma_)));
+    d /= ( N_*frac );
+    step_ = std::min(d,(*newY_)(bestDY_.beta_,bestDY_.gamma_));
 }
 
 void PEAC::computeY()
 {
-    ;
+    oldY_.swap(newY_);
+    *newY_ = *oldY_;
+    (*newY_)(bestDY_.alpha_,bestDY_.gamma_) += step_;
+    (*newY_)(bestDY_.beta_,bestDY_.gamma_) -= step_;
 }
 
 void PEAC::computeA()
 {
-    ;
+    oldA_.swap(newA_);
+    *newA_ = *oldA_;
+    arma::rowvec Ya = (*oldY_).row(bestDY_.alpha_);
+    arma::rowvec Yb = (*oldY_).row(bestDY_.beta_);
+    arma::rowvec dif = step_*(Ya - Yb);
+    for(arma::uword index=0;index<Pgamma_.n_rows;++index)
+    {
+        arma::uword i = bestDY_.gamma_;
+        arma::uword j = Pgamma_(index);
+        (*newA_)(i,j) += dif(j);
+        (*newA_)(i,j) = (*newA_)(j,i);
+    }
 }
 
 void PEAC::computeG()
 {
-    ;
+    arma::uvec::iterator iter;
+    for(iter=Pgamma_.begin();iter!=Pgamma_.end();++iter)
+    {
+        ;
+    }
 }
 
 void PEAC::updatePrior()
@@ -117,6 +197,13 @@ void PEAC::updatePrior()
 
 void PEAC::projectY(arma::uvec& y)
 {
-    ;
+    y = arma::uvec(iE_.n_cols);
+    #pragma omp parallel for
+    for(arma::uword index=0;index<iP_.n_cols;++index)
+    {
+        arma::uword mi;
+        newY_->col(index).max(mi);
+        y(index) = mi;
+    }
 }
 }

@@ -10,8 +10,8 @@ class CLUSTERINGSHARED_EXPORT PEAC
 {
 public:
     typedef struct{
-        double alpha_;
-        double beta_;
+        arma::uword alpha_;
+        arma::uword beta_;
         arma::uword gamma_;
     }DY;
     typedef struct Triplet{
@@ -25,14 +25,6 @@ public:
                 return t1.prior_ > t2.prior_;
             }
     }Triplet;
-    typedef struct {
-        arma::uword index_;
-        std::vector<arma::uword> indices_;
-    }PNode;
-    typedef struct {
-        arma::uword index_;
-        std::vector<double> value_;
-    }ANode;
     PEAC();
     bool configure(Config::Ptr);
     void compute(
@@ -43,11 +35,11 @@ public:
 protected:
     void compute();
     void computeCandN();
-    void initPList();
     void initY();
     void initA();
     void initG();
     void initPQ();
+    void getBestD();
     void computeD(); // Compute Update Direction
     void computeStep(); // Compute Step Size
     void computeY();    // Update Y
@@ -60,16 +52,19 @@ private:
     arma::umat iP_;
     std::vector<Triplet> pq_;
     DY bestDY_;
-    std::vector<PNode> PList_;
-    std::shared_ptr<std::vector<ANode>> oldA_;
-    std::shared_ptr<std::vector<ANode>> newA_;
+    arma::uvec Pgamma_;
+    std::shared_ptr<arma::sp_mat> oldA_;
+    std::shared_ptr<arma::sp_mat> newA_;
+    std::shared_ptr<arma::mat> newY_;
+    std::shared_ptr<arma::mat> oldY_;
     arma::sp_mat C_;
     double N_;
-    arma::mat A_;
     arma::mat G_;
-    arma::mat Y_;
+    double step_;
     double tol_;
     arma::uword max_iter_;
+    std::mt19937 rand_engine_;  // Mersenne twister random number engine
+    std::uniform_real_distribution<double> distr_;
 };
 }
 #endif // EVIDENCEACCUMULATION_H
