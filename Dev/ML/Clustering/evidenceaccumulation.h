@@ -6,6 +6,7 @@
 #include <functional>
 #include "configure.h"
 namespace Clustering{
+//Consensus Clustering Using Partial Evidence Accumulation
 class CLUSTERINGSHARED_EXPORT PEAC
 {
 public:
@@ -40,11 +41,11 @@ protected:
     void initG();
     void initPQ();
     void getBestD();
-    void computeD(); // Compute Update Direction
     void computeStep(); // Compute Step Size
     void computeY();    // Update Y
     void computeA();    // Update A
     void computeG();    // Update G
+    void computePrior(Triplet&);
     void updatePrior(); // Update Prior
     void projectY(arma::uvec&);    // project Y
 private:

@@ -36,7 +36,6 @@ void PEAC::compute()
         computeStep();
         computeY();
         computeA();
-        computeD();
         computeG();
         updatePrior();
         ++t;
@@ -106,22 +105,9 @@ void PEAC::initPQ()
     {
         Triplet& tri = pq_[i];
         tri.index_ = i;
-        arma::vec gY = G_.col(i);
-        gY.min(tri.value_.alpha_);
-        arma::uvec index = arma::find(newY_->col(i)!=0);
-        arma::vec subgY = gY(index);
-        arma::uword mi;
-        subgY.max(mi);
-        tri.value_.beta_ = index(mi);
-        tri.value_.gamma_ = i;
-        tri.prior_ = gY(tri.value_.beta_) - gY(tri.value_.alpha_);
+        computePrior(tri);
     }
     std::make_heap(pq_.begin(),pq_.end(),std::greater<Triplet>());
-}
-
-void PEAC::computeD()
-{
-    ;
 }
 
 void PEAC::getBestD()
@@ -183,16 +169,48 @@ void PEAC::computeA()
 
 void PEAC::computeG()
 {
-    arma::uvec::iterator iter;
-    for(iter=Pgamma_.begin();iter!=Pgamma_.end();++iter)
+    //if j \in P_{\gamma}
+    G_.col(bestDY_.gamma_).fill(0.0);
+    for(arma::uvec::iterator iter=Pgamma_.begin();iter!=Pgamma_.end();++iter)
     {
-        ;
+        arma::uword j = *iter;
+        arma::vec a = (*newY_).col(bestDY_.gamma_)*( (*newA_)(bestDY_.gamma_,j) - C_(bestDY_.gamma_,j) );
+        arma::vec b = (*oldY_).col(bestDY_.gamma_)*( (*oldA_)(bestDY_.gamma_,j) - C_(bestDY_.gamma_,j) );
+        G_.col(j) += N_*( a - b );
+        G_.col(bestDY_.gamma_) += N_*(*newY_).col(j)*( (*newA_)(j,bestDY_.gamma_) - C_(j,bestDY_.gamma_) );
     }
+}
+
+void PEAC::computePrior(Triplet& tri)
+{
+    arma::uword i = tri.index_;
+    arma::vec gY = G_.col(i);
+    gY.min(tri.value_.alpha_);
+    arma::uvec index = arma::find(newY_->col(i)!=0);
+    arma::vec subgY = gY(index);
+    arma::uword mi;
+    subgY.max(mi);
+    tri.value_.beta_ = index(mi);
+    tri.value_.gamma_ = i;
+    tri.prior_ = gY(tri.value_.beta_) - gY(tri.value_.alpha_);
 }
 
 void PEAC::updatePrior()
 {
-    ;
+    //index order
+    arma::uvec indexed(pq_.size());
+    #pragma omp parallel for
+    for(arma::uword i=0;i<pq_.size();++i)
+    {
+        indexed(pq_[i].index_)=i;
+    }
+    computePrior(pq_[indexed[bestDY_.gamma_]]);
+    #pragma omp parallel for
+    for(arma::uword i=0;i<Pgamma_.size();++i)
+    {
+        computePrior(pq_[indexed[Pgamma_[i]]]);
+    }
+    std::make_heap(pq_.begin(),pq_.end(),std::greater<Triplet>());
 }
 
 void PEAC::projectY(arma::uvec& y)
