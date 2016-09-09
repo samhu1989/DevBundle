@@ -14,7 +14,7 @@
 #include <typeinfo>
 #include <fstream>
 #include <strstream>
-
+#include "robustcut.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Supervoxels,SIGNAL(triggered(bool)),this,SLOT(load_supervoxels()));
     connect(ui->actionSave_Segments,SIGNAL(triggered(bool)),this,SLOT(save_labels()));
     connect(ui->actionLoad_Segments,SIGNAL(triggered(bool)),this,SLOT(load_labels()));
+    connect(ui->actionSave_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(save_base_segs()));
+    connect(ui->actionLoad_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(load_base_segs()));
     connect(ui->actionSave_Object_Model,SIGNAL(triggered(bool)),this,SLOT(save_objects()));
     connect(ui->actionLoad_Objects,SIGNAL(triggered(bool)),this,SLOT(load_objects()));
     connect(ui->actionSave_Clusters,SIGNAL(triggered(bool)),this,SLOT(save_cluster()));
@@ -65,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionDebug_W,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionCut_Graph,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionBase_Segments,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionConsensus_Segment,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionShow_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
@@ -332,6 +336,78 @@ void MainWindow::load_labels()
         }
         *iter = label;
         (*miter)->custom_color_.fromlabel(*iter);
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
+}
+
+void MainWindow::save_base_segs(QString dirName)
+{
+    if(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save Base Segments"),
+                tr("../Dev_Data/")
+                );
+    }
+    if(dirName.isEmpty())return;
+    std::vector<arma::umat>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    QDir dir;
+    dir.setPath(dirName);
+    miter = inputs_.begin();
+    for(iter=RobustCut::base_segment_list_.begin();iter!=RobustCut::base_segment_list_.end();++iter)
+    {
+        QString filepath = dir.absoluteFilePath(
+                    QString::fromStdString((*miter)->name_+".umat.arma")
+                    );
+        if(!iter->save(filepath.toStdString(),arma::arma_binary))
+        {
+            QString msg = "Failed to Save "+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
+}
+
+void MainWindow::load_base_segs()
+{
+    if(inputs_.empty())
+    {
+        QString msg = "Please Load Inputs First\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+    }
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Load Base Segments"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    std::vector<arma::umat>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    QDir dir;
+    dir.setPath(dirName);
+    miter = inputs_.begin();
+    if(RobustCut::base_segment_list_.size()!=inputs_.size())
+    {
+        RobustCut::base_segment_list_.resize(inputs_.size());
+    }
+    for(iter=RobustCut::base_segment_list_.begin();iter!=RobustCut::base_segment_list_.end();++iter)
+    {
+        arma::umat label;
+        QString filepath = dir.absoluteFilePath(
+                    QString::fromStdString((*miter)->name_+".umat.arma")
+                    );
+        if(!label.load(filepath.toStdString()))
+        {
+            QString msg = "Failed to Load "+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        *iter = label;
         if(miter==inputs_.end())break;
         ++miter;
     }

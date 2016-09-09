@@ -165,3 +165,8 @@ win32: LIBS += -L$$DESTDIR/ -lJRCSCore
 
 INCLUDEPATH += $$PWD/../JRCS/JRCSCore
 DEPENDPATH += $$PWD/../JRCS/JRCSCore
+
+win32: LIBS += -L$$DESTDIR/ -lClustering
+
+INCLUDEPATH += $$PWD/../ML/Clustering
+DEPENDPATH += $$PWD/../ML/Clustering

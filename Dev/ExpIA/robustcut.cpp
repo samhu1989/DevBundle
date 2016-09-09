@@ -1,5 +1,6 @@
 #include "robustcut.h"
 #include <QMessageBox>
+std::vector<arma::umat> RobustCut::base_segment_list_;
 RobustCut::RobustCut(
         MeshBundle<DefaultMesh>::PtrList &inputs,
         std::vector<arma::uvec> &labels,
@@ -7,6 +8,17 @@ RobustCut::RobustCut(
         ):inputs_(inputs),labels_(labels),QObject(parent)
 {
     setObjectName("RobustCut");
+    if(!base_segment_list_.empty())
+    {
+        base_segment_i_ = 0;
+    }
+    base_segment_N_ = std::numeric_limits<uint32_t>::max();
+    for(std::vector<arma::umat>::iterator iter=base_segment_list_.begin();iter!=base_segment_list_.end();++iter)
+    {
+        arma::uword n = iter->n_cols;
+        if(n<base_segment_N_)base_segment_N_=n;
+    }
+
 }
 
 bool RobustCut::configure(Config::Ptr config)
@@ -32,8 +44,9 @@ void RobustCut::base_segments()
     for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
     {
         MeshBundle<DefaultMesh>::Ptr mesh_ptr = *iiter;
-        arma::uvec label;
-        cuts_.cutGraph(mesh_ptr,label);
+        std::cerr<<"============"<<std::endl;
+        cuts_.generate_base_segments(mesh_ptr);
+        std::cerr<<"============"<<std::endl;
         base_segment_list_.emplace_back(cuts_.base_segments());
         arma::uword n = base_segment_list_.back().n_cols;
         if(n<base_segment_N_)base_segment_N_=n;
@@ -93,7 +106,7 @@ void RobustCut::show_base_segment()
         if(segiter==base_segment_list_.end())break;
     }
     QString msg;
-    emit message(msg.sprintf("Current:%u/%u,Next:->,Last:<-,Esc:Exit",base_segment_i_+1,base_segment_list_.size()),0);
+    emit message(msg.sprintf("Current:%u/%u,Next:->,Last:<-,Esc:Exit",base_segment_i_+1,base_segment_N_),0);
 }
 
 void RobustCut::consensus_segment()
@@ -101,16 +114,19 @@ void RobustCut::consensus_segment()
     std::vector<arma::uvec>::iterator oiter;
     oiter = labels_.begin();
     MeshBundle<DefaultMesh>::PtrList::iterator iiter;
+    std::vector<arma::umat>::iterator segiter = base_segment_list_.begin();
     for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
     {
-
         MeshBundle<DefaultMesh>::Ptr mesh_ptr = *iiter;
         arma::uvec label;
-        cuts_.cutGraph(mesh_ptr,label);
+        cuts_.base_segments() = *segiter;
+        cuts_.solve_consensus_segment(mesh_ptr,label);
         mesh_ptr->graph_.sv2pix(label,*oiter);
         mesh_ptr->custom_color_.fromlabel(*oiter);
         ++oiter;
         if(oiter==labels_.end())break;
+        ++segiter;
+        if(segiter==base_segment_list_.end())break;
     }
     emit end();
 }

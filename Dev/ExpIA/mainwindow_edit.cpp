@@ -345,6 +345,46 @@ void MainWindow::start_editing()
         th->setObjectName(tr("Base_Segments"));
         edit_thread_ = th;
     }
+    if(edit==ui->actionConsensus_Segment)
+    {
+        RobustCut* worker = new RobustCut(inputs_,labels_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(consensus_segment()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(this,SIGNAL(keyPressSignal(QKeyEvent*)),worker,SLOT(keyPressEvent(QKeyEvent*)));
+        th->setObjectName(tr("Consensus_Segment"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionShow_Base_Segments)
+    {
+        RobustCut* worker = new RobustCut(inputs_,labels_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(show_base_segment()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(this,SIGNAL(keyPressSignal(QKeyEvent*)),worker,SLOT(keyPressEvent(QKeyEvent*)));
+        th->setObjectName(tr("Show_Base_Segments"));
+        edit_thread_ = th;
+    }
     if(edit==ui->actionSort_AGD)
     {
         Sort_AGD* worker = new Sort_AGD(inputs_);

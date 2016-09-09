@@ -38,6 +38,9 @@ public slots:
     void save_labels(QString dirName=QString());
     void load_labels();
 
+    void save_base_segs(QString dirName=QString());
+    void load_base_segs();
+
     void save_objects(QString dirName=QString());
     void load_objects();
 

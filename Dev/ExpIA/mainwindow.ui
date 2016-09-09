@@ -57,6 +57,8 @@
     <addaction name="actionLoad_Supervoxels"/>
     <addaction name="actionSave_Segments"/>
     <addaction name="actionLoad_Segments"/>
+    <addaction name="actionSave_Base_Segments"/>
+    <addaction name="actionLoad_Base_Segments"/>
     <addaction name="actionSave_Clusters"/>
     <addaction name="actionLoad_Clusters"/>
     <addaction name="actionSave_Object_Model"/>
@@ -105,6 +107,7 @@
      <property name="title">
       <string>Robust Region Detection</string>
      </property>
+     <addaction name="actionShow_Base_Segments"/>
      <addaction name="actionBase_Segments"/>
      <addaction name="actionConsensus_Segment"/>
     </widget>
@@ -381,6 +384,21 @@
   <action name="actionConsensus_Segment">
    <property name="text">
     <string>Consensus Segment</string>
+   </property>
+  </action>
+  <action name="actionSave_Base_Segments">
+   <property name="text">
+    <string>Save Base Segments</string>
+   </property>
+  </action>
+  <action name="actionLoad_Base_Segments">
+   <property name="text">
+    <string>Load Base Segments</string>
+   </property>
+  </action>
+  <action name="actionShow_Base_Segments">
+   <property name="text">
+    <string>Show Base Segments</string>
    </property>
   </action>
  </widget>

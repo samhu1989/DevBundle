@@ -36,7 +36,8 @@ public:
 protected:
     void compute();
     void computeCandN();
-    void initY();
+    void initY_Random();
+    void initY_RandIndex();
     void initA();
     void initG();
     void initPQ();
@@ -47,6 +48,7 @@ protected:
     void computeG();    // Update G
     void computePrior(Triplet&);
     void updatePrior(); // Update Prior
+    void computeObj();
     void projectY(arma::uvec&);    // project Y
 private:
     arma::umat iE_;
@@ -63,7 +65,9 @@ private:
     arma::mat G_;
     double step_;
     double tol_;
+    arma::uword k_;
     arma::uword max_iter_;
+    arma::uword init_;
     std::mt19937 rand_engine_;  // Mersenne twister random number engine
     std::uniform_real_distribution<double> distr_;
 };

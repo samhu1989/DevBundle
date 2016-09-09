@@ -1,6 +1,7 @@
 #ifndef ROBUSTREGION_H
 #define ROBUSTREGION_H
 #include "normalizedcuts.h"
+#include "evidenceaccumulation.h"
 namespace Segmentation{
 template<typename Mesh>
 class RobustRegionDetection:public NormalizedCuts<Mesh>
@@ -16,12 +17,15 @@ public:
     using NormalizedCuts<Mesh>::gmm_;
 public:
     RobustRegionDetection();
+    bool configure(Config::Ptr);
     void cutGraph(typename MeshBundle<Mesh>::Ptr m,arma::uvec&);
+    void generate_base_segments(typename MeshBundle<Mesh>::Ptr m);
+    void solve_consensus_segment(typename MeshBundle<Mesh>::Ptr m,arma::uvec&);
     arma::umat& base_segments(){return base_segments_;}
 protected:
     void generate_base_segments();
-    void solve_consensus_segment();
 private:
+    Clustering::PEAC peac;
     arma::uword n_base_segments_;
     arma::umat base_segments_;
 };

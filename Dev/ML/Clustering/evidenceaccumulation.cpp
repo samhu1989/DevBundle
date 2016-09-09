@@ -1,13 +1,32 @@
 #include "evidenceaccumulation.h"
+#include <assert.h>
 namespace Clustering{
 PEAC::PEAC():distr_(0.0001,1.0),rand_engine_(std::random_device{}())
 {
-    ;
+    tol_ = std::numeric_limits<double>::epsilon();
+    max_iter_ = 1000;
+    k_ = 5;
 }
 
-bool PEAC::configure(Config::Ptr)
+bool PEAC::configure(Config::Ptr config)
 {
-    return false;
+    if(config->has("PEAC_Max_Iter"))
+    {
+        max_iter_ = config->getInt("PEAC_Max_Iter");
+    }
+    if(config->has("PEAC_tol"))
+    {
+        tol_ = config->getDouble("PEAC_tol");
+    }
+    if(config->has("PEAC_k"))
+    {
+        k_ = config->getInt("PEAC_k");
+    }
+    if(config->has("PEAC_init_mode"))
+    {
+        init_=config->getInt("PEAC_init_mode");
+    }
+    return true;
 }
 
 void PEAC::compute(
@@ -18,26 +37,45 @@ void PEAC::compute(
 {
     iE_ = E;
     iP_ = P;
+    std::cerr<<"compute()"<<std::endl;
     compute();
+    std::cerr<<"projectY(y)"<<std::endl;
     projectY(y);
 }
 
 void PEAC::compute()
 {
-    initY();
+    std::cerr<<"initY();"<<std::endl;
+    if(init_==0)initY_RandIndex();
+    if(init_==1)initY_Random();
+    std::cerr<<"computeCandN();"<<std::endl;
     computeCandN();
+    std::cerr<<"initA();"<<std::endl;
     initA();
+    std::cerr<<"initG();"<<std::endl;
     initG();
+    std::cerr<<"initPQ();"<<std::endl;
     initPQ();
     arma::uword t = 0 ;
     while( t < max_iter_ )
     {
+        std::cerr<<"G:"<<pq_.front().prior_<<std::endl;
+        if(pq_.front().prior_<0)break;
+        if(pq_.front().prior_<tol_)break;
+        std::cerr<<"t:"<<t<<std::endl;
+        std::cerr<<"getBestD();"<<std::endl;
         getBestD();
+        std::cerr<<"computeStep();"<<std::endl;
         computeStep();
+        std::cerr<<"computeY();"<<std::endl;
         computeY();
+        std::cerr<<"computeA();"<<std::endl;
         computeA();
+        std::cerr<<"computeG();"<<std::endl;
         computeG();
+        std::cerr<<"updatePrior();"<<std::endl;
         updatePrior();
+        computeObj();
         ++t;
     }
 }
@@ -45,6 +83,7 @@ void PEAC::compute()
 void PEAC::computeCandN()
 {
      N_ = iE_.n_rows;
+     C_ = arma::sp_mat(iE_.n_cols,iE_.n_cols);
      #pragma omp parallel for
      for(arma::uword index=0;index<iP_.n_cols;++index)
      {
@@ -57,17 +96,43 @@ void PEAC::computeCandN()
      }
 }
 
-void PEAC::initY()
+void PEAC::initY_Random()
 {
-    oldY_.reset(new arma::mat(iE_.n_rows,iE_.n_cols));
+    oldY_.reset(new arma::mat(k_,iE_.n_cols));
     oldY_->imbue([&](){ return distr_(rand_engine_);});
     arma::rowvec sum = arma::sum(*oldY_);
     oldY_->each_row() /= sum;
 
-    newY_.reset(new arma::mat(iE_.n_rows,iE_.n_cols));
+    newY_.reset(new arma::mat(k_,iE_.n_cols));
     newY_->imbue([&](){ return distr_(rand_engine_);});
     sum = arma::sum(*newY_);
     newY_->each_row() /= sum;
+}
+
+void PEAC::initY_RandIndex()
+{
+    arma::uword max = std::numeric_limits<arma::uword>::max();
+    arma::uvec label;
+//    std::cerr<<"a"<<std::endl;
+    for(arma::uword k = 0 ; k < iE_.n_rows ; ++k )
+    {
+        label = iE_.row(k).t();
+        max = arma::max(label);
+        if(max<k_)break;
+    }
+    assert(max<k_);
+    assert(label.size()==iE_.n_cols);
+    oldY_.reset(new arma::mat(k_,iE_.n_cols));
+    newY_.reset(new arma::mat(k_,iE_.n_cols,arma::fill::zeros));
+    for( arma::uword m = 0 ; m < newY_->n_cols ; ++ m )
+    {
+        assert(m<label.size());
+        arma::uword t = label(m);
+        assert(t<newY_->n_rows);
+        assert(m<newY_->n_cols);
+        (*newY_)(t,m) = 1.0;
+    }
+    (*oldY_) = (*newY_);
 }
 
 void PEAC::initA()
@@ -86,7 +151,7 @@ void PEAC::initA()
 
 void PEAC::initG()
 {
-    G_ = arma::mat(iE_.n_rows,iE_.n_cols,arma::fill::zeros);
+    G_ = arma::mat(k_,iE_.n_cols,arma::fill::zeros);
     for(arma::uword index=0;index<iP_.n_cols;++index)
     {
         arma::uvec pair = iP_.col(index);
@@ -195,6 +260,20 @@ void PEAC::computePrior(Triplet& tri)
     tri.prior_ = gY(tri.value_.beta_) - gY(tri.value_.alpha_);
 }
 
+void PEAC::computeObj()
+{
+    double obj = 0.0;
+    for(arma::uword index=0;index<iP_.n_cols;++index)
+    {
+        arma::uvec pair = iP_.col(index);
+        arma::uword i = pair(0);
+        arma::uword j = pair(1);
+        double dif = C_(i,j) - arma::accu((*newY_).col(i)%(*newY_).col(j));
+        obj += N_*dif*dif;
+    }
+    std::cerr<<"obj:"<<obj<<std::endl;
+}
+
 void PEAC::updatePrior()
 {
     //index order
@@ -217,11 +296,11 @@ void PEAC::projectY(arma::uvec& y)
 {
     y = arma::uvec(iE_.n_cols);
     #pragma omp parallel for
-    for(arma::uword index=0;index<iP_.n_cols;++index)
+    for(arma::uword index=0;index<newY_->n_cols;++index)
     {
         arma::uword mi;
         newY_->col(index).max(mi);
-        y(index) = mi;
+        y(index) = mi + 1;
     }
 }
 }
