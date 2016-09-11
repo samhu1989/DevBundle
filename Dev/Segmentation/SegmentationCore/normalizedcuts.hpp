@@ -3,7 +3,7 @@
 #include <QColor>
 namespace Segmentation{
 template<typename Mesh>
-NormalizedCuts<Mesh>::NormalizedCuts():rand_engine_(std::random_device{}())
+NormalizedCuts<Mesh>::NormalizedCuts():rand_engine_(QTime::currentTime().msec())
 {
     type_ = N;
     k_ = 40;
@@ -496,10 +496,10 @@ void NormalizedCuts<Mesh>::decomposeNormarlized()
     double etol = std::numeric_limits<double>::epsilon();
     success = arma_custom::eigs_sym(lambda_,Y_,A_,(k_+1),"sm",stol,etol);
     if(!success)std::cerr<<"Failed on decomposition, Please relax the tol"<<std::endl;//failed
-//    lambda_.print("lambda_:");
+    lambda_.print("lambda_:");
     std::cerr<<"eps:"<<eps_<<std::endl;
     arma::uvec index = arma::find( lambda_ <= eps_ );
-//    index.print("index:");
+    index.print("index:");
     if(!index.empty())Y_.shed_cols(index(0),index(index.size()-1));
     Y_.each_col() %= inv_sqrt_D;
 }
@@ -529,7 +529,7 @@ void NormalizedCuts<Mesh>::decomposeMin()
 }
 
 template<typename Mesh>
-void NormalizedCuts<Mesh>::decomposeGSP()
+void NormalizedCuts<Mesh>::decomposeGPS()
 {
     std::cerr<<"GPS:"<<std::endl;
     arma::vec D = arma::vectorise(arma::mat(arma::sum(*W_)));

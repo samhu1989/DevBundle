@@ -13,15 +13,35 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     edit_thread_(NULL),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),config_(new Config("./ExpCRF.config"))
 {
     ui->setupUi(this);
+    if(!config_->has("Configure"))config_->reload("../ExpCRF.config");
+    if(!config_->has("Configure"))
+    {
+        QString msg = "Please Mannually Configure\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+    }
+    connect(ui->actionConfigure,SIGNAL(triggered(bool)),this,SLOT(configure()));
     connect(ui->actionCRF,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionCRF3D,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionNCut2D,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionLoad_Image,SIGNAL(triggered(bool)),this,SLOT(load_img()));
     connect(ui->actionLoad_Annotation,SIGNAL(triggered(bool)),this,SLOT(load_annotation()));
     connect(ui->actionLoad_Input_Mesh,SIGNAL(triggered(bool)),this,SLOT(load_mesh()));
+}
+
+void MainWindow::configure()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Confugre"),
+        tr("./"),
+        tr("Configure (*.config);;"
+        "All Files (*)"));
+    if (!fileName.isEmpty())
+    {
+        config_->reload(fileName.toStdString());
+    }
 }
 
 MainWindow::~MainWindow()
@@ -253,6 +273,13 @@ void MainWindow::start_editing()
         edit_thread_ = new QThread();
         if(!annotation_)annotation_.reset(new arma::uvec());
         NCut2D* worker = new NCut2D(input_img_,*annotation_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         worker->moveToThread(edit_thread_);
         edit_thread_->setObjectName("NCut2D");

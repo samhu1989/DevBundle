@@ -50,7 +50,7 @@ void RobustRegionDetection<Mesh>::generate_base_segments()
     }
     for(arma::uword i_segments_ = 0 ; i_segments_ < n_base_segments_ ; ++ i_segments_ )
     {
-        decomposeGSP();
+        decomposeGPS();
         clustering_Kmean();
         base_segments_.col(i_segments_) = (gmm_.assign(Y_.t(),arma::eucl_dist)).t();
     }

@@ -80,3 +80,8 @@ win32: LIBS += -L$$DESTDIR/ -lSegmentationCore
 
 INCLUDEPATH += $$PWD/../SegmentationCore
 DEPENDPATH += $$PWD/../SegmentationCore
+
+win32: LIBS += -L$$DESTDIR/ -lClustering
+
+INCLUDEPATH += $$PWD/../../ML/Clustering
+DEPENDPATH += $$PWD/../../ML/Clustering

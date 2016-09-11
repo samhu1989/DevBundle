@@ -48,6 +48,8 @@
     <addaction name="actionLoad_Image"/>
     <addaction name="actionLoad_Input_Mesh"/>
     <addaction name="actionLoad_Annotation"/>
+    <addaction name="separator"/>
+    <addaction name="actionConfigure"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -104,6 +106,11 @@
   <action name="actionNCut2D">
    <property name="text">
     <string>NCut2D</string>
+   </property>
+  </action>
+  <action name="actionConfigure">
+   <property name="text">
+    <string>Configure</string>
    </property>
   </action>
  </widget>

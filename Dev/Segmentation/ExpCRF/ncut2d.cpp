@@ -1,8 +1,14 @@
 #include "ncut2d.h"
+#include <QMessageBox>
 NCut2D::NCut2D(QImage& img,arma::uvec& lbl):
 input_img_(img),label_(lbl)
 {
     setObjectName("NCut2D");
+}
+
+bool NCut2D::configure(Config::Ptr config)
+{
+    return cut_.configure(config);
 }
 
 void NCut2D::process(void)

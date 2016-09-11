@@ -18,6 +18,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 protected slots:
+    void configure();
     void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
 
     void load_img(void);
@@ -44,6 +45,7 @@ protected:
 private:
     Ui::MainWindow *ui;
     QThread* edit_thread_;
+    Config::Ptr config_;
 };
 
 #endif // MAINWINDOW_H

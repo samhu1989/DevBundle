@@ -10,7 +10,7 @@ public:
     using NormalizedCuts<Mesh>::configure;
     using NormalizedCuts<Mesh>::getLabel;
     using NormalizedCuts<Mesh>::computeW_Graph;
-    using NormalizedCuts<Mesh>::decomposeGSP;
+    using NormalizedCuts<Mesh>::decomposeGPS;
     using NormalizedCuts<Mesh>::clustering_Kmean;
     using NormalizedCuts<Mesh>::Y_;
     using NormalizedCuts<Mesh>::W_;

@@ -36,13 +36,13 @@ protected:
         {
         case N:decomposeNormarlized();break;
         case M:decomposeMin();break;
-        case G:decomposeGSP();break;
+        case G:decomposeGPS();break;
         default:decomposeNormarlized();
         }
     }
     void decomposeNormarlized();
     void decomposeMin();
-    void decomposeGSP();
+    void decomposeGPS();
     void clustering()
     {
         switch(clustering_type_)
