@@ -18,7 +18,6 @@ RobustCut::RobustCut(
         arma::uword n = iter->n_cols;
         if(n<base_segment_N_)base_segment_N_=n;
     }
-
 }
 
 bool RobustCut::configure(Config::Ptr config)

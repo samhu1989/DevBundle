@@ -115,7 +115,8 @@ protected:
     double tol_;
     double eps_;
     arma::uword k_;
-    arma::uword clustering_k_;
+    arma::uword clustering_min_k_;
+    arma::uword clustering_max_k_;
     arma::uword max_N_;
     arma::gmm_diag gmm_;
     std::mt19937 rand_engine_;  // Mersenne twister random number engine

@@ -17,11 +17,13 @@ LIBS += -lgomp -lpthread
 SOURCES += main.cpp\
         mainwindow.cpp \
     crf2d.cpp \
-    ncut2d.cpp
+    ncut2d.cpp \
+    robustcut.cpp
 
 HEADERS  += mainwindow.h \
     crf2d.h \
-    ncut2d.h
+    ncut2d.h \
+    robustcut.h
 
 FORMS    += mainwindow.ui
 

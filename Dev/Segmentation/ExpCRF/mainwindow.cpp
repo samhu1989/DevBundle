@@ -10,6 +10,7 @@
 #include <OpenMesh/Tools/Utils/Timer.hh>
 #include "visualizationcore.h"
 #include "ncut2d.h"
+#include "robustcut.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     edit_thread_(NULL),
@@ -26,9 +27,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCRF,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionCRF3D,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionNCut2D,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionShow_Base,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionGenerate_Base,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionSolve,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+
     connect(ui->actionLoad_Image,SIGNAL(triggered(bool)),this,SLOT(load_img()));
     connect(ui->actionLoad_Annotation,SIGNAL(triggered(bool)),this,SLOT(load_annotation()));
     connect(ui->actionLoad_Input_Mesh,SIGNAL(triggered(bool)),this,SLOT(load_mesh()));
+    connect(ui->actionSave_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(save_base_segments()));
+    connect(ui->actionLoad_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(load_base_segments()));
+
 }
 
 void MainWindow::configure()
@@ -236,6 +244,26 @@ bool MainWindow::open_mesh(DefaultMesh& mesh_,const std::string&_filename)
     return false;
 }
 
+void  MainWindow::load_base_segments()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Load Base Segment"),
+        tr("../Dev_Data/"),
+        tr("Base Segments (*.umat.arma);;"));
+    if(fileName.isEmpty())return;
+    RobustCut::base_segment_.load(fileName.toStdString());
+}
+
+void  MainWindow::save_base_segments()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Base Segment"),
+        tr("../Dev_Data/"),
+        tr("Base Segments (*.umat.arma);;"));
+    if(fileName.isEmpty())return;
+    RobustCut::base_segment_.save(fileName.toStdString(),arma::arma_binary);
+}
+
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -286,6 +314,66 @@ void MainWindow::start_editing()
         connect(edit_thread_,SIGNAL(started()),worker,SLOT(process()));
         connect(worker,SIGNAL(end()),edit_thread_,SLOT(quit()));
         connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+    }
+    if(edit==ui->actionGenerate_Base)
+    {
+        RobustCut* worker = new RobustCut(input_img_,*annotation_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(base_segments()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(this,SIGNAL(keyPressSignal(QKeyEvent*)),worker,SLOT(keyPressEvent(QKeyEvent*)));
+        th->setObjectName(tr("Base_Segments"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionSolve)
+    {
+        RobustCut* worker = new RobustCut(input_img_,*annotation_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(consensus_segment()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(this,SIGNAL(keyPressSignal(QKeyEvent*)),worker,SLOT(keyPressEvent(QKeyEvent*)));
+        th->setObjectName(tr("Consensus_Segment"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionShow_Base)
+    {
+        RobustCut* worker = new RobustCut(input_img_,*annotation_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(show_base_segment()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(this,SIGNAL(keyPressSignal(QKeyEvent*)),worker,SLOT(keyPressEvent(QKeyEvent*)));
+        th->setObjectName(tr("Show_Base_Segments"));
+        edit_thread_ = th;
     }
     connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
     edit_thread_->start(QThread::HighPriority);

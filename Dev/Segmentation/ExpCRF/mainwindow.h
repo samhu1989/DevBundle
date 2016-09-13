@@ -17,6 +17,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+signals:
+    void keyPressSignal(QKeyEvent*);
 protected slots:
     void configure();
     void showInMdi(QWidget* w, Qt::WindowFlags flag = 0);
@@ -28,9 +30,13 @@ protected slots:
     void read_mesh(const QString& filename);
     void view_mesh(void);
 
+    void load_base_segments();
+    void save_base_segments();
+
     void start_editing();
     void finish_editing();
 
+    void keyPressEvent(QKeyEvent* event){emit keyPressSignal(event);}
 protected:
     bool open_mesh(DefaultMesh&,const std::string&);
 

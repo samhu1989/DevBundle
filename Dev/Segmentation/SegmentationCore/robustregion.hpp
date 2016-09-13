@@ -33,10 +33,48 @@ void RobustRegionDetection<Mesh>::generate_base_segments(typename MeshBundle<Mes
 }
 
 template<typename Mesh>
+void RobustRegionDetection<Mesh>::generate_base_segment(const QImage& img)
+{
+    computeW_Image(img);
+    generate_base_segments();
+}
+
+template<typename Mesh>
 void RobustRegionDetection<Mesh>::solve_consensus_segment(typename MeshBundle<Mesh>::Ptr m, arma::uvec& label)
 {
     arma::umat edge = arma::conv_to<arma::umat>::from(m->graph_.voxel_neighbors);
     assert(base_segments_.n_rows==m->graph_.voxel_centers.n_cols);
+    peac.compute(base_segments_.t(),edge,label);
+}
+
+template<typename Mesh>
+void RobustRegionDetection<Mesh>::solve_consensus_segment(const QImage& img,arma::uvec& label)
+{
+    std::vector<arma::uword> edge_vec;
+    arma::uword N = img.height()*img.width();
+    edge_vec.reserve(10*N);
+    for(int r=0;r<img.height();r++)
+    {
+//        std::cerr<<"r:"<<r<<std::endl;
+        for(int c=0;c<img.width();c++)
+        {
+            uint32_t wi = r*img.width()+c;
+            for(int i=std::max(0,r-3);i<std::min(img.height(),r+3);i++)
+            {
+                for(int j=std::max(0,c-3);j<std::min(img.width(),c+3);j++)
+                {
+                    uint32_t wj = i*img.width()+j;
+                    if(wi<wj)
+                    {
+                        edge_vec.push_back(wi);
+                        edge_vec.push_back(wj);
+                    }
+                }
+            }
+        }
+    }
+    arma::umat edge(edge_vec.data(),2,edge_vec.size()/2,true,true);
+    assert(base_segments_.n_rows==( img.width()*img.height() ));
     peac.compute(base_segments_.t(),edge,label);
 }
 

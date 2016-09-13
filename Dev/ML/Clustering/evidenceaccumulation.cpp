@@ -57,6 +57,7 @@ void PEAC::compute()
     std::cerr<<"initPQ();"<<std::endl;
     initPQ();
     arma::uword t = 0 ;
+    QString name;
     while( t < max_iter_ )
     {
         std::cerr<<"G:"<<pq_.front().prior_<<std::endl;
@@ -69,6 +70,23 @@ void PEAC::compute()
         computeStep();
         std::cerr<<"computeY();"<<std::endl;
         computeY();
+        /*debug*/
+        arma::mat Yt = newY_->t();
+        name = name.sprintf("./Debug/PECA/newY%03u",t);
+        Yt.save(name.toStdString(),arma::raw_ascii);
+
+        Yt = oldY_->t();
+        name = name.sprintf("./Debug/PECA/oldY%03u",t);
+        Yt.save(name.toStdString(),arma::raw_ascii);
+
+        arma::mat dif = (*newY_ - *oldY_).t();
+        name = name.sprintf("./Debug/PECA/DY%03u",t);
+        dif.save(name.toStdString(),arma::raw_ascii);
+
+        arma::vec dir = {bestDY_.alpha_,bestDY_.beta_,bestDY_.gamma_,step_};
+        name = name.sprintf("./Debug/PECA/dir%03u",t);
+        dir.save(name.toStdString(),arma::raw_ascii);
+
         std::cerr<<"computeA();"<<std::endl;
         computeA();
         std::cerr<<"computeG();"<<std::endl;
@@ -104,33 +122,29 @@ void PEAC::initY_Random()
     oldY_->each_row() /= sum;
 
     newY_.reset(new arma::mat(k_,iE_.n_cols));
-    newY_->imbue([&](){ return distr_(rand_engine_);});
-    sum = arma::sum(*newY_);
-    newY_->each_row() /= sum;
+    *newY_ = *oldY_;
 }
 
 void PEAC::initY_RandIndex()
 {
-    arma::uword max = std::numeric_limits<arma::uword>::max();
-    arma::uvec label;
-//    std::cerr<<"a"<<std::endl;
-    for(arma::uword k = 0 ; k < iE_.n_rows ; ++k )
-    {
-        label = iE_.row(k).t();
-        max = arma::max(label);
-        if(max<k_)break;
-    }
-    assert(max<k_);
-    assert(label.size()==iE_.n_cols);
+    std::uniform_int_distribution<arma::uword> rand(0,iE_.n_rows-1);
+    arma::urowvec label = iE_.row(rand(rand_engine_));
+    arma::uword max = arma::max(label);
+    arma::uword min = arma::min(label);
+    arma::uvec th = arma::linspace<arma::uvec>(min,max,k_+1);
     oldY_.reset(new arma::mat(k_,iE_.n_cols));
     newY_.reset(new arma::mat(k_,iE_.n_cols,arma::fill::zeros));
-    for( arma::uword m = 0 ; m < newY_->n_cols ; ++ m )
+    #pragma omp parallel for
+    for(arma::uword index=0;index<label.size();++index)
     {
-        assert(m<label.size());
-        arma::uword t = label(m);
-        assert(t<newY_->n_rows);
-        assert(m<newY_->n_cols);
-        (*newY_)(t,m) = 1.0;
+        arma::uword k;
+        for( k = th.size() - 1 ; k > 0 ;--k)
+        {
+            if( label(index) > th(k) )break;
+        }
+        assert( k >= 0);
+        assert( k < newY_->n_rows );
+        (*newY_)(k,index) = 1.0;
     }
     (*oldY_) = (*newY_);
 }

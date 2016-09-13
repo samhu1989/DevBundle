@@ -10,6 +10,9 @@
     <height>331</height>
    </rect>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
   <property name="windowTitle">
    <string>ExpCRF</string>
   </property>
@@ -48,6 +51,8 @@
     <addaction name="actionLoad_Image"/>
     <addaction name="actionLoad_Input_Mesh"/>
     <addaction name="actionLoad_Annotation"/>
+    <addaction name="actionSave_Base_Segments"/>
+    <addaction name="actionLoad_Base_Segments"/>
     <addaction name="separator"/>
     <addaction name="actionConfigure"/>
    </widget>
@@ -55,9 +60,19 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <widget class="QMenu" name="menuRCut2D">
+     <property name="title">
+      <string>RCut2D</string>
+     </property>
+     <addaction name="actionShow_Base"/>
+     <addaction name="actionGenerate_Base"/>
+     <addaction name="actionSolve"/>
+    </widget>
     <addaction name="actionCRF"/>
     <addaction name="actionCRF3D"/>
     <addaction name="actionNCut2D"/>
+    <addaction name="separator"/>
+    <addaction name="menuRCut2D"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -111,6 +126,31 @@
   <action name="actionConfigure">
    <property name="text">
     <string>Configure</string>
+   </property>
+  </action>
+  <action name="actionLoad_Base_Segments">
+   <property name="text">
+    <string>Load Base Segments</string>
+   </property>
+  </action>
+  <action name="actionSave_Base_Segments">
+   <property name="text">
+    <string>Save Base Segments</string>
+   </property>
+  </action>
+  <action name="actionShow_Base">
+   <property name="text">
+    <string>Show Base</string>
+   </property>
+  </action>
+  <action name="actionGenerate_Base">
+   <property name="text">
+    <string>Generate Base</string>
+   </property>
+  </action>
+  <action name="actionSolve">
+   <property name="text">
+    <string>Solve</string>
    </property>
   </action>
  </widget>

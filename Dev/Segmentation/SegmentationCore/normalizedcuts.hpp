@@ -7,7 +7,8 @@ NormalizedCuts<Mesh>::NormalizedCuts():rand_engine_(QTime::currentTime().msec())
 {
     type_ = N;
     k_ = 40;
-    clustering_k_ = 5;
+    clustering_min_k_ = 5;
+    clustering_max_k_ = 10;
     tol_ = 0.01;
     d_scale_ = 1.0;
     c_scale_ = 1.0;
@@ -31,9 +32,13 @@ bool NormalizedCuts<Mesh>::configure(Config::Ptr config)
         if(config->getString("NCut_Clustering")=="Bisection")clustering_type_=Bisection;
         if(config->getString("NCut_Clustering")=="Kmean")clustering_type_=Kmean;
     }
-    if(config->has("NCut_Clustering_k"))
+    if(config->has("NCut_Clustering_min_k"))
     {
-        clustering_k_ = config->getInt("NCut_Clustering_k");
+        clustering_min_k_ = config->getInt("NCut_Clustering_min_k");
+    }
+    if(config->has("NCut_Clustering_max_k"))
+    {
+        clustering_max_k_ = config->getInt("NCut_Clustering_max_k");
     }
     if(config->has("NCut_eps")){
         eps_ = config->getDouble("NCut_eps");
@@ -613,8 +618,8 @@ template<typename Mesh>
 void NormalizedCuts<Mesh>::clustering_Kmean()
 {
     std::cerr<<"Kmean"<<std::endl;
-    std::cerr<<"Clustering_k_:"<<clustering_k_<<std::endl;
-    distr_ = std::uniform_int_distribution<arma::uword>(clustering_k_,2*clustering_k_);
+    std::cerr<<"Clustering_k_("<<clustering_min_k_<<","<<clustering_max_k_<<")"<<std::endl;
+    distr_ = std::uniform_int_distribution<arma::uword>(clustering_min_k_,clustering_max_k_);
     arma::uword k = distr_(rand_engine_);
     std::cerr<<"Using "<<k<<" means"<<std::endl;
     arma::mat Yt = Y_.t();
