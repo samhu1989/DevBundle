@@ -1,6 +1,52 @@
 #include "robustcut.h"
 #include <QMessageBox>
+#include <QPainter>
 arma::umat RobustCut::base_segment_;
+RobustCut::ColorLabelMap RobustCut::map_;
+void RobustCut::base_to_image(const arma::uvec& label_,QImage& img_)
+{
+    for(int y=0;y<img_.height();++y)
+        for(int x=0;x<img_.width();++x)
+        {
+            int h,s,l,ch_l;
+            QColor cv(img_.pixel(x,y));
+            if( map_.find( label_(x+y*img_.width()) )==map_.end())
+            {
+                std::srand(label_(x+y*img_.width())+1);
+                int index = std::rand()%( ColorArray::DefaultColorNum_ - 1 );
+                index += 1;
+                map_.insert(label_(x+y*img_.width()),arma::uword(ColorArray::DefaultColor[index].color));
+            }
+            arma::uword ci = map_.value( label_(x+y*img_.width()) );
+            QColor ch = QColor::fromRgb(ci);
+            cv.getHsv(&h,&s,&l);
+            ch.getHsv(&h,&s,&ch_l);
+            img_.setPixel(x,y,ch.rgb());
+        }
+}
+void RobustCut::save_base_to_image(uint32_t w,uint32_t h,QImage& img)
+{
+    uint32_t n = base_segment_.n_cols;
+    uint32_t nc = std::sqrt(n);
+    uint32_t nr = n / nc;
+    if(n>(nr*nc))nr+=1;
+    img = QImage(w*nc+nc-1,h*nr+nr-1,QImage::Format_RGB888);
+    img.fill(Qt::black);
+    QImage tmp(w,h,QImage::Format_RGB888);
+    QPainter paint;
+    paint.begin(&img);
+    for(arma::uword i=0;i<n;++i)
+    {
+        int ny = i / nc;
+        int nx = i - ny*nc;
+        int x = nx*(w+1);
+        int y = ny*(h+1);
+        base_to_image(base_segment_.col(i),tmp);
+        paint.drawImage(QPoint(x,y),tmp);
+    }
+    paint.end();
+}
+
 RobustCut::RobustCut(
         QImage &inputs,
         arma::uvec &labels,

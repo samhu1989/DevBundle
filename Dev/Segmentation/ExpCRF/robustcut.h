@@ -8,6 +8,7 @@ class RobustCut : public QObject
 {
     Q_OBJECT
 public:
+    typedef QHash<arma::uword,arma::uword> ColorLabelMap;
     explicit RobustCut(
             QImage&,
             arma::uvec& labels,
@@ -16,6 +17,10 @@ public:
     bool configure(Config::Ptr);
 public:
     static arma::umat base_segment_;
+    static void save_base_to_image(uint32_t,uint32_t,QImage&);
+private:
+    static void base_to_image(const arma::uvec&,QImage&);
+    static ColorLabelMap map_;
 signals:
     void end();
     void message(QString,int);

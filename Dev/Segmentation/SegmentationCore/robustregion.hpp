@@ -59,9 +59,9 @@ void RobustRegionDetection<Mesh>::solve_consensus_segment(const QImage& img,arma
         for(int c=0;c<img.width();c++)
         {
             uint32_t wi = r*img.width()+c;
-            for(int i=std::max(0,r-3);i<std::min(img.height(),r+3);i++)
+            for(int i=std::max(0,r-5);i<std::min(img.height(),r+5);i++)
             {
-                for(int j=std::max(0,c-3);j<std::min(img.width(),c+3);j++)
+                for(int j=std::max(0,c-5);j<std::min(img.width(),c+5);j++)
                 {
                     uint32_t wj = i*img.width()+j;
                     if(wi<wj)

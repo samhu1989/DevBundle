@@ -11,6 +11,7 @@
 #include "visualizationcore.h"
 #include "ncut2d.h"
 #include "robustcut.h"
+#include <QImage>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     edit_thread_(NULL),
@@ -35,8 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Annotation,SIGNAL(triggered(bool)),this,SLOT(load_annotation()));
     connect(ui->actionLoad_Input_Mesh,SIGNAL(triggered(bool)),this,SLOT(load_mesh()));
     connect(ui->actionSave_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(save_base_segments()));
+    connect(ui->actionSave_Base_Image,SIGNAL(triggered(bool)),this,SLOT(save_base_image()));
     connect(ui->actionLoad_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(load_base_segments()));
-
 }
 
 void MainWindow::configure()
@@ -264,6 +265,19 @@ void  MainWindow::save_base_segments()
     RobustCut::base_segment_.save(fileName.toStdString(),arma::arma_binary);
 }
 
+void MainWindow::save_base_image()
+{
+    if(input_img_.isNull())return;
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Base Segment"),
+        tr("../Dev_Data/"),
+        tr("Images Files (*.ppm,*.png,*jpg);;"));
+    if(fileName.isEmpty())return;
+    QImage img;
+    RobustCut::save_base_to_image(input_img_.width(),input_img_.height(),img);
+    img.save(fileName);
+}
+
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -383,7 +397,7 @@ void MainWindow::finish_editing()
 {
     if(edit_thread_)
     {
-        QString msg = edit_thread_->objectName() + "is Finished";
+        QString msg = edit_thread_->objectName() + " is Finished";
         QMessageBox::information(this, windowTitle(), msg);
         edit_thread_->deleteLater();
         edit_thread_ = NULL;

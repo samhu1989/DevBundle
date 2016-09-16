@@ -1,7 +1,8 @@
 #include "evidenceaccumulation.h"
 #include <assert.h>
+#include <QTime>
 namespace Clustering{
-PEAC::PEAC():distr_(0.0001,1.0),rand_engine_(std::random_device{}())
+PEAC::PEAC():distr_(0.0001,1.0),rand_engine_(QTime::currentTime().msec())
 {
     tol_ = std::numeric_limits<double>::epsilon();
     max_iter_ = 1000;
@@ -37,63 +38,40 @@ void PEAC::compute(
 {
     iE_ = E;
     iP_ = P;
-    std::cerr<<"compute()"<<std::endl;
+//    std::cerr<<"compute()"<<std::endl;
     compute();
-    std::cerr<<"projectY(y)"<<std::endl;
+//    std::cerr<<"projectY(y)"<<std::endl;
     projectY(y);
 }
 
 void PEAC::compute()
 {
-    std::cerr<<"initY();"<<std::endl;
     if(init_==0)initY_RandIndex();
     if(init_==1)initY_Random();
-    std::cerr<<"computeCandN();"<<std::endl;
     computeCandN();
-    std::cerr<<"initA();"<<std::endl;
     initA();
-    std::cerr<<"initG();"<<std::endl;
     initG();
-    std::cerr<<"initPQ();"<<std::endl;
     initPQ();
     arma::uword t = 0 ;
-    QString name;
+    last_obj_ = std::numeric_limits<double>::max();
+    double obj;
     while( t < max_iter_ )
     {
-        std::cerr<<"G:"<<pq_.front().prior_<<std::endl;
         if(pq_.front().prior_<0)break;
         if(pq_.front().prior_<tol_)break;
-        std::cerr<<"t:"<<t<<std::endl;
-        std::cerr<<"getBestD();"<<std::endl;
         getBestD();
-        std::cerr<<"computeStep();"<<std::endl;
         computeStep();
-        std::cerr<<"computeY();"<<std::endl;
         computeY();
-        /*debug*/
-        arma::mat Yt = newY_->t();
-        name = name.sprintf("./Debug/PECA/newY%03u",t);
-        Yt.save(name.toStdString(),arma::raw_ascii);
-
-        Yt = oldY_->t();
-        name = name.sprintf("./Debug/PECA/oldY%03u",t);
-        Yt.save(name.toStdString(),arma::raw_ascii);
-
-        arma::mat dif = (*newY_ - *oldY_).t();
-        name = name.sprintf("./Debug/PECA/DY%03u",t);
-        dif.save(name.toStdString(),arma::raw_ascii);
-
-        arma::vec dir = {bestDY_.alpha_,bestDY_.beta_,bestDY_.gamma_,step_};
-        name = name.sprintf("./Debug/PECA/dir%03u",t);
-        dir.save(name.toStdString(),arma::raw_ascii);
-
-        std::cerr<<"computeA();"<<std::endl;
         computeA();
-        std::cerr<<"computeG();"<<std::endl;
         computeG();
-        std::cerr<<"updatePrior();"<<std::endl;
         updatePrior();
-        computeObj();
+        obj = computeObj();
+        std::cerr<<"obj("<<t<<")="<<obj<<std::endl;
+        if(obj>last_obj_){
+            *newY_ = *oldY_;
+            break;
+        }
+        else last_obj_ = obj;
         ++t;
     }
 }
@@ -109,7 +87,7 @@ void PEAC::computeCandN()
          arma::uvec sig0 = iE_.col(pair(0));
          arma::uvec sig1 = iE_.col(pair(1));
          arma::uvec equal = arma::find( sig0 == sig1 );
-         C_(pair(0),pair(1)) = double(equal.size())/N_;
+         C_(pair(0),pair(1)) = double(equal.size())/double(N_);
          C_(pair(1),pair(0)) = C_(pair(0),pair(1));
      }
 }
@@ -186,7 +164,7 @@ void PEAC::initPQ()
         tri.index_ = i;
         computePrior(tri);
     }
-    std::make_heap(pq_.begin(),pq_.end(),std::greater<Triplet>());
+    std::make_heap(pq_.begin(),pq_.end(),std::less<Triplet>());
 }
 
 void PEAC::getBestD()
@@ -274,7 +252,7 @@ void PEAC::computePrior(Triplet& tri)
     tri.prior_ = gY(tri.value_.beta_) - gY(tri.value_.alpha_);
 }
 
-void PEAC::computeObj()
+double PEAC::computeObj()
 {
     double obj = 0.0;
     for(arma::uword index=0;index<iP_.n_cols;++index)
@@ -283,14 +261,13 @@ void PEAC::computeObj()
         arma::uword i = pair(0);
         arma::uword j = pair(1);
         double dif = C_(i,j) - arma::accu((*newY_).col(i)%(*newY_).col(j));
-        obj += N_*dif*dif;
+        obj += N_*(dif*dif);
     }
-    std::cerr<<"obj:"<<obj<<std::endl;
+    return obj;
 }
 
 void PEAC::updatePrior()
 {
-    //index order
     arma::uvec indexed(pq_.size());
     #pragma omp parallel for
     for(arma::uword i=0;i<pq_.size();++i)
@@ -303,7 +280,7 @@ void PEAC::updatePrior()
     {
         computePrior(pq_[indexed[Pgamma_[i]]]);
     }
-    std::make_heap(pq_.begin(),pq_.end(),std::greater<Triplet>());
+    std::make_heap(pq_.begin(),pq_.end(),std::less<Triplet>());
 }
 
 void PEAC::projectY(arma::uvec& y)

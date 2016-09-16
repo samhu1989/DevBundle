@@ -48,7 +48,7 @@ protected:
     void computeG();    // Update G
     void computePrior(Triplet&);
     void updatePrior(); // Update Prior
-    void computeObj();
+    double computeObj();
     void projectY(arma::uvec&);    // project Y
 private:
     arma::umat iE_;
@@ -69,6 +69,7 @@ private:
     arma::uword max_iter_;
     arma::uword init_;
     std::mt19937 rand_engine_;  // Mersenne twister random number engine
+    double last_obj_;
     std::uniform_real_distribution<double> distr_;
 };
 }

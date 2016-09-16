@@ -52,6 +52,7 @@
     <addaction name="actionLoad_Input_Mesh"/>
     <addaction name="actionLoad_Annotation"/>
     <addaction name="actionSave_Base_Segments"/>
+    <addaction name="actionSave_Base_Image"/>
     <addaction name="actionLoad_Base_Segments"/>
     <addaction name="separator"/>
     <addaction name="actionConfigure"/>
@@ -151,6 +152,11 @@
   <action name="actionSolve">
    <property name="text">
     <string>Solve</string>
+   </property>
+  </action>
+  <action name="actionSave_Base_Image">
+   <property name="text">
+    <string>Save Base Image</string>
    </property>
   </action>
  </widget>

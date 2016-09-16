@@ -8,15 +8,17 @@ QT       -= gui
 
 TARGET = Clustering
 TEMPLATE = lib
-
+CONFIG += c++11
 DEFINES += CLUSTERING_LIBRARY
 
 SOURCES += \
-    evidenceaccumulation.cpp
+    evidenceaccumulation.cpp \
+    rpeac.cpp
 
 HEADERS +=\
         clustering_global.h \
-    evidenceaccumulation.h
+    evidenceaccumulation.h \
+    rpeac.h
 
 unix {
     target.path = /usr/lib

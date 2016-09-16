@@ -32,6 +32,7 @@ protected slots:
 
     void load_base_segments();
     void save_base_segments();
+    void save_base_image();
 
     void start_editing();
     void finish_editing();
