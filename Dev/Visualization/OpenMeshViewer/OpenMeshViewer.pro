@@ -104,3 +104,8 @@ win32: LIBS += -L$$DESTDIR/ -lFilterCore
 
 INCLUDEPATH += $$PWD/../../Filter/FilterCore
 DEPENDPATH += $$PWD/../../Filter/FilterCore
+
+win32: LIBS += -L$$DESTDIR/ -lClustering
+
+INCLUDEPATH += $$PWD/../../ML/Clustering
+DEPENDPATH += $$PWD/../../ML/Clustering

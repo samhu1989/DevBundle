@@ -1,7 +1,6 @@
 #ifndef ROBUSTREGION_HPP
 #define ROBUSTREGION_HPP
 #include "robustregion.h"
-
 namespace Segmentation{
 template<typename Mesh>
 RobustRegionDetection<Mesh>::RobustRegionDetection():NormalizedCuts<Mesh>()
@@ -55,7 +54,6 @@ void RobustRegionDetection<Mesh>::solve_consensus_segment(const QImage& img,arma
     edge_vec.reserve(10*N);
     for(int r=0;r<img.height();r++)
     {
-//        std::cerr<<"r:"<<r<<std::endl;
         for(int c=0;c<img.width();c++)
         {
             uint32_t wi = r*img.width()+c;

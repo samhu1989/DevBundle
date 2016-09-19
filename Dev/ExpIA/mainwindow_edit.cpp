@@ -404,7 +404,7 @@ void MainWindow::start_editing()
         th->setObjectName(tr("Sort_AGD"));
         edit_thread_ = th;
     }
-    if(edit==ui->actionJRCS)
+    if(edit==ui->actionJRCS_Old)
     {
         JRCSView* w = new JRCSView(
                     inputs_,

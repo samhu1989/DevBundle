@@ -1,7 +1,7 @@
 #ifndef ROBUSTREGION_H
 #define ROBUSTREGION_H
 #include "normalizedcuts.h"
-#include "evidenceaccumulation.h"
+#include "rpeac.h"
 namespace Segmentation{
 template<typename Mesh>
 class RobustRegionDetection:public NormalizedCuts<Mesh>
@@ -28,7 +28,7 @@ public:
 protected:
     void generate_base_segments();
 private:
-    Clustering::PEAC peac;
+    Clustering::RPEAC peac;
     arma::uword n_base_segments_;
     arma::umat base_segments_;
 };

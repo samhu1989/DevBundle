@@ -38,7 +38,7 @@ void PEAC::compute(
 {
     iE_ = E;
     iP_ = P;
-//    std::cerr<<"compute()"<<std::endl;
+//    std::cerr<<"PEAC::compute()"<<std::endl;
     compute();
 //    std::cerr<<"projectY(y)"<<std::endl;
     projectY(y);
@@ -46,17 +46,19 @@ void PEAC::compute(
 
 void PEAC::compute()
 {
+    computeCandN();
     if(init_==0)initY_RandIndex();
     if(init_==1)initY_Random();
-    computeCandN();
+    if(init_==2)initY_BestIndex();
+    else last_obj_ = std::numeric_limits<double>::max();
     initA();
     initG();
     initPQ();
     arma::uword t = 0 ;
-    last_obj_ = std::numeric_limits<double>::max();
     double obj;
     while( t < max_iter_ )
     {
+        std::cerr<<"bestDY=("<<bestDY_.alpha_<<","<<bestDY_.beta_<<","<<bestDY_.gamma_<<") with G:"<<pq_.front().prior_<<std::endl;
         if(pq_.front().prior_<0)break;
         if(pq_.front().prior_<tol_)break;
         getBestD();
@@ -124,6 +126,62 @@ void PEAC::initY_RandIndex()
         assert( k < newY_->n_rows );
         (*newY_)(k,index) = 1.0;
     }
+    (*oldY_) = (*newY_);
+}
+
+void PEAC::initY_BestIndex()
+{
+    oldY_.reset(new arma::mat(k_,iE_.n_cols));
+    newY_.reset(new arma::mat(k_,iE_.n_cols,arma::fill::zeros));
+    double best_obj = std::numeric_limits<double>::max();
+    arma::uword best_index = 0;
+    double obj;
+    for(arma::uword index=0;index<iE_.n_rows;++index)
+    {
+        arma::urowvec label = iE_.row(index);
+        arma::uword max = arma::max(label);
+        arma::uword min = arma::min(label);
+        arma::uvec th = arma::linspace<arma::uvec>(min,max,k_+1);
+        newY_->fill(0);
+        #pragma omp parallel for
+        for(arma::uword index=0;index<label.size();++index)
+        {
+            arma::uword k;
+            for( k = th.size() - 1 ; k > 0 ;--k)
+            {
+                if( label(index) > th(k) )break;
+            }
+            assert( k >= 0);
+            assert( k < newY_->n_rows );
+            (*newY_)(k,index) = 1.0;
+        }
+        obj = computeObj();
+//        std::cerr<<"Index:"<<index<<" with obj:"<<obj<<std::endl;
+        if(obj<best_obj)
+        {
+            best_obj = obj;
+            best_index = index;
+        }
+    }
+    std::cerr<<"Best Index:"<<best_index<<" with obj:"<<best_obj<<std::endl;
+    arma::urowvec label = iE_.row(best_index);
+    arma::uword max = arma::max(label);
+    arma::uword min = arma::min(label);
+    arma::uvec th = arma::linspace<arma::uvec>(min,max,k_+1);
+    newY_->fill(0);
+    #pragma omp parallel for
+    for(arma::uword index=0;index<label.size();++index)
+    {
+        arma::uword k;
+        for( k = th.size() - 1 ; k > 0 ;--k)
+        {
+            if( label(index) > th(k) )break;
+        }
+        assert( k >= 0);
+        assert( k < newY_->n_rows );
+        (*newY_)(k,index) = 1.0;
+    }
+    last_obj_ = best_obj;
     (*oldY_) = (*newY_);
 }
 

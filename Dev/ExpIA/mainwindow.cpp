@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionGlobal_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIterate,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
-    connect(ui->actionJRCS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS_Old,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));

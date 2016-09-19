@@ -625,10 +625,12 @@ void NormalizedCuts<Mesh>::clustering_Kmean()
     arma::mat Yt = Y_.t();
     gmm_.learn(Yt,k,arma::eucl_dist,arma::random_subset,50,0,1e-10,false);
 }
+
 template<typename Mesh>
 void NormalizedCuts<Mesh>::computeLabel_Kmean()
 {
     label_ = (gmm_.assign(Y_.t(),arma::eucl_dist)).t();
     label_ += 1;
 }
+
 }

@@ -7,6 +7,13 @@
 \newblock {\em Computer Graphics Forum (Symposium on Geometry Processing) 32},
   5, 1--11.
 
+\bibitem[\protect\citename{Bronstein }2010]{Bronstein2010Scale}
+{\sc Bronstein, M.~M.}
+\newblock 2010.
+\newblock Scale-invariant heat kernel signatures for non.
+\newblock In {\em IEEE Conference on Computer Vision & Pattern Recognition},
+  1704 -- 1711.
+
 \bibitem[\protect\citename{Evangelidis et~al\mbox{.}
   }2014]{Evangelidis-ECCV-2014}
 {\sc Evangelidis, G., Kounades-Bastian, D., Horaud, R., and E.Z., P.}
@@ -34,6 +41,13 @@
 \newblock 2012.
 \newblock Functional maps: a flexible representation of maps between shapes.
 \newblock {\em Acm Transactions on Graphics 31}, 4, 13--15.
+
+\bibitem[\protect\citename{Rodolà et~al\mbox{.} }2014]{Rodol2014Robust}
+{\sc Rodolà, E., Bulò, S.~R., and Cremers, D.}
+\newblock 2014.
+\newblock Robust region detection via consensus segmentation of deformable
+  shapes.
+\newblock {\em Computer Graphics Forum 33}, 5, 97–106.
 
 \bibitem[\protect\citename{Wang et~al\mbox{.} }2013]{WangImageiccv2013}
 {\sc Wang, F., Huang, Q., and Guibas, L.}

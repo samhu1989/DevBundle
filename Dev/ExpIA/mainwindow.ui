@@ -111,6 +111,19 @@
      <addaction name="actionBase_Segments"/>
      <addaction name="actionConsensus_Segment"/>
     </widget>
+    <widget class="QMenu" name="menuJRCS">
+     <property name="title">
+      <string>JRCS</string>
+     </property>
+     <widget class="QMenu" name="menuInitialization">
+      <property name="title">
+       <string>Initialization</string>
+      </property>
+      <addaction name="actionJRCS_Init_SI_HKS"/>
+     </widget>
+     <addaction name="menuInitialization"/>
+     <addaction name="actionJRCS_Optimization"/>
+    </widget>
     <addaction name="actionGlobal_Align"/>
     <addaction name="actionExtract_Background"/>
     <addaction name="actionRemove_Zero_Label"/>
@@ -126,9 +139,10 @@
     <addaction name="actionSort_AGD"/>
     <addaction name="actionJRCS_Init"/>
     <addaction name="actionRegionGrowRGB"/>
-    <addaction name="actionJRCS"/>
+    <addaction name="actionJRCS_Old"/>
     <addaction name="menuNCut"/>
     <addaction name="menuRobust_Region_Detection"/>
+    <addaction name="menuJRCS"/>
    </widget>
    <widget class="QMenu" name="menuReplay">
     <property name="title">
@@ -313,9 +327,9 @@
     <string>LAPACKE_dggsvd</string>
    </property>
   </action>
-  <action name="actionJRCS">
+  <action name="actionJRCS_Old">
    <property name="text">
-    <string>JRCS</string>
+    <string>JRCS_Old</string>
    </property>
   </action>
   <action name="actionJRCS_Init">
@@ -399,6 +413,16 @@
   <action name="actionShow_Base_Segments">
    <property name="text">
     <string>Show Base Segments</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Optimization">
+   <property name="text">
+    <string>Optimization</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Init_SI_HKS">
+   <property name="text">
+    <string>SI-HKS</string>
    </property>
   </action>
  </widget>

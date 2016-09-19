@@ -35,11 +35,13 @@ public:
             arma::umat& aE,
             arma::umat& aP
             );
+
     void compute(
             const arma::umat& E,
             const arma::umat& P,
             arma::uvec& y
             );
+    void show_atomic(arma::uvec& y);
     void convert_from_atomic(
             const arma::uvec& ay,
             arma::uvec& y

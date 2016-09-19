@@ -10,7 +10,7 @@ void RobustCut::base_to_image(const arma::uvec& label_,QImage& img_)
         {
             int h,s,l,ch_l;
             QColor cv(img_.pixel(x,y));
-            if( map_.find( label_(x+y*img_.width()) )==map_.end())
+            if( map_.find( label_(x+y*img_.width()) )==map_.end() )
             {
                 std::srand(label_(x+y*img_.width())+1);
                 int index = std::rand()%( ColorArray::DefaultColorNum_ - 1 );
@@ -46,7 +46,6 @@ void RobustCut::save_base_to_image(uint32_t w,uint32_t h,QImage& img)
     }
     paint.end();
 }
-
 RobustCut::RobustCut(
         QImage &inputs,
         arma::uvec &labels,
