@@ -1,25 +1,28 @@
 \begin{thebibliography}{\protect\citename{Evangelidis et~al\mbox{.} }2014}
 
-\bibitem[\protect\citename{Bouaziz et~al\mbox{.} }2013]{sparseicp_sgp13}
+\bibitem[\protect\citename{Bouaziz et~al\mbox{.}
+  }2013]{Bouaziz:2013:SIC:2600289.2600305}
 {\sc Bouaziz, S., Tagliasacchi, A., and Pauly, M.}
 \newblock 2013.
 \newblock Sparse iterative closest point.
-\newblock {\em Computer Graphics Forum (Symposium on Geometry Processing) 32},
-  5, 1--11.
+\newblock In {\em Proceedings of the Eleventh Eurographics/ACMSIGGRAPH
+  Symposium on Geometry Processing}, Eurographics Association, Aire-la-Ville,
+  Switzerland, Switzerland, SGP '13, 113--123.
 
-\bibitem[\protect\citename{Bronstein }2010]{Bronstein2010Scale}
-{\sc Bronstein, M.~M.}
+\bibitem[\protect\citename{Bronstein and Kokkinos }2010]{SI-HKS5539838}
+{\sc Bronstein, M.~M., and Kokkinos, I.}
 \newblock 2010.
-\newblock Scale-invariant heat kernel signatures for non.
-\newblock In {\em IEEE Conference on Computer Vision & Pattern Recognition},
-  1704 -- 1711.
+\newblock Scale-invariant heat kernel signatures for non-rigid shape
+  recognition.
+\newblock In {\em Computer Vision and Pattern Recognition (CVPR), 2010 IEEE
+  Conference on}, 1704--1711.
 
-\bibitem[\protect\citename{Evangelidis et~al\mbox{.}
-  }2014]{Evangelidis-ECCV-2014}
-{\sc Evangelidis, G., Kounades-Bastian, D., Horaud, R., and E.Z., P.}
+\bibitem[\protect\citename{Evangelidis et~al\mbox{.} }2014]{Evangelidis2014}
+{\sc Evangelidis, G.~D., Kounades-Bastian, D., Horaud, R., and Psarakis, E.~Z.}
 \newblock 2014.
-\newblock A generative model for the joint registration of multiple point sets.
-\newblock In {\em European Conference on Computer Vision (ECCV)}.
+\newblock {\em A Generative Model for the Joint Registration of Multiple Point
+  Sets}.
+\newblock Springer International Publishing, Cham, 109--122.
 
 \bibitem[\protect\citename{Jia et~al\mbox{.} }2015]{Jia20153D}
 {\sc Jia, Z., Gallagher, A.~C., Saxena, A., and Chen, T.}
@@ -35,6 +38,14 @@
   potentials.
 \newblock In {\em Advances in Neural Information Processing Systems}, 109--117.
 
+\bibitem[\protect\citename{Levy }2006]{1631196}
+{\sc Levy, B.}
+\newblock 2006.
+\newblock Laplace-beltrami eigenfunctions towards an algorithm that
+  "understands" geometry.
+\newblock In {\em IEEE International Conference on Shape Modeling and
+  Applications 2006 (SMI'06)}, 13--13.
+
 \bibitem[\protect\citename{Ovsjanikov et~al\mbox{.}
   }2012]{Ovsjanikov2012Functional}
 {\sc Ovsjanikov, M., Ben-Chen, M., Solomon, J., Butscher, A., and Guibas, L.}
@@ -42,12 +53,12 @@
 \newblock Functional maps: a flexible representation of maps between shapes.
 \newblock {\em Acm Transactions on Graphics 31}, 4, 13--15.
 
-\bibitem[\protect\citename{Rodolà et~al\mbox{.} }2014]{Rodol2014Robust}
+\bibitem[\protect\citename{Rodolà et~al\mbox{.} }2014]{RRDCS}
 {\sc Rodolà, E., Bulò, S.~R., and Cremers, D.}
 \newblock 2014.
 \newblock Robust region detection via consensus segmentation of deformable
   shapes.
-\newblock {\em Computer Graphics Forum 33}, 5, 97–106.
+\newblock {\em Computer Graphics Forum 33}, 5, 97--106.
 
 \bibitem[\protect\citename{Wang et~al\mbox{.} }2013]{WangImageiccv2013}
 {\sc Wang, F., Huang, Q., and Guibas, L.}

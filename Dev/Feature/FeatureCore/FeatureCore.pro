@@ -25,7 +25,9 @@ HEADERS += featurecore.h\
     blockbasedfeature.h \
     blockbasedfeature.hpp \
     agd.h \
-    agd.hpp
+    agd.hpp \
+    hks.h \
+    hks.hpp
 
 unix {
     target.path = /usr/lib
@@ -51,7 +53,7 @@ DEPENDPATH += $$PWD/../../../3rdParty/OpenMesh/include
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshTools.dll
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/OpenMesh/lib/ -lOpenMeshToolsd.dll
 
-LIBS += -lopenblas
+LIBS += -lopenblas -larpack
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../3rdParty/SuperLU/lib/ -lsuperlu

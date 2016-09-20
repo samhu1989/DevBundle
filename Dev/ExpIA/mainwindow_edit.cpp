@@ -17,6 +17,7 @@
 #include "extractbackground.h"
 #include "inpatchgraphcut.h"
 #include "robustcut.h"
+#include "jrcs.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -210,26 +211,6 @@ void MainWindow::start_editing()
         th->setObjectName(tr("RegionGrowRGBThread"));
         edit_thread_ = th;
     }
-    if(edit==ui->actionJRCS_Init)
-    {
-        JRCSInitThread* worker = new JRCSInitThread(inputs_,labels_);
-        if(!worker->configure(config_))
-        {
-            QString msg = "Missing Some Inputs or configure\n";
-            QMessageBox::critical(this, windowTitle(), msg);
-            worker->deleteLater();
-            return;
-        }
-        QThread* th = new QThread();
-        worker->moveToThread(th);
-        connect(th,SIGNAL(started()),worker,SLOT(process()));
-        connect(worker,SIGNAL(finished()),th,SLOT(quit()));
-        connect(worker,SIGNAL(finished()),worker,SLOT(deleteLater()));
-        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
-        connect(worker,SIGNAL(showbox(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
-        th->setObjectName(tr("JRCS_Init"));
-        edit_thread_ = th;
-    }
     if(edit==ui->actionCut_Graph)
     {
         NCut* worker = new NCut(inputs_,labels_);
@@ -403,6 +384,51 @@ void MainWindow::start_editing()
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         th->setObjectName(tr("Sort_AGD"));
         edit_thread_ = th;
+    }
+    if(edit==ui->actionJRCS_Init_SI_HKS)
+    {
+        JRCSWork* worker = new JRCSWork(inputs_,labels_,objects_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(Init_SI_HSK()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("JRCS_Init_SI_HKS"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionJRCS_Init)
+    {
+        JRCSInitThread* worker = new JRCSInitThread(inputs_,labels_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(process()));
+        connect(worker,SIGNAL(finished()),th,SLOT(quit()));
+        connect(worker,SIGNAL(finished()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(worker,SIGNAL(showbox(int,MeshBundle<DefaultMesh>::Ptr)),this,SLOT(showBox(int,MeshBundle<DefaultMesh>::Ptr)),Qt::DirectConnection);
+        th->setObjectName(tr("JRCS_Init"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionJRCS_Optimization)
+    {
+        QString msg = "Not Implemented Yet\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
     }
     if(edit==ui->actionJRCS_Old)
     {

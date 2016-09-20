@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  19 SEP 2016 12:47
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  19 SEP 2016 18:16
 entering extended mode
 **JRCS.tex
 (JRCS.tex
@@ -443,6 +443,10 @@ Underfull \hbox (badness 10000) in paragraph at lines 21--31
 
  []
 
+
+LaTeX Warning: Citation 'Evangelidis-ECCV-2014' on page 1 undefined on input li
+ne 32.
+
 ) (imp.tex
 Overfull \hbox (24.99342pt too wide) detected at line 8
 \OML/cmm/m/it/9 "\OT1/cmr/m/n/9 (\OMS/cmsy/m/n/9 j\OML/cmm/m/it/9 V; Z\OT1/cmr
@@ -460,7 +464,7 @@ put line 11.
 
 ])
 (experiment&discussion.tex
-<images/synthetic_data.pdf, id=56, 952.55875pt x 484.81125pt>
+<images/synthetic_data.pdf, id=54, 952.55875pt x 484.81125pt>
 File: images/synthetic_data.pdf Graphic file (type pdf)
 
 <use images/synthetic_data.pdf>
@@ -471,7 +475,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 16--70
 
  []
 
-<images/result_iter_18.png, id=58, 992.70876pt x 958.58125pt>
+<images/result_iter_18.png, id=56, 992.70876pt x 958.58125pt>
 File: images/result_iter_18.png Graphic file (type png)
 
 <use images/result_iter_18.png>
@@ -482,37 +486,27 @@ Underfull \hbox (badness 10000) in paragraph at lines 71--108
 
  []
 
-<images/init_input.png, id=60, 954.56625pt x 481.8pt>
+<images/init_input.png, id=58, 954.56625pt x 481.8pt>
 File: images/init_input.png Graphic file (type png)
 
 <use images/init_input.png>
 Package pdftex.def Info: images/init_input.png used on input line 111.
 (pdftex.def)             Requested size: 505.89pt x 255.33807pt.
 
-<images/init_seg.png, id=61, 956.57375pt x 483.8075pt>
+<images/init_seg.png, id=59, 956.57375pt x 483.8075pt>
 File: images/init_seg.png Graphic file (type png)
 
 <use images/init_seg.png>
 Package pdftex.def Info: images/init_seg.png used on input line 117.
 (pdftex.def)             Requested size: 505.89pt x 255.86308pt.
 
-<images/init_cluster.png, id=62, 956.57375pt x 484.81125pt>
+<images/init_cluster.png, id=60, 956.57375pt x 484.81125pt>
 File: images/init_cluster.png Graphic file (type png)
 
 <use images/init_cluster.png>
 Package pdftex.def Info: images/init_cluster.png used on input line 123.
 (pdftex.def)             Requested size: 505.89pt x 256.3939pt.
 ) (JRCS.bbl
-! Misplaced alignment tab character &.
-l.14 ... {\em IEEE Conference on Computer Vision &
-                                                   Pattern Recognition},
-I can't figure out why you would want to use a tab mark
-here. If you just want an ampersand, the remedy is
-simple: Just type `I\&' now. But if some right brace
-up above has ended a previous alignment prematurely,
-you're probably due for more error messages, and you
-might try typing `S' now just to see what is salvageable.
-
 Missing character: There is no Ã in font ptmrc7t!
 Missing character: There is no ¤ in font ptmrc7t!
 Missing character: There is no Ã in font ptmrc7t!
@@ -521,25 +515,22 @@ Missing character: There is no Ã in font ptmrc7t!
 Missing character: There is no   in font ptmrc7t!
 Missing character: There is no Ã in font ptmrc7t!
 Missing character: There is no ² in font ptmrc7t!
-Missing character: There is no â in font ptmr7t!
-Missing character: There is no € in font ptmr7t!
-Missing character: There is no “ in font ptmr7t!
 )
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 188.
- [2 <./images/synthetic_data.pdf>] [3 <./images/result_iter_18.png>] [4 <./imag
-es/init_input.png> <./images/init_seg.png>] [5 <./images/init_cluster.png>]
+ [2 <./images/synthetic_data.pdf>]
+[3 <./images/result_iter_18.png>] [4 <./images/init_input.png> <./images/init_s
+eg.png>] [5 <./images/init_cluster.png>]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 188.
-
-(JRCS.aux)
+ (JRCS.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 188.
 Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 188.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 188.
  ) 
 Here is how much of TeX's memory you used:
- 7690 strings out of 493698
- 114756 string characters out of 3144415
- 214821 words of memory out of 3000000
- 10841 multiletter control sequences out of 15000+200000
+ 7693 strings out of 493698
+ 114792 string characters out of 3144415
+ 214870 words of memory out of 3000000
+ 10843 multiletter control sequences out of 15000+200000
  26038 words of font info for 53 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
  43i,15n,75p,580b,436s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -557,9 +548,9 @@ iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy9.pfb><D:/Program Files/MiKTeX 2.9
 /fonts/type1/urw/helvetic/uhvb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/u
 rw/times/utmb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.p
 fb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on JRCS.pdf (5 pages, 310092 bytes).
+Output written on JRCS.pdf (5 pages, 311513 bytes).
 PDF statistics:
  166 PDF objects out of 1000 (max. 8388607)
- 49 named destinations out of 1000 (max. 500000)
+ 50 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

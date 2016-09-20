@@ -14,7 +14,7 @@ public:
     {
         return ( Ref_.n_vertices() != voxel_label.size() ) || ( 0==voxel_centers.n_cols );
     }
-    size_t size(void)
+    size_t size(void)const
     {
         return voxel_centers.n_cols;
     }
