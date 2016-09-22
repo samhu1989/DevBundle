@@ -40,6 +40,7 @@ public:
     virtual bool configure(Config::Ptr config);
 
     virtual inline void enable_smooth(bool enable=true){smooth_enabled_=enable;}
+    virtual inline void set_init_method(std::shared_ptr<JRCSInitBase> ptr){init_=ptr;}
     virtual inline void set_smooth_weight(float w){smooth_w_=w;}
     virtual inline void set_max_smooth_iter(int max_iter){max_smooth_iter_=max_iter;}
     virtual inline void set_max_iter(int max_iter){max_iter_ = max_iter;}

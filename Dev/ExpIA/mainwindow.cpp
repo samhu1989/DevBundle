@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionJRCS_Old,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init_SI_HKS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS_Init_Bernoulli,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Optimization,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));

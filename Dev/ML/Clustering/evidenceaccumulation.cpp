@@ -58,10 +58,10 @@ void PEAC::compute()
     double obj;
     while( t < max_iter_ )
     {
+        getBestD();
         std::cerr<<"bestDY=("<<bestDY_.alpha_<<","<<bestDY_.beta_<<","<<bestDY_.gamma_<<") with G:"<<pq_.front().prior_<<std::endl;
         if(pq_.front().prior_<0)break;
         if(pq_.front().prior_<tol_)break;
-        getBestD();
         computeStep();
         computeY();
         computeA();

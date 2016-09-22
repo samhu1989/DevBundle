@@ -404,6 +404,25 @@ void MainWindow::start_editing()
         th->setObjectName(tr("JRCS_Init_SI_HKS"));
         edit_thread_ = th;
     }
+    if(edit==ui->actionJRCS_Init_Bernoulli)
+    {
+        JRCSWork* worker = new JRCSWork(inputs_,labels_,objects_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(Init_Bernolli()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("JRCS_Init_Bernoulli"));
+        edit_thread_ = th;
+    }
     if(edit==ui->actionJRCS_Init)
     {
         JRCSInitThread* worker = new JRCSInitThread(inputs_,labels_);
@@ -426,9 +445,23 @@ void MainWindow::start_editing()
     }
     if(edit==ui->actionJRCS_Optimization)
     {
-        QString msg = "Not Implemented Yet\n";
-        QMessageBox::critical(this, windowTitle(), msg);
-        return;
+        JRCSView* w = new JRCSView(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        if(!w->configure(config_)){
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        s->show();
+        JRCSWork::optimize(w);
     }
     if(edit==ui->actionJRCS_Old)
     {

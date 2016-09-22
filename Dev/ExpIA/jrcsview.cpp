@@ -35,7 +35,6 @@ bool JRCSView::init(Config::Ptr config)
     jrcs_worker_ = new JRCSThread();
     connect(jrcs_worker_,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
     connect(&t_,SIGNAL(timeout()),jrcs_worker_,SLOT(get_iter_info()));
-
     if(!jrcs_worker_->configure(config))
     {
         return false;

@@ -8,11 +8,16 @@ HKS<Mesh>::HKS()
     convex_scale_ = 0.01;
 }
 template<typename Mesh>
+bool HKS<Mesh>::configure(Config::Ptr config)
+{
+    return true;
+}
+template<typename Mesh>
 void HKS<Mesh>::extract(const typename MeshBundle<Mesh>::Ptr m,arma::mat& f)
 {
     constructL(m);
     decomposeL();
-    computeHKS();
+    computeHKS(f);
 }
 template<typename Mesh>
 void HKS<Mesh>::extract(const typename MeshBundle<Mesh>::PtrList m,MatPtrLst& f)
@@ -79,8 +84,28 @@ void HKS<Mesh>::decomposeL()
 //    }
 }
 template<typename Mesh>
-void HKS<Mesh>::computeHKS()
+void HKS<Mesh>::computeHKS(arma::mat&f)
 {
-    ;
+    arma::mat sq_phi = arma::square(eig_vec_).t();
+    arma::vec alpha_tao = arma::exp2(arma::linspace<arma::vec>(1.0,25.0,(25.0-1.0)*16.0+1.0));
+    arma::mat HKS(alpha_tao.n_rows,W_.n_cols);
+    #pragma omp for
+    for(arma::uword i=0; i < HKS.n_rows ; ++i )
+    {
+        arma::vec lambda_a_tao = -lambda_*alpha_tao(i);
+        HKS.row(i) = arma::sum(sq_phi.each_col()%arma::exp(lambda_a_tao));
+    }
+    //Logarithmic
+    HKS = arma::log(HKS);
+    //Derivative
+    arma::mat Dif_HKS(HKS.n_rows-1,HKS.n_cols);
+    #pragma omp for
+    for(arma::uword i=0; i < Dif_HKS.n_rows ; ++i )
+    {
+        Dif_HKS.row(i) = HKS.row(i+1) - HKS.row(i);
+    }
+    //Fourier Transform
+    arma::mat SI_HKS = arma::abs(arma::fft(Dif_HKS));
+    f = SI_HKS.rows(0,5);
 }
 }

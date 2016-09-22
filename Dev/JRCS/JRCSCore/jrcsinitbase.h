@@ -1,11 +1,12 @@
 #ifndef JRCSINITBASE_H
 #define JRCSINITBASE_H
+#include "jrcscore_global.h"
 #include <memory>
 #include <armadillo>
 #include <common.h>
 namespace JRCS
 {
-class JRCSInitBase
+class JRCSCORESHARED_EXPORT JRCSInitBase
 {
 public:
     typedef std::shared_ptr<arma::fmat> MatPtr;
@@ -47,10 +48,10 @@ private:
     CMatPtrLst vc_;
     LCMatPtrLst vlc_;
     LMatPtrLst vl_;
+
     //output
     MatPtrLst alpha_;
     arma::fvec prob_;
-
 
     //clustering
     std::vector<arma::urowvec> input_patch_label_value_;

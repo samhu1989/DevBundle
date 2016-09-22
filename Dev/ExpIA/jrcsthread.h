@@ -44,6 +44,7 @@ public:
     inline int get_k(){return jrcs_.evaluate_k();}
     inline void get_rt(JRCS::JRCSBase::TsLst&rt){jrcs_.get_rt(rt);}
     inline void get_lbl(std::vector<arma::uvec>&lbl){jrcs_.get_label(lbl);}
+    inline void set_init_method(std::shared_ptr<JRCS::JRCSInitBase> method){jrcs_.set_init_method(method);}
 public slots:
     void process(void);
     void get_iter_info(void);

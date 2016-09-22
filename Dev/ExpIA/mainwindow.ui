@@ -120,6 +120,7 @@
        <string>Initialization</string>
       </property>
       <addaction name="actionJRCS_Init_SI_HKS"/>
+      <addaction name="actionJRCS_Init_Bernoulli"/>
      </widget>
      <addaction name="menuInitialization"/>
      <addaction name="actionJRCS_Optimization"/>
@@ -423,6 +424,14 @@
   <action name="actionJRCS_Init_SI_HKS">
    <property name="text">
     <string>SI-HKS</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Init_Bernoulli">
+   <property name="text">
+    <string>Bernoulli</string>
+   </property>
+   <property name="toolTip">
+    <string>Initialize Correspondence Matrix with Bernoulli Distribution of Label</string>
    </property>
   </action>
  </widget>

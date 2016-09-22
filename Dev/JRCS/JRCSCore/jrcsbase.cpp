@@ -173,7 +173,7 @@ void JRCSBase::initx(
     init_alpha_ = false;
     if(!vll_ptrlst_.empty())
     {
-        init_.reset(new JRCSInitBase());
+        if(!init_)init_.reset(new JRCSInitBase());
         init_->configure(config_);
         if(init_->init_with_label(
                     k,

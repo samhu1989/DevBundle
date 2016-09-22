@@ -5,6 +5,8 @@
 #include <QObject>
 #include <memory>
 #include <armadillo>
+#include "jrcsinitbase.h"
+#include "jrcsview.h"
 class JRCSWork : public QObject
 {
     Q_OBJECT
@@ -27,13 +29,15 @@ public:
     bool configure(Config::Ptr config);
 public slots:
     void Init_SI_HSK();
+    void Init_Bernolli();
 public:
-    static void optimization();
+    static void optimize(JRCSView* w);
 private:
     MeshList& inputs_;
     LabelList& labels_;
     ModelList& objects_;
     static MatPtrLst alpha_ptrlst_;
+    static arma::fvec obj_prob_;
 };
 
 #endif // JRCS_H

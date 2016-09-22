@@ -27,7 +27,9 @@ HEADERS += featurecore.h\
     agd.h \
     agd.hpp \
     hks.h \
-    hks.hpp
+    hks.hpp \
+    bof.h \
+    bof.hpp
 
 unix {
     target.path = /usr/lib

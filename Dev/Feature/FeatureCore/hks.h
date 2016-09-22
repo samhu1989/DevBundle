@@ -10,6 +10,7 @@ public:
     typedef std::shared_ptr<arma::mat> MatPtr;
     typedef std::vector<MatPtr> MatPtrLst;
     HKS();
+    bool configure(Config::Ptr);
     void extract(const typename MeshBundle<Mesh>::Ptr,arma::mat&);
     void extract(const typename MeshBundle<Mesh>::PtrList,MatPtrLst&);
 protected:
@@ -37,7 +38,7 @@ protected:
     }
     void constructL(const typename MeshBundle<Mesh>::Ptr);
     void decomposeL();
-    void computeHKS();
+    void computeHKS(arma::mat&);
 private:
     arma::sp_mat W_;
     arma::vec lambda_;
