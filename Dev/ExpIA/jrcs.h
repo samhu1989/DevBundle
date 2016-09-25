@@ -31,7 +31,7 @@ public slots:
     void Init_SI_HSK();
     void Init_Bernolli();
 public:
-    static void optimize(JRCSView* w);
+    static bool optimize(JRCSView* w);
 private:
     MeshList& inputs_;
     LabelList& labels_;

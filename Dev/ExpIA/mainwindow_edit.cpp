@@ -461,7 +461,13 @@ void MainWindow::start_editing()
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
         s->show();
-        JRCSWork::optimize(w);
+        if(!JRCSWork::optimize(w))
+        {
+            QString msg = "Please run one of the external initializations\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
     }
     if(edit==ui->actionJRCS_Old)
     {

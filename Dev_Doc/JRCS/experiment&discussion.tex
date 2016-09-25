@@ -1,20 +1,20 @@
 \section{Experiments and Discussion}
 \label{sec:exp}
 \subsection{Debugging The Smooth Step}
-\textbf{Bug Description:}\\
-When the smooth step is added, the mixture of gaussian model won't expand to fit the input observations.\\
-\textbf{Test Case Generation:}\\
-In order to debug the problem, I generated a set of six synthetic point clouds. For the purpose of debugging, I deliberately made sure that the first 2657 points belonging to table, the following 2028 points belonging to chair, the last 3286 points belonging to teddy. The Test Cases are shown in Figure \ref{fig:syn-data}.
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=3.0in]{images/synthetic_data}
-  \caption{The Synthetic Data for Test:they are composed of three objects (teddy table and chair) with different rigid motion}
-  \label{fig:syn-data}
-\end{figure}\\
-\textbf{The Example of $\alpha$:}\\
-The $\alpha$ are caculated as
-$$\alpha_{ijk}=p_np_kN(\phi_n(v_{ij})|x_k,\Sigma_k)$$
-The example $\alpha$ with no smooth:\\
+%\textbf{Bug Description:}\\
+%When the smooth step is added, the mixture of gaussian model won't expand to fit the input observations.\\
+%\textbf{Test Case Generation:}\\
+%In order to debug the problem, I generated a set of six synthetic point clouds. For the purpose of debugging, I deliberately made sure that the first 2657 points belonging to table, the following 2028 points belonging to chair, the last 3286 points belonging to teddy. The Test Cases are shown in Figure \ref{fig:syn-data}.
+%\begin{figure}[ht]
+%  \centering
+%  \includegraphics[width=3.0in]{images/synthetic_data}
+%  \caption{The Synthetic Data for Test:they are composed of three objects (teddy table and chair) with different rigid motion}
+%  \label{fig:syn-data}
+%\end{figure}\\
+%\textbf{The Example of $\alpha$:}\\
+%The $\alpha$ are caculated as
+%$$\alpha_{ijk}=p_np_kN(\phi_n(v_{ij})|x_k,\Sigma_k)$$
+%The example $\alpha$ with no smooth:\\
 %\begin{figure*}
 %\centering
 %	\subfigure[
@@ -68,13 +68,13 @@ The example $\alpha$ with no smooth:\\
 %	\label{fig:a_smooth}
 %\end{figure*}
 \subsection{Current Result}
-As shown in Figure~\ref{fig:current_result}
-\begin{figure*}
-	\centering
-	\includegraphics[width=\textwidth]{images/result_iter_18.png}
-	\caption{Current Result}
-	\label{fig:current_result}
-\end{figure*}\\
+%As shown in Figure~\ref{fig:current_result}
+%\begin{figure*}
+%	\centering
+%	\includegraphics[width=\textwidth]{images/result_iter_18.png}
+%	\caption{Current Result}
+%	\label{fig:current_result}
+%\end{figure*}\\
 %\textbf{Current Alpha}\\
 %\begin{figure*}
 %	\centering
@@ -106,21 +106,21 @@ As shown in Figure~\ref{fig:current_result}
 %	\label{fig:current_alpha}
 %\end{figure*}
 \subsection{Initialization Experiments}
-\begin{figure*}
-	\centering
-	\includegraphics[width=\textwidth]{images/init_input.png}
-	\caption{Input for Initialization Experiments}
-	\label{fig:input_for_init}
-\end{figure*}
-\begin{figure*}
-	\centering
-	\includegraphics[width=\textwidth]{images/init_seg.png}
-	\caption{Segmentation for Initialization Experiments}
-	\label{fig:seg_for_init}
-\end{figure*}
-\begin{figure*}
-	\centering
-	\includegraphics[width=\textwidth]{images/init_cluster.png}
-	\caption{Clustering for Initialization Experiments}
-	\label{fig:cluster_for_init}
-\end{figure*}
+%\begin{figure*}
+%	\centering
+%	\includegraphics[width=\textwidth]{images/init_input.png}
+%	\caption{Input for Initialization Experiments}
+%	\label{fig:input_for_init}
+%\end{figure*}
+%\begin{figure*}
+%	\centering
+%	\includegraphics[width=\textwidth]{images/init_seg.png}
+%	\caption{Segmentation for Initialization Experiments}
+%	\label{fig:seg_for_init}
+%\end{figure*}
+%\begin{figure*}
+%	\centering
+%	\includegraphics[width=\textwidth]{images/init_cluster.png}
+%	\caption{Clustering for Initialization Experiments}
+%	\label{fig:cluster_for_init}
+%\end{figure*}

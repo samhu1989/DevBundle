@@ -14,7 +14,7 @@ bool JRMPCV2<M>::configure(Config::Ptr& config,InfoPtr& info)
         }
         if(config->has("Align_Eps"))
         {
-            info->eps = config->getFloat("Align_Eps");
+            info->eps_ = config->getFloat("Align_Eps");
         }
         return true;
     }

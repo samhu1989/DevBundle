@@ -26,13 +26,15 @@ void JRCSWork::Init_SI_HSK()
 
 void JRCSWork::Init_Bernolli()
 {
-    ;
+    alpha_ptrlst_.resize(inputs_.size());
+
 }
 
-void JRCSWork::optimize(JRCSView* w)
+bool JRCSWork::optimize(JRCSView* w)
 {
-    std::shared_ptr<JRCS::JRCSInitBase> init_ptr;
-    init_ptr.reset(new JRCS::JRCSInitExternal(alpha_ptrlst_,obj_prob_));
+    if( alpha_ptrlst_.empty() || obj_prob_.empty() )return false;
+    std::shared_ptr<JRCS::JRCSInitBase> init_ptr(new JRCS::JRCSInitExternal(alpha_ptrlst_,obj_prob_));
     w->set_init_method(init_ptr);
     w->start();
+    return true;
 }

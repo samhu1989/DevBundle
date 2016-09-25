@@ -26,7 +26,7 @@ bool JRMPC<M>::configure(Config::Ptr& config,InfoPtr& info)
         }
         if(config->has("Align_Eps"))
         {
-            info->eps = config->getFloat("Align_Eps");
+            info->eps_ = config->getFloat("Align_Eps");
         }
         return true;
     }
@@ -533,8 +533,8 @@ void JRMPC<M>::computeOnce(void)
         //evaluate if the T is really updated
         arma::fmat I(3,3,arma::fill::eye);
         if(
-            info_ptr->eps < arma::accu(arma::square(dR - I)) ||
-            info_ptr->eps < arma::accu(arma::square(dt))
+            ( info_ptr->eps_ < arma::accu(arma::square(dR - I)) ) ||
+            ( info_ptr->eps_ < arma::accu(arma::square(dt)) )
            )
         {
             ++T_updated_;
@@ -563,7 +563,7 @@ void JRMPC<M>::computeOnce(void)
     arma::frowvec alpha_sum_no_bias = ( alpha_sum * ( double( V_ptrs.size() ) - 1 ) / double(V_ptrs.size()) );
     arma::fmat newX = X_sum.each_row() / alpha_sum;
     arma::frowvec delta =  arma::sum(arma::square(X_ - newX));
-    arma::uvec updatedX = arma::find( delta > info_ptr->eps );
+    arma::uvec updatedX = arma::find( delta > info_ptr->eps_ );
     X_updated_ = updatedX.size();
     if(X_updated_>0){
         arma::uvec finite_i = arma::find_finite(delta);

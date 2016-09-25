@@ -1,4 +1,4 @@
-\begin{thebibliography}{\protect\citename{Evangelidis et~al\mbox{.} }2014}
+\begin{thebibliography}{\protect\citename{Kr\"{a}henb\"{u}hl and Koltun }2011}
 
 \bibitem[\protect\citename{Bouaziz et~al\mbox{.}
   }2013]{Bouaziz:2013:SIC:2600289.2600305}
@@ -17,6 +17,21 @@
 \newblock In {\em Computer Vision and Pattern Recognition (CVPR), 2010 IEEE
   Conference on}, 1704--1711.
 
+\bibitem[\protect\citename{Chen et~al\mbox{.}
+  }2014]{Chen:2014:ASM:2661229.2661239}
+{\sc Chen, K., Lai, Y.-K., Wu, Y.-X., Martin, R., and Hu, S.-M.}
+\newblock 2014.
+\newblock Automatic semantic modeling of indoor scenes from low-quality rgb-d
+  data using contextual information.
+\newblock {\em ACM Trans. Graph. 33}, 6 (Nov.), 208:1--208:12.
+
+\bibitem[\protect\citename{Dema and Sari-Sarraf }2012]{SceneFromExample}
+{\sc Dema, M.~A., and Sari-Sarraf, H.}
+\newblock 2012.
+\newblock 3d scene generation by learning from examples.
+\newblock In {\em Multimedia (ISM), 2012 IEEE International Symposium on},
+  58--64.
+
 \bibitem[\protect\citename{Evangelidis et~al\mbox{.} }2014]{Evangelidis2014}
 {\sc Evangelidis, G.~D., Kounades-Bastian, D., Horaud, R., and Psarakis, E.~Z.}
 \newblock 2014.
@@ -24,19 +39,46 @@
   Sets}.
 \newblock Springer International Publishing, Cham, 109--122.
 
-\bibitem[\protect\citename{Jia et~al\mbox{.} }2015]{Jia20153D}
+\bibitem[\protect\citename{Fisher et~al\mbox{.}
+  }2012]{Fisher:2012:ESO:2366145.2366154}
+{\sc Fisher, M., Ritchie, D., Savva, M., Funkhouser, T., and Hanrahan, P.}
+\newblock 2012.
+\newblock Example-based synthesis of 3d object arrangements.
+\newblock {\em ACM Trans. Graph. 31}, 6 (Nov.), 135:1--135:11.
+
+\bibitem[\protect\citename{Fisher et~al\mbox{.}
+  }2015]{Fisher:ActivityCentricSceneSynthesis}
+{\sc Fisher, M., Savva, M., Li, Y., Hanrahan, P., and Nie\ssner, M.}
+\newblock 2015.
+\newblock Activity-centric scene synthesis for functional 3d scene modeling.
+\newblock {\em ACM Trans. Graph. 34}, 6 (Oct.), 179:1--179:13.
+
+\bibitem[\protect\citename{Izadi et~al\mbox{.} }2011]{KinectFusion}
+{\sc Izadi, S., Kim, D., Hilliges, O., Molyneaux, D., Newcombe, R., Kohli, P.,
+  Shotton, J., Hodges, S., Freeman, D., Davison, A., and Fitzgibbon, A.}
+\newblock 2011.
+\newblock Kinectfusion: Real-time 3d reconstruction and interaction using a
+  moving depth camera.
+\newblock In {\em Proceedings of the 24th Annual ACM Symposium on User
+  Interface Software and Technology}, ACM, New York, NY, USA, UIST '11,
+  559--568.
+
+\bibitem[\protect\citename{Jia et~al\mbox{.}
+  }2015]{3DReasoningfromBlockstoStability}
 {\sc Jia, Z., Gallagher, A.~C., Saxena, A., and Chen, T.}
 \newblock 2015.
-\newblock 3{D} reasoning from blocks to stability.
+\newblock 3d reasoning from blocks to stability.
 \newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence
-  37}, 5, 905--918.
+  37}, 5 (May), 905--918.
 
-\bibitem[\protect\citename{Krähenbühl and Koltun }2012]{Kr2012Efficient}
-{\sc Krähenbühl, P., and Koltun, V.}
-\newblock 2012.
+\bibitem[\protect\citename{Kr\"{a}henb\"{u}hl and Koltun }2011]{NIPS2011_4296}
+{\sc Kr\"{a}henb\"{u}hl, P., and Koltun, V.}
+\newblock 2011.
 \newblock Efficient inference in fully connected crfs with gaussian edge
   potentials.
-\newblock In {\em Advances in Neural Information Processing Systems}, 109--117.
+\newblock In {\em Advances in Neural Information Processing Systems 24},
+  J.~Shawe-Taylor, R.~S. Zemel, P.~L. Bartlett, F.~Pereira, and K.~Q.
+  Weinberger, Eds. Curran Associates, Inc., 109--117.
 
 \bibitem[\protect\citename{Levy }2006]{1631196}
 {\sc Levy, B.}
@@ -46,12 +88,31 @@
 \newblock In {\em IEEE International Conference on Shape Modeling and
   Applications 2006 (SMI'06)}, 13--13.
 
+\bibitem[\protect\citename{Liu et~al\mbox{.} }2015]{Liu2015Model}
+{\sc Liu, Z., Zhang, Y., Wu, W., Liu, K., and Sun, Z.}
+\newblock 2015.
+\newblock Model-driven indoor scenes modeling from a single image.
+\newblock In {\em Graphics Interface Conference}.
+
+\bibitem[\protect\citename{Maron et~al\mbox{.} }2016]{Maron:2016:ConvRelax}
+{\sc Maron, H., Dym, N., Kezurer, I., Kovalsky, S., and Lipman, Y.}
+\newblock 2016.
+\newblock Point registration via efficient convex relaxation.
+\newblock {\em ACM Trans. Graph. 35}, 4 (July), 73:1--73:12.
+
+\bibitem[\protect\citename{Merrell et~al\mbox{.}
+  }2011]{Merrell:2011:IFL:2010324.1964982}
+{\sc Merrell, P., Schkufza, E., Li, Z., Agrawala, M., and Koltun, V.}
+\newblock 2011.
+\newblock Interactive furniture layout using interior design guidelines.
+\newblock {\em ACM Trans. Graph. 30}, 4 (July), 87:1--87:10.
+
 \bibitem[\protect\citename{Ovsjanikov et~al\mbox{.}
-  }2012]{Ovsjanikov2012Functional}
+  }2012]{Ovsjanikov:2012:FMF:2185520.2185526}
 {\sc Ovsjanikov, M., Ben-Chen, M., Solomon, J., Butscher, A., and Guibas, L.}
 \newblock 2012.
-\newblock Functional maps: a flexible representation of maps between shapes.
-\newblock {\em Acm Transactions on Graphics 31}, 4, 13--15.
+\newblock Functional maps: A flexible representation of maps between shapes.
+\newblock {\em ACM Trans. Graph. 31}, 4 (July), 30:1--30:11.
 
 \bibitem[\protect\citename{Rodolà et~al\mbox{.} }2014]{RRDCS}
 {\sc Rodolà, E., Bulò, S.~R., and Cremers, D.}
@@ -66,5 +127,20 @@
 \newblock Image co-segmentation via consistent functional maps.
 \newblock In {\em Computer Vision (ICCV), 2013 IEEE International Conference
   on}, 849--856.
+
+\bibitem[\protect\citename{Xu et~al\mbox{.} }2013]{Xu:2013:SSC:2461912.2461968}
+{\sc Xu, K., Chen, K., Fu, H., Sun, W.-L., and Hu, S.-M.}
+\newblock 2013.
+\newblock Sketch2scene: Sketch-based co-retrieval and co-placement of 3d
+  models.
+\newblock {\em ACM Trans. Graph. 32}, 4 (July), 123:1--123:15.
+
+\bibitem[\protect\citename{Xu et~al\mbox{.} }2015]{Xu:2015:ACS:2816795.2818075}
+{\sc Xu, K., Huang, H., Shi, Y., Li, H., Long, P., Caichen, J., Sun, W., and
+  Chen, B.}
+\newblock 2015.
+\newblock Autoscanning for coupled scene reconstruction and proactive object
+  analysis.
+\newblock {\em ACM Trans. Graph. 34}, 6 (Oct.), 177:1--177:14.
 
 \end{thebibliography}

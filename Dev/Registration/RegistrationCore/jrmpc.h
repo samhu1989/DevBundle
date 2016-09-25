@@ -17,14 +17,14 @@ namespace Registration {
             Force
         }EndMode;
 
-        typedef struct Info{
+        typedef struct{
             int k = 0;
             float gamma = 0.05;// weight for uniform distribution
             int max_iter = 50;
             int max_restart = 0;
             float fitness_th = 0.0;
             float var_th = 0.0 ;
-            float eps = 1e-7;
+            float eps_ = 1e-7;
             bool isApplyed = true;//is transform applied on input matrix source
             EndMode mode;
             void* result = NULL;
