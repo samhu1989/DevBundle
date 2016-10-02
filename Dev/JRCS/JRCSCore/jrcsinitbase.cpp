@@ -8,7 +8,6 @@ JRCSInitBase::JRCSInitBase()
     ;
 }
 
-
 bool JRCSInitBase::init_with_label(
         const int k,
         const MatPtrLst& vv,
@@ -26,6 +25,8 @@ bool JRCSInitBase::init_with_label(
     vl_ = vl;
     vlc_ = vlc;
     verbose_ = verbose;
+
+    if(verbose_)std::cerr<<"Init by "<<name()<<std::endl;
 
     if(verbose_>0)std::cerr<<"extract_patch_features()"<<std::endl;
     extract_patch_features();

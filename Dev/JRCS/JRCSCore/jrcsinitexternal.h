@@ -18,6 +18,7 @@ public:
             );
     virtual void getAlpha(MatPtrLst& alpha){alpha = external_alpha_;}
     virtual void getObjProb(arma::fvec& obj_prob){obj_prob = external_obj_prob_;}
+    virtual std::string name()const {return "JRCSInitExternal";}
 protected:
 private:
     MatPtrLst& external_alpha_;

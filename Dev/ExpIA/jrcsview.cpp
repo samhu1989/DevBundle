@@ -19,6 +19,7 @@ JRCSView::JRCSView(
     geo_view_->setMinimumSize(640,480);
     ui->gridLayout_2->addWidget(geo_view_);
     jrcs_thread_ = NULL;
+    jrcs_worker_ = new JRCSThread();
     connect(&t_,SIGNAL(timeout()),geo_view_,SLOT(updateGL()));
     t_.setSingleShot(false);
 }
@@ -32,7 +33,6 @@ bool JRCSView::init(Config::Ptr config)
 {
     std::cerr<<"JRCSView::init"<<std::endl;
     ui->spinBox->hide();
-    jrcs_worker_ = new JRCSThread();
     connect(jrcs_worker_,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
     connect(&t_,SIGNAL(timeout()),jrcs_worker_,SLOT(get_iter_info()));
     if(!jrcs_worker_->configure(config))

@@ -30,6 +30,7 @@ public:
             );
     virtual void getAlpha(MatPtrLst&);
     virtual void getObjProb(arma::fvec&);
+    virtual std::string name()const {return "JRCSInitBase";}
 
 protected:
     bool check_centers();

@@ -30,8 +30,11 @@ public:
 public slots:
     void Init_SI_HSK();
     void Init_Bernolli();
+protected:
+    void Init_Bernolli_a(arma::uvec&);
+    void Init_Bernolli_b(arma::uvec&);
 public:
-    static bool optimize(JRCSView* w);
+    static bool init_optimize(JRCSView* w);
 private:
     MeshList& inputs_;
     LabelList& labels_;

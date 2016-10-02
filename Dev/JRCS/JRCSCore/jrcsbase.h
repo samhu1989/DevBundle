@@ -36,7 +36,7 @@ public:
     }RotationType;
     JRCSBase(){arma::arma_rng::set_seed_random();}
     virtual ~JRCSBase(){}
-
+    virtual std::string name()const{ return "JRCSBase";}
     virtual bool configure(Config::Ptr config);
 
     virtual inline void enable_smooth(bool enable=true){smooth_enabled_=enable;}
@@ -52,6 +52,7 @@ public:
     virtual inline int  get_max_iter(void){return max_iter_;}
     virtual inline void get_rt(TsLst& rt){rt = rt_lst_;}
     virtual inline int  get_obj_num(void){return obj_num_;}
+
 
     virtual void get_label(std::vector<arma::uvec>&);
     virtual void input(
@@ -77,7 +78,8 @@ public:
         if( obj_num_ < 2 )throw std::logic_error("works for at least two object number");
     }
     virtual void reset_objw(const std::vector<float>&);
-    virtual int evaluate_k();//evalute a proper x
+    virtual int evaluate_k();//evalute a proper number for x
+    static int evaluate_k(const arma::uvec& sizes);
     virtual void initx(
             const MatPtr& xv,
             const MatPtr& xn,
@@ -92,8 +94,8 @@ public:
         reset_prob();
         while(!isEnd())
         {
-            computeOnce();
             update_color_label();
+            computeOnce();
             QCoreApplication::processEvents();
             ++iter_count_;
         }

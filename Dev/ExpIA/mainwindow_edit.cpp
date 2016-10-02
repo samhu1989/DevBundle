@@ -450,6 +450,13 @@ void MainWindow::start_editing()
                     labels_,
                     objects_
                     );
+        if(!JRCSWork::init_optimize(w))
+        {
+            QString msg = "Please run one of the external initializations\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
         if(!w->configure(config_)){
             QString msg = "Missing Some Inputs or configure\n";
             QMessageBox::critical(this, windowTitle(), msg);
@@ -461,13 +468,7 @@ void MainWindow::start_editing()
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
         s->show();
-        if(!JRCSWork::optimize(w))
-        {
-            QString msg = "Please run one of the external initializations\n";
-            QMessageBox::critical(this, windowTitle(), msg);
-            w->deleteLater();
-            return;
-        }
+        w->start();
     }
     if(edit==ui->actionJRCS_Old)
     {

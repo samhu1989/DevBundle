@@ -14,6 +14,7 @@ bool JRCSInitExternal::init_with_label(
         int verbose
         )
 {
-    ;
+    if(verbose)std::cerr<<"Init by "<<name()<<std::endl;
+    return true;
 }
 }

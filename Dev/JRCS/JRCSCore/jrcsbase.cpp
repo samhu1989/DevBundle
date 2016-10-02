@@ -302,6 +302,11 @@ void JRCSBase::reset_rt()
     }
 }
 
+int JRCSBase::evaluate_k(const arma::uvec& sizes)
+{
+    return ( arma::median(sizes) + 5 ) ;
+}
+
 int JRCSBase::evaluate_k()
 {
     if(vvs_ptrlst_.empty())
@@ -309,14 +314,14 @@ int JRCSBase::evaluate_k()
         throw std::logic_error("need input v before evaluate_k");
     }
     MatPtrLst::iterator iter;
-    arma::fvec k_lst(vvs_ptrlst_.size());
+    arma::uvec k_lst(vvs_ptrlst_.size());
     int idx = 0;
     for(iter=vvs_ptrlst_.begin();iter!=vvs_ptrlst_.end();++iter)
     {
         k_lst(idx) = (*iter)->n_cols;
         ++idx;
     }
-    return ( arma::median(k_lst) + 5 ) ;//median size but at least five;
+    return evaluate_k(k_lst);//median size but at least five;
 }
 
 void JRCSBase::computeOnce()
@@ -727,6 +732,7 @@ void JRCSBase::update_color_label()
         arma::fmat& alpha = *alpha_ptrlst_[idx];
         arma::fmat obj_p(alpha.n_rows,obj_num_);
         arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
+        std::cerr<<"frame:"<<idx<<std::endl;
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -742,6 +748,11 @@ void JRCSBase::update_color_label()
             arma::frowvec point_prob = obj_p.row(r);
             point_prob.max(l);
             label(r) = l+1;
+        }
+        for(int o = 0 ; o < obj_num_ ; ++o )
+        {
+            arma::uvec oidx = arma::find(label==(o+1));
+            std::cerr<<"num_obj("<<o<<")="<<oidx.size()<<std::endl;
         }
         ColorArray::colorfromlabel((uint32_t*)vl.memptr(),vl.size(),label);
     }
