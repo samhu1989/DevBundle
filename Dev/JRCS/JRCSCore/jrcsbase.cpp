@@ -602,6 +602,7 @@ void JRCSBase::computeOnce()
         arma::fvec t =  obj_pos_.col(o) - arma::mean(newxv,1);
         xv_ptr_->cols(oidx) = newxv.each_col() + t;
     }
+
     *xn_ptr_ = xn_sum_;
     *xn_ptr_ = arma::normalise(*xn_ptr_);
     *xc_ptr_ = arma::conv_to<arma::Mat<uint8_t>>::from( xc_sum_ );
