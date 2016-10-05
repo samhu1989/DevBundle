@@ -34,6 +34,7 @@ public:
     ~JRCSView();
     bool configure(Config::Ptr);
     bool init(Config::Ptr);
+    inline void set_method(std::shared_ptr<JRCS::JRCSBase> method){jrcs_worker_->set_method(method);}
     inline void set_init_method(std::shared_ptr<JRCS::JRCSInitBase> method){jrcs_worker_->set_init_method(method);}
     void start();
 signals:

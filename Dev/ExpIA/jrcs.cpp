@@ -172,3 +172,9 @@ bool JRCSWork::init_optimize(JRCSView* w)
     w->set_init_method(init_ptr);
     return true;
 }
+
+void JRCSWork::set_opt_aoni(JRCSView* w)
+{
+    std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSAONI());
+    w->set_method(method);
+}

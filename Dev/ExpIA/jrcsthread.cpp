@@ -1,7 +1,7 @@
 #include "jrcsthread.h"
 #include <QThread>
 #include <QTimer>
-JRCSThread::JRCSThread(QObject* parent):QObject(parent)
+JRCSThread::JRCSThread(QObject* parent):QObject(parent),jrcs_(new JRCS::JRCSBase())
 {
     ;
 }
@@ -15,7 +15,7 @@ bool JRCSThread::configure(Config::Ptr config)
     }else{
         verbose_=-1;
     }
-    return jrcs_.configure(config);
+    return jrcs_->configure(config);
 }
 
 void JRCSThread::input(
@@ -26,7 +26,7 @@ void JRCSThread::input(
      )
 {
     emit message(tr("JRCSThread::input"),0);
-    jrcs_.input(vv,vn,vc,vl);
+    jrcs_->input(vv,vn,vc,vl);
 }
 
 void JRCSThread::input_with_label(
@@ -38,7 +38,7 @@ void JRCSThread::input_with_label(
      )
 {
     emit message(tr("JRCSThread::input_with_label"),0);
-    jrcs_.input_with_label(vv,vn,vc,vlc,vl);
+    jrcs_->input_with_label(vv,vn,vc,vlc,vl);
 }
 
 void JRCSThread::resetw(
@@ -47,7 +47,7 @@ void JRCSThread::resetw(
        const CMatPtrLst& wc
         )
 {
-    jrcs_.resetw(wv,wn,wc);
+    jrcs_->resetw(wv,wn,wc);
 }
 
 void JRCSThread::resetx(
@@ -57,21 +57,22 @@ void JRCSThread::resetx(
         )
 {
 
-    jrcs_.initx(xv,xn,xc);
-    jrcs_.reset_rt();
+    jrcs_->initx(xv,xn,xc);
+    jrcs_->reset_rt();
     if(verbose_>0)std::cerr<<"Done resetx"<<std::endl;
 }
 
 void JRCSThread::process(void)
 {
-    jrcs_.reset_iteration();
-    jrcs_.compute();
+    if(verbose_>0)std::cerr<<"Running "<<jrcs_->name()<<std::endl;
+    jrcs_->reset_iteration();
+    jrcs_->compute();
     emit end();
 }
 
 void JRCSThread::get_iter_info()
 {
     QString msg;
-    msg = msg.sprintf("iter:%u/%u",jrcs_.get_iter_num(),jrcs_.get_max_iter());
+    msg = msg.sprintf("iter:%u/%u",jrcs_->get_iter_num(),jrcs_->get_max_iter());
     emit message(msg,0);
 }

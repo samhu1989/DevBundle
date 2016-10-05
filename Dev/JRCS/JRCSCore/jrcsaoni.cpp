@@ -219,8 +219,8 @@ void JRCSAONI::computeOnce()
     *xn_ptr_ = xn_sum_;
     *xn_ptr_ = arma::normalise(*xn_ptr_);
     *xc_ptr_ = arma::conv_to<arma::Mat<uint8_t>>::from( xc_sum_ );
-
-    x_invvar_ = ( (3.0*alpha_sum ) / ( var_sum + 1e-6 ) );//restore reciprocal fractions of variation
+    //restore reciprocal fractions of variation
+    x_invvar_ = ( (3.0*alpha_sum ) / ( var_sum + 1e-6 ) );
     float mu = arma::accu(alpha_sumij);
     mu *= ( 1.0 + beta_ );
     x_p_ = alpha_sumij;

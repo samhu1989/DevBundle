@@ -443,13 +443,41 @@ void MainWindow::start_editing()
         th->setObjectName(tr("JRCS_Init"));
         edit_thread_ = th;
     }
-    if(edit==ui->actionJRCS_Optimization)
+    if(edit==ui->actionJRCS_Opt_Basic)
     {
         JRCSView* w = new JRCSView(
                     inputs_,
                     labels_,
                     objects_
                     );
+        if(!JRCSWork::init_optimize(w))
+        {
+            QString msg = "Please run one of the external initializations\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        if(!w->configure(config_)){
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        s->show();
+        w->start();
+    }
+    if(edit==ui->actionJRCS_Opt_AONI)
+    {
+        JRCSView* w = new JRCSView(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        JRCSWork::set_opt_aoni(w);
         if(!JRCSWork::init_optimize(w))
         {
             QString msg = "Please run one of the external initializations\n";

@@ -4,6 +4,7 @@
 #include <QObject>
 #include "objectmodel.h"
 #include "jrcsbase.h"
+#include "jrcsaoni.h"
 class JRCSThread:public QObject
 {
     Q_OBJECT
@@ -40,11 +41,12 @@ public:
             const MatPtr& xn,
             const CMatPtr& xc
             );
-    inline int get_obj_n(void){return jrcs_.get_obj_num();}
-    inline int get_k(){return jrcs_.evaluate_k();}
-    inline void get_rt(JRCS::JRCSBase::TsLst&rt){jrcs_.get_rt(rt);}
-    inline void get_lbl(std::vector<arma::uvec>&lbl){jrcs_.get_label(lbl);}
-    inline void set_init_method(std::shared_ptr<JRCS::JRCSInitBase> method){jrcs_.set_init_method(method);}
+    inline int get_obj_n(void){return jrcs_->get_obj_num();}
+    inline int get_k(){return jrcs_->evaluate_k();}
+    inline void get_rt(JRCS::JRCSBase::TsLst&rt){jrcs_->get_rt(rt);}
+    inline void get_lbl(std::vector<arma::uvec>&lbl){jrcs_->get_label(lbl);}
+    inline void set_method(std::shared_ptr<JRCS::JRCSBase> method){jrcs_ = method;}
+    inline void set_init_method(std::shared_ptr<JRCS::JRCSInitBase> method){jrcs_->set_init_method(method);}
 public slots:
     void process(void);
     void get_iter_info(void);
@@ -54,7 +56,7 @@ signals:
 private:
     Config::Ptr config_;
     int verbose_;
-    JRCS::JRCSBase jrcs_;
+    std::shared_ptr<JRCS::JRCSBase> jrcs_;
 };
 
 #endif // JRCSTHREAD_H
