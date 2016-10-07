@@ -25,6 +25,13 @@
   data using contextual information.
 \newblock {\em ACM Trans. Graph. 33}, 6 (Nov.), 208:1--208:12.
 
+\bibitem[\protect\citename{Chui and Rangarajan }2000]{TPS_RPM}
+{\sc Chui, H., and Rangarajan, A.}
+\newblock 2000.
+\newblock A new algorithm for non-rigid point matching.
+\newblock In {\em Computer Vision and Pattern Recognition, 2000. Proceedings.
+  IEEE Conference on}, vol.~2, 44--51 vol.2.
+
 \bibitem[\protect\citename{Dema and Sari-Sarraf }2012]{SceneFromExample}
 {\sc Dema, M.~A., and Sari-Sarraf, H.}
 \newblock 2012.
@@ -48,7 +55,7 @@
 
 \bibitem[\protect\citename{Fisher et~al\mbox{.}
   }2015]{Fisher:ActivityCentricSceneSynthesis}
-{\sc Fisher, M., Savva, M., Li, Y., Hanrahan, P., and Nie\ssner, M.}
+{\sc Fisher, M., Savva, M., Li, Y., Hanrahan, P., and Nie{\ss}ner, M.}
 \newblock 2015.
 \newblock Activity-centric scene synthesis for functional 3d scene modeling.
 \newblock {\em ACM Trans. Graph. 34}, 6 (Oct.), 179:1--179:13.
@@ -71,6 +78,13 @@
 \newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence
   37}, 5 (May), 905--918.
 
+\bibitem[\protect\citename{Jian and Vemuri }2011]{GMM_PAMI}
+{\sc Jian, B., and Vemuri, B.~C.}
+\newblock 2011.
+\newblock Robust point set registration using gaussian mixture models.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence
+  33}, 8 (Aug), 1633--1645.
+
 \bibitem[\protect\citename{Kr\"{a}henb\"{u}hl and Koltun }2011]{NIPS2011_4296}
 {\sc Kr\"{a}henb\"{u}hl, P., and Koltun, V.}
 \newblock 2011.
@@ -80,7 +94,7 @@
   J.~Shawe-Taylor, R.~S. Zemel, P.~L. Bartlett, F.~Pereira, and K.~Q.
   Weinberger, Eds. Curran Associates, Inc., 109--117.
 
-\bibitem[\protect\citename{Levy }2006]{1631196}
+\bibitem[\protect\citename{Levy }2006]{LaplaceBeltrami}
 {\sc Levy, B.}
 \newblock 2006.
 \newblock Laplace-beltrami eigenfunctions towards an algorithm that
@@ -106,6 +120,13 @@
 \newblock 2011.
 \newblock Interactive furniture layout using interior design guidelines.
 \newblock {\em ACM Trans. Graph. 30}, 4 (July), 87:1--87:10.
+
+\bibitem[\protect\citename{Myronenko and Song }2010]{CPD}
+{\sc Myronenko, A., and Song, X.}
+\newblock 2010.
+\newblock Point set registration: Coherent point drift.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence
+  32}, 12 (Dec), 2262--2275.
 
 \bibitem[\protect\citename{Ovsjanikov et~al\mbox{.}
   }2012]{Ovsjanikov:2012:FMF:2185520.2185526}
