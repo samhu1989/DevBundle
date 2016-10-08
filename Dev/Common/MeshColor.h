@@ -30,7 +30,11 @@ namespace ColorArray
                 uint8_t a;
             }rgba;
         }RGB32;
-
+        typedef struct{
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
+        }RGB888;
         const int32_t  DefaultColorNum_ = 59;
         extern RGB32 DefaultColor[DefaultColorNum_];
     }
@@ -51,6 +55,8 @@ namespace ColorArray
     void COMMONSHARED_EXPORT BGR2Lab(const arma::Col<uint8_t>& rgb, arma::fvec& Lab);
 
     void COMMONSHARED_EXPORT colorfromValue(uint32_t* ptr,arma::uword size,const arma::vec& value);
+    void COMMONSHARED_EXPORT colorfromValue(RGB888*   ptr,arma::uword size,const arma::vec& value);
+    void COMMONSHARED_EXPORT colorfromValue(RGB888*   ptr,arma::uword size,const arma::fvec& value);
     void COMMONSHARED_EXPORT colorfromlabel(uint32_t* ptr,arma::uword size,const arma::uvec& label);
     void COMMONSHARED_EXPORT colorfromIndex(uint32_t* ptr,arma::uword size);
 

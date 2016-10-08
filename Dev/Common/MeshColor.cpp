@@ -275,12 +275,43 @@ void ColorArray::colorfromIndex(uint32_t* ptr,arma::uword size)
 void ColorArray::colorfromValue(uint32_t* ptr,arma::uword size,const arma::vec& value)
 {
     double max = value.max();
+    std::cerr<<"c1"<<std::endl;
     #pragma omp parallel for
     for(int i = 0 ; i < size ; ++i )
     {
         QColor color;
         color.setHslF(0.65*qreal(value(i))/qreal(max),0.6,0.73);
         ptr[i] = qRgb(color.blue(),color.green(),color.red());
+    }
+}
+
+void ColorArray::colorfromValue(RGB888*   ptr,arma::uword size,const arma::vec& value)
+{
+    double max = value.max();
+    std::cerr<<"c2"<<std::endl;
+    #pragma omp parallel for
+    for(int i = 0 ; i < size ; ++i )
+    {
+        QColor color;
+        color.setHslF(0.65*qreal(value(i))/qreal(max),0.6,0.73);
+        ptr[i].r = (uint8_t)color.red();
+        ptr[i].g = (uint8_t)color.green();
+        ptr[i].b = (uint8_t)color.blue();
+    }
+}
+
+void ColorArray::colorfromValue(RGB888*   ptr,arma::uword size,const arma::fvec& value)
+{
+    float max = value.max();
+    std::cerr<<"c3"<<std::endl;
+    #pragma omp parallel for
+    for(int i = 0 ; i < size ; ++i )
+    {
+        QColor color;
+        color.setHslF(0.65*qreal(value(i))/qreal(max),0.6,0.73);
+        ptr[i].r = (uint8_t)color.red();
+        ptr[i].g = (uint8_t)color.green();
+        ptr[i].b = (uint8_t)color.blue();
     }
 }
 

@@ -44,7 +44,7 @@ void JRCSAONI::computeOnce()
         arma::fmat tmpxc = arma::conv_to<arma::fmat>::from(xtc_);
         arma::fmat tmpvc = arma::conv_to<arma::fmat>::from(vc_);
 
-        if(verbose_>0)std::cerr<<"calculate alpha"<<std::endl;
+   //calculate alpha
         if( (iter_count_>0) || (!init_alpha_) )
         {
             #pragma omp parallel for
@@ -221,6 +221,11 @@ void JRCSAONI::computeOnce()
     *xc_ptr_ = arma::conv_to<arma::Mat<uint8_t>>::from( xc_sum_ );
     //restore reciprocal fractions of variation
     x_invvar_ = ( (3.0*alpha_sum ) / ( var_sum + 1e-6 ) );
+
+    //red means low in invvar and high in var
+    //blue means opposite
+    ColorArray::colorfromValue((ColorArray::RGB888*)xc_ptr_->memptr(),xc_ptr_->n_cols,x_invvar_.t());
+
     float mu = arma::accu(alpha_sumij);
     mu *= ( 1.0 + beta_ );
     x_p_ = alpha_sumij;
