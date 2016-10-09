@@ -1,26 +1,51 @@
 #include <QString>
 #include <QtTest>
-
-class Io_testTest : public QObject
+#include <armadillo>
+#include "iocore.h"
+class Io_Test : public QObject
 {
     Q_OBJECT
-
 public:
-    Io_testTest();
-
+    Io_Test();
 private Q_SLOTS:
-    void testCase1();
+    void writemat();
+    void writefmat();
+    void wirtecmat();
 };
 
-Io_testTest::Io_testTest()
+Io_Test::Io_Test()
 {
 }
 
-void Io_testTest::testCase1()
+void Io_Test::writemat()
 {
-    QVERIFY2(true, "Failure");
+    arma::mat a = {{43.5, 5432.434, 3.32},{0.0001, 88834.0, 0.0}};
+    IO::save_to_matlab(a,"./debug/a.mat");
+
+    arma::vec b = {43.5, 5432.434, 3.32, 0.0001, 88834.0};
+    IO::save_to_matlab(b,"./debug/b.mat");
+
+    arma::rowvec c = {43.5, 5432.434, 3.32, 0.0001, 88834.0};
+    IO::save_to_matlab(c,"./debug/c.mat");
 }
 
-QTEST_APPLESS_MAIN(Io_testTest)
+void Io_Test::writefmat()
+{
+    arma::fmat fa = {{43.5, 5432.434, 3.32},{0.0001, 88834.0, 0.0}};
+    IO::save_to_matlab(fa,"./debug/fa.mat");
 
-#include "tst_io_testtest.moc"
+    arma::fvec fb = {43.5, 5432.434, 3.32, 0.0001, 88834.0};
+    IO::save_to_matlab(fb,"./debug/fb.mat");
+
+    arma::frowvec fc = {43.5, 5432.434, 3.32, 0.0001, 88834.0};
+    IO::save_to_matlab(fc,"./debug/fc.mat");
+}
+
+void Io_Test::wirtecmat()
+{
+    arma::fmat ca = {{255,255,255},{255,0,255},{0,0,0}};
+    IO::save_to_matlab(ca,"./debug/ca.mat");
+}
+
+QTEST_APPLESS_MAIN(Io_Test)
+#include "tst_io_test.moc"
