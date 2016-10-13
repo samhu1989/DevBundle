@@ -128,6 +128,7 @@
       </property>
       <addaction name="actionJRCS_Opt_Basic"/>
       <addaction name="actionJRCS_Opt_AONI"/>
+      <addaction name="actionJRCS_Opt_AOPT"/>
      </widget>
      <addaction name="menuInitialization"/>
      <addaction name="menuOptimization"/>
@@ -444,6 +445,11 @@
   <action name="actionJRCS_Opt_AONI">
    <property name="text">
     <string>AONI</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Opt_AOPT">
+   <property name="text">
+    <string>AOPT</string>
    </property>
   </action>
  </widget>

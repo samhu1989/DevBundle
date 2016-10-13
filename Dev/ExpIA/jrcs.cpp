@@ -1,6 +1,8 @@
 #include "jrcs.h"
 #include "jrcsinitexternal.h"
 #include "jrcsbase.h"
+#include "jrcsaoni.h"
+#include "jrcsaopt.h"
 #include <QMessageBox>
 JRCSWork::MatPtrLst JRCSWork::alpha_ptrlst_;
 arma::fvec JRCSWork::obj_prob_;
@@ -176,5 +178,11 @@ bool JRCSWork::init_optimize(JRCSView* w)
 void JRCSWork::set_opt_aoni(JRCSView* w)
 {
     std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSAONI());
+    w->set_method(method);
+}
+
+void JRCSWork::set_opt_aopt(JRCSView* w)
+{
+    std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSAOPT());
     w->set_method(method);
 }

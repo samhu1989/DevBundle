@@ -128,6 +128,13 @@
 \newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence
   32}, 12 (Dec), 2262--2275.
 
+\bibitem[\protect\citename{Neal and Hinton }1998]{Neal1998}
+{\sc Neal, R.~M., and Hinton, G.~E.}
+\newblock 1998.
+\newblock {\em A View of the Em Algorithm that Justifies Incremental, Sparse,
+  and other Variants}.
+\newblock Springer Netherlands, Dordrecht, 355--368.
+
 \bibitem[\protect\citename{Ovsjanikov et~al\mbox{.}
   }2012]{Ovsjanikov:2012:FMF:2185520.2185526}
 {\sc Ovsjanikov, M., Ben-Chen, M., Solomon, J., Butscher, A., and Guibas, L.}

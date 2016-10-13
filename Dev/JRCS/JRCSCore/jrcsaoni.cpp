@@ -17,10 +17,24 @@ void JRCSAONI::computeOnce()
     //reset transformed latent center
     xtc_ = *xc_ptr_;
 
+
+    std::vector<arma::uvec> oidx(obj_num_);
+
+    #pragma omp parallel for
+    for(int o = 0 ; o < obj_num_ ; ++o )
+    {
+        oidx[o] = arma::find(obj_label_==(o+1));
+    }
+
     for( int i = 0 ; i < vvs_ptrlst_.size() ; ++ i )
     {
         float rate0 = float(i) / float(i+1);
         float rate1 = 1.0 - rate0;
+
+    //reset transformed latent center
+        xtv_ = *xv_ptr_;
+        xtn_ = *xn_ptr_;
+
     //input vertices normal color
         arma::fmat& vv_ = *vvs_ptrlst_[i];
         arma::fmat& vn_ = *vns_ptrlst_[i];
@@ -28,7 +42,8 @@ void JRCSAONI::computeOnce()
     //update alpha
         arma::fmat& alpha = *alpha_ptrlst_[i];
         Ts& rt = rt_lst_[i];
-    //transform the object
+
+    //transform the object (transform the latent center one object by one object)
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -41,8 +56,8 @@ void JRCSAONI::computeOnce()
             objn = R*objn;
         }
 
-        arma::fmat tmpxc = arma::conv_to<arma::fmat>::from(xtc_);
-        arma::fmat tmpvc = arma::conv_to<arma::fmat>::from(vc_);
+//        arma::fmat tmpxc = arma::conv_to<arma::fmat>::from(xtc_);
+//        arma::fmat tmpvc = arma::conv_to<arma::fmat>::from(vc_);
 
    //calculate alpha
         if( (iter_count_>0) || (!init_alpha_) )
@@ -52,12 +67,6 @@ void JRCSAONI::computeOnce()
             {
                 arma::fmat tmpv = xtv_.each_col() - vv_.col(r);
                 alpha.row(r)  = arma::sum(arma::square(tmpv));
-                if(iter_count_<max_init_iter_)
-                {
-                    arma::fmat tmpc = tmpxc.each_col() - tmpvc.col(r);
-                    tmpc /= ( 256 +  2.0*iter_count_ );
-                    alpha.row(r) += arma::sum(arma::square(tmpc));
-                }
             }
 
             alpha.each_row() %= (-0.5*x_invvar_);
@@ -68,8 +77,7 @@ void JRCSAONI::computeOnce()
             #pragma omp parallel for
             for(int o = 0 ; o < obj_num_ ; ++o )
             {
-                arma::uvec oidx = arma::find(obj_label_==(o+1));
-                alpha.cols(oidx) *= obj_prob_(o);
+                alpha.cols(oidx[o]) *= obj_prob_(o);
             }
         }else{
             if(verbose_>0)std::cerr<<"using init alpha"<<std::endl;
@@ -77,8 +85,12 @@ void JRCSAONI::computeOnce()
 
     //normalise alpha
         arma::fvec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
+        assert(alpha_rowsum.is_finite());
         alpha.each_col() /= alpha_rowsum;
         alpha_rowsum = arma::sum(alpha,1);
+        assert(alpha_rowsum.is_finite());
+    //constraint alpha
+        if(iter_count_>0)alpha_operation(i);
 
     //update RT
     //#1 calculate weighted point cloud
@@ -87,28 +99,20 @@ void JRCSAONI::computeOnce()
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[i]);
         arma::frowvec alpha_colsum = arma::sum( alpha );
         arma::frowvec alpha_median = arma::median( alpha );
-        arma::uvec closest_i(alpha.n_cols);
-
-        #pragma omp parallel for
-        for(int c=0;c<alpha.n_cols;++c)
-        {
-            arma::fvec col = alpha.col(c);
-            arma::uword m;
-            col.max(m);
-            closest_i(c)=m;
-        }
-
         arma::fmat trunc_alpha = alpha;
+        assert(trunc_alpha.is_finite());
 
         #pragma omp parallel for
         for(int c=0;c<alpha.n_cols;++c)
         {
             arma::fvec col = trunc_alpha.col(c);
             col( col < alpha_median(c) ).fill(0.0);
+            assert(col.is_finite());
             trunc_alpha.col(c) = col;
         }
 
         arma::frowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
+        assert(trunc_alpha_colsum.is_finite());
 
         wv = vv_*trunc_alpha;
         wn = vn_*trunc_alpha;
@@ -117,7 +121,7 @@ void JRCSAONI::computeOnce()
         #pragma omp parallel for
         for(int c=0;c<alpha.n_cols;++c)
         {
-            if( 0 != trunc_alpha_colsum(c) )
+            if( 0 < trunc_alpha_colsum(c) )
             {
                 wv.col(c) /= trunc_alpha_colsum(c);
                 wn.col(c) /= trunc_alpha_colsum(c);
@@ -139,12 +143,13 @@ void JRCSAONI::computeOnce()
             arma::fmat dR;
             arma::fvec dt;
             arma::fmat objv = *objv_ptrlst_[o];
-            arma::uvec oidx = arma::find(obj_label_==(o+1));
             arma::fmat v;
-            v = wv.cols(oidx);
+            v = wv.cols(oidx[o]);
+            assert(v.is_finite());
             arma::fmat cv = v.each_col() - arma::mean(v,1);
             objv.each_col() -= arma::mean(objv,1);
             A = cv*objv.t();
+            assert(A.is_finite());
             switch(rttype_)
             {
             case Gamma:
@@ -174,9 +179,15 @@ void JRCSAONI::computeOnce()
             }
 
             //updating objv
+            //not needed since the transformed latent center is reset at the begining for each frame
+            /*
             *objv_ptrlst_[o] = dR*(*objv_ptrlst_[o]);
             (*objv_ptrlst_[o]).each_col() += dt;
             *objn_ptrlst_[o] = dR*(*objn_ptrlst_[o]);
+            */
+
+            assert(dR.is_finite());
+            assert(dt.is_finite());
 
             //updating R T
             R = dR*R;
@@ -184,9 +195,9 @@ void JRCSAONI::computeOnce()
 
             //accumulate for updating X
             arma::fmat tv = v.each_col() - t;
-            xv_sum_.cols(oidx) =  rate0*xv_sum_.cols(oidx)+rate1*(R.i()*tv);
-            xn_sum_.cols(oidx) = rate0*xn_sum_.cols(oidx)+rate1*R.i()*wn.cols(oidx);
-            xc_sum_.cols(oidx) = rate0*xc_sum_.cols(oidx)+rate1*wc.cols(oidx);
+            xv_sum_.cols(oidx[o]) =  rate0*xv_sum_.cols(oidx[o])+rate1*(R.i()*tv);
+            xn_sum_.cols(oidx[o]) = rate0*xn_sum_.cols(oidx[o])+rate1*R.i()*wn.cols(oidx[o]);
+            xc_sum_.cols(oidx[o]) = rate0*xc_sum_.cols(oidx[o])+rate1*wc.cols(oidx[o]);
             //            }
         }
         //update var
@@ -210,25 +221,32 @@ void JRCSAONI::computeOnce()
     #pragma omp parallel for
     for(int o = 0 ; o < obj_num_ ; ++o )
     {
-        arma::uvec oidx = arma::find(obj_label_==(o+1));
-        arma::fmat newxv = xv_ptr_->cols(oidx);
+        arma::fmat newxv = xv_ptr_->cols(oidx[o]);
         arma::fvec t =  obj_pos_.col(o) - arma::mean(newxv,1);
-        xv_ptr_->cols(oidx) = newxv.each_col() + t;
+        xv_ptr_->cols(oidx[o]) = newxv.each_col() + t;
     }
 
     *xn_ptr_ = xn_sum_;
     *xn_ptr_ = arma::normalise(*xn_ptr_);
     *xc_ptr_ = arma::conv_to<arma::Mat<uint8_t>>::from( xc_sum_ );
     //restore reciprocal fractions of variation
-    x_invvar_ = ( (3.0*alpha_sum ) / ( var_sum + 1e-6 ) );
+    x_invvar_ = ( (3.0*alpha_sum ) / ( var_sum + beta_ ) );
 
     //red means low in invvar and high in var
     //blue means opposite
     ColorArray::colorfromValue((ColorArray::RGB888*)xc_ptr_->memptr(),xc_ptr_->n_cols,x_invvar_.t());
 
     float mu = arma::accu(alpha_sumij);
-    mu *= ( 1.0 + beta_ );
     x_p_ = alpha_sumij;
+
     if( mu != 0)x_p_ /= mu;
+    #pragma omp parallel for
+    for(int o = 0 ; o < obj_num_ ; ++o )
+    {
+        obj_prob_(o) = arma::accu( x_p_(oidx[o]) );
+    }
+    obj_prob_ += beta_; //add a small number to prevent underflow
+    obj_prob_ /= arma::accu(obj_prob_);
+    if(verbose_>0)std::cerr<<"obj_prob:"<<obj_prob_<<std::endl;
 }
 }

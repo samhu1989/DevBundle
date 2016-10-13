@@ -4,7 +4,6 @@
 #include <QObject>
 #include "objectmodel.h"
 #include "jrcsbase.h"
-#include "jrcsaoni.h"
 class JRCSThread:public QObject
 {
     Q_OBJECT

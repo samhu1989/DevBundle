@@ -34,7 +34,7 @@ public:
         Beta,
         Gamma
     }RotationType;
-    JRCSBase(){arma::arma_rng::set_seed_random();}
+    JRCSBase():beta_(1e-5){arma::arma_rng::set_seed_random();}
     virtual ~JRCSBase(){}
     virtual std::string name()const{ return "JRCSBase";}
     virtual bool configure(Config::Ptr config);
@@ -144,8 +144,8 @@ protected:
     MatPtrLst vvs_ptrlst_;
     MatPtrLst vns_ptrlst_;
     CMatPtrLst vcs_ptrlst_;
-    LCMatPtrLst vls_ptrlst_;
-    LMatPtrLst vll_ptrlst_;
+    LCMatPtrLst vls_ptrlst_; //label color
+    LMatPtrLst vll_ptrlst_; //labels
     TsLst rt_lst_;
 
     //results

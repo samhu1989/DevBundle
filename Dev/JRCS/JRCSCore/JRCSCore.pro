@@ -17,14 +17,16 @@ SOURCES += \
     jrcsbase.cpp \
     jrcsinitbase.cpp \
     jrcsinitexternal.cpp \
-    jrcsaoni.cpp
+    jrcsaoni.cpp \
+    jrcsaopt.cpp
 
 HEADERS +=\
         jrcscore_global.h \
     jrcsbase.h \
     jrcsinitbase.h \
     jrcsinitexternal.h \
-    jrcsaoni.h
+    jrcsaoni.h \
+    jrcsaopt.h
 
 unix {
     target.path = /usr/lib

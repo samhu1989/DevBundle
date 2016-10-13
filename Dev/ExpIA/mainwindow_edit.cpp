@@ -498,6 +498,34 @@ void MainWindow::start_editing()
         s->show();
         w->start();
     }
+    if(edit==ui->actionJRCS_Opt_AOPT)
+    {
+        JRCSView* w = new JRCSView(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        JRCSWork::set_opt_aopt(w);
+        if(!JRCSWork::init_optimize(w))
+        {
+            QString msg = "Please run one of the external initializations\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        if(!w->configure(config_)){
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        s->show();
+        w->start();
+    }
     if(edit==ui->actionJRCS_Old)
     {
         JRCSView* w = new JRCSView(

@@ -35,6 +35,7 @@ protected:
     void Init_Bernolli_b(arma::uvec&);
 public:
     static void set_opt_aoni(JRCSView* w);
+    static void set_opt_aopt(JRCSView* w);
     static bool init_optimize(JRCSView* w);
 private:
     MeshList& inputs_;

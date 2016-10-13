@@ -304,7 +304,7 @@ void JRCSBase::reset_rt()
 
 int JRCSBase::evaluate_k(const arma::uvec& sizes)
 {
-    return ( arma::median(sizes) + 5 ) ;
+    return ( arma::max(sizes) + 5 ) ;
 }
 
 int JRCSBase::evaluate_k()
@@ -376,7 +376,6 @@ void JRCSBase::computeOnce()
             objn = R*objn;
         }
 
-
         arma::fmat tmpxc = arma::conv_to<arma::fmat>::from(xtc_);
         arma::fmat tmpvc = arma::conv_to<arma::fmat>::from(vc_);
 
@@ -386,7 +385,7 @@ void JRCSBase::computeOnce()
             #pragma omp parallel for
             for(int r = 0 ; r < alpha.n_rows ; ++r )
             {
-                arma::fmat tmpv = xtv_.each_col() - vv_.col(r);
+                arma::fmat tmpv = xtv_.each_col() - vv_.col(r); //after the objv is transformed the xtv is transformed
                 alpha.row(r)  = arma::sum(arma::square(tmpv));
                 if(iter_count_<max_init_iter_)
                 {
@@ -559,9 +558,12 @@ void JRCSBase::computeOnce()
             }
 
             //updating objv
+            //not needed since the transformed obj will be reset
+            /*
             *objv_ptrlst_[o] = dR*(*objv_ptrlst_[o]);
             (*objv_ptrlst_[o]).each_col() += dt;
             *objn_ptrlst_[o] = dR*(*objn_ptrlst_[o]);
+            */
 
             //updating R T
             R = dR*R;
@@ -721,7 +723,7 @@ void JRCSBase::reset_prob()
     alpha_sum = arma::frowvec(xv_ptr_->n_cols,arma::fill::zeros);
     alpha_sumij = arma::frowvec(xv_ptr_->n_cols,arma::fill::zeros);
 
-    beta_ = 0.01;
+    beta_ = 1e-5;
     if(verbose_>0)std::cerr<<"done probability"<<std::endl;
 }
 
@@ -733,7 +735,7 @@ void JRCSBase::update_color_label()
         arma::fmat& alpha = *alpha_ptrlst_[idx];
         arma::fmat obj_p(alpha.n_rows,obj_num_);
         arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
-        std::cerr<<"frame:"<<idx<<std::endl;
+//        std::cerr<<"frame:"<<idx<<std::endl;
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -750,11 +752,11 @@ void JRCSBase::update_color_label()
             point_prob.max(l);
             label(r) = l+1;
         }
-        for(int o = 0 ; o < obj_num_ ; ++o )
-        {
-            arma::uvec oidx = arma::find(label==(o+1));
-            std::cerr<<"num_obj("<<o<<")="<<oidx.size()<<std::endl;
-        }
+//        for(int o = 0 ; o < obj_num_ ; ++o )
+//        {
+//            arma::uvec oidx = arma::find(label==(o+1));
+//            std::cerr<<"num_obj("<<o<<")="<<oidx.size()<<std::endl;
+//        }
         ColorArray::colorfromlabel((uint32_t*)vl.memptr(),vl.size(),label);
     }
 }
