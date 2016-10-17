@@ -14,8 +14,8 @@ public:
     typedef std::vector<MeshBundle<DefaultMesh>::Ptr> MeshList;
     typedef std::vector<arma::uvec> LabelList;
     typedef std::vector<ObjModel::Ptr> ModelList;
-    typedef std::shared_ptr<arma::fmat> MatPtr;
-    typedef std::vector<MatPtr> MatPtrLst;
+    typedef std::shared_ptr<arma::mat> DMatPtr;
+    typedef std::vector<DMatPtr> DMatPtrLst;
     explicit JRCSWork(
             MeshList& inputs,
             LabelList& labels,
@@ -41,7 +41,7 @@ private:
     MeshList& inputs_;
     LabelList& labels_;
     ModelList& objects_;
-    static MatPtrLst alpha_ptrlst_;
+    static DMatPtrLst alpha_ptrlst_;
     static arma::fvec obj_prob_;
 };
 

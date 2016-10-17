@@ -229,7 +229,7 @@ void JRCSInitBase::generate_alpha()
 {
     alpha_.resize(vv_.size());
     size_t index;
-    MatPtrLst::iterator iter;
+    DMatPtrLst::iterator iter;
     std::vector<arma::urowvec>::iterator liter = input_patch_label_value_.begin();
     arma::uword r_k = k_;
     arma::uvec obj_size(prob_.size());
@@ -255,8 +255,8 @@ void JRCSInitBase::generate_alpha()
     index = 0;
     for( iter = alpha_.begin() ; iter != alpha_.end() ; ++iter )
     {
-        iter->reset(new arma::fmat(vv_[index]->n_cols,k_,arma::fill::zeros));
-        arma::fmat& alpha = **iter;
+        iter->reset(new arma::mat(vv_[index]->n_cols,k_,arma::fill::zeros));
+        arma::mat& alpha = **iter;
         arma::fmat& prob = patch_prob_[index];
         arma::uvec& label = *vl_[index];
         alpha.fill(1.0/float(k_));
@@ -273,7 +273,7 @@ void JRCSInitBase::generate_alpha()
     }
 }
 
-void JRCSInitBase::getAlpha(MatPtrLst& alpha)
+void JRCSInitBase::getAlpha(DMatPtrLst& alpha)
 {
     alpha = alpha_;
 }

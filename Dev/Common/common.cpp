@@ -69,6 +69,12 @@ arma::mat getRotationMatrix2D(const arma::vec& center,double theta,double scale)
     return tmp;
 }
 
+arma::uvec randperm(arma::uword N)
+{
+    arma::vec x = arma::randu<arma::vec>(N);
+    return arma::sort_index(x);
+}
+
 
 
 

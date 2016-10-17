@@ -4,7 +4,7 @@
 #include "jrcsaoni.h"
 #include "jrcsaopt.h"
 #include <QMessageBox>
-JRCSWork::MatPtrLst JRCSWork::alpha_ptrlst_;
+JRCSWork::DMatPtrLst JRCSWork::alpha_ptrlst_;
 arma::fvec JRCSWork::obj_prob_;
 JRCSWork::JRCSWork(
         MeshList& inputs,
@@ -151,12 +151,12 @@ void JRCSWork::Init_Bernolli_b(arma::uvec& ref_label)
     }
     //fill alpha
     index = 0;
-    for(MatPtrLst::iterator iter = alpha_ptrlst_.begin() ; iter != alpha_ptrlst_.end() ; ++iter )
+    for(DMatPtrLst::iterator iter = alpha_ptrlst_.begin() ; iter != alpha_ptrlst_.end() ; ++iter )
     {
-        iter->reset(new arma::fmat(inputs_[index]->mesh_.n_vertices(),k_,arma::fill::zeros));
-        arma::fmat& alpha = **iter;
+        iter->reset(new arma::mat(inputs_[index]->mesh_.n_vertices(),k_,arma::fill::zeros));
+        arma::mat& alpha = **iter;
         arma::uvec& label = labels_[index];
-        alpha.fill(1.0/float(k_));
+        alpha.fill(1.0/double(k_));
         #pragma omp parallel for
         for(int r=0;r<prob.n_rows;++r)
         {

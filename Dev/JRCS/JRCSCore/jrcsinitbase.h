@@ -11,6 +11,8 @@ class JRCSCORESHARED_EXPORT JRCSInitBase
 public:
     typedef std::shared_ptr<arma::fmat> MatPtr;
     typedef std::vector<MatPtr> MatPtrLst;
+    typedef std::shared_ptr<arma::mat> DMatPtr;
+    typedef std::vector<DMatPtr> DMatPtrLst;
     typedef std::shared_ptr<arma::Mat<uint8_t>> CMatPtr;
     typedef std::vector<CMatPtr> CMatPtrLst;
     typedef std::shared_ptr<arma::Col<uint32_t>> LCMatPtr;
@@ -28,7 +30,7 @@ public:
             const LMatPtrLst& vl,
             int verbose
             );
-    virtual void getAlpha(MatPtrLst&);
+    virtual void getAlpha(DMatPtrLst &);
     virtual void getObjProb(arma::fvec&);
     virtual std::string name()const {return "JRCSInitBase";}
 
@@ -51,7 +53,7 @@ private:
     LMatPtrLst vl_;
 
     //output
-    MatPtrLst alpha_;
+    DMatPtrLst alpha_;
     arma::fvec prob_;
 
     //clustering

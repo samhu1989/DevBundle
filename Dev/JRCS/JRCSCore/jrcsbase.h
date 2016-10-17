@@ -12,6 +12,8 @@ class JRCSCORESHARED_EXPORT JRCSBase
 public:
     typedef std::shared_ptr<arma::fmat> MatPtr;
     typedef std::vector<MatPtr> MatPtrLst;
+    typedef std::shared_ptr<arma::mat> DMatPtr;
+    typedef std::vector<DMatPtr> DMatPtrLst;
     typedef std::shared_ptr<arma::Mat<uint8_t>> CMatPtr;
     typedef std::vector<CMatPtr> CMatPtrLst;
     typedef std::shared_ptr<arma::Col<uint32_t>> LCMatPtr;
@@ -117,7 +119,7 @@ protected:
             );
     virtual void reset_alpha();
     virtual void reset_prob();
-    static void rand_sphere(
+    virtual void rand_sphere(
             arma::fmat& ov
             );
     virtual void update_color_label();
@@ -149,7 +151,7 @@ protected:
     TsLst rt_lst_;
 
     //results
-    MatPtrLst alpha_ptrlst_;
+    DMatPtrLst alpha_ptrlst_;
 
     //weighted V
     MatPtrLst  wvs_ptrlst_;
@@ -176,8 +178,8 @@ protected:
     CMatPtrLst  objc_ptrlst_;
 
     //latent model parameter
-    arma::frowvec x_p_;
-    arma::frowvec x_invvar_;
+    arma::rowvec x_p_;
+    arma::rowvec x_invvar_;
 
     //x compatiblity
     CompatibilityType mu_type_;
@@ -188,15 +190,15 @@ protected:
     arma::fmat xn_sum_;
     arma::fmat xc_sum_;
 
-    arma::frowvec var_sum;
-    arma::frowvec alpha_sum;
-    arma::frowvec alpha_sumij;
+    arma::rowvec var_sum;
+    arma::rowvec alpha_sum;
+    arma::rowvec alpha_sumij;
 
     int verbose_;
     std::string debug_path_;
     bool smooth_enabled_;
     RotationType rttype_;
-    float beta_;
+    double beta_;
     float smooth_w_;
     bool init_alpha_;
 

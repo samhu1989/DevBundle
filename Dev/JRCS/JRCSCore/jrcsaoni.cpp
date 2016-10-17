@@ -40,7 +40,7 @@ void JRCSAONI::computeOnce()
         arma::fmat& vn_ = *vns_ptrlst_[i];
         arma::Mat<uint8_t>& vc_ = *vcs_ptrlst_[i];
     //update alpha
-        arma::fmat& alpha = *alpha_ptrlst_[i];
+        arma::mat& alpha = *alpha_ptrlst_[i];
         Ts& rt = rt_lst_[i];
 
     //transform the object (transform the latent center one object by one object)
@@ -65,7 +65,7 @@ void JRCSAONI::computeOnce()
             #pragma omp parallel for
             for(int r = 0 ; r < alpha.n_rows ; ++r )
             {
-                arma::fmat tmpv = xtv_.each_col() - vv_.col(r);
+                arma::mat tmpv = arma::conv_to<arma::mat>::from(xtv_.each_col() - vv_.col(r));
                 alpha.row(r)  = arma::sum(arma::square(tmpv));
             }
 
@@ -84,7 +84,7 @@ void JRCSAONI::computeOnce()
         }
 
     //normalise alpha
-        arma::fvec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
+        arma::vec alpha_rowsum = ( 1.0 + beta_ )*arma::sum(alpha,1);
         assert(alpha_rowsum.is_finite());
         alpha.each_col() /= alpha_rowsum;
         alpha_rowsum = arma::sum(alpha,1);
@@ -97,26 +97,26 @@ void JRCSAONI::computeOnce()
         arma::fmat& wv = *wvs_ptrlst_[i];
         arma::fmat& wn = *wns_ptrlst_[i];
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[i]);
-        arma::frowvec alpha_colsum = arma::sum( alpha );
-        arma::frowvec alpha_median = arma::median( alpha );
-        arma::fmat trunc_alpha = alpha;
+        arma::rowvec alpha_colsum = arma::sum( alpha );
+        arma::rowvec alpha_median = arma::median( alpha );
+        arma::mat trunc_alpha = alpha;
         assert(trunc_alpha.is_finite());
 
         #pragma omp parallel for
         for(int c=0;c<alpha.n_cols;++c)
         {
-            arma::fvec col = trunc_alpha.col(c);
+            arma::vec col = trunc_alpha.col(c);
             col( col < alpha_median(c) ).fill(0.0);
             assert(col.is_finite());
             trunc_alpha.col(c) = col;
         }
 
-        arma::frowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
+        arma::rowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
         assert(trunc_alpha_colsum.is_finite());
 
-        wv = vv_*trunc_alpha;
-        wn = vn_*trunc_alpha;
-        wc = arma::conv_to<arma::fmat>::from(vc_)*trunc_alpha;
+        wv = vv_*arma::conv_to<arma::fmat>::from(trunc_alpha);
+        wn = vn_*arma::conv_to<arma::fmat>::from(trunc_alpha);
+        wc = arma::conv_to<arma::fmat>::from(vc_)*arma::conv_to<arma::fmat>::from(trunc_alpha);
 
         #pragma omp parallel for
         for(int c=0;c<alpha.n_cols;++c)
@@ -208,7 +208,7 @@ void JRCSAONI::computeOnce()
         {
             alpha_2.row(r) = arma::sum(arma::square(xtv_.each_col() - vv_.col(r)));
         }
-        arma::frowvec tmpvar = arma::sum(alpha_2%alpha);
+        arma::rowvec tmpvar = arma::sum(alpha_2%alpha);
         var_sum += tmpvar;
         alpha_sumij += alpha_colsum;
         QCoreApplication::processEvents();

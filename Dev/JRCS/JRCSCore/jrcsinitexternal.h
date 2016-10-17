@@ -5,7 +5,7 @@ namespace JRCS {
 class JRCSCORESHARED_EXPORT JRCSInitExternal:public JRCSInitBase
 {
 public:
-    JRCSInitExternal(MatPtrLst& a,arma::fvec& p):external_alpha_(a),external_obj_prob_(p),JRCSInitBase(){}
+    JRCSInitExternal(DMatPtrLst& a,arma::fvec& p):external_alpha_(a),external_obj_prob_(p),JRCSInitBase(){}
     virtual bool configure(Config::Ptr config);
     virtual bool init_with_label(
             const int k,
@@ -16,12 +16,12 @@ public:
             const LMatPtrLst& vl,
             int verbose
             );
-    virtual void getAlpha(MatPtrLst& alpha){alpha = external_alpha_;}
+    virtual void getAlpha(DMatPtrLst& alpha){alpha = external_alpha_;}
     virtual void getObjProb(arma::fvec& obj_prob){obj_prob = external_obj_prob_;}
     virtual std::string name()const {return "JRCSInitExternal";}
 protected:
 private:
-    MatPtrLst& external_alpha_;
+    DMatPtrLst& external_alpha_;
     arma::fvec& external_obj_prob_;
 };
 }

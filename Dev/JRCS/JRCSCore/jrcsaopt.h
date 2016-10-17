@@ -10,6 +10,9 @@ public:
     virtual std::string name()const{return "JRCSAOPT";}
 protected:
     virtual void alpha_operation(int i);
+    virtual void rand_sphere(
+            arma::fmat& ov
+            );
 };
 }
 
