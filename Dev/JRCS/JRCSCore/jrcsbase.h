@@ -36,7 +36,7 @@ public:
         Beta,
         Gamma
     }RotationType;
-    JRCSBase():beta_(1e-5){arma::arma_rng::set_seed_random();}
+    JRCSBase():beta_(1e-5),max_init_iter_(0){arma::arma_rng::set_seed_random();}
     virtual ~JRCSBase(){}
     virtual std::string name()const{ return "JRCSBase";}
     virtual bool configure(Config::Ptr config);
@@ -51,6 +51,7 @@ public:
     virtual inline void set_mu_type(const CompatibilityType& type){mu_type_=type;}
     virtual inline void set_rt_type(const RotationType& type){rttype_=type;}
     virtual inline int  get_iter_num(void){return iter_count_;}
+    virtual inline int  get_max_init_iter(void){return max_init_iter_;}
     virtual inline int  get_max_iter(void){return max_iter_;}
     virtual inline void get_rt(TsLst& rt){rt = rt_lst_;}
     virtual inline int  get_obj_num(void){return obj_num_;}

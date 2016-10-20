@@ -17,7 +17,6 @@ void JRCSAONI::computeOnce()
     //reset transformed latent center
     xtc_ = *xc_ptr_;
 
-
     std::vector<arma::uvec> oidx(obj_num_);
 
     #pragma omp parallel for
@@ -60,6 +59,8 @@ void JRCSAONI::computeOnce()
 //        arma::fmat tmpvc = arma::conv_to<arma::fmat>::from(vc_);
 
    //calculate alpha
+        //prepare for the constraint on alpha
+        if(iter_count_>0)prepare_alpha_operation(i);
         if( (iter_count_>0) || (!init_alpha_) )
         {
             #pragma omp parallel for
@@ -112,22 +113,32 @@ void JRCSAONI::computeOnce()
         }
 
         arma::rowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
+
         assert(trunc_alpha_colsum.is_finite());
 
         wv = vv_*arma::conv_to<arma::fmat>::from(trunc_alpha);
         wn = vn_*arma::conv_to<arma::fmat>::from(trunc_alpha);
         wc = arma::conv_to<arma::fmat>::from(vc_)*arma::conv_to<arma::fmat>::from(trunc_alpha);
 
+        assert(wv.is_finite());
+
         #pragma omp parallel for
         for(int c=0;c<alpha.n_cols;++c)
         {
-            if( 0 < trunc_alpha_colsum(c) )
+            if( std::numeric_limits<float>::epsilon() < trunc_alpha_colsum(c) )
             {
+                arma::fvec tmp = wv.col(c);
                 wv.col(c) /= trunc_alpha_colsum(c);
+                if( ! wv.col(c).is_finite() )
+                {
+                    std::cerr<<tmp.t()<<"/="<<trunc_alpha_colsum(c)<<"->"<<wv.col(c).t()<<std::endl;
+                }
                 wn.col(c) /= trunc_alpha_colsum(c);
                 wc.col(c) /= trunc_alpha_colsum(c);
             }
         }
+
+        assert(wv.is_finite());
 
         wn = arma::normalise( wn );
         *wcs_ptrlst_[i] = arma::conv_to<arma::Mat<uint8_t>>::from(wc);
@@ -162,19 +173,20 @@ void JRCSAONI::computeOnce()
                     C(1,1) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
                     arma::fmat dR2D = U*C*(V.t());
                     dR.submat(0,0,1,1) = dR2D;
-                    dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
                 }
+                dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
             }
                 break;
             default:
             {
+                dR = arma::fmat(3,3,arma::fill::eye);
                 if(arma::svd(U,s,V,A,"std"))
                 {
                     arma::fmat C(3,3,arma::fill::eye);
                     C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
                     dR = U*C*(V.t());
-                    dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
                 }
+                dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
             }
             }
 

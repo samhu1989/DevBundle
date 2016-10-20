@@ -73,6 +73,17 @@ void JRCSThread::process(void)
 void JRCSThread::get_iter_info()
 {
     QString msg;
-    msg = msg.sprintf("iter:%u/%u",jrcs_->get_iter_num(),jrcs_->get_max_iter());
+    int n = jrcs_->get_max_iter();
+    int init_n = jrcs_->get_max_init_iter();
+    int iter_i = jrcs_->get_iter_num();
+    if(init_n==0)msg = msg.sprintf("iter:%u/%u",iter_i,n);
+    else {
+        if( iter_i <= init_n )
+        {
+            msg = msg.sprintf("init:%u/%u",iter_i,init_n);
+        }else{
+            msg = msg.sprintf("iter:%u/%u",iter_i,n);
+        }
+    }
     emit message(msg,0);
 }

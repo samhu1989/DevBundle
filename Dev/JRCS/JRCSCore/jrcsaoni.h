@@ -11,6 +11,7 @@ public:
 protected:
     virtual void computeOnce();
     virtual void alpha_operation(int i){}
+    virtual void prepare_alpha_operation(int i){}
 };
 }
 #endif // JRCSAONI_H

@@ -54,8 +54,44 @@ JRCSAOPT::JRCSAOPT():JRCSAONI()
 //    arma::vec alpha_rowsum = arma::sum(alpha,1);
 //    alpha.each_col() /= alpha_rowsum;
 //}
+void JRCSAOPT::prepare_alpha_operation(int i)
+{
+//    std::cerr<<"alpha prepare"<<std::endl;
+    assert(false);
+    if(iter_count_<=max_init_iter_)
+    {
+        if( i == init_alpha_value.size() )
+        {
+            arma::mat& alpha = *alpha_ptrlst_[i];
+            init_alpha_value.emplace_back(
+                        alpha.memptr(),
+                        alpha.n_rows,
+                        alpha.n_cols,
+                        true,
+                        true
+                        );
+        }
+    }
+    else if( iter_count_ == (max_init_iter_+1) ){
+        init_alpha_value.clear();
+    }
+}
 
 void JRCSAOPT::alpha_operation(int i)
+{
+    if( iter_count_ <= max_init_iter_ )alpha_operation_a(i);
+    else alpha_operation_b(i);
+}
+
+void JRCSAOPT::alpha_operation_a(int i)
+{
+    arma::mat& alpha = *alpha_ptrlst_[i];
+    alpha %= init_alpha_value[i];
+    arma::vec alpha_rowsum = arma::sum(alpha,1);
+    alpha.each_col() /= alpha_rowsum;
+}
+
+void JRCSAOPT::alpha_operation_b(int i)
 {
     arma::uvec& input_label = *vll_ptrlst_[i];
     arma::mat& alpha = *alpha_ptrlst_[i];

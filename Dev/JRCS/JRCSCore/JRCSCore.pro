@@ -12,7 +12,8 @@ CONFIG += c++11
 QMAKE_CXXFLAGS += -fopenmp
 LIBS += -lgomp -lpthread
 DEFINES += JRCSCORE_LIBRARY
-
+DEFINES -= UNICODE
+DEFINES -= _UNICODE
 SOURCES += \
     jrcsbase.cpp \
     jrcsinitbase.cpp \
