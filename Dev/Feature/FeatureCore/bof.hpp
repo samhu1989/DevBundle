@@ -41,7 +41,7 @@ arma::vec BOF::extract(const arma::mat& f)
     return result;
 }
 
-void BOF::learn(const MatPtrLst& f,const LabelLst& l,arma::mat& h)
+void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
 {
     //learn code book by k-means
     arma::uword num = 0;

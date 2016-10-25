@@ -4,6 +4,7 @@
 #include "jrcsaoni.h"
 #include "jrcsaopt.h"
 #include <QMessageBox>
+#include "featurecore.h"
 JRCSWork::DMatPtrLst JRCSWork::alpha_ptrlst_;
 arma::fvec JRCSWork::obj_prob_;
 JRCSWork::JRCSWork(
@@ -23,7 +24,7 @@ bool JRCSWork::configure(Config::Ptr config)
     if(labels_.empty())
     {
         QString msg = "Load a Label First\n";
-        QMessageBox::critical(NULL,tr("JRCSWork Init"), msg);
+        emit message(tr("JRCSWork Init:")+msg,0);
         return false;
     }
     if(config->has("JRCS_obj_w"))
@@ -37,7 +38,22 @@ bool JRCSWork::configure(Config::Ptr config)
 
 void JRCSWork::Init_SI_HSK()
 {
-    ;
+    QString msg = "Not Implemented\n";
+    emit message(tr("JRCSWork Init:")+msg,0);
+    //extract feature
+    Feature::HKS<DefaultMesh>::MatPtrLst fLst;
+    Feature::HKS<DefaultMesh> getFeature;
+    getFeature.extract(inputs_,fLst);
+    //extract the BOF of feature
+    Feature::BOF bof;
+    Feature::BOF::MatPtrLst histLst;
+    bof.learn(fLst,labels_,histLst);
+    //clustering on the BOF
+
+    //generating obj_prob
+
+    //generating alpha
+    emit end();
 }
 
 void JRCSWork::Init_Bernolli()

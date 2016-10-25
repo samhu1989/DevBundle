@@ -22,6 +22,7 @@ public:
             ModelList& objects,
             QObject *parent = 0
             );
+    ~JRCSWork(){std::cerr<<"~JRCSWork"<<std::endl;}
 signals:
     void end();
     void message(QString,int);
