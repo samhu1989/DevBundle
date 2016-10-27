@@ -397,7 +397,7 @@ void MainWindow::start_editing()
         }
         QThread* th = new QThread();
         worker->moveToThread(th);
-        connect(th,SIGNAL(started()),worker,SLOT(Init_SI_HSK()));
+        connect(th,SIGNAL(started()),worker,SLOT(Init_SI_HKS()));
         connect(worker,SIGNAL(end()),th,SLOT(quit()));
         connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));

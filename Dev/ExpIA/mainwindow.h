@@ -50,6 +50,11 @@ public slots:
     void save_cluster(QString dirName=QString());
     void load_cluster();
 
+    void save_vox_index_picked(QString dirName=QString());
+    void load_vox_index_picked();
+
+    void save_pts_index_picked(QString dirName=QString());
+    void load_pts_index_picked();
 protected slots:
     void configure();
 

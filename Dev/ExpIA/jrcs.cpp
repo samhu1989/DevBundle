@@ -5,6 +5,7 @@
 #include "jrcsaopt.h"
 #include <QMessageBox>
 #include "featurecore.h"
+#include "iocore.h"
 JRCSWork::DMatPtrLst JRCSWork::alpha_ptrlst_;
 arma::fvec JRCSWork::obj_prob_;
 JRCSWork::JRCSWork(
@@ -27,6 +28,18 @@ bool JRCSWork::configure(Config::Ptr config)
         emit message(tr("JRCSWork Init:")+msg,0);
         return false;
     }
+    if(inputs_.empty())
+    {
+        QString msg = "Load Input First\n";
+        emit message(tr("JRCSWork Init:")+msg,0);
+        return false;
+    }
+    if(inputs_[0]->graph_.empty())
+    {
+        QString msg = "Load Supervoxel First\n";
+        emit message(tr("JRCSWork Init:")+msg,0);
+        return false;
+    }
     if(config->has("JRCS_obj_w"))
     {
         std::vector<float> obj_prob;
@@ -36,18 +49,30 @@ bool JRCSWork::configure(Config::Ptr config)
     return true;
 }
 
-void JRCSWork::Init_SI_HSK()
+void JRCSWork::Init_SI_HKS()
 {
-    QString msg = "Not Implemented\n";
-    emit message(tr("JRCSWork Init:")+msg,0);
-    //extract feature
+    //extract HKS
     Feature::HKS<DefaultMesh>::MatPtrLst fLst;
     Feature::HKS<DefaultMesh> getFeature;
-    getFeature.extract(inputs_,fLst);
+    fLst.resize(inputs_.size());
+    Feature::HKS<DefaultMesh>::MatPtrLst::iterator fiter=fLst.begin();
+    size_t index = 1;
+    for(MeshBundle<DefaultMesh>::PtrList::const_iterator iter = inputs_.begin() ; iter != inputs_.end() ; ++iter )
+    {
+        QString path;
+        path = path.sprintf("hks%02u.mat",index);
+        (*fiter).reset(new arma::mat());
+        emit message(path,0);
+        getFeature.extract(*iter,**fiter);
+        if(*fiter)MATIO::save_to_matlab(**fiter,(tr("./debug/HKS/")+path).toStdString(),"X");
+        ++ fiter;
+        ++ index;
+        if( fiter == fLst.end() )break;
+    }
     //extract the BOF of feature
-    Feature::BOF bof;
-    Feature::BOF::MatPtrLst histLst;
-    bof.learn(fLst,labels_,histLst);
+    //    Feature::BOF bof;
+    //    Feature::BOF::MatPtrLst histLst;
+    //    bof.learn(fLst,labels_,histLst);
     //clustering on the BOF
 
     //generating obj_prob

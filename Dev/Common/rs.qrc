@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>rs/icon/pro_chen.png</file>
+    </qresource>
+    <qresource prefix="/button">
+        <file>rs/button/open.png</file>
+    </qresource>
+</RCC>

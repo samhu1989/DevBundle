@@ -29,7 +29,7 @@ void HKS<Mesh>::extract(const typename MeshBundle<Mesh>::PtrList m,MatPtrLst& f)
         (*fiter).reset(new arma::mat());
         extract(*iter,**fiter);
         ++ fiter;
-        if( fiter != f.end() )break;
+        if( fiter == f.end() )break;
     }
 }
 template<typename Mesh>

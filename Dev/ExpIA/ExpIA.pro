@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ExpIA
 TEMPLATE = app
 CONFIG += c++11
-CONFIG += console
+#CONFIG += console
 CONFIG -= app_bundle
 QMAKE_CXXFLAGS += -fopenmp
 LIBS += -lgomp -lpthread
@@ -83,6 +83,8 @@ FORMS    += mainwindow.ui \
     extractbackground.ui \
     featureview.ui \
     jrcsview.ui
+
+RC_FILE += ../Common/rc.rc
 
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 
@@ -172,3 +174,10 @@ win32: LIBS += -L$$DESTDIR/ -lClustering
 
 INCLUDEPATH += $$PWD/../ML/Clustering
 DEPENDPATH += $$PWD/../ML/Clustering
+
+win32: LIBS += -L$$DESTDIR/ -lIOCore
+
+INCLUDEPATH += $$PWD/../IO/IOCore
+DEPENDPATH += $$PWD/../IO/IOCore
+
+

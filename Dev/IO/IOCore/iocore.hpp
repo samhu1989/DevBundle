@@ -3,7 +3,7 @@
 #include "iocore.h"
 #include "matio.h"
 #include <typeinfo>
-namespace IO{
+namespace MATIO{
 template<typename _mat>
 void save_to_matlab(const _mat& m, const std::string &file, const std::string &var)
 {

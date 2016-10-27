@@ -29,7 +29,7 @@ signals:
 public:
     bool configure(Config::Ptr config);
 public slots:
-    void Init_SI_HSK();
+    void Init_SI_HKS();
     void Init_Bernolli();
 protected:
     void Init_Bernolli_a(arma::uvec&);

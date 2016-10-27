@@ -75,6 +75,11 @@ arma::uvec randperm(arma::uword N)
     return arma::sort_index(x);
 }
 
+void init_resouce()
+{
+    Q_INIT_RESOURCE(rs);
+}
+
 
 
 

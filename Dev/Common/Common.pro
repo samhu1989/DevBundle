@@ -37,6 +37,15 @@ unix {
     INSTALLS += target
 }
 
+RESOURCES += \
+    rs.qrc
+
+DISTFILES += \
+    rc.rc \
+    icon.ico
+
+RC_FILE += rc.rc
+
 DESTDIR = $$OUT_PWD/../../Dev_RunTime/bin
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../3rdParty/OpenMesh/lib/ -lOpenMeshCore.dll
@@ -75,3 +84,5 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../.
 
 INCLUDEPATH += $$PWD/../../3rdParty/NanoFlann/include
 DEPENDPATH += $$PWD/../../3rdParty/NanoFlann/include
+
+

@@ -43,6 +43,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSave_Clusters,SIGNAL(triggered(bool)),this,SLOT(save_cluster()));
     connect(ui->actionLoad_Clusters,SIGNAL(triggered(bool)),this,SLOT(load_cluster()));
     connect(ui->actionSave_Scenes,SIGNAL(triggered(bool)),this,SLOT(save_scenes()));
+    connect(ui->actionSave_Points_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(save_pts_index_picked()));
+    connect(ui->actionLoad_Points_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(load_pts_index_picked()));
+    connect(ui->actionSave_Voxel_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(save_vox_index_picked()));
+    connect(ui->actionLoad_Voxel_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(load_vox_index_picked()));
 
     connect(ui->actionGlobal_Align,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionExtract_Background,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -671,6 +675,26 @@ void MainWindow::load_cluster()
         QMessageBox::critical(this, windowTitle(), msg);
         return;
     }
+}
+
+void MainWindow::save_vox_index_picked(QString dirName)
+{
+    ;
+}
+
+void MainWindow::load_vox_index_picked()
+{
+    ;
+}
+
+void MainWindow::save_pts_index_picked(QString dirName)
+{
+    ;
+}
+
+void MainWindow::load_pts_index_picked()
+{
+    ;
 }
 
 void MainWindow::save_scenes()
