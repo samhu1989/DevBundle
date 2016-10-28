@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  12 OCT 2016 14:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  27 OCT 2016 15:12
 entering extended mode
 **JRCS.tex
 (JRCS.tex
@@ -468,7 +468,7 @@ MS/cmsy/m/n/9 j\OML/cmm/m/it/9 z[] \OT1/cmr/m/n/9 = \OML/cmm/m/it/9 k\OT1/cmr/m
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 11.
 ) (experiment&discussion.tex
-<images/mannual_unified.png, id=74, 1271.75125pt x 726.715pt>
+<images/mannual_unified.png, id=78, 1271.75125pt x 726.715pt>
 File: images/mannual_unified.png Graphic file (type png)
 
 <use images/mannual_unified.png>
@@ -499,10 +499,10 @@ LaTeX Warning: There were undefined references.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 190.
  ) 
 Here is how much of TeX's memory you used:
- 7699 strings out of 493698
- 114955 string characters out of 3144415
- 220545 words of memory out of 3000000
- 10842 multiletter control sequences out of 15000+200000
+ 7701 strings out of 493698
+ 114990 string characters out of 3144415
+ 220605 words of memory out of 3000000
+ 10843 multiletter control sequences out of 15000+200000
  28305 words of font info for 56 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
  43i,15n,75p,1735b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -521,9 +521,9 @@ iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy9.pfb><D:/Program Files/MiKTeX 2.9
 rw/helvetic/uhvr8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmb8
 a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><D:/Program
  Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on JRCS.pdf (4 pages, 221506 bytes).
+Output written on JRCS.pdf (4 pages, 222641 bytes).
 PDF statistics:
- 184 PDF objects out of 1000 (max. 8388607)
- 60 named destinations out of 1000 (max. 500000)
+ 189 PDF objects out of 1000 (max. 8388607)
+ 61 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

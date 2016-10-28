@@ -15,6 +15,7 @@
 #include <fstream>
 #include <strstream>
 #include "robustcut.h"
+#include "iocore.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -679,22 +680,86 @@ void MainWindow::load_cluster()
 
 void MainWindow::save_vox_index_picked(QString dirName)
 {
-    ;
+    if(dirName.isEmpty())dirName = QFileDialog::getExistingDirectory(
+            this,
+            tr("Save Index of Picked Voxels"),
+            tr("./debug/HKS")
+            );
+    if(dirName.isEmpty())return;
 }
 
 void MainWindow::load_vox_index_picked()
 {
-    ;
+    QStringList fileNames = QFileDialog::getOpenFileNames(
+            this,
+            tr("Load Index of Picked Voxels"),
+            tr("./debug/HKS"),
+            tr(
+                    "Armadillo uvec (*.uvec.arma);;"
+                    "Matlab long long mat(*.mat);;"
+               ));
+    if(fileNames.isEmpty())return;
 }
 
 void MainWindow::save_pts_index_picked(QString dirName)
 {
-    ;
+    if(dirName.isEmpty())dirName = QFileDialog::getExistingDirectory(
+            this,
+            tr("Save Index of Picked Points"),
+            tr("./debug/HKS/")
+            );
+    if(dirName.isEmpty())return;
+    std::vector<WidgetPtr>::iterator iter;
+    arma::uword index = 1;
+    for(iter=mesh_views_.begin();iter!=mesh_views_.end();++iter)
+    {
+        MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(*iter);
+        if(w)
+        {
+            QString path;
+            path = path.sprintf("pts_index%02u.mat",index);
+            if(!w->first_selected().empty())
+            {
+                arma::uvec selected(w->first_selected());
+                MATIO::save_to_matlab(selected,(dirName+"/"+path).toStdString(),"X");
+            }
+            ++index;
+        }
+    }
 }
 
 void MainWindow::load_pts_index_picked()
 {
-    ;
+    QString dirName = QFileDialog::getExistingDirectory(
+            this,
+            tr("Save Index of Picked Points"),
+            tr("./debug/HKS/")
+            );
+    if(dirName.isEmpty())return;
+    std::vector<WidgetPtr>::iterator iter;
+    arma::uword index = 1;
+    QDir dir;
+    dir.setPath(dirName);
+    for(iter=mesh_views_.begin();iter!=mesh_views_.end();++iter)
+    {
+        MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(*iter);
+        if(w)
+        {
+            QString path;
+            path = path.sprintf("pts_index%02u.mat",index);
+            QFileInfo info(dir.absoluteFilePath(path));
+            if(info.exists())
+            {
+                arma::uvec selected;
+                MATIO::save_to_matlab(selected,(dirName+"/"+path).toStdString(),"X");
+                w->first_selected().resize(selected.size());
+                w->first_selected() = arma::conv_to<std::vector<arma::uword>>::from(selected);
+            }else{
+                std::cerr<<"Failed to find:"<<info.absoluteFilePath().toStdString()<<std::endl;
+            }
+            ++index;
+        }
+    }
 }
 
 void MainWindow::save_scenes()
