@@ -3,6 +3,7 @@
 #include "iocore.h"
 #include "matio.h"
 #include <typeinfo>
+#include <memory>
 namespace MATIO{
 template<typename _mat>
 void save_to_matlab(const _mat& m, const std::string &file, const std::string &var)
@@ -60,11 +61,12 @@ void save_to_matlab(const _mat& m, const std::string &file, const std::string &v
     Mat_Close(mat);
 }
 template<typename _mat>
-bool load_to_arma(const _mat& m,const std::string& file,const std::string& var)
+bool load_to_arma(_mat& m,const std::string& file,const std::string& var)
 {
+//    std::cerr<<"load_to_arma:a"<<std::endl;
     mat_t *mat = Mat_Open(file.c_str(),MAT_ACC_RDONLY);
     if(!mat){
-        std::cerr<<"MATIO::load_to_arma(failed to load "<<file<<")"<<std::endl;
+        std::cerr<<"MATIO::load_to_arma(failed to open "<<file<<")"<<std::endl;
         return false;
     }
     matvar_t *matvar = NULL;
@@ -80,57 +82,102 @@ bool load_to_arma(const _mat& m,const std::string& file,const std::string& var)
     }else {
         varname = var;
     }
-    matvar = Mat_VarReadInfo(mat,var.c_str());
+    matvar = Mat_VarRead(mat,varname.c_str());
+//    std::cerr<<"load_to_arma:b"<<std::endl;
     if(!matvar)
     {
         std::cerr<<"MATIO::load_to_arma(failed to find variable "<<varname<<")"<<std::endl;
+        Mat_Close(mat);
         return false;
     }
-    if(typeid(typename _mat::elem_type) == typeid(double))
+    std::shared_ptr<char> t_name;
+    const char* s_name;
+    switch(matvar->data_type)
     {
+    case MAT_T_DOUBLE:
+        s_name = typeid(double).name();
+        t_name.reset(new char[std::strlen(s_name)+1]);
+        std::strcpy(t_name.get(),s_name);
+        break;
+    case MAT_T_SINGLE:
+        s_name = typeid(float).name();
+        t_name.reset(new char[std::strlen(s_name)+1]);
+        std::strcpy(t_name.get(),s_name);
+        break;
+    case MAT_T_UINT64:
+        s_name = typeid(uint64_t).name();
+        t_name.reset(new char[std::strlen(s_name)+1]);
+        std::strcpy(t_name.get(),s_name);
+        break;
+    case MAT_T_INT64:
+        s_name = typeid(int64_t).name();
+        t_name.reset(new char[std::strlen(s_name)+1]);
+        std::strcpy(t_name.get(),s_name);
+        break;
+    case MAT_T_UINT32:
+        s_name = typeid(uint32_t).name();
+        t_name.reset(new char[std::strlen(s_name)+1]);
+        std::strcpy(t_name.get(),s_name);
+        break;
+    case MAT_T_INT32:
+        s_name = typeid(int32_t).name();
+        t_name.reset(new char[std::strlen(s_name)+1]);
+        std::strcpy(t_name.get(),s_name);
+        break;
+    case MAT_T_UINT8:
+        s_name = typeid(uint8_t).name();
+        t_name.reset(new char[std::strlen(s_name)+1]);
+        std::strcpy(t_name.get(),s_name);
+        break;
+    default:
+        std::cerr<<"MATIO::load_to_arma(unknown data_type)"<<std::endl;
+        Mat_VarFree(matvar);
+        Mat_Close(mat);
+        return false;
+    }
+//    std::cerr<<"load_to_arma:c"<<std::endl;
+//    std::cerr<<"l0:"<<std::strlen(t_name.get())<<std::endl;
+    if(0==std::strcmp(typeid(typename _mat::elem_type).name(),t_name.get()))
+    {
+//        std::cerr<<"load_to_arma:c2"<<std::endl;
         if(matvar->rank!=2)
         {
             std::cerr<<"MATIO::load_to_arma(not a matrix,a data with rank="<<matvar->rank<<")"<<std::endl;
+            Mat_VarFree(matvar);
+            Mat_Close(mat);
             return false;
         }
-        if(matvar->class_type!=MAT_C_DOUBLE||matvar->data_type!=MAT_T_DOUBLE)
+        if(matvar->dims[0]!=1 && m.is_row)
         {
-            std::cerr<<"MATIO::load_to_arma(not a double matrix)"<<std::endl;
+            std::cerr<<"MATIO::load_to_arma(expect a row vec but get a dims[0]="<<matvar->dims[0]<<")"<<std::endl;
+            Mat_VarFree(matvar);
+            Mat_Close(mat);
             return false;
+        }else if(matvar->dims[1]!=1 && m.is_col)
+        {
+            std::cerr<<"MATIO::load_to_arma(expect a col vec but get a dims[1]="<<matvar->dims[1]<<")"<<std::endl;
+            Mat_VarFree(matvar);
+            Mat_Close(mat);
+            return false;
+        }else{
+            if(m.is_row)m = _mat(matvar->dims[1],arma::fill::zeros);
+            else if(m.is_col)m = _mat(matvar->dims[0],arma::fill::zeros);
+            else m = _mat(matvar->dims[0],matvar->dims[1],arma::fill::zeros);
+//            std::cerr<<"load_to_arma:d"<<std::endl;
+            std::memcpy((void*)m.memptr(),matvar->data,matvar->data_size);
+//            std::cerr<<"load_to_arma:e"<<std::endl;
         }
-    }
-    if(typeid(typename _mat::elem_type) == typeid(float))
-    {
-        matvar = Mat_VarCreate(varname.c_str(),MAT_C_SINGLE,MAT_T_SINGLE,2,dims,data,0);
-    }
-    if(typeid(typename _mat::elem_type) == typeid(uint8_t))
-    {
-        matvar = Mat_VarCreate(varname.c_str(),MAT_C_UINT8,MAT_T_UINT8,2,dims,data,0);
-    }
-    if(typeid(typename _mat::elem_type) == typeid(long long))
-    {
-        matvar = Mat_VarCreate(varname.c_str(),MAT_C_INT64,MAT_T_INT64,2,dims,data,0);
-    }
-    if(typeid(typename _mat::elem_type) == typeid(unsigned long long))
-    {
-        matvar = Mat_VarCreate(varname.c_str(),MAT_C_UINT64,MAT_T_UINT64,2,dims,data,0);
-    }
-    if(typeid(typename _mat::elem_type) == typeid(unsigned long))
-    {
-        matvar = Mat_VarCreate(varname.c_str(),MAT_C_UINT32,MAT_T_UINT32,2,dims,data,0);
-    }
-    if(typeid(typename _mat::elem_type) == typeid(long))
-    {
-        matvar = Mat_VarCreate(varname.c_str(),MAT_C_INT32,MAT_T_INT32,2,dims,data,0);
-    }
-    if(!matvar){
+    }else{
+//        std::cerr<<"load_to_arma:c1"<<std::endl;
+        std::cerr<<"MATIO::load_to_arma(not a "<<typeid(typename _mat::elem_type).name()<<"matrix)"<<std::endl;
+        Mat_VarFree(matvar);
         Mat_Close(mat);
-        std::cerr<<"MATIO::save_to_matlab(unknown type)"<<std::endl;
         return false;
     }
-    Mat_VarWrite( mat, matvar, MAT_COMPRESSION_ZLIB);
+//    std::cerr<<"load_to_arma:f"<<std::endl;
     Mat_VarFree(matvar);
     Mat_Close(mat);
+    return true;
 }
 }
 #endif // IOCORE_HPP

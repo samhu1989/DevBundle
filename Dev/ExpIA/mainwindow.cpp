@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionGlobal_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIterate,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionGet_Compact_Label,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Old,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init_SI_HKS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -680,25 +681,102 @@ void MainWindow::load_cluster()
 
 void MainWindow::save_vox_index_picked(QString dirName)
 {
+    if(inputs_.empty()){
+        QString msg = "Load inputs first";
+        QMessageBox::warning(this, windowTitle(), msg);
+        return;
+    }
+    if(inputs_[0]->graph_.empty())
+    {
+        QString msg = "Load supervoxels first";
+        QMessageBox::warning(this, windowTitle(), msg);
+        return;
+    }
     if(dirName.isEmpty())dirName = QFileDialog::getExistingDirectory(
             this,
-            tr("Save Index of Picked Voxels"),
-            tr("./debug/HKS")
+            tr("Save Index of Picked Points"),
+            tr("./debug/HKS/")
             );
     if(dirName.isEmpty())return;
+    std::vector<WidgetPtr>::iterator iter;
+    arma::uword index = 1;
+    for(iter=mesh_views_.begin();iter!=mesh_views_.end();++iter)
+    {
+        MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(*iter);
+        if(w)
+        {
+            if( index > inputs_.size())
+            {
+                std::cerr<<"the number of input doesn't match the view number"<<std::endl;
+                return;
+            }
+            MeshBundle<DefaultMesh>& mesh = *inputs_[index-1];
+            QString path;
+            path = path.sprintf("vox_index%02u.mat",index);
+            if(!w->first_selected().empty())
+            {
+                arma::uvec selected;
+                mesh.graph_.getSvIndex(w->first_selected(),selected);
+                MATIO::save_to_matlab(selected,(dirName+"/"+path).toStdString(),"X");
+            }
+            ++index;
+        }
+    }
 }
 
 void MainWindow::load_vox_index_picked()
 {
-    QStringList fileNames = QFileDialog::getOpenFileNames(
+    if(inputs_.empty()){
+        QString msg = "Load inputs first";
+        QMessageBox::warning(this, windowTitle(), msg);
+        return;
+    }
+    if(inputs_[0]->graph_.empty())
+    {
+        QString msg = "Load supervoxels first";
+        QMessageBox::warning(this, windowTitle(), msg);
+        return;
+    }
+    QString dirName = QFileDialog::getExistingDirectory(
             this,
-            tr("Load Index of Picked Voxels"),
-            tr("./debug/HKS"),
-            tr(
-                    "Armadillo uvec (*.uvec.arma);;"
-                    "Matlab long long mat(*.mat);;"
-               ));
-    if(fileNames.isEmpty())return;
+            tr("Save Index of Picked Points"),
+            tr("./debug/HKS/")
+            );
+    if(dirName.isEmpty())return;
+    std::vector<WidgetPtr>::iterator iter;
+    arma::uword index = 1;
+    QDir dir;
+    dir.setPath(dirName);
+    for(iter=mesh_views_.begin();iter!=mesh_views_.end();++iter)
+    {
+        MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(*iter);
+        if(w)
+        {
+            if( index > inputs_.size())
+            {
+                std::cerr<<"the number of input doesn't match the view number"<<std::endl;
+                return;
+            }
+            MeshBundle<DefaultMesh>& mesh = *inputs_[index-1];
+            disconnect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
+            QString path;
+            path = path.sprintf("vox_index%02u.mat",index);
+            QFileInfo info(dir.absoluteFilePath(path));
+            if(info.exists())
+            {
+                arma::uvec selected;
+                MATIO::load_to_arma(selected,info.absoluteFilePath().toStdString(),"X");
+                arma::uvec pix;
+                mesh.graph_.getPixIndex(selected,pix);
+                w->first_selected().resize(pix.size());
+                w->first_selected() = arma::conv_to<std::vector<arma::uword>>::from(pix);
+            }else{
+                std::cerr<<"Failed to find:"<<info.absoluteFilePath().toStdString()<<std::endl;
+            }
+            ++index;
+            connect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
+        }
+    }
 }
 
 void MainWindow::save_pts_index_picked(QString dirName)
@@ -745,19 +823,22 @@ void MainWindow::load_pts_index_picked()
         MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(*iter);
         if(w)
         {
+            disconnect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
             QString path;
             path = path.sprintf("pts_index%02u.mat",index);
             QFileInfo info(dir.absoluteFilePath(path));
             if(info.exists())
             {
                 arma::uvec selected;
-                MATIO::save_to_matlab(selected,(dirName+"/"+path).toStdString(),"X");
+                MATIO::load_to_arma(selected,info.absoluteFilePath().toStdString(),"X");
+                std::cerr<<selected<<std::endl;
                 w->first_selected().resize(selected.size());
                 w->first_selected() = arma::conv_to<std::vector<arma::uword>>::from(selected);
             }else{
                 std::cerr<<"Failed to find:"<<info.absoluteFilePath().toStdString()<<std::endl;
             }
             ++index;
+            connect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
         }
     }
 }

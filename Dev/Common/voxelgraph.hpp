@@ -54,7 +54,7 @@ void VoxelGraph<M>::sv2pix(const arma::uvec& sv,arma::uvec& pix)
 {
     if(sv.size()!=voxel_centers.n_cols){
         std::cerr<<"Can't translate a supervoxel label that was not based on this graph"<<std::endl;
-        std::logic_error("sv.size()!=voxel_centers.n_cols");
+        throw std::logic_error("sv.size()!=voxel_centers.n_cols");
     }
     if(pix.size()!=voxel_label.size())pix = arma::uvec(voxel_label.size(),arma::fill::zeros);
     else pix.fill(0);
@@ -157,6 +157,35 @@ typename VoxelGraph<M>::Ptr VoxelGraph<M>::getSubGraphPtr(const VoxelGraph& pare
     }
 //    std::cerr<<"done"<<std::endl;
     return sub_graph;
+}
+
+template <typename M>
+void VoxelGraph<M>::getSvIndex(const arma::uvec& pix,arma::uvec& sv)
+{
+    if( arma::max(pix)>voxel_centers.n_cols - 1 )
+    {
+        std::cerr<<"void VoxelGraph<M>::pix2sv(invalid supervoxel indices)"<<std::endl;
+    }
+    sv = voxel_label(pix);
+    std::vector<arma::uword> sv_index = arma::conv_to<std::vector<arma::uword>>::from(sv);
+    std::sort(sv_index.begin(),sv_index.end());
+    sv_index.erase(std::unique(sv_index.begin(),sv_index.end()),sv_index.end());
+    sv = arma::uvec(sv_index);
+}
+
+template <typename M>
+void VoxelGraph<M>::getPixIndex(const arma::uvec& sv,arma::uvec& pix)
+{
+    if( arma::max(sv)>voxel_label.size()-1 )
+    {
+        std::cerr<<"void VoxelGraph<M>::pix2sv(invalid pix indices)"<<std::endl;
+    }
+    pix = arma::uvec();
+    for(arma::uword i=0;i<sv.size();++i)
+    {
+        arma::uword k = sv(i);
+        pix = arma::join_cols(pix,arma::find(voxel_label==k));
+    }
 }
 
 using namespace nanoflann;

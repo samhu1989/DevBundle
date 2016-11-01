@@ -51,7 +51,7 @@ bool JRCSWork::configure(Config::Ptr config)
 
 void JRCSWork::Init_SI_HKS()
 {
-    //extract HKS
+    emit message(tr("Calculating HKS"),0);
     Feature::HKS<DefaultMesh>::MatPtrLst fLst;
     Feature::HKS<DefaultMesh> getFeature;
     fLst.resize(inputs_.size());
@@ -69,10 +69,12 @@ void JRCSWork::Init_SI_HKS()
         ++ index;
         if( fiter == fLst.end() )break;
     }
-    //extract the BOF of feature
-    //    Feature::BOF bof;
-    //    Feature::BOF::MatPtrLst histLst;
-    //    bof.learn(fLst,labels_,histLst);
+//    extract the BOF of feature
+    emit message(tr("Extracting BOF"),0);
+    Feature::BOF bof;
+    Feature::BOF::MatPtrLst histLst;
+    bof.learn(fLst,labels_,histLst);
+    MATIO::save_to_matlab(bof.gmm_mean(),"./debug/HKS/hks_codebook.mat","X");
     //clustering on the BOF
 
     //generating obj_prob

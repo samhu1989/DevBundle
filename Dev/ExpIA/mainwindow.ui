@@ -159,6 +159,7 @@
     <addaction name="actionJRCS_Init"/>
     <addaction name="actionRegionGrowRGB"/>
     <addaction name="actionJRCS_Old"/>
+    <addaction name="actionGet_Compact_Label"/>
     <addaction name="menuNCut"/>
     <addaction name="menuRobust_Region_Detection"/>
     <addaction name="menuJRCS"/>
@@ -488,6 +489,11 @@
   <action name="actionLoad_Voxel_Index_Picked">
    <property name="text">
     <string>Load Voxel Index Picked</string>
+   </property>
+  </action>
+  <action name="actionGet_Compact_Label">
+   <property name="text">
+    <string>Get Compact Label</string>
    </property>
   </action>
  </widget>

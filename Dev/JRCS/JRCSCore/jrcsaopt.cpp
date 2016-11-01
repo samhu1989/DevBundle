@@ -57,7 +57,7 @@ JRCSAOPT::JRCSAOPT():JRCSAONI()
 void JRCSAOPT::prepare_alpha_operation(int i)
 {
 //    std::cerr<<"alpha prepare"<<std::endl;
-    assert(false);
+//    assert(false);
     if(iter_count_<=max_init_iter_)
     {
         if( i == init_alpha_value.size() )

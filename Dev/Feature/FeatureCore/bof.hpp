@@ -5,11 +5,6 @@ BOF::BOF()
     codebook_size_ = 128;
 }
 
-bool BOF::configure(Config::Ptr)
-{
-    ;
-}
-
 void BOF::extract(const arma::mat& f,const arma::uvec& l,arma::mat& h)
 {
     arma::uword label_max = arma::max(l);
@@ -62,6 +57,7 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
         data.cols(start(i),start(i)+f[i]->n_cols - 1) = *f[i];
     }
     gmm_.learn(data,codebook_size_,arma::eucl_dist,arma::random_subset,50,0,1e-12,true);
+    /*
     //calculate idf
     idf_ = arma::vec(gmm_.n_gaus(),arma::fill::zeros);
     double doc_num = 0;
@@ -81,6 +77,8 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
     }
     idf_ = doc_num / idf_;
     idf_ = arma::log(idf_);
+    //calculate tf-idf for each patch
+    */
 }
 
 }

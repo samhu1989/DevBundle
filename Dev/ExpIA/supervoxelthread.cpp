@@ -47,7 +47,7 @@ void SupervoxelThread::run(void)
     s -= m*60;
     int h = m/60;
     m -= h*60;
-    msg = msg.sprintf("Time Used of Supervoxel:%2u:%2u:%2u.%3u",h,m,s,ms);
+    msg = msg.sprintf("Time Used of Supervoxel:%02u:%02u:%02u.%03u",h,m,s,ms);
     emit message(msg,0);
 }
 
