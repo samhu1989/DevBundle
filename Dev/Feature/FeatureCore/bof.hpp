@@ -103,4 +103,5 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
         ++index;
     }
 }
+
 }
