@@ -80,7 +80,27 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
     idf_ = doc_num / idf_;
     idf_ = arma::log(idf_);
     //calculate tf-idf for each patch
-
+    h.resize(l.size());
+    liter = l.cbegin();
+    arma::uword index = 0;
+    for(MatPtrLst::const_iterator iter = f.cbegin() ; iter != f.cend() ; ++iter )
+    {
+        arma::uword label_max = arma::max(*liter);
+        h[index].reset(new arma::mat(gmm_.n_gaus(),label_max,arma::fill::zeros));
+        arma::urowvec r = gmm_.assign(**iter,arma::eucl_dist);
+        arma::mat& tf = (*h[index]);
+        arma::rowvec word_num(label_max,arma::fill::zeros);
+        for( arma::uword i=0 ; i < r.n_cols ; ++i )
+        {
+            if((*liter)(i)==0)continue;
+            assert( (*liter)(i) <= tf.n_cols );
+            assert( r(i) < tf.n_rows );
+            tf( r(i) , (*liter)(i) - 1 ) += 1.0 ;
+            word_num((*liter)(i) - 1) += 1.0;
+        }
+        tf.each_row()/=word_num;
+        tf.each_col()%=idf_;
+        ++index;
+    }
 }
-
 }
