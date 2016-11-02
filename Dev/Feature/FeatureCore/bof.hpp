@@ -57,7 +57,6 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
         data.cols(start(i),start(i)+f[i]->n_cols - 1) = *f[i];
     }
     gmm_.learn(data,codebook_size_,arma::eucl_dist,arma::random_subset,50,0,1e-12,true);
-    /*
     //calculate idf
     idf_ = arma::vec(gmm_.n_gaus(),arma::fill::zeros);
     double doc_num = 0;
@@ -65,20 +64,23 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
     for(MatPtrLst::const_iterator iter = f.cbegin() ; iter != f.cend() ; ++iter )
     {
         arma::uword label_max = arma::max(*liter);
-        arma::uword label_min = arma::min(*liter);
         arma::urowvec r = gmm_.assign(**iter,arma::eucl_dist);
-        arma::mat counts(label_max - label_min + 1,gmm_.n_gaus());
+        arma::mat counts(gmm_.n_gaus(),label_max,arma::fill::zeros);
         for( arma::uword i=0 ; i < r.n_cols ; ++i )
         {
-            if( counts((*liter)(i),r(i)) == 0 ) counts((*liter)(i),r(i)) = 1.0 ;
+            if((*liter)(i)==0)continue;
+            assert( (*liter)(i) <= counts.n_cols );
+            assert(r(i)<counts.n_rows);
+            if( counts(r(i),(*liter)(i) - 1) == 0 ) counts( r(i) , (*liter)(i) - 1 ) = 1.0 ;
         }
-        doc_num += label_max - label_min + 1;
+        doc_num += label_max;
         idf_ += arma::sum(counts,1);
     }
+    idf_ += 1.0;
     idf_ = doc_num / idf_;
     idf_ = arma::log(idf_);
     //calculate tf-idf for each patch
-    */
+
 }
 
 }

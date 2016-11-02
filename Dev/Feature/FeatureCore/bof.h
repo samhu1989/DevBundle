@@ -17,7 +17,8 @@ public:
     void extract(const arma::mat& f,const arma::uvec& l,arma::mat& h);//for a frame
     arma::vec extract(const arma::mat& f);//for a patch
     void learn(const MatPtrLst& f, const LabelLst& l, MatPtrLst &h);
-    const arma::mat gmm_mean(void)const{ return gmm_.means;}
+    inline const arma::mat gmm_mean(void)const{ return gmm_.means;}
+    inline const arma::vec idf(void)const{return idf_;}
 protected:
     void learn_code_book(const MatPtrLst& f);
 private:

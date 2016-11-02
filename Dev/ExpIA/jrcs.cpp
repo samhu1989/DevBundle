@@ -64,17 +64,20 @@ void JRCSWork::Init_SI_HKS()
         (*fiter).reset(new arma::mat());
         emit message(path,0);
         getFeature.extract(*iter,**fiter);
-        if(*fiter)MATIO::save_to_matlab(**fiter,(tr("./debug/HKS/")+path).toStdString(),"X");
+//        if(*fiter)MATIO::save_to_matlab(**fiter,(tr("./debug/HKS/")+path).toStdString(),"X");
         ++ fiter;
         ++ index;
         if( fiter == fLst.end() )break;
     }
-//    extract the BOF of feature
+    //extract the BOF of feature
     emit message(tr("Extracting BOF"),0);
     Feature::BOF bof;
     Feature::BOF::MatPtrLst histLst;
     bof.learn(fLst,labels_,histLst);
-    MATIO::save_to_matlab(bof.gmm_mean(),"./debug/HKS/hks_codebook.mat","X");
+    emit message(tr("_hks_codebook.mat"),0);
+    MATIO::save_to_matlab(bof.gmm_mean(),"./debug/HKS/_hks_codebook.mat","X");
+    emit message(tr("_hks_idf.mat"),0);
+    MATIO::save_to_matlab(bof.idf(),"./debug/HKS/_hks_idf.mat","X");
     //clustering on the BOF
 
     //generating obj_prob
