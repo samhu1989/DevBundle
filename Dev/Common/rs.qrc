@@ -4,5 +4,6 @@
     </qresource>
     <qresource prefix="/button">
         <file>rs/button/open.png</file>
+        <file>rs/button/label.png</file>
     </qresource>
 </RCC>

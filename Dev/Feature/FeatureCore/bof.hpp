@@ -10,30 +10,36 @@ void BOF::extract(const arma::mat& f,const arma::uvec& l,arma::mat& h)
     arma::uword label_max = arma::max(l);
     arma::uword label_min = arma::min(l);
     h = arma::mat(codebook_size_, label_max - label_min + 1 );
-    #pragma omp parallel for
-    for(arma::uword label=label_min ; label <= label_max ; ++label )
+    //calculate idf
+    arma::vec idf(gmm_.n_gaus(),arma::fill::zeros);
+    arma::urowvec r = gmm_.assign(f,arma::eucl_dist);
+    arma::mat counts(gmm_.n_gaus(),label_max,arma::fill::zeros);
+    idf = arma::vec(gmm_.n_gaus(),arma::fill::zeros);
+    for( arma::uword i=0 ; i < r.n_cols ; ++i )
     {
-        arma::uvec indices = arma::find(l==label);
-        if(!indices.empty())
-        {
-            h.col(label) = extract(f.cols(indices)) ;
-        }else{
-            h.col(label).fill(0.0);
-        }
+        if(l(i)==0)continue;
+        assert( l(i) <= counts.n_cols );
+        assert(r(i)<counts.n_rows);
+        if( counts(r(i),l(i) - 1) == 0 ) counts( r(i) , l(i) - 1 ) = 1.0 ;
     }
-}
-
-arma::vec BOF::extract(const arma::mat& f)
-{
-    arma::vec result(gmm_.n_gaus(),arma::fill::zeros);
-    arma::urowvec c = gmm_.assign(f,arma::eucl_dist);
-    for(arma::urowvec::iterator iter = c.begin() ; iter != c.end() ; ++ iter)
+    idf = arma::sum(counts,1);
+    idf += 1.0;
+    idf = label_max / idf;
+    idf = arma::log(idf);
+    //calculate tf-idf for each patch
+    h.resize(gmm_.n_gaus(),label_max);
+    arma::mat& tf = h;
+    arma::rowvec word_num(label_max,arma::fill::ones);
+    for( arma::uword i=0 ; i < r.n_cols ; ++i )
     {
-        result(*iter) += 1.0;
+        if(l(i)==0)continue;
+        assert( l(i) <= tf.n_cols );
+        assert( r(i) < tf.n_rows );
+        tf( r(i) , l(i) - 1 ) += 1.0 ;
+        word_num(l(i) - 1) += 1.0;
     }
-    result /= c.size();
-    result %= idf_;
-    return result;
+    tf.each_row()/=word_num;
+    tf.each_col()%=idf;
 }
 
 void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
@@ -58,38 +64,39 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
     }
     gmm_.learn(data,codebook_size_,arma::eucl_dist,arma::random_subset,50,0,1e-12,true);
     //calculate idf
-    idf_ = arma::vec(gmm_.n_gaus(),arma::fill::zeros);
-    double doc_num = 0;
+    arma::uword index = 0;
     LabelLst::const_iterator liter = l.cbegin();
+    idf_.resize(f.size());
     for(MatPtrLst::const_iterator iter = f.cbegin() ; iter != f.cend() ; ++iter )
     {
         arma::uword label_max = arma::max(*liter);
         arma::urowvec r = gmm_.assign(**iter,arma::eucl_dist);
         arma::mat counts(gmm_.n_gaus(),label_max,arma::fill::zeros);
+        idf_[index] = arma::vec(gmm_.n_gaus(),arma::fill::zeros);
         for( arma::uword i=0 ; i < r.n_cols ; ++i )
         {
             if((*liter)(i)==0)continue;
             assert( (*liter)(i) <= counts.n_cols );
-            assert(r(i)<counts.n_rows);
-            if( counts(r(i),(*liter)(i) - 1) == 0 ) counts( r(i) , (*liter)(i) - 1 ) = 1.0 ;
+            assert( r(i) < counts.n_rows );
+            if( counts( r(i) ,(*liter)(i) - 1) == 0 ) counts( r(i) , (*liter)(i) - 1 ) = 1.0 ;
         }
-        doc_num += label_max;
-        idf_ += arma::sum(counts,1);
+        idf_[index] = arma::sum(counts,1);
+        idf_[index] += 1.0;
+        idf_[index] = ( label_max + 1.0 ) / idf_[index];
+        idf_[index] = arma::log( idf_[index] );
+        ++index;
     }
-    idf_ += 1.0;
-    idf_ = doc_num / idf_;
-    idf_ = arma::log(idf_);
     //calculate tf-idf for each patch
     h.resize(l.size());
     liter = l.cbegin();
-    arma::uword index = 0;
+    index = 0;
     for(MatPtrLst::const_iterator iter = f.cbegin() ; iter != f.cend() ; ++iter )
     {
         arma::uword label_max = arma::max(*liter);
         h[index].reset(new arma::mat(gmm_.n_gaus(),label_max,arma::fill::zeros));
         arma::urowvec r = gmm_.assign(**iter,arma::eucl_dist);
         arma::mat& tf = (*h[index]);
-        arma::rowvec word_num(label_max,arma::fill::zeros);
+        arma::rowvec word_num(label_max,arma::fill::ones);
         for( arma::uword i=0 ; i < r.n_cols ; ++i )
         {
             if((*liter)(i)==0)continue;
@@ -99,7 +106,7 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
             word_num((*liter)(i) - 1) += 1.0;
         }
         tf.each_row()/=word_num;
-        tf.each_col()%=idf_;
+        tf.each_col()%=idf_[index];
         ++index;
     }
 }

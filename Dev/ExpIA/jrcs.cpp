@@ -64,7 +64,7 @@ void JRCSWork::Init_SI_HKS()
         (*fiter).reset(new arma::mat());
         emit message(path,0);
         getFeature.extract(*iter,**fiter);
-//        if(*fiter)MATIO::save_to_matlab(**fiter,(tr("./debug/HKS/")+path).toStdString(),"X");
+        if(*fiter)MATIO::save_to_matlab(**fiter,(tr("./debug/HKS/")+path).toStdString(),"X");
         ++ fiter;
         ++ index;
         if( fiter == fLst.end() )break;
@@ -76,10 +76,33 @@ void JRCSWork::Init_SI_HKS()
     bof.learn(fLst,labels_,histLst);
     emit message(tr("_hks_codebook.mat"),0);
     MATIO::save_to_matlab(bof.gmm_mean(),"./debug/HKS/_hks_codebook.mat","X");
-    emit message(tr("_hks_idf.mat"),0);
-    MATIO::save_to_matlab(bof.idf(),"./debug/HKS/_hks_idf.mat","X");
+    index = 1;
+    std::vector<arma::vec>::const_reverse_iterator b = bof.idf().crbegin();
+    std::vector<arma::vec>::const_reverse_iterator e = bof.idf().crend();
+    for(std::vector<arma::vec>::const_reverse_iterator iter=b;iter!=e;++iter)
+    {
+        QString path;
+        path = path.sprintf("idf%02u.mat",index);
+        emit message(path,0);
+        const arma::vec& idf = *iter;
+        MATIO::save_to_matlab(idf,(tr("./debug/HKS/")+path).toStdString(),"X");
+        ++index;
+    }
+//    QString path;
+//    path = path.sprintf("idf%02u.mat",1);
+//    emit message(path,0);
+//    MATIO::save_to_matlab(bof.idf().front(),(tr("./debug/HKS/")+path).toStdString(),"X");
     //clustering on the BOF
-
+    index = 1;
+    for(Feature::BOF::MatPtrLst::iterator iter=histLst.begin();iter!=histLst.end();++iter)
+    {
+        QString path;
+        path = path.sprintf("bof%02u.mat",index);
+        emit message(path,0);
+        arma::mat& bof = **iter;
+        MATIO::save_to_matlab(bof,(tr("./debug/HKS/")+path).toStdString(),"X");
+        ++index;
+    }
     //generating obj_prob
 
     //generating alpha

@@ -251,8 +251,16 @@
    </property>
   </action>
   <action name="actionLoad_Segments">
+   <property name="icon">
+    <iconset>
+     <normalon>:/button/rs/button/label.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Load Labels</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
   <action name="actionLab_Color_Space">
@@ -494,6 +502,11 @@
   <action name="actionGet_Compact_Label">
    <property name="text">
     <string>Get Compact Label</string>
+   </property>
+  </action>
+  <action name="actionSave_Label_Mapping">
+   <property name="text">
+    <string>Save Label Mapping</string>
    </property>
   </action>
  </widget>
