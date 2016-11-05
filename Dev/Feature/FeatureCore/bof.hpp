@@ -64,12 +64,19 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
     }
     gmm_.learn(data,codebook_size_,arma::eucl_dist,arma::random_subset,50,0,1e-12,true);
     //calculate idf
-    arma::uword index = 0;
+
+    arma::uword label_max = 0;
     LabelLst::const_iterator liter = l.cbegin();
+    for(liter=l.cbegin();liter!=l.cend();++liter)
+    {
+        arma::uword max = arma::max(*liter);
+        if(max>label_max)label_max = max;
+    }
+    arma::uword index = 0;
     idf_.resize(f.size());
+    liter = l.cbegin();
     for(MatPtrLst::const_iterator iter = f.cbegin() ; iter != f.cend() ; ++iter )
     {
-        arma::uword label_max = arma::max(*liter);
         arma::urowvec r = gmm_.assign(**iter,arma::eucl_dist);
         arma::mat counts(gmm_.n_gaus(),label_max,arma::fill::zeros);
         idf_[index] = arma::vec(gmm_.n_gaus(),arma::fill::zeros);
@@ -84,6 +91,8 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
         idf_[index] += 1.0;
         idf_[index] = ( label_max + 1.0 ) / idf_[index];
         idf_[index] = arma::log( idf_[index] );
+        ++liter;
+        if(liter==l.cend())break;
         ++index;
     }
     //calculate tf-idf for each patch
@@ -92,7 +101,6 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
     index = 0;
     for(MatPtrLst::const_iterator iter = f.cbegin() ; iter != f.cend() ; ++iter )
     {
-        arma::uword label_max = arma::max(*liter);
         h[index].reset(new arma::mat(gmm_.n_gaus(),label_max,arma::fill::zeros));
         arma::urowvec r = gmm_.assign(**iter,arma::eucl_dist);
         arma::mat& tf = (*h[index]);
@@ -107,6 +115,8 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
         }
         tf.each_row()/=word_num;
         tf.each_col()%=idf_[index];
+        ++liter;
+        if(liter==l.cend())break;
         ++index;
     }
 }
