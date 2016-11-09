@@ -30,6 +30,7 @@ public:
     bool configure(Config::Ptr config);
 public slots:
     void Init_SI_HKS();
+    void debug_SI_HKS();
     void Init_Bernolli();
 protected:
     void Init_Bernolli_a(arma::uvec&);
@@ -42,6 +43,7 @@ private:
     MeshList& inputs_;
     LabelList& labels_;
     ModelList& objects_;
+    Config::Ptr config_;
     static DMatPtrLst alpha_ptrlst_;
     static arma::fvec obj_prob_;
 };

@@ -65,7 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionGet_Compact_Label,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Old,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
-    connect(ui->actionJRCS_Init_SI_HKS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS_Init_SIHKS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionDebug_HKS_Clustering,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init_Bernoulli,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_Basic,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_AONI,SIGNAL(triggered(bool)),this,SLOT(start_editing()));

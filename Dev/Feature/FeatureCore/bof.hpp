@@ -2,9 +2,13 @@
 namespace Feature {
 BOF::BOF()
 {
-    codebook_size_ = 128;
+    codebook_size_ = 48;
 }
-
+bool BOF::configure(Config::Ptr config)
+{
+    config_ = config;
+    return true;
+}
 void BOF::extract(const arma::mat& f,const arma::uvec& l,arma::mat& h)
 {
     arma::uword label_max = arma::max(l);
@@ -64,7 +68,6 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
     }
     gmm_.learn(data,codebook_size_,arma::eucl_dist,arma::random_subset,50,0,1e-12,true);
     //calculate idf
-
     arma::uword label_max = 0;
     LabelLst::const_iterator liter = l.cbegin();
     for(liter=l.cbegin();liter!=l.cend();++liter)
@@ -74,20 +77,26 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
     }
     arma::uword index = 0;
     idf_.resize(f.size());
+    assignment_.resize(f.size());
     liter = l.cbegin();
+    g_idf_ = arma::vec(gmm_.n_gaus(),arma::fill::zeros);
+    arma::uword doc_num=0;
     for(MatPtrLst::const_iterator iter = f.cbegin() ; iter != f.cend() ; ++iter )
     {
-        arma::urowvec r = gmm_.assign(**iter,arma::eucl_dist);
+        arma::uvec &r = assignment_[index];
+        r = gmm_.assign(**iter,arma::eucl_dist).t();
         arma::mat counts(gmm_.n_gaus(),label_max,arma::fill::zeros);
         idf_[index] = arma::vec(gmm_.n_gaus(),arma::fill::zeros);
         for( arma::uword i=0 ; i < r.n_cols ; ++i )
         {
             if((*liter)(i)==0)continue;
+            doc_num ++;
             assert( (*liter)(i) <= counts.n_cols );
             assert( r(i) < counts.n_rows );
             if( counts( r(i) ,(*liter)(i) - 1) == 0 ) counts( r(i) , (*liter)(i) - 1 ) = 1.0 ;
         }
         idf_[index] = arma::sum(counts,1);
+        g_idf_ += idf_[index];
         idf_[index] += 1.0;
         idf_[index] = ( label_max + 1.0 ) / idf_[index];
         idf_[index] = arma::log( idf_[index] );
@@ -95,6 +104,9 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
         if(liter==l.cend())break;
         ++index;
     }
+    g_idf_ += 1.0;
+    g_idf_ = ( doc_num + 1.0 ) / g_idf_ ;
+    g_idf_ = arma::log( g_idf_ );
     //calculate tf-idf for each patch
     h.resize(l.size());
     liter = l.cbegin();
@@ -114,7 +126,14 @@ void BOF::learn(const MatPtrLst& f,const LabelLst& l,MatPtrLst& h)
             word_num((*liter)(i) - 1) += 1.0;
         }
         tf.each_row()/=word_num;
-        tf.each_col()%=idf_[index];
+        if(config_->has("BOF_idf_mode")&&config_->getString("BOF_idf_mode")=="Frame")
+        {
+            std::cerr<<"Using in-frame idf"<<std::endl;
+            tf.each_col()%=idf_[index];
+        }else {
+            std::cerr<<"Using Normal idf"<<std::endl;
+            tf.each_col()%=g_idf_;
+        }
         ++liter;
         if(liter==l.cend())break;
         ++index;

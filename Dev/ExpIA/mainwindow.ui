@@ -129,7 +129,14 @@
       <property name="title">
        <string>Initialization</string>
       </property>
-      <addaction name="actionJRCS_Init_SI_HKS"/>
+      <widget class="QMenu" name="menuSI_HKS">
+       <property name="title">
+        <string>SI-HKS</string>
+       </property>
+       <addaction name="actionJRCS_Init_SIHKS"/>
+       <addaction name="actionDebug_HKS_Clustering"/>
+      </widget>
+      <addaction name="menuSI_HKS"/>
       <addaction name="actionJRCS_Init_Bernoulli"/>
      </widget>
      <widget class="QMenu" name="menuOptimization">
@@ -451,11 +458,6 @@
     <string>Show Base Segments</string>
    </property>
   </action>
-  <action name="actionJRCS_Init_SI_HKS">
-   <property name="text">
-    <string>SI-HKS</string>
-   </property>
-  </action>
   <action name="actionJRCS_Init_Bernoulli">
    <property name="text">
     <string>Bernoulli</string>
@@ -504,9 +506,17 @@
     <string>Get Compact Label</string>
    </property>
   </action>
-  <action name="actionSave_Label_Mapping">
+  <action name="actionJRCS_Init_SIHKS">
    <property name="text">
-    <string>Save Label Mapping</string>
+    <string>SI-HKS</string>
+   </property>
+   <property name="toolTip">
+    <string>Initialize Correspondence Matrix with SI-HKS Distribution of Label</string>
+   </property>
+  </action>
+  <action name="actionDebug_HKS_Clustering">
+   <property name="text">
+    <string>Debug HKS Clustering</string>
    </property>
   </action>
  </widget>

@@ -405,7 +405,7 @@ void MainWindow::start_editing()
         th->setObjectName(tr("Sort_AGD"));
         edit_thread_ = th;
     }
-    if(edit==ui->actionJRCS_Init_SI_HKS)
+    if(edit==ui->actionJRCS_Init_SIHKS)
     {
         JRCSWork* worker = new JRCSWork(inputs_,labels_,objects_);
         if(!worker->configure(config_))
@@ -422,6 +422,25 @@ void MainWindow::start_editing()
         connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         th->setObjectName(tr("JRCS_Init_SI_HKS"));
+        edit_thread_ = th;
+    }
+    if(edit==ui->actionDebug_HKS_Clustering)
+    {
+        JRCSWork* worker = new JRCSWork(inputs_,labels_,objects_);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(debug_SI_HKS()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("JRCS_Debug_SI_HKS"));
         edit_thread_ = th;
     }
     if(edit==ui->actionJRCS_Init_Bernoulli)

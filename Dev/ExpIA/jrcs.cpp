@@ -17,11 +17,13 @@ JRCSWork::JRCSWork(
     inputs_(inputs),labels_(labels),objects_(objects),
     QObject(parent)
 {
-    ;
+    arma_rng::set_seed_random();
 }
 
 bool JRCSWork::configure(Config::Ptr config)
 {
+    if(!config)return false;
+    config_ = config;
     if(labels_.empty())
     {
         QString msg = "Load a Label First\n";
@@ -72,6 +74,7 @@ void JRCSWork::Init_SI_HKS()
     //extract the BOF of feature
     emit message(tr("Extracting BOF"),0);
     Feature::BOF bof;
+    assert(bof.configure(config_));
     Feature::BOF::MatPtrLst histLst;
     bof.learn(fLst,labels_,histLst);
     emit message(tr("_hks_codebook.mat"),0);
@@ -88,10 +91,6 @@ void JRCSWork::Init_SI_HKS()
         MATIO::save_to_matlab(idf,(tr("./debug/HKS/")+path).toStdString(),"X");
         ++index;
     }
-//    QString path;
-//    path = path.sprintf("idf%02u.mat",1);
-//    emit message(path,0);
-//    MATIO::save_to_matlab(bof.idf().front(),(tr("./debug/HKS/")+path).toStdString(),"X");
     //clustering on the BOF
     index = 1;
     for(Feature::BOF::MatPtrLst::iterator iter=histLst.begin();iter!=histLst.end();++iter)
@@ -106,6 +105,50 @@ void JRCSWork::Init_SI_HKS()
     //generating obj_prob
 
     //generating alpha
+    emit end();
+}
+
+void JRCSWork::debug_SI_HKS()
+{
+    emit message(tr("Calculating HKS"),0);
+    Feature::HKS<DefaultMesh>::MatPtrLst fLst;
+    Feature::HKS<DefaultMesh> getFeature;
+    fLst.resize(inputs_.size());
+    Feature::HKS<DefaultMesh>::MatPtrLst::iterator fiter=fLst.begin();
+    size_t index = 1;
+    for(MeshBundle<DefaultMesh>::PtrList::const_iterator iter = inputs_.begin() ; iter != inputs_.end() ; ++iter )
+    {
+        QString path;
+        path = path.sprintf("hks%02u",index);
+        (*fiter).reset(new arma::mat());
+        emit message(path,0);
+        getFeature.extract(*iter,**fiter);
+        ++ fiter;
+        ++ index;
+        if( fiter == fLst.end() )break;
+    };
+    emit message(tr("Extracting BOF"),0);
+    Feature::BOF bof;
+    assert(bof.configure(config_));
+    Feature::BOF::MatPtrLst histLst;
+    bof.learn(fLst,labels_,histLst);
+    emit message(tr("Assign Voxel to Geometric Word"),0);
+    const std::vector<arma::uvec>& a = bof.assignment();
+    std::vector<arma::uvec>::const_iterator liter = a.cbegin();
+    for(MeshList::iterator iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
+    {
+        MeshBundle<DefaultMesh>& m = **iiter;
+        const arma::uvec& svl = *liter;
+        arma::uvec pxl;
+        m.graph_.sv2pix(svl,pxl);
+        ColorArray::colorfromValue(
+                    (uint32_t*)m.custom_color_.vertex_colors(),
+                    m.mesh_.n_vertices(),
+                    arma::conv_to<arma::vec>::from(pxl)
+                    );
+        ++liter;
+        if(liter==a.cend())break;
+    }
     emit end();
 }
 
