@@ -9,10 +9,13 @@ class HKS
 public:
     typedef std::shared_ptr<arma::mat> MatPtr;
     typedef std::vector<MatPtr> MatPtrLst;
+    typedef std::vector<arma::uvec> LabelLst;
     HKS();
     bool configure(Config::Ptr);
     void extract(const typename MeshBundle<Mesh>::Ptr,arma::mat&);
     void extract(const typename MeshBundle<Mesh>::PtrList,MatPtrLst&);
+    void extract(const typename MeshBundle<Mesh>::Ptr,const arma::uvec&,arma::mat&);
+    void extract(const typename MeshBundle<Mesh>::PtrList,const LabelLst&,MatPtrLst&);
 protected:
     double d_scale_;
     double convex_scale_;

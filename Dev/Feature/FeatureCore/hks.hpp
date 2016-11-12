@@ -32,6 +32,19 @@ void HKS<Mesh>::extract(const typename MeshBundle<Mesh>::PtrList m,MatPtrLst& f)
         if( fiter == f.end() )break;
     }
 }
+
+template<typename Mesh>
+void HKS<Mesh>::extract(const typename MeshBundle<Mesh>::Ptr,const arma::uvec&,arma::mat&)
+{
+    ;
+}
+
+template<typename Mesh>
+void HKS<Mesh>::extract(const typename MeshBundle<Mesh>::PtrList,const LabelLst&,MatPtrLst&)
+{
+    ;
+}
+
 template<typename Mesh>
 void HKS<Mesh>::constructL(const typename MeshBundle<Mesh>::Ptr m)
 {
