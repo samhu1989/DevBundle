@@ -58,6 +58,7 @@ void JRCSWork::Init_SI_HKS()
     Feature::HKS<DefaultMesh> getFeature;
     fLst.resize(inputs_.size());
     Feature::HKS<DefaultMesh>::MatPtrLst::iterator fiter=fLst.begin();
+    std::vector<arma::uvec>::iterator liter = labels_.begin();
     size_t index = 1;
     for(MeshBundle<DefaultMesh>::PtrList::const_iterator iter = inputs_.begin() ; iter != inputs_.end() ; ++iter )
     {
@@ -65,11 +66,13 @@ void JRCSWork::Init_SI_HKS()
         path = path.sprintf("hks%02u.mat",index);
         (*fiter).reset(new arma::mat());
         emit message(path,0);
-        getFeature.extract(*iter,**fiter);
+        getFeature.extract(*iter,*liter,**fiter);
         if(*fiter)MATIO::save_to_matlab(**fiter,(tr("./debug/HKS/")+path).toStdString(),"X");
         ++ fiter;
         ++ index;
         if( fiter == fLst.end() )break;
+        ++liter;
+        if( liter == labels_.end() )break;
     }
     //extract the BOF of feature
     emit message(tr("Extracting BOF"),0);

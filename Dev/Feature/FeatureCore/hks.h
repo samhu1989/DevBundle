@@ -40,6 +40,7 @@ protected:
         else return 0.5*dif/eps+0.5;
     }
     void constructL(const typename MeshBundle<Mesh>::Ptr);
+    void constructL(const typename MeshBundle<Mesh>::Ptr,const arma::uvec&);
     void decomposeL();
     void computeHKS(arma::mat&);
 private:

@@ -98,7 +98,7 @@ typename VoxelGraph<M>::Ptr VoxelGraph<M>::getSubGraphPtr(const VoxelGraph& pare
     {
         assert(parent_graph.voxel_neighbors(0,i)<Nsv);
         assert(parent_graph.voxel_neighbors(1,i)<Nsv);
-        if(parent_graph.voxel_neighbors(0,i) <= parent_graph.voxel_neighbors(1,i))neighborhood( parent_graph.voxel_neighbors(0,i) , parent_graph.voxel_neighbors(1,i) ) = 1;
+        if( parent_graph.voxel_neighbors(0,i) <= parent_graph.voxel_neighbors(1,i) )neighborhood( parent_graph.voxel_neighbors(0,i) , parent_graph.voxel_neighbors(1,i) ) = 1;
         else neighborhood(parent_graph.voxel_neighbors(1,i),parent_graph.voxel_neighbors(0,i)) = 1;
     }
     __gnu_cxx::hash_map<int,int> voxel_map;
@@ -162,9 +162,9 @@ typename VoxelGraph<M>::Ptr VoxelGraph<M>::getSubGraphPtr(const VoxelGraph& pare
 template <typename M>
 void VoxelGraph<M>::getSvIndex(const arma::uvec& pix,arma::uvec& sv)
 {
-    if( arma::max(pix)>voxel_centers.n_cols - 1 )
+    if( arma::max(pix)>voxel_label.size()-1 )
     {
-        std::cerr<<"void VoxelGraph<M>::pix2sv(invalid supervoxel indices)"<<std::endl;
+        std::cerr<<"void VoxelGraph<M>::getSvIndex(invalid pixel indices)"<<std::endl;
     }
     sv = voxel_label(pix);
     std::vector<arma::uword> sv_index = arma::conv_to<std::vector<arma::uword>>::from(sv);
@@ -176,9 +176,9 @@ void VoxelGraph<M>::getSvIndex(const arma::uvec& pix,arma::uvec& sv)
 template <typename M>
 void VoxelGraph<M>::getPixIndex(const arma::uvec& sv,arma::uvec& pix)
 {
-    if( arma::max(sv)>voxel_label.size()-1 )
+    if( arma::max(pix)>voxel_centers.n_cols - 1 )
     {
-        std::cerr<<"void VoxelGraph<M>::pix2sv(invalid pix indices)"<<std::endl;
+        std::cerr<<"void VoxelGraph<M>::getPixIndex(invalid supervoxel indices)"<<std::endl;
     }
     pix = arma::uvec();
     for(arma::uword i=0;i<sv.size();++i)
