@@ -1184,7 +1184,11 @@ void MainWindow::showSpectralFunc()
         ui->statusBar->showMessage(QString("! No Input"));
         return;
     }
-    Spectrum* v = new Spectrum(inputs_);
+    if(inputs_[0]->graph_.empty()){
+        ui->statusBar->showMessage(QString("! No Supervoxel"));
+        return;
+    }
+    Spectrum* v = new Spectrum(inputs_,config_);
     v->setAttribute(Qt::WA_DeleteOnClose,true);
     QMdiSubWindow* s = ui->mdiArea->addSubWindow(v);
     connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));

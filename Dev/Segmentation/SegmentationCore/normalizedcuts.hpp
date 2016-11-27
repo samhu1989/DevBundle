@@ -517,19 +517,15 @@ void NormalizedCuts<Mesh>::decomposeMin()
     arma::sp_mat Dmat = arma::speye<arma::sp_mat>(W_->n_rows,W_->n_cols);
     Dmat.diag() = D;
     A_ = Dmat - (*W_);
-//    double eps = std::min(std::abs(arma::min(arma::min(A_))),std::abs(arma::max(arma::max(A_))));
-//    double eps = std::numeric_limits<float>::epsilon();
-//    QTime time;
-//    arma::mat(A_).save("./debug/label/A_"+time.currentTime().toString("hh_mm_ss").toStdString()+".arma",arma::raw_ascii);
     bool success = false;
     double stol = 50.0;
     double etol = std::numeric_limits<double>::epsilon();
     success = arma_custom::eigs_sym(lambda_,Y_,A_,(k_+1),"sm",stol,etol);
     if(!success)std::cerr<<"Failed on decomposition, Please relax the tol"<<std::endl;//failed
-//    lambda_.print("lambda_:");
+    lambda_.print("lambda_:");
     arma::uvec index = arma::find( lambda_ <= eps_ );
     std::cerr<<"eps:"<<eps_<<std::endl;
-//    index.print("index:");
+    index.print("index:");
     if(!index.empty())Y_.shed_cols(index(0),index(index.size()-1));
 }
 

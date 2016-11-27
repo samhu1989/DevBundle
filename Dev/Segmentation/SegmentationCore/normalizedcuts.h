@@ -8,6 +8,7 @@ namespace Segmentation{
 template<typename Mesh>
 class NormalizedCuts
 {
+public:
     typedef enum{
         N,//normalized cut
         M, //min cut
@@ -25,11 +26,16 @@ public:
     void cutImage(const QImage&img, arma::uvec&);
     void cutMesh(typename MeshBundle<Mesh>::Ptr m,arma::uvec&);
     void cutGraph(typename MeshBundle<Mesh>::Ptr m,arma::uvec&);
+
     inline void getLabel(arma::uvec& label){label=label_;}
-protected:
+    inline void setK(const arma::uword& k){k_=k;}
+    inline void setType(const typename NormalizedCuts<Mesh>::TYPE t){type_=t;}
+    inline const arma::mat& getY()const{return Y_;}
+
     void computeW_Image(const QImage& img);
     void computeW_Mesh(typename MeshBundle<Mesh>::Ptr m);
     void computeW_Graph(typename MeshBundle<Mesh>::Ptr m);
+
     void decompose()
     {
         switch(type_)
@@ -40,6 +46,7 @@ protected:
         default:decomposeNormarlized();
         }
     }
+protected:
     void decomposeNormarlized();
     void decomposeMin();
     void decomposeGPS();
