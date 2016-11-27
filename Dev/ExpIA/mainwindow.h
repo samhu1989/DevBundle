@@ -85,6 +85,7 @@ protected slots:
     void showSVColor();
     void showFeature();
     void showIndex();
+    void showSpectralFunc();
 
 protected slots:
     void LAPACKE_dggsvd_test(void){TEST::LAPACKE_dggsvd_test();}

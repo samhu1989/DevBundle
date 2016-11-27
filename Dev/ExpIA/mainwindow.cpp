@@ -16,6 +16,7 @@
 #include <strstream>
 #include "robustcut.h"
 #include "iocore.h"
+#include "spectrum.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -87,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSupervoxel_Color,SIGNAL(triggered(bool)),this,SLOT(showSVColor()));
     connect(ui->actionFeature_View,SIGNAL(triggered(bool)),this,SLOT(showFeature()));
     connect(ui->actionIndex_By_Color,SIGNAL(triggered(bool)),this,SLOT(showIndex()));
+    connect(ui->actionSpectral_Function,SIGNAL(triggered(bool)),this,SLOT(showSpectralFunc()));
 
     connect(ui->actionLAPACKE_dggsvd,SIGNAL(triggered(bool)),this,SLOT(LAPACKE_dggsvd_test()));
     connect(ui->actionInside_Bounding_Box,SIGNAL(triggered(bool)),this,SLOT(Inside_BBox_test()));
@@ -1173,6 +1175,20 @@ void MainWindow::showLab()
     QMdiSubWindow* s = ui->mdiArea->addSubWindow(v);
     connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));
     s->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    v->show();
+}
+
+void MainWindow::showSpectralFunc()
+{
+    if(inputs_.empty()){
+        ui->statusBar->showMessage(QString("! No Input"));
+        return;
+    }
+    Spectrum* v = new Spectrum(inputs_);
+    v->setAttribute(Qt::WA_DeleteOnClose,true);
+    QMdiSubWindow* s = ui->mdiArea->addSubWindow(v);
+    connect(v,SIGNAL(destroyed()),this,SLOT(removeView()));
+    s->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
     v->show();
 }
 

@@ -37,6 +37,7 @@ protected:
     void compute();
     void computeCandN();
     void initY_Random();
+    void initY_Mean();
     void initY_RandIndex();
     void initY_BestIndex();
     void initA();

@@ -302,27 +302,27 @@ template<typename Mesh>
 void NormalizedCuts<Mesh>::computeW_Graph(typename MeshBundle<Mesh>::Ptr m)
 {
     MeshBundle<Mesh>& mesh = *m;
-    VoxelGraph<Mesh>& graph = mesh.graph_;
-    size_t N = graph.size();
+    VoxelGraph<Mesh>* graph = &mesh.graph_;
+    size_t N = graph->size();
     W_.reset(new arma::sp_mat(N,N));
     *W_ = arma::speye(N,N);
-    for(arma::Mat<uint16_t>::iterator niter=graph.voxel_neighbors.begin();niter!=graph.voxel_neighbors.end();   )
+    for(arma::Mat<uint16_t>::iterator niter=graph->voxel_neighbors.begin();niter!=graph->voxel_neighbors.end();   )
     {
         uint16_t wi = *niter;
         ++niter;
         uint16_t wj = *niter;
         ++niter;
         double affinity = vecAffinity<arma::fvec>(
-                    graph.voxel_centers.col(wi),
-                    graph.voxel_centers.col(wj),
+                    graph->voxel_centers.col(wi),
+                    graph->voxel_centers.col(wj),
                     d_scale_
                     );
         affinity = std::exp(affinity);
         affinity += convexity<arma::fvec>(
-                    graph.voxel_centers.col(wi),
-                    graph.voxel_normals.col(wi),
-                    graph.voxel_centers.col(wj),
-                    graph.voxel_normals.col(wj),
+                    graph->voxel_centers.col(wi),
+                    graph->voxel_normals.col(wi),
+                    graph->voxel_centers.col(wj),
+                    graph->voxel_normals.col(wj),
                     convex_scale_
                     );
         (*W_)(wi,wj) = 0.5*affinity;

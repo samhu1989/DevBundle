@@ -11,7 +11,8 @@ void RPEAC::convert_to_atomic(
         arma::umat &aP
         )
 {
-//    std::cerr<<"E("<<E.n_rows<<","<<E.n_cols<<")"<<std::endl;
+    std::cerr<<"E("<<E.n_rows<<","<<E.n_cols<<")"<<std::endl;
+    sig_hash_.clear();
     index_map_.resize(E.n_cols);
     for( arma::uword i=0 ; i < E.n_cols ; ++i )
     {
@@ -62,6 +63,7 @@ void RPEAC::compute(
     arma::uvec ay;
     convert_to_atomic(E,P,aE,aP);
     PEAC::compute(aE,aP,ay);
+    std::cerr<<"atomic number:"<<ay.n_rows<<std::endl;
     y = arma::uvec(E.n_cols,arma::fill::zeros);
     convert_from_atomic(ay,y);
 //    show_atomic(y);

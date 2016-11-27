@@ -44,7 +44,7 @@ void RobustCut::base_segments()
     {
         MeshBundle<DefaultMesh>::Ptr mesh_ptr = *iiter;
         std::cerr<<"============"<<std::endl;
-        cuts_.generate_base_segments(mesh_ptr);
+        cuts_.generate_base_segments(mesh_ptr,*oiter,true);
         std::cerr<<"============"<<std::endl;
         base_segment_list_.emplace_back(cuts_.base_segments());
         arma::uword n = base_segment_list_.back().n_cols;
@@ -94,6 +94,7 @@ void RobustCut::show_base_segment()
     for(iiter=inputs_.begin();iiter!=inputs_.end();++iiter)
     {
         MeshBundle<DefaultMesh>::Ptr mesh_ptr = *iiter;
+//        std::cerr<<"segiter->n_cols:"<<segiter->n_cols<<std::endl;
         assert(base_segment_i_<segiter->n_cols);
         arma::uvec label = segiter->col(base_segment_i_);
         label += 1;
@@ -120,7 +121,9 @@ void RobustCut::consensus_segment()
         arma::uvec label;
         cuts_.base_segments() = *segiter;
         cuts_.solve_consensus_segment(mesh_ptr,label);
+        arma::uvec index = arma::find(*oiter==0);
         mesh_ptr->graph_.sv2pix(label,*oiter);
+        if( !index.empty() && index.size() < oiter->size() )(*oiter)(index).fill(0);
         mesh_ptr->custom_color_.fromlabel(*oiter);
         ++oiter;
         if(oiter==labels_.end())break;

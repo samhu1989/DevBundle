@@ -17,7 +17,7 @@
    <string>Indoor Analysis System</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../Common/rs.qrc">
+   <iconset>
     <normaloff>:/icon/rs/icon/pro_chen.png</normaloff>:/icon/rs/icon/pro_chen.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -181,6 +181,8 @@
     <addaction name="actionObject_View"/>
     <addaction name="actionSupervoxel_Color"/>
     <addaction name="actionFeature_View"/>
+    <addaction name="separator"/>
+    <addaction name="actionSpectral_Function"/>
    </widget>
    <widget class="QMenu" name="menuTests">
     <property name="title">
@@ -519,10 +521,13 @@
     <string>Debug HKS Clustering</string>
    </property>
   </action>
+  <action name="actionSpectral_Function">
+   <property name="text">
+    <string>Spectral Function</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="../Common/rs.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

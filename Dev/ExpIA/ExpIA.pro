@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     mainwindow_edit.cpp \
     robustcut.cpp \
     jrcs.cpp \
-    labelcompactor.cpp
+    labelcompactor.cpp \
+    spectrum.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -74,7 +75,8 @@ HEADERS  += mainwindow.h \
     ncut.h \
     robustcut.h \
     jrcs.h \
-    labelcompactor.h
+    labelcompactor.h \
+    spectrum.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
@@ -84,7 +86,8 @@ FORMS    += mainwindow.ui \
     globalalign.ui \
     extractbackground.ui \
     featureview.ui \
-    jrcsview.ui
+    jrcsview.ui \
+    spectrum.ui
 
 RC_FILE += ../Common/rc.rc
 

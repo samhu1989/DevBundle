@@ -174,7 +174,7 @@ void JRCSWork::Init_Bernolli_a(arma::uvec& ref_label)
 //    std::cerr<<"Find the existing segments that is closest to the specified object probability"<<std::endl;
     for(LabelList::iterator iter=labels_.begin();iter!=labels_.end();++iter)
     {
-//        std::cerr<<"extract segmentation probability"<<std::endl;
+        std::cerr<<"extract segmentation probability"<<std::endl;
         arma::uword min = arma::min(*iter);
         arma::uword max = arma::max(*iter);
         std::vector<float> seg_prob_vec;
@@ -192,7 +192,7 @@ void JRCSWork::Init_Bernolli_a(arma::uvec& ref_label)
             }
             ++label;
         }
-//        std:cerr<<"calculate the min_dist_to_ref and choose the ref"<<std::endl;
+        std:cerr<<"calculate the min_dist_to_ref and choose the ref"<<std::endl;
         arma::fvec seg_prob(seg_prob_vec);
         arma::uvec seg_label(seg_label_vec);
         arma::uvec sorted_j = arma::sort_index(seg_prob);
@@ -200,28 +200,29 @@ void JRCSWork::Init_Bernolli_a(arma::uvec& ref_label)
         arma::uvec match_to_ref(ref_label.size());
         arma::fvec dists(sort_obj_prob);
         arma::sword j = sort_seg_prob.size() - 1;
-//        std::cerr<<"a"<<std::endl;
+        std::cerr<<"start choose"<<std::endl;
         for( arma::sword i = sort_obj_prob.size() - 1 ; i >= 0  ; --i )
         {
-//            std::cerr<<"j:"<<j<<std::endl;
-//            std::cerr<<"i:"<<i<<std::endl;
+            std::cerr<<"j:"<<j<<std::endl;
+            std::cerr<<"i:"<<i<<std::endl;
             double new_dist = std::abs( sort_seg_prob(j) - sort_obj_prob(i)  );
             double old_dist = new_dist + std::numeric_limits<float>::epsilon();
             while( old_dist > new_dist )
             {
                 dists(i) = new_dist;
-//                std::cerr<<"j:"<<j<<std::endl;
-//                std::cerr<<"seg_label.size():"<<seg_label.size()<<std::endl;
-//                std::cerr<<"sorted_j("<<j<<"):"<<sorted_j(j)<<std::endl;
-//                std::cerr<<"match_to_ref.size():"<<match_to_ref.size()<<std::endl;
+                std::cerr<<"j:"<<j<<std::endl;
+                std::cerr<<"seg_label.size():"<<seg_label.size()<<std::endl;
+                std::cerr<<"sorted_j("<<j<<"):"<<sorted_j(j)<<std::endl;
+                std::cerr<<"match_to_ref.size():"<<match_to_ref.size()<<std::endl;
                 match_to_ref(i) = seg_label( sorted_j(j) );
                 --j;
                 if( j < 0 )break;
                 old_dist = new_dist;
                 new_dist = std::abs( sort_seg_prob(j) - sort_obj_prob(i) );
             }
+            if( j < 0 )break;
         }
-//        std::cerr<<"b"<<std::endl;
+        std::cerr<<"end choose"<<std::endl;
         if( arma::accu(dists) < min_dist_to_ref )
         {
             ref_label = match_to_ref;
