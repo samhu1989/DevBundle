@@ -11,4 +11,5 @@ template void IOCORESHARED_EXPORT save_to_matlab<arma::Mat<uint8_t>>(const arma:
 template void IOCORESHARED_EXPORT save_to_matlab<arma::uvec>(const arma::uvec&,const std::string&,const std::string&);
 template void IOCORESHARED_EXPORT save_to_matlab<arma::ivec>(const arma::ivec&,const std::string&,const std::string&);
 template bool IOCORESHARED_EXPORT load_to_arma<arma::uvec>(arma::uvec&,const std::string&,const std::string&);
+template bool IOCORESHARED_EXPORT load_to_arma<arma::vec>(arma::vec&,const std::string&,const std::string&);
 }

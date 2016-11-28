@@ -275,12 +275,12 @@ void ColorArray::colorfromIndex(uint32_t* ptr,arma::uword size)
 void ColorArray::colorfromValue(uint32_t* ptr,arma::uword size,const arma::vec& value)
 {
     double max = value.max();
-    std::cerr<<"c1"<<std::endl;
+    double min = value.min();
     #pragma omp parallel for
     for(int i = 0 ; i < size ; ++i )
     {
         QColor color;
-        color.setHslF(0.65*qreal(value(i))/qreal(max),0.6,0.73);
+        color.setHslF(0.65*qreal(value(i)-min)/qreal(max-min),0.6,0.73);
         ptr[i] = qRgb(color.blue(),color.green(),color.red());
     }
 }

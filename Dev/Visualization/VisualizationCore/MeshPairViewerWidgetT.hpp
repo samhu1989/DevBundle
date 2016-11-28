@@ -872,7 +872,8 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       updateGL();
       break;
   case Key_Delete:
-      first_selected_.pop_back();
+      if(!first_selected_.empty())
+          first_selected_.pop_back();
       updateGL();
       break;
     default:

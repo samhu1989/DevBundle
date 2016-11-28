@@ -17,7 +17,7 @@
    <string>Indoor Analysis System</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../Common/rs.qrc">
     <normaloff>:/icon/rs/icon/pro_chen.png</normaloff>:/icon/rs/icon/pro_chen.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -74,6 +74,8 @@
     <addaction name="actionLoad_Points_Index_Picked"/>
     <addaction name="actionSave_Voxel_Index_Picked"/>
     <addaction name="actionLoad_Voxel_Index_Picked"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Index_Order_Functor"/>
     <addaction name="separator"/>
     <addaction name="actionConfigure"/>
    </widget>
@@ -526,8 +528,15 @@
     <string>Spectral Function</string>
    </property>
   </action>
+  <action name="actionSave_Index_Order_Functor">
+   <property name="text">
+    <string>Save Index Order Functor</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../Common/rs.qrc"/>
+ </resources>
  <connections/>
 </ui>

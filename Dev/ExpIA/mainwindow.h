@@ -56,6 +56,7 @@ public slots:
     void save_pts_index_picked(QString dirName=QString());
     void load_pts_index_picked();
 
+    void save_Index_Order_Functor(QString dirName=QString());
 protected slots:
     void configure();
 

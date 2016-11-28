@@ -17,6 +17,8 @@
 #include "robustcut.h"
 #include "iocore.h"
 #include "spectrum.h"
+#include <QTime>
+#include <QDate>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -49,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Points_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(load_pts_index_picked()));
     connect(ui->actionSave_Voxel_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(save_vox_index_picked()));
     connect(ui->actionLoad_Voxel_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(load_vox_index_picked()));
+    connect(ui->actionSave_Index_Order_Functor,SIGNAL(triggered(bool)),this,SLOT(save_Index_Order_Functor()));
 
     connect(ui->actionGlobal_Align,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionExtract_Background,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -803,6 +806,39 @@ void MainWindow::save_pts_index_picked(QString dirName)
             {
                 arma::uvec selected(w->first_selected());
                 MATIO::save_to_matlab(selected,(dirName+"/"+path).toStdString(),"X");
+            }
+            ++index;
+        }
+    }
+}
+
+void MainWindow::save_Index_Order_Functor(QString dirName)
+{
+    if(dirName.isEmpty())dirName = QFileDialog::getExistingDirectory(
+            this,
+            tr("Save Index Order Functor"),
+            tr("../Dev_Data/")
+            );
+    if(dirName.isEmpty())return;
+    std::vector<WidgetPtr>::iterator iter;
+    arma::uword index = 1;
+    for(iter=mesh_views_.begin();iter!=mesh_views_.end();++iter)
+    {
+        MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(*iter);
+        if(w)
+        {
+            QString path;
+            path = path.sprintf("FuncOn%s_",w->first_ptr()->name_.c_str());
+            path += QDate::currentDate().toString(tr("yyyyMMdd"))+QTime::currentTime().toString(tr("hhmmsszzz"));
+            path += tr(".mat");
+            std::cerr<<path.toStdString()<<std::endl;
+            if(!w->first_selected().empty())
+            {
+                arma::uvec selected(w->first_selected());
+                arma::vec value(w->first_ptr()->mesh_.n_vertices());
+                value.fill(selected.size()+1);
+                value(selected) = arma::linspace<arma::vec>(1,selected.size(),selected.size());
+                MATIO::save_to_matlab(value,(dirName+"/"+path).toStdString(),"X");
             }
             ++index;
         }

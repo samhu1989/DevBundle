@@ -1,6 +1,7 @@
 #include "spectrum.h"
 #include "ui_spectrum.h"
-
+#include <QFileDialog>
+#include "iocore.h"
 Spectrum::Spectrum(MeshList &inputs,Config::Ptr config,QWidget *parent) :
     inputs_(inputs),
     config_(config),
@@ -8,7 +9,9 @@ Spectrum::Spectrum(MeshList &inputs,Config::Ptr config,QWidget *parent) :
     ui(new Ui::Spectrum)
 {
     ui->setupUi(this);
-    connect(ui->UpdateFunc,SIGNAL(clicked(bool)),this,SLOT(update()));
+    connect(ui->UpdateSpec,SIGNAL(clicked(bool)),this,SLOT(updateSpectrum()));
+    connect(ui->UpdateFunc,SIGNAL(clicked(bool)),this,SLOT(updateFunction()));
+    connect(ui->LoadFunc,SIGNAL(clicked(bool)),this,SLOT(loadFunc()));
 
     ncuts_.configure(config_);
     ncuts_.setK(ui->EigNum->value());
@@ -16,7 +19,6 @@ Spectrum::Spectrum(MeshList &inputs,Config::Ptr config,QWidget *parent) :
 
     updateBase();
     updateFunc();
-
 }
 
 void Spectrum::updateBase()
@@ -34,6 +36,7 @@ void Spectrum::updateBase()
             ncuts_.decompose();
             bases_[index].reset(new arma::mat());
             (*bases_[index]) = ncuts_.getY();
+            assert((*bases_[index]).is_finite());
         }
         ++index;
     }
@@ -58,6 +61,7 @@ void Spectrum::updateFunc()
         arma::mat sub_bases = (*bases_[index]).cols(s,e);
         voxFunc = sub_bases*sub_coeff;
         toPixFunc(m_ptr,voxFunc,pixFunc);
+        assert(pixFunc.is_finite());
         ColorArray::colorfromValue((uint32_t*)m_ptr->custom_color_.vertex_colors(),pixFunc.size(),pixFunc);
         ++ index;
     }
@@ -65,15 +69,46 @@ void Spectrum::updateFunc()
 
 void Spectrum::loadFunc(void)
 {
-    ;
+    QStringList fileNames = QFileDialog::getOpenFileNames(this,
+        tr("Open function files"),
+        tr("../Dev_Data/"),
+        tr(
+        "Armadillo Files (*.arma);;"
+        "Matlab Files (*.mat);;"
+        "All Files (*)")
+    );
+    if(fileNames.empty())return;
+    arma::uword index = 0;
+    foreach(QString fname,fileNames)
+    {
+        if( index >= func_.size() )break;
+        if(fname.endsWith(".mat"))
+        {
+            if(!MATIO::load_to_arma<arma::vec>(*func_[index],fname.toStdString(),"X"))
+            {
+                std::cerr<<"Failed to load:"<<fname.toStdString()<<std::endl;
+            }
+        }else{
+            func_[index]->load( fname.toStdString() );
+        }
+        ++index;
+    }
 }
 
-void Spectrum::loadCoeff(void)
+void Spectrum::updateFunction(void)
 {
-    ;
+    arma::uword index = 0;
+    for(MeshList::iterator iter=inputs_.begin();iter!=inputs_.end();++iter)
+    {
+        MeshBundle<DefaultMesh>::Ptr m_ptr = *iter;
+        if(!func_[index])func_[index].reset(new arma::vec(m_ptr->mesh_.n_vertices(),arma::fill::randu));
+        arma::vec pixFunc = *func_[index];
+        ColorArray::colorfromValue((uint32_t*)m_ptr->custom_color_.vertex_colors(),pixFunc.size(),pixFunc);
+        ++ index;
+    }
 }
 
-void Spectrum::update(void)
+void Spectrum::updateSpectrum(void)
 {
     updateBase();
     updateFunc();

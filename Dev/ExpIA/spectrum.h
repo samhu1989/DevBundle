@@ -25,8 +25,8 @@ protected:
     void toVoxFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& pixFunc,arma::vec& voxFunc);
 protected slots:
     void loadFunc(void);
-    void loadCoeff(void);
-    void update(void);
+    void updateSpectrum(void);
+    void updateFunction(void);
 private:
     Ui::Spectrum *ui;
     Config::Ptr config_;
