@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <memory>
 namespace MATIO{
+
 template<typename _mat>
 void save_to_matlab(const _mat& m, const std::string &file, const std::string &var)
 {
@@ -60,6 +61,7 @@ void save_to_matlab(const _mat& m, const std::string &file, const std::string &v
     Mat_VarFree(matvar);
     Mat_Close(mat);
 }
+
 template<typename _mat>
 bool load_to_arma(_mat& m,const std::string& file,const std::string& var)
 {
@@ -140,20 +142,20 @@ bool load_to_arma(_mat& m,const std::string& file,const std::string& var)
     if(0==std::strcmp(typeid(typename _mat::elem_type).name(),t_name.get()))
     {
 //        std::cerr<<"load_to_arma:c2"<<std::endl;
-        if(matvar->rank!=2)
+        if( matvar->rank != 2 )
         {
             std::cerr<<"MATIO::load_to_arma(not a matrix,a data with rank="<<matvar->rank<<")"<<std::endl;
             Mat_VarFree(matvar);
             Mat_Close(mat);
             return false;
         }
-        if(matvar->dims[0]!=1 && m.is_row)
+        if( matvar->dims[0] != 1 && m.is_row)
         {
             std::cerr<<"MATIO::load_to_arma(expect a row vec but get a dims[0]="<<matvar->dims[0]<<")"<<std::endl;
             Mat_VarFree(matvar);
             Mat_Close(mat);
             return false;
-        }else if(matvar->dims[1]!=1 && m.is_col)
+        }else if( matvar->dims[1] != 1 && m.is_col )
         {
             std::cerr<<"MATIO::load_to_arma(expect a col vec but get a dims[1]="<<matvar->dims[1]<<")"<<std::endl;
             Mat_VarFree(matvar);
@@ -163,21 +165,18 @@ bool load_to_arma(_mat& m,const std::string& file,const std::string& var)
             if(m.is_row)m = _mat(matvar->dims[1],arma::fill::zeros);
             else if(m.is_col)m = _mat(matvar->dims[0],arma::fill::zeros);
             else m = _mat(matvar->dims[0],matvar->dims[1],arma::fill::zeros);
-//            std::cerr<<"load_to_arma:d"<<std::endl;
-            std::memcpy((void*)m.memptr(),matvar->data,matvar->data_size);
-//            std::cerr<<"load_to_arma:e"<<std::endl;
+            std::memcpy((void*)m.memptr(),matvar->data,matvar->data_size*matvar->dims[0]*matvar->dims[1]);
         }
     }else{
-//        std::cerr<<"load_to_arma:c1"<<std::endl;
-        std::cerr<<"MATIO::load_to_arma(not a "<<typeid(typename _mat::elem_type).name()<<"matrix)"<<std::endl;
+        std::cerr<<"MATIO::load_to_arma(not a "<<typeid(typename _mat::elem_type).name()<<" matrix)"<<std::endl;
         Mat_VarFree(matvar);
         Mat_Close(mat);
         return false;
     }
-//    std::cerr<<"load_to_arma:f"<<std::endl;
     Mat_VarFree(matvar);
     Mat_Close(mat);
     return true;
 }
+
 }
 #endif // IOCORE_HPP

@@ -75,7 +75,8 @@
     <addaction name="actionSave_Voxel_Index_Picked"/>
     <addaction name="actionLoad_Voxel_Index_Picked"/>
     <addaction name="separator"/>
-    <addaction name="actionSave_Index_Order_Functor"/>
+    <addaction name="actionSave_Pix_Order_Functor"/>
+    <addaction name="actionSave_Vox_Order_Functor"/>
     <addaction name="separator"/>
     <addaction name="actionConfigure"/>
    </widget>
@@ -528,9 +529,14 @@
     <string>Spectral Function</string>
    </property>
   </action>
-  <action name="actionSave_Index_Order_Functor">
+  <action name="actionSave_Pix_Order_Functor">
    <property name="text">
-    <string>Save Index Order Functor</string>
+    <string>Save Pix Order Functor</string>
+   </property>
+  </action>
+  <action name="actionSave_Vox_Order_Functor">
+   <property name="text">
+    <string>Save Vox Order Functor</string>
    </property>
   </action>
  </widget>

@@ -12,6 +12,7 @@ Spectrum::Spectrum(MeshList &inputs,Config::Ptr config,QWidget *parent) :
     connect(ui->UpdateSpec,SIGNAL(clicked(bool)),this,SLOT(updateSpectrum()));
     connect(ui->UpdateFunc,SIGNAL(clicked(bool)),this,SLOT(updateFunction()));
     connect(ui->LoadFunc,SIGNAL(clicked(bool)),this,SLOT(loadFunc()));
+    connect(ui->SaveCoeff,SIGNAL(clicked(bool)),this,SLOT(saveCoeff()));
 
     ncuts_.configure(config_);
     ncuts_.setK(ui->EigNum->value());
@@ -42,7 +43,7 @@ void Spectrum::updateBase()
     }
 }
 
-void Spectrum::updateFunc()
+void Spectrum::updateFunc(void)
 {
     arma::uword index = 0;
     arma::uword s = ui->MinEigIndex->value();
@@ -73,8 +74,8 @@ void Spectrum::loadFunc(void)
         tr("Open function files"),
         tr("../Dev_Data/"),
         tr(
-        "Armadillo Files (*.arma);;"
         "Matlab Files (*.mat);;"
+        "Armadillo Files (*.arma);;"
         "All Files (*)")
     );
     if(fileNames.empty())return;
@@ -92,6 +93,33 @@ void Spectrum::loadFunc(void)
             func_[index]->load( fname.toStdString() );
         }
         ++index;
+    }
+}
+
+void Spectrum::saveCoeff(void)
+{
+    QString fname = QFileDialog::getSaveFileName(
+                this,
+                tr("Save Coefficients"),
+                tr("../Dev_Data/"),
+                tr(
+                "Matlab Files (*.mat);;"
+                "Armadillo Files (*.arma);;"
+                "All Files (*)")
+                );
+    if(fname.isEmpty())return;
+    arma::mat coeffs(coeff_[0]->size(),coeff_.size());
+    arma::uword index = 0;
+    for(std::vector<std::shared_ptr<arma::vec>>::iterator iter=coeff_.begin();iter!=coeff_.end();++iter)
+    {
+        coeffs.col(index) = **iter;
+        ++index;
+    }
+    if(fname.endsWith(".mat"))
+    {
+        MATIO::save_to_matlab<arma::mat>(coeffs,fname.toStdString(),"X");
+    }else{
+        coeffs.load( fname.toStdString() );
     }
 }
 
@@ -118,8 +146,9 @@ void Spectrum::toPixFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& voxFunc
 {
     pixFunc = arma::vec(m->mesh_.n_vertices(),arma::fill::zeros);
     arma::uvec indices = m->graph_.voxel_label;
-    indices -= 1;
-    pixFunc = voxFunc(indices);
+    arma::uvec zidx = arma::find(indices>0);
+    indices(zidx) -= 1;
+    pixFunc = voxFunc( indices );
 }
 
 void Spectrum::toVoxFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& pixFunc,arma::vec& voxFunc)
@@ -130,6 +159,7 @@ void Spectrum::toVoxFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& pixFunc
     arma::vec::const_iterator piter = pixFunc.cbegin();
     for(arma::uvec::const_iterator iiter=indices.cbegin();iiter!=indices.cend();++iiter)
     {
+        if(*iiter==0)continue;
         voxFunc( (*iiter - 1) ) = pixFunc(*piter);
         voxCunt( (*iiter - 1) ) += 1.0;
         ++ piter;

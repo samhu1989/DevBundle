@@ -24,6 +24,7 @@ protected:
     void toPixFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& voxFunc,arma::vec& pixFunc);
     void toVoxFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& pixFunc,arma::vec& voxFunc);
 protected slots:
+    void saveCoeff(void);
     void loadFunc(void);
     void updateSpectrum(void);
     void updateFunction(void);

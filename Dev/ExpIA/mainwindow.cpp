@@ -51,7 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Points_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(load_pts_index_picked()));
     connect(ui->actionSave_Voxel_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(save_vox_index_picked()));
     connect(ui->actionLoad_Voxel_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(load_vox_index_picked()));
-    connect(ui->actionSave_Index_Order_Functor,SIGNAL(triggered(bool)),this,SLOT(save_Index_Order_Functor()));
+    connect(ui->actionSave_Pix_Order_Functor,SIGNAL(triggered(bool)),this,SLOT(save_Pix_Order_Functor()));
+    connect(ui->actionSave_Vox_Order_Functor,SIGNAL(triggered(bool)),this,SLOT(save_Vox_Order_Functor()));
 
     connect(ui->actionGlobal_Align,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionExtract_Background,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -812,11 +813,11 @@ void MainWindow::save_pts_index_picked(QString dirName)
     }
 }
 
-void MainWindow::save_Index_Order_Functor(QString dirName)
+void MainWindow::save_Pix_Order_Functor(QString dirName)
 {
     if(dirName.isEmpty())dirName = QFileDialog::getExistingDirectory(
             this,
-            tr("Save Index Order Functor"),
+            tr("Save Pix Order Functor"),
             tr("../Dev_Data/")
             );
     if(dirName.isEmpty())return;
@@ -828,16 +829,64 @@ void MainWindow::save_Index_Order_Functor(QString dirName)
         if(w)
         {
             QString path;
-            path = path.sprintf("FuncOn%s_",w->first_ptr()->name_.c_str());
+            path = path.sprintf("FuncOn%sPix_",w->first_ptr()->name_.c_str());
             path += QDate::currentDate().toString(tr("yyyyMMdd"))+QTime::currentTime().toString(tr("hhmmsszzz"));
             path += tr(".mat");
-            std::cerr<<path.toStdString()<<std::endl;
             if(!w->first_selected().empty())
             {
                 arma::uvec selected(w->first_selected());
                 arma::vec value(w->first_ptr()->mesh_.n_vertices());
                 value.fill(selected.size()+1);
                 value(selected) = arma::linspace<arma::vec>(1,selected.size(),selected.size());
+                MATIO::save_to_matlab(value,(dirName+"/"+path).toStdString(),"X");
+            }
+            ++index;
+        }
+    }
+}
+
+void MainWindow::save_Vox_Order_Functor(QString dirName)
+{
+    if(inputs_.empty()){
+        QString msg = "Load inputs first";
+        QMessageBox::warning(this, windowTitle(), msg);
+        return;
+    }
+    if(inputs_[0]->graph_.empty())
+    {
+        QString msg = "Load supervoxels first";
+        QMessageBox::warning(this, windowTitle(), msg);
+        return;
+    }
+    if(dirName.isEmpty())dirName = QFileDialog::getExistingDirectory(
+            this,
+            tr("Save Vox Order Functor"),
+            tr("../Dev_Data/")
+            );
+    if(dirName.isEmpty())return;
+    std::vector<WidgetPtr>::iterator iter;
+    arma::uword index = 1;
+    for(iter=mesh_views_.begin();iter!=mesh_views_.end();++iter)
+    {
+        MeshPairViewerWidget* w = qobject_cast<MeshPairViewerWidget*>(*iter);
+        if(w)
+        {
+            QString path;
+            path = path.sprintf("FuncOn%sVox_",w->first_ptr()->name_.c_str());
+            path += QDate::currentDate().toString(tr("yyyyMMdd"))+QTime::currentTime().toString(tr("hhmmsszzz"));
+            path += tr(".mat");
+            if(!w->first_selected().empty())
+            {
+                arma::uvec selected(w->first_selected());
+                arma::uvec svSelected;
+                w->first_ptr()->graph_.getSvIndex(selected,svSelected);
+                arma::vec vox_value(w->first_ptr()->graph_.size(),arma::fill::zeros);
+                vox_value(svSelected) = arma::linspace<arma::vec>(1,svSelected.size(),svSelected.size());
+                arma::vec value(w->first_ptr()->mesh_.n_vertices(),arma::fill::zeros);
+                arma::uvec indices = w->first_ptr()->graph_.voxel_label - 1;
+//                std::cerr<<"("<<vox_value.min()<<","<<vox_value.max()<<")"<<std::endl;
+                value = vox_value(indices);
+//                std::cerr<<"("<<value.min()<<","<<value.max()<<")"<<std::endl;
                 MATIO::save_to_matlab(value,(dirName+"/"+path).toStdString(),"X");
             }
             ++index;
@@ -870,7 +919,7 @@ void MainWindow::load_pts_index_picked()
             {
                 arma::uvec selected;
                 MATIO::load_to_arma(selected,info.absoluteFilePath().toStdString(),"X");
-                std::cerr<<selected<<std::endl;
+//                std::cerr<<selected<<std::endl;
                 w->first_selected().resize(selected.size());
                 w->first_selected() = arma::conv_to<std::vector<arma::uword>>::from(selected);
             }else{
