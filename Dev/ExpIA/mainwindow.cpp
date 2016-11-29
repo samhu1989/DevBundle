@@ -746,7 +746,7 @@ void MainWindow::load_vox_index_picked()
     }
     QString dirName = QFileDialog::getExistingDirectory(
             this,
-            tr("Save Index of Picked Points"),
+            tr("Load Index of Picked Voxels"),
             tr("./debug/HKS/")
             );
     if(dirName.isEmpty())return;
@@ -883,10 +883,10 @@ void MainWindow::save_Vox_Order_Functor(QString dirName)
                 arma::vec vox_value(w->first_ptr()->graph_.size(),arma::fill::zeros);
                 vox_value(svSelected) = arma::linspace<arma::vec>(1,svSelected.size(),svSelected.size());
                 arma::vec value(w->first_ptr()->mesh_.n_vertices(),arma::fill::zeros);
-                arma::uvec indices = w->first_ptr()->graph_.voxel_label - 1;
-//                std::cerr<<"("<<vox_value.min()<<","<<vox_value.max()<<")"<<std::endl;
+                arma::uvec indices = w->first_ptr()->graph_.voxel_label;
+                arma::uvec idx = arma::find( indices > 0 );
+                indices(idx) -= 1;
                 value = vox_value(indices);
-//                std::cerr<<"("<<value.min()<<","<<value.max()<<")"<<std::endl;
                 MATIO::save_to_matlab(value,(dirName+"/"+path).toStdString(),"X");
             }
             ++index;
@@ -898,7 +898,7 @@ void MainWindow::load_pts_index_picked()
 {
     QString dirName = QFileDialog::getExistingDirectory(
             this,
-            tr("Save Index of Picked Points"),
+            tr("Load Index of Picked Points"),
             tr("./debug/HKS/")
             );
     if(dirName.isEmpty())return;

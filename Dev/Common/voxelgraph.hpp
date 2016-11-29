@@ -167,6 +167,30 @@ void VoxelGraph<M>::getSvIndex(const arma::uvec& pix,arma::uvec& sv)
         std::cerr<<"void VoxelGraph<M>::getSvIndex(invalid pixel indices)"<<std::endl;
     }
     sv = voxel_label(pix);
+    __gnu_cxx::hash_map<int,int> order_hash;
+    int index = 0;
+    std::vector<arma::uword> sv_index;
+    sv_index.reserve(sv.size());
+    for(arma::uvec::iterator iter = sv.begin() ; iter != sv.end() ; ++iter )
+    {
+        if(order_hash.find(int(*iter))==order_hash.end())
+        {
+            order_hash[int(*iter)]= index;
+            sv_index.push_back(arma::uword(*iter));
+            ++index;
+        }
+    }
+    sv = arma::uvec(sv_index);
+}
+
+template <typename M>
+void VoxelGraph<M>::getSvIndexv0(const arma::uvec& pix,arma::uvec& sv)
+{
+    if( arma::max(pix)>voxel_label.size()-1 )
+    {
+        std::cerr<<"void VoxelGraph<M>::getSvIndex(invalid pixel indices)"<<std::endl;
+    }
+    sv = voxel_label(pix);
     std::vector<arma::uword> sv_index = arma::conv_to<std::vector<arma::uword>>::from(sv);
     std::sort(sv_index.begin(),sv_index.end());
     sv_index.erase(std::unique(sv_index.begin(),sv_index.end()),sv_index.end());
