@@ -782,8 +782,10 @@ void MainWindow::load_vox_index_picked()
             }
             ++index;
             connect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
+
         }
     }
+
 }
 
 void MainWindow::save_pts_index_picked(QString dirName)
@@ -881,6 +883,7 @@ void MainWindow::save_Vox_Order_Functor(QString dirName)
                 arma::uvec svSelected;
                 w->first_ptr()->graph_.getSvIndex(selected,svSelected);
                 arma::vec vox_value(w->first_ptr()->graph_.size(),arma::fill::zeros);
+                svSelected -= 1;
                 vox_value(svSelected) = arma::linspace<arma::vec>(1,svSelected.size(),svSelected.size());
                 arma::vec value(w->first_ptr()->mesh_.n_vertices(),arma::fill::zeros);
                 arma::uvec indices = w->first_ptr()->graph_.voxel_label;

@@ -200,11 +200,11 @@ void VoxelGraph<M>::getSvIndexv0(const arma::uvec& pix,arma::uvec& sv)
 template <typename M>
 void VoxelGraph<M>::getPixIndex(const arma::uvec& sv,arma::uvec& pix)
 {
-    if( arma::max(pix)>voxel_centers.n_cols - 1 )
+    if( arma::max(sv) >= voxel_centers.n_cols )
     {
         std::cerr<<"void VoxelGraph<M>::getPixIndex(invalid supervoxel indices)"<<std::endl;
     }
-    pix = arma::uvec();
+    pix.clear();
     for(arma::uword i=0;i<sv.size();++i)
     {
         arma::uword k = sv(i);
