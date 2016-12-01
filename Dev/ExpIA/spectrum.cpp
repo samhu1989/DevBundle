@@ -13,9 +13,11 @@ Spectrum::Spectrum(MeshList &inputs,Config::Ptr config,QWidget *parent) :
     connect(ui->UpdateFunc,SIGNAL(clicked(bool)),this,SLOT(updateFunction()));
     connect(ui->LoadFunc,SIGNAL(clicked(bool)),this,SLOT(loadFunc()));
     connect(ui->SaveCoeff,SIGNAL(clicked(bool)),this,SLOT(saveCoeff()));
+    connect(ui->SaveLambda,SIGNAL(clicked(bool)),this,SLOT(saveLambda()));
 
     ncuts_.configure(config_);
     ncuts_.setK(ui->EigNum->value());
+    ncuts_.setEpsilon(std::numeric_limits<double>::lowest());
     ncuts_.setType(Segmentation::NormalizedCuts<DefaultMesh>::M);
 
     updateBase();
@@ -27,17 +29,22 @@ void Spectrum::updateBase()
     if(bases_.size()<inputs_.size())bases_.resize(inputs_.size());
     if(coeff_.size()<inputs_.size())coeff_.resize(inputs_.size());
     if(func_.size()<inputs_.size())func_.resize(inputs_.size());
+    if(lambda_.size()<inputs_.size())lambda_.resize(inputs_.size());
     arma::uword index = 0;
+    ncuts_.setK( ui->EigNum->value() + 1 );
     for(MeshList::iterator iter=inputs_.begin();iter!=inputs_.end();++iter)
     {
         MeshBundle<DefaultMesh>::Ptr m_ptr = *iter;
-        if( !bases_[index] || bases_[index]->n_cols < ( ui->EigNum->value() + 1 ) )
+        if( !bases_[index] || bases_[index]->n_cols != ( ui->EigNum->value() + 1 ) )
         {
             ncuts_.computeW_Graph(m_ptr);
             ncuts_.decompose();
             bases_[index].reset(new arma::mat());
-            (*bases_[index]) = ncuts_.getY();
+            (*bases_[index]) = ncuts_.getY().cols(0,ui->EigNum->value());
+            lambda_[index].reset(new arma::vec());
+            (*lambda_[index]) = ncuts_.getLambda().rows(0,ui->EigNum->value());
             assert((*bases_[index]).is_finite());
+            assert((*lambda_[index]).is_finite());
         }
         ++index;
     }
@@ -56,7 +63,7 @@ void Spectrum::updateFunc(void)
         arma::vec pixFunc = *func_[index];
         arma::vec voxFunc;
         toVoxFunc(m_ptr,pixFunc,voxFunc);
-        if(!coeff_[index])coeff_[index].reset(new arma::vec(voxFunc.n_rows));
+        if(!coeff_[index])coeff_[index].reset(new arma::vec(ui->EigNum->value() + 1 ));
         (*coeff_[index]) = arma::vectorise(voxFunc.t()*(*bases_[index]));
         arma::vec sub_coeff = (*coeff_[index]).rows(s,e);
         arma::mat sub_bases = (*bases_[index]).cols(s,e);
@@ -119,7 +126,34 @@ void Spectrum::saveCoeff(void)
     {
         MATIO::save_to_matlab<arma::mat>(coeffs,fname.toStdString(),"X");
     }else{
-        coeffs.load( fname.toStdString() );
+        coeffs.save( fname.toStdString() );
+    }
+}
+
+void Spectrum::saveLambda(void)
+{
+    QString fname = QFileDialog::getSaveFileName(
+                this,
+                tr("Save Coefficients"),
+                tr("../Dev_Data/"),
+                tr(
+                "Matlab Files (*.mat);;"
+                "Armadillo Files (*.arma);;"
+                "All Files (*)")
+                );
+    if(fname.isEmpty())return;
+    arma::mat lambda(lambda_[0]->size(),lambda_.size());
+    arma::uword index = 0;
+    for(std::vector<std::shared_ptr<arma::vec>>::iterator iter=lambda_.begin();iter!=lambda_.end();++iter)
+    {
+        lambda.col(index) = **iter;
+        ++index;
+    }
+    if(fname.endsWith(".mat"))
+    {
+        MATIO::save_to_matlab<arma::mat>(lambda,fname.toStdString(),"X");
+    }else{
+        lambda.save( fname.toStdString() );
     }
 }
 

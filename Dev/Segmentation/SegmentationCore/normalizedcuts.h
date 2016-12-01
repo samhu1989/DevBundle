@@ -30,6 +30,8 @@ public:
     inline void getLabel(arma::uvec& label){label=label_;}
     inline void setK(const arma::uword& k){k_=k;}
     inline void setType(const typename NormalizedCuts<Mesh>::TYPE t){type_=t;}
+    inline void setEpsilon(const double& eps){eps_ = eps;}
+    inline const arma::vec& getLambda()const{return lambda_;}
     inline const arma::mat& getY()const{return Y_;}
 
     void computeW_Image(const QImage& img);

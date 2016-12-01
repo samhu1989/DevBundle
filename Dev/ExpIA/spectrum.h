@@ -25,6 +25,7 @@ protected:
     void toVoxFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& pixFunc,arma::vec& voxFunc);
 protected slots:
     void saveCoeff(void);
+    void saveLambda(void);
     void loadFunc(void);
     void updateSpectrum(void);
     void updateFunction(void);
@@ -35,6 +36,7 @@ private:
     Segmentation::NormalizedCuts<DefaultMesh> ncuts_;
     std::vector<std::shared_ptr<arma::vec>> func_;
     std::vector<std::shared_ptr<arma::mat>> bases_;
+    std::vector<std::shared_ptr<arma::vec>> lambda_;
     std::vector<std::shared_ptr<arma::vec>> coeff_;
 };
 

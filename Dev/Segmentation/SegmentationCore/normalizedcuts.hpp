@@ -517,6 +517,7 @@ void NormalizedCuts<Mesh>::decomposeMin()
     arma::sp_mat Dmat = arma::speye<arma::sp_mat>(W_->n_rows,W_->n_cols);
     Dmat.diag() = D;
     A_ = Dmat - (*W_);
+    A_ = 0.5*( A_ + A_.t() );
     bool success = false;
     double stol = 50.0;
     double etol = std::numeric_limits<double>::epsilon();
