@@ -60,6 +60,8 @@ namespace ColorArray
     void COMMONSHARED_EXPORT colorfromlabel(uint32_t* ptr,arma::uword size,const arma::uvec& label);
     void COMMONSHARED_EXPORT colorfromIndex(uint32_t* ptr,arma::uword size);
 
+    uint32_t COMMONSHARED_EXPORT rand_color(void);
+
     extern const float COMMONSHARED_EXPORT Lab_L_min;
     extern const float COMMONSHARED_EXPORT Lab_L_max;
     extern const float COMMONSHARED_EXPORT Lab_ab_min;

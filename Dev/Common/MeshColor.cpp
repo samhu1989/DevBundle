@@ -1,10 +1,13 @@
 #include "MeshColor.h"
 #include "common_global.h"
 #include <QColor>
+#include <random>
 const float ColorArray::Lab_L_min = 0;
 const float ColorArray::Lab_L_max = 100;
 const float ColorArray::Lab_ab_min = -120;
 const float ColorArray::Lab_ab_max = 120;
+
+std::default_random_engine e(time(nullptr));
 
 void COMMONSHARED_EXPORT ColorArray::RGBArray::reset(long size, uint8_t r, uint8_t g, uint8_t b)
 {
@@ -313,6 +316,15 @@ void ColorArray::colorfromValue(RGB888*   ptr,arma::uword size,const arma::fvec&
         ptr[i].g = (uint8_t)color.green();
         ptr[i].b = (uint8_t)color.blue();
     }
+}
+
+uint32_t COMMONSHARED_EXPORT ColorArray::rand_color(void)
+{
+    std::uniform_real_distribution<qreal> ua(0.0,1.0);
+    std::uniform_real_distribution<qreal> ub(0.4,1.0);
+    QColor c;
+    c.setHsvF( ua(e), ua(e), ub(e) );
+    return c.rgba();
 }
 
 ColorArray::RGB32 COMMONSHARED_EXPORT ColorArray::DefaultColor[DefaultColorNum_] = {

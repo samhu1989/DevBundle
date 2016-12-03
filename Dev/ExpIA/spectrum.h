@@ -21,11 +21,15 @@ public:
 protected:
     void updateBase();
     void updateFunc();
-    void toPixFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& voxFunc,arma::vec& pixFunc);
-    void toVoxFunc(MeshBundle<DefaultMesh>::Ptr m,const arma::vec& pixFunc,arma::vec& voxFunc);
+    void composeFunc(
+            const MeshBundle<DefaultMesh>::Ptr,
+            const arma::uword,
+            const arma::uvec&
+            );
 protected slots:
     void saveCoeff(void);
     void saveLambda(void);
+    void saveResidue(void);
     void loadFunc(void);
     void updateSpectrum(void);
     void updateFunction(void);
@@ -38,6 +42,7 @@ private:
     std::vector<std::shared_ptr<arma::mat>> bases_;
     std::vector<std::shared_ptr<arma::vec>> lambda_;
     std::vector<std::shared_ptr<arma::vec>> coeff_;
+    std::vector<std::shared_ptr<arma::vec>> res_;
 };
 
 #endif // SPECTRUM_H

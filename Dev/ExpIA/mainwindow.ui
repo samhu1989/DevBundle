@@ -153,9 +153,13 @@
      <addaction name="menuInitialization"/>
      <addaction name="menuOptimization"/>
     </widget>
+    <addaction name="actionUndo"/>
+    <addaction name="separator"/>
     <addaction name="actionGlobal_Align"/>
     <addaction name="actionExtract_Background"/>
     <addaction name="actionRemove_Zero_Label"/>
+    <addaction name="actionAnnotator"/>
+    <addaction name="separator"/>
     <addaction name="actionSupervoxel"/>
     <addaction name="actionRegionGrow"/>
     <addaction name="menuUnify_Label"/>
@@ -537,6 +541,24 @@
   <action name="actionSave_Vox_Order_Functor">
    <property name="text">
     <string>Save Vox Order Functor</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset>
+     <normalon>:/button/rs/button/undo.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionAnnotator">
+   <property name="text">
+    <string>Annotator</string>
    </property>
   </action>
  </widget>

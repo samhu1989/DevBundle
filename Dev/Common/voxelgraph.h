@@ -26,6 +26,8 @@ public:
     void getSvIndex(const arma::uvec& pix,arma::uvec& sv);//pixel index to supervoxel index
     void getSvIndexv0(const arma::uvec& pix,arma::uvec& sv);//pixel index to supervoxel index
     void getPixIndex(const arma::uvec& sv,arma::uvec& pix);//supervoxel index to pixel index
+    void getPixFunc(const arma::vec& voxFunc,arma::vec& pixFunc);
+    void getVoxFunc(const arma::vec& pixFunc,arma::vec& voxFunc);
     void match(M&mesh,
             arma::fvec &gscore,
             arma::fvec &nscore,

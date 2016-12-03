@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionGlobal_Align,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionExtract_Background,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRemove_Zero_Label,SIGNAL(triggered(bool)),this,SLOT(remove_zero_label()));
+    connect(ui->actionAnnotator,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSupervoxel,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrow,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionAutomatically,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -301,11 +302,21 @@ void MainWindow::save_labels(QString dirName)
         QString filepath = dir.absoluteFilePath(
                     QString::fromStdString((*miter)->name_+".label.arma")
                     );
-        if(!iter->save(filepath.toStdString(),arma::arma_binary))
+        if(config_->has("ascii"))
         {
-            QString msg = "Failed to Save "+filepath+"\n";
-            QMessageBox::critical(this, windowTitle(), msg);
-            return;
+            if(!iter->save(filepath.toStdString(),arma::raw_ascii))
+            {
+                QString msg = "Failed to Save "+filepath+"\n";
+                QMessageBox::critical(this, windowTitle(), msg);
+                return;
+            }
+        }else{
+            if(!iter->save(filepath.toStdString(),arma::arma_binary))
+            {
+                QString msg = "Failed to Save "+filepath+"\n";
+                QMessageBox::critical(this, windowTitle(), msg);
+                return;
+            }
         }
         if(miter==inputs_.end())break;
         ++miter;

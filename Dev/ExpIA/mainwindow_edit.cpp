@@ -19,6 +19,7 @@
 #include "robustcut.h"
 #include "jrcs.h"
 #include "labelcompactor.h"
+#include "annotator.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -162,6 +163,21 @@ void MainWindow::start_editing()
             w->deleteLater();
             return;
         }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        s->show();
+    }
+    if(edit==ui->actionAnnotator)
+    {
+        Annotator* w = new Annotator(mesh_views_,gl_timer,labels_);
+        if(!w->configure(config_)){
+            QString msg = "You probably should open inputs first\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(ui->actionUndo,SIGNAL(triggered(bool)),w,SLOT(undo()));
         connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         w->setAttribute(Qt::WA_DeleteOnClose,true);
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);

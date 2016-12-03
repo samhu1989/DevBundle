@@ -527,7 +527,10 @@ void NormalizedCuts<Mesh>::decomposeMin()
     arma::uvec index = arma::find( lambda_ <= eps_ );
     std::cerr<<"eps:"<<eps_<<std::endl;
     index.print("index:");
-    if(!index.empty())Y_.shed_cols(index(0),index(index.size()-1));
+    if(!index.empty()){
+        lambda_.shed_rows(index(0),index(index.size()-1));
+        Y_.shed_cols(index(0),index(index.size()-1));
+    }
 }
 
 template<typename Mesh>

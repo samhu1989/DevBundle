@@ -212,6 +212,39 @@ void VoxelGraph<M>::getPixIndex(const arma::uvec& sv,arma::uvec& pix)
     }
 }
 
+template <typename M>
+void VoxelGraph<M>::getPixFunc(const arma::vec& voxFunc,arma::vec& pixFunc)
+{
+    pixFunc = arma::vec(Ref_.n_vertices(),arma::fill::zeros);
+    arma::uvec indices = voxel_label;
+    arma::uvec zidx = arma::find(indices>0);
+    indices(zidx) -= 1;
+    pixFunc = voxFunc( indices );
+}
+
+template <typename M>
+void VoxelGraph<M>::getVoxFunc(const arma::vec& pixFunc,arma::vec& voxFunc)
+{
+    voxFunc = arma::vec(size(),arma::fill::zeros);
+    arma::vec voxCunt = arma::vec(size(),arma::fill::zeros);
+    const arma::uvec& indices = voxel_label;
+    arma::vec::const_iterator piter = pixFunc.cbegin();
+    for(arma::uvec::const_iterator iiter=indices.cbegin();iiter!=indices.cend();++iiter)
+    {
+        if(*iiter==0){
+            ++piter;
+            if( piter == pixFunc.cend() )break;
+            continue;
+        }
+        assert( (*iiter >= 1) && (*iiter <= voxFunc.size()) );
+        voxFunc( (*iiter - 1) ) += *piter;
+        voxCunt( (*iiter - 1) ) += 1.0;
+        ++ piter;
+        if( piter == pixFunc.cend() )break;
+    }
+    voxFunc /= voxCunt;
+}
+
 using namespace nanoflann;
 template <typename M>
 void VoxelGraph<M>::match(
