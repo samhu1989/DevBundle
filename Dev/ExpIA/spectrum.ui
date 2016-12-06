@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>346</width>
-    <height>240</height>
+    <height>266</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,10 +29,17 @@
    <enum>QFrame::Raised</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="9" column="0" colspan="2">
-    <widget class="QPushButton" name="SaveResidue">
+   <item row="7" column="0" colspan="2">
+    <widget class="QPushButton" name="UpdateCentroid">
      <property name="text">
-      <string>SaveResidue</string>
+      <string>UpdateCentroid</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="QPushButton" name="SaveAll">
+     <property name="text">
+      <string>SaveAll</string>
      </property>
     </widget>
    </item>
@@ -85,20 +92,6 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QPushButton" name="SaveCoeff">
-     <property name="text">
-      <string>SaveCoeff</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QPushButton" name="SaveLambda">
-     <property name="text">
-      <string>SaveLambda</string>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0" colspan="2">
     <widget class="QPushButton" name="UpdateFunc">
      <property name="text">
@@ -129,6 +122,13 @@
      </property>
      <property name="value">
       <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="QPushButton" name="resEnergy">
+     <property name="text">
+      <string>ResEnergy</string>
      </property>
     </widget>
    </item>

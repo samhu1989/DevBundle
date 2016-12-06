@@ -19,7 +19,8 @@ SOURCES += \
     jrcsinitbase.cpp \
     jrcsinitexternal.cpp \
     jrcsaoni.cpp \
-    jrcsaopt.cpp
+    jrcsaopt.cpp \
+    sjrcsbase.cpp
 
 HEADERS +=\
         jrcscore_global.h \
@@ -27,7 +28,8 @@ HEADERS +=\
     jrcsinitbase.h \
     jrcsinitexternal.h \
     jrcsaoni.h \
-    jrcsaopt.h
+    jrcsaopt.h \
+    sjrcsbase.h
 
 unix {
     target.path = /usr/lib

@@ -4,6 +4,7 @@
 #include "matio.h"
 #include <typeinfo>
 #include <memory>
+#include <assert.h>
 namespace MATIO{
 
 template<typename _mat>
@@ -59,6 +60,58 @@ void save_to_matlab(const _mat& m, const std::string &file, const std::string &v
     }
     Mat_VarWrite( mat, matvar, MAT_COMPRESSION_ZLIB);
     Mat_VarFree(matvar);
+    Mat_Close(mat);
+}
+
+template<typename _mat>
+void save_to_matlab(const std::vector<std::shared_ptr<_mat>>& m_lst, const std::string &file, const std::vector<std::string> &var)
+{
+    assert(m_lst.size()==var.size());
+    mat_t *mat;
+    mat = Mat_CreateVer(file.c_str(),NULL,MAT_FT_MAT73);
+    for(int i = 0 ; i < m_lst.size() ; ++i )
+    {
+        const arma::mat& m = (*m_lst[i]);
+        void* data = (void*)m.memptr();
+        size_t dims[2] = {m.n_rows,m.n_cols};
+        matvar_t *matvar = NULL;
+        std::string varname = var[i];
+        if(typeid(typename _mat::elem_type) == typeid(double))
+        {
+            matvar = Mat_VarCreate(varname.c_str(),MAT_C_DOUBLE,MAT_T_DOUBLE,2,dims,data,0);
+        }
+        if(typeid(typename _mat::elem_type) == typeid(float))
+        {
+            matvar = Mat_VarCreate(varname.c_str(),MAT_C_SINGLE,MAT_T_SINGLE,2,dims,data,0);
+        }
+        if(typeid(typename _mat::elem_type) == typeid(uint8_t))
+        {
+            matvar = Mat_VarCreate(varname.c_str(),MAT_C_UINT8,MAT_T_UINT8,2,dims,data,0);
+        }
+        if(typeid(typename _mat::elem_type) == typeid(long long))
+        {
+            matvar = Mat_VarCreate(varname.c_str(),MAT_C_INT64,MAT_T_INT64,2,dims,data,0);
+        }
+        if(typeid(typename _mat::elem_type) == typeid(unsigned long long))
+        {
+            matvar = Mat_VarCreate(varname.c_str(),MAT_C_UINT64,MAT_T_UINT64,2,dims,data,0);
+        }
+        if(typeid(typename _mat::elem_type) == typeid(unsigned long))
+        {
+            matvar = Mat_VarCreate(varname.c_str(),MAT_C_UINT32,MAT_T_UINT32,2,dims,data,0);
+        }
+        if(typeid(typename _mat::elem_type) == typeid(long))
+        {
+            matvar = Mat_VarCreate(varname.c_str(),MAT_C_INT32,MAT_T_INT32,2,dims,data,0);
+        }
+        if(!matvar){
+            Mat_Close(mat);
+            std::cerr<<"MATIO::save_to_matlab(unknown type)"<<std::endl;
+            return;
+        }
+        Mat_VarWrite( mat, matvar, MAT_COMPRESSION_ZLIB);
+        Mat_VarFree(matvar);
+    }
     Mat_Close(mat);
 }
 
@@ -162,8 +215,8 @@ bool load_to_arma(_mat& m,const std::string& file,const std::string& var)
             Mat_Close(mat);
             return false;
         }else{
-            if(m.is_row)m = _mat(matvar->dims[1],arma::fill::zeros);
-            else if(m.is_col)m = _mat(matvar->dims[0],arma::fill::zeros);
+            if(m.is_row)m = _mat(1,matvar->dims[1],arma::fill::zeros);
+            else if(m.is_col)m = _mat(matvar->dims[0],1,arma::fill::zeros);
             else m = _mat(matvar->dims[0],matvar->dims[1],arma::fill::zeros);
             std::memcpy((void*)m.memptr(),matvar->data,matvar->data_size*matvar->dims[0]*matvar->dims[1]);
         }

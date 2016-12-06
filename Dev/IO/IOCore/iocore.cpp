@@ -10,6 +10,8 @@ template void IOCORESHARED_EXPORT save_to_matlab<arma::frowvec>(const arma::frow
 template void IOCORESHARED_EXPORT save_to_matlab<arma::Mat<uint8_t>>(const arma::Mat<uint8_t>&,const std::string&,const std::string&);
 template void IOCORESHARED_EXPORT save_to_matlab<arma::uvec>(const arma::uvec&,const std::string&,const std::string&);
 template void IOCORESHARED_EXPORT save_to_matlab<arma::ivec>(const arma::ivec&,const std::string&,const std::string&);
+template void IOCORESHARED_EXPORT save_to_matlab<arma::mat>(const std::vector<std::shared_ptr<arma::mat>>&,const std::string&,const std::vector<std::string>&);
 template bool IOCORESHARED_EXPORT load_to_arma<arma::uvec>(arma::uvec&,const std::string&,const std::string&);
 template bool IOCORESHARED_EXPORT load_to_arma<arma::vec>(arma::vec&,const std::string&,const std::string&);
+template bool IOCORESHARED_EXPORT load_to_arma<arma::mat>(arma::mat&,const std::string&,const std::string&);
 }

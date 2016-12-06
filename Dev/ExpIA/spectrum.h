@@ -27,18 +27,26 @@ protected:
             const arma::uvec&
             );
 protected slots:
-    void saveCoeff(void);
-    void saveLambda(void);
-    void saveResidue(void);
+    void saveCoeff(QString fname=QString());
+    void saveLambda(QString fname=QString());
+    void saveResidue(QString fname=QString());
+    void saveReconstructed(QString fname=QString());
+    void saveBases(QString fname=QString());
+    void saveAll(void);
     void loadFunc(void);
     void updateSpectrum(void);
     void updateFunction(void);
+    void updateCentroid(void);
+    void evaluateResEnergy(void);
+protected:
+    double resEnergy(MeshBundle<DefaultMesh>::Ptr,const arma::uword,const arma::vec&);
 private:
     Ui::Spectrum *ui;
     Config::Ptr config_;
     MeshList& inputs_;
     Segmentation::NormalizedCuts<DefaultMesh> ncuts_;
     std::vector<std::shared_ptr<arma::vec>> func_;
+    std::vector<std::shared_ptr<arma::vec>> re_func_;
     std::vector<std::shared_ptr<arma::mat>> bases_;
     std::vector<std::shared_ptr<arma::vec>> lambda_;
     std::vector<std::shared_ptr<arma::vec>> coeff_;
