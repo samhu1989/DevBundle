@@ -65,6 +65,20 @@ protected:
     virtual void prepare_compute(void);
     virtual void parallel_compute(int i);
     virtual void finish_compute(void);
+protected：
+	//Calculate Alpha(Expectation)
+	//Construct Residue Function
+	
+	////Median of Residue Function
+	
+	//Calculate Correlation Function
+	//Alter Alpha
+		
+	//Update RT
+	
+	////Update X
+	
+	////Update var pk
 protected:
     //iteration count
     int iter_count_;
