@@ -52,11 +52,20 @@ void Sort_AGD::sort(const arma::vec& agd,MeshBundle<DefaultMesh>& m)
     arma::uvec descend_label(m.graph_.voxel_label.size(),arma::fill::zeros);
     arma::uvec::iterator iter_index;
     arma::uword current_process = 0;
+    arma::uvec current_index = arma::find( m.graph_.voxel_label == 0 );
+    if(!current_index.empty())
+    {
+        descend_label.subvec( current_process , current_process + current_index.size()-1 ) = current_index;
+        current_process += current_index.size();
+    }
     for( iter_index = descend_index.begin() ; iter_index != descend_index.end() ; ++iter_index )
     {
         arma::uvec current_index = arma::find( m.graph_.voxel_label == ( *iter_index + 1 ));
-        descend_label.subvec(current_process,current_process+current_index.size()-1) = current_index;
-        current_process += current_index.size();
+        if(!current_index.empty())
+        {
+            descend_label.subvec( current_process , current_process + current_index.size()-1 ) = current_index;
+            current_process += current_index.size();
+        }
     }
     arma::fmat v((float*)m.mesh_.points(),3,m.mesh_.n_vertices(),false,true);
     v = v.cols(descend_label);
