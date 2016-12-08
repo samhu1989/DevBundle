@@ -148,6 +148,13 @@
 \newblock Functional maps: A flexible representation of maps between shapes.
 \newblock {\em ACM Trans. Graph. 31}, 4 (July), 30:1--30:11.
 
+\bibitem[\protect\citename{Papon et~al\mbox{.} }2013]{Supervoxels}
+{\sc Papon, J., Abramov, A., Schoeler, M., and Wörgötter, F.}
+\newblock 2013.
+\newblock Voxel cloud connectivity segmentation - supervoxels for point clouds.
+\newblock In {\em 2013 IEEE Conference on Computer Vision and Pattern
+  Recognition}, 2027--2034.
+
 \bibitem[\protect\citename{Rodolà et~al\mbox{.} }2014]{RRDCS}
 {\sc Rodolà, E., Bulò, S.~R., and Cremers, D.}
 \newblock 2014.

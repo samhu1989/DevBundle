@@ -1,7 +1,6 @@
 This is BibTeX, Version 0.99dThe top-level auxiliary file: JRCS.aux
 The style file: acmsiggraph.bst
 Database file #1: JRCS.bib
-Warning--I didn't find a database entry for "Evangelidis-ECCV-2014"
 Warning--empty organization in Bouaziz:2013:SIC:2600289.2600305
 Warning--empty organization in SI-HKS5539838
 Warning--empty organization in TPS_RPM
@@ -11,5 +10,6 @@ Warning--empty organization in KinectFusion
 Warning--empty organization in LaplaceBeltrami
 Warning--empty organization in Liu2015Model
 Warning--can't use both author and editor fields in Neal1998
+Warning--empty organization in Supervoxels
 Warning--empty organization in WangImageiccv2013
 (There were 11 warnings)
