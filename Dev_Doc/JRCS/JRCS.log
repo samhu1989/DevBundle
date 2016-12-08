@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  8 DEC 2016 18:56
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  8 DEC 2016 19:25
 entering extended mode
 **JRCS.tex
 (JRCS.tex
@@ -493,7 +493,11 @@ put line 11.
 ) (experiment&discussion.tex (exp_residue.tex
 File: images/exp_res/inputs.png Graphic file (type QTm)
 
-<use  "images/exp_res/inputs.png" >)) (JRCS.bbl
+<use  "images/exp_res/inputs.png" >
+
+LaTeX Warning: Command \l invalid in math mode on input line 21.
+
+)) (JRCS.bbl
 Requested font "ptmrc7t" at 9.0pt
  [2]
 Underfull \hbox (badness 2065) in paragraph at lines 58--62
@@ -522,7 +526,7 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 190.
 Here is how much of TeX's memory you used:
  10709 strings out of 428790
  149840 string characters out of 3164816
- 237115 words of memory out of 3000000
+ 238115 words of memory out of 3000000
  13917 multiletter control sequences out of 15000+200000
  17665 words of font info for 47 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191

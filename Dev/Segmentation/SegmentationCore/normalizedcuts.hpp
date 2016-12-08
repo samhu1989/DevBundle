@@ -306,6 +306,20 @@ void NormalizedCuts<Mesh>::computeW_Graph(typename MeshBundle<Mesh>::Ptr m)
     size_t N = graph->size();
     W_.reset(new arma::sp_mat(N,N));
     *W_ = arma::speye(N,N);
+    double d_scale = 0;
+    double cnt = 0;
+    for(arma::Mat<uint16_t>::iterator niter=graph->voxel_neighbors.begin();niter!=graph->voxel_neighbors.end();   )
+    {
+        uint16_t wi = *niter;
+        ++niter;
+        uint16_t wj = *niter;
+        ++niter;
+        arma::fvec p = graph->voxel_centers.col(wi) - graph->voxel_centers.col(wj);
+        d_scale += std::sqrt(arma::dot(p,p));
+        cnt += 1.0;
+    }
+    d_scale /= cnt;
+    d_scale *= d_scale;
     for(arma::Mat<uint16_t>::iterator niter=graph->voxel_neighbors.begin();niter!=graph->voxel_neighbors.end();   )
     {
         uint16_t wi = *niter;
@@ -315,7 +329,7 @@ void NormalizedCuts<Mesh>::computeW_Graph(typename MeshBundle<Mesh>::Ptr m)
         double affinity = vecAffinity<arma::fvec>(
                     graph->voxel_centers.col(wi),
                     graph->voxel_centers.col(wj),
-                    d_scale_
+                    d_scale
                     );
         affinity = std::exp(affinity);
         affinity += convexity<arma::fvec>(
