@@ -739,7 +739,6 @@ void JRCSBase::update_color_label()
         arma::mat& alpha = *alpha_ptrlst_[idx];
         arma::mat obj_p(alpha.n_rows,obj_num_);
         arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
-//        std::cerr<<"frame:"<<idx<<std::endl;
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -756,11 +755,6 @@ void JRCSBase::update_color_label()
             point_prob.max(l);
             label(r) = l+1;
         }
-//        for(int o = 0 ; o < obj_num_ ; ++o )
-//        {
-//            arma::uvec oidx = arma::find(label==(o+1));
-//            std::cerr<<"num_obj("<<o<<")="<<oidx.size()<<std::endl;
-//        }
         ColorArray::colorfromlabel((uint32_t*)vl.memptr(),vl.size(),label);
     }
 }

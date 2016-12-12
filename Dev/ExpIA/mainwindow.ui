@@ -149,6 +149,7 @@
       <addaction name="actionJRCS_Opt_Basic"/>
       <addaction name="actionJRCS_Opt_AONI"/>
       <addaction name="actionJRCS_Opt_AOPT"/>
+      <addaction name="actionJRCS_Opt_Spectrum"/>
      </widget>
      <addaction name="menuInitialization"/>
      <addaction name="menuOptimization"/>
@@ -559,6 +560,11 @@
   <action name="actionAnnotator">
    <property name="text">
     <string>Annotator</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Opt_Spectrum">
+   <property name="text">
+    <string>Spectrum</string>
    </property>
   </action>
  </widget>

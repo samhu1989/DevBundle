@@ -26,6 +26,7 @@ JRCSView::JRCSView(
 
 bool JRCSView::configure(Config::Ptr config)
 {
+    std::cerr<<"JRCSView::configure"<<std::endl;
     return init(config);
 }
 
@@ -41,6 +42,7 @@ bool JRCSView::init(Config::Ptr config)
     }
     input(jrcs_worker_);
     if(!allocate_x(jrcs_worker_))return false;
+    std::cerr<<"---"<<std::endl;
     move_worker_to_thread(jrcs_worker_);
     return true;
 }
@@ -119,6 +121,7 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
 
     std::cerr<<"JRCSView::allocate_x:reseting x"<<std::endl;
     jrcs_worker_->resetx(xv,xn,xc);
+    std::cerr<<"JRCSView::allocate_x:done reseting x"<<std::endl;
     geo_view_->show_back();
 
     return true;

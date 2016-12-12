@@ -3,58 +3,42 @@
 #include "jrcscore_global.h"
 #include "common.h"
 #include <QCoreApplication>
+#include "jrcsbase.h"
 namespace JRCS{
 //spectral joint registration and co-segmentation
-class JRCSCORESHARED_EXPORT SJRCSBase
+class JRCSCORESHARED_EXPORT SJRCSBase:public JRCSBase
 {
 public:
-    typedef std::shared_ptr<arma::fmat> MatPtr;
-    typedef std::vector<MatPtr> MatPtrLst;
-    typedef std::shared_ptr<arma::mat> DMatPtr;
-    typedef std::vector<DMatPtr> DMatPtrLst;
-    typedef std::shared_ptr<arma::Mat<uint8_t>> CMatPtr;
-    typedef std::vector<CMatPtr> CMatPtrLst;
-    typedef std::shared_ptr<arma::Col<uint32_t>> LCMatPtr;
-    typedef std::vector<LCMatPtr> LCMatPtrLst;
-    typedef std::shared_ptr<arma::uvec> LMatPtr;
-    typedef std::vector<LMatPtr> LMatPtrLst;
+    using JRCSBase::MatPtr;
+    using JRCSBase::MatPtrLst;
+    using JRCSBase::DMatPtr;
+    using JRCSBase::DMatPtrLst;
+    using JRCSBase::CMatPtr;
+    using JRCSBase::CMatPtrLst;
+    using JRCSBase::LCMatPtr;
+    using JRCSBase::LCMatPtrLst;
+    using JRCSBase::LMatPtr;
+    using JRCSBase::LMatPtrLst;
     typedef std::shared_ptr<arma::vec> VecPtr;
     typedef std::vector<VecPtr> VecPtrLst;
-    typedef struct{
-        float R[9];
-        float t[3];
-    }T;
-    typedef std::vector<T> Ts;
-    typedef std::vector<Ts> TsLst;
-    typedef enum{
-        All,
-        Alpha,
-        Beta,
-        Gamma
-    }RotationType;
+    using JRCSBase::T;
+    using JRCSBase::Ts;
+    using JRCSBase::TsLst;
+    using JRCSBase::RotationType;
+
 public:
     SJRCSBase();
     virtual ~SJRCSBase(){}
     virtual std::string name()const{return "SJRCSBase";}
     virtual bool configure(Config::Ptr);
-    //input observation from outside
-    virtual void input(
-            const MatPtrLst& vv,
-            const MatPtrLst& vn,
-            const CMatPtrLst& vc,
-            const LCMatPtrLst& vl
-            );
-    //pass allocated from outside
-    virtual void resetw(
-            const MatPtrLst& wv,
-            const MatPtrLst& wn,
-            const CMatPtrLst& wc
-            );
-    //randomly initialize the X
+    virtual int evaluate_k();//evalute a proper number for x
     virtual void initx(
             const MatPtr& xv,
             const MatPtr& xn,
             const CMatPtr& xc
+            );//randomly initialize the X
+    virtual void rand_sphere(
+            arma::fmat& ov
             );
     //Step A:
     //Calculate Alpha(Expectation)
@@ -119,61 +103,59 @@ protected:
             );
 protected:
     //iteration count
-    int iter_count_;
+    using JRCSBase::iter_count_;
 
     //max iteration number
-    int max_iter_;
+    using JRCSBase::max_iter_;
 
     //type of rotation
-    RotationType rttype_;
+    using JRCSBase::rttype_;
 
     //input observation
-    MatPtrLst vvs_ptrlst_;
-    MatPtrLst vns_ptrlst_;
-    CMatPtrLst vcs_ptrlst_;
-    LCMatPtrLst vls_ptrlst_; //label color
-    LMatPtrLst vll_ptrlst_; //labels
-
-    //result transformation
-    TsLst rt_lst_;
+    using JRCSBase::vvs_ptrlst_;
+    using JRCSBase::vns_ptrlst_;
+    using JRCSBase::vcs_ptrlst_;
+    using JRCSBase::vls_ptrlst_; //label color
+    using JRCSBase::vll_ptrlst_; //labels
 
     //result correspondece
-    DMatPtrLst alpha_ptrlst_;
+    using JRCSBase::alpha_ptrlst_;
 
     //indicating functions
     arma::mat funcs_;
+
     //residue function
     arma::mat res_;
     arma::vec median_res_;
 
     //weighted V
-    MatPtrLst  wvs_ptrlst_;
-    MatPtrLst  wns_ptrlst_;
-    CMatPtrLst wcs_ptrlst_;
+    using JRCSBase::wvs_ptrlst_;
+    using JRCSBase::wns_ptrlst_;
+    using JRCSBase::wcs_ptrlst_;
 
     //latent model centroid
-    MatPtr xv_ptr_;
-    MatPtr xn_ptr_;
-    CMatPtr xc_ptr_;
+    using JRCSBase::xv_ptr_;
+    using JRCSBase::xn_ptr_;
+    using JRCSBase::xc_ptr_;
 
     //transformed centroid
     MatPtrLst  xtv_ptrlst_;
 
     arma::mat var_;
     //latent model parameter
-    arma::rowvec x_p_;      //probability
-    arma::rowvec x_invvar_; //inversed variance
-
-    double beta_;
+    using JRCSBase::x_p_;      //probability
+    using JRCSBase::x_invvar_; //inversed variance
+    using JRCSBase::beta_;      //noise portion
 
     //pre-defined object info
-    arma::uword obj_num_;
-    arma::uvec  obj_label_;//pre-defined class label for each centroid
+    using JRCSBase::obj_num_;
     std::vector<arma::uword> obj_range_;//start and end index for objects in centroid model
-    arma::fmat  obj_pos_;
+    using JRCSBase::obj_pos_;
 
     //configuration
     Config::Ptr config_;
+    //verbose level
+    using JRCSBase::verbose_;
 };
 }
 #endif // SJRCSBASE_H

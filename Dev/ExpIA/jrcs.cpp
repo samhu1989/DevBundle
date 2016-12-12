@@ -3,6 +3,7 @@
 #include "jrcsbase.h"
 #include "jrcsaoni.h"
 #include "jrcsaopt.h"
+#include "sjrcsbase.h"
 #include <QMessageBox>
 #include "featurecore.h"
 #include "iocore.h"
@@ -300,5 +301,11 @@ void JRCSWork::set_opt_aoni(JRCSView* w)
 void JRCSWork::set_opt_aopt(JRCSView* w)
 {
     std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSAOPT());
+    w->set_method(method);
+}
+
+void JRCSWork::set_opt_spectrum(JRCSView* w)
+{
+    std::shared_ptr<JRCS::JRCSBase> method(new JRCS::SJRCSBase());
     w->set_method(method);
 }

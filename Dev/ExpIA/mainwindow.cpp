@@ -77,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionJRCS_Opt_Basic,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_AONI,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_AOPT,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS_Opt_Spectrum,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionDebug_Convexity,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
