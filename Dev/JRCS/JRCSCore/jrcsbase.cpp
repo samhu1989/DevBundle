@@ -485,6 +485,9 @@ void JRCSBase::computeOnce()
             col( col < alpha_median(c) ).fill(0.0);
             trunc_alpha.col(c) = col;
         }
+
+        trunc_alpha += std::numeric_limits<double>::epsilon(); //add eps for numerical stability
+
         arma::rowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
 
         wv = vv_*arma::conv_to<arma::fmat>::from(trunc_alpha);
