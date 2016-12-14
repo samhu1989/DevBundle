@@ -2,19 +2,22 @@
 namespace JRCS{
 SJRCSBase::SJRCSBase():JRCSBase()
 {
+    max_init_iter_ = 0;
     max_iter_ = 3;
-    arma::arma_rng::set_seed_random();
 }
+
 bool SJRCSBase::configure(Config::Ptr config)
 {
     config_ = config;
     return JRCSBase::configure(config);
 }
+
 bool SJRCSBase::isEnd(void)
 {
     if(iter_count_>max_iter_)return true;
     else return false;
 }
+
 void SJRCSBase::prepare_compute(void)
 {
     iter_count_ = 0;
@@ -25,10 +28,13 @@ void SJRCSBase::prepare_compute(void)
     {
         xtv_ptrlst_[i].reset(new arma::fmat(xv_ptr_->n_rows,xv_ptr_->n_cols,arma::fill::zeros));
     }
+    reset_prob();
+    QCoreApplication::processEvents();
+    if(verbose_)std::cerr<<"done prepare"<<std::endl;
 }
+
 void SJRCSBase::step_a(int i)
 {
-    std::cerr<<omp_get_thread_num()<<":a"<<std::endl;
     arma::fmat& xv_ = *xv_ptr_;
     arma::fmat& vv_ = *vvs_ptrlst_[i];
     //transform latent model
@@ -38,14 +44,12 @@ void SJRCSBase::step_a(int i)
     {
         arma::fmat R(rt[o].R,3,3,false,true);
         arma::fvec t(rt[o].t,3,false,true);
-        arma::uword offset = 3*obj_range_[2*o]+1;
+        arma::uword offset = 3*obj_range_[2*o];
         arma::uword size = obj_range_[2*o+1] - obj_range_[2*o] + 1;
         arma::fmat objv(((float*)xtv_.memptr())+offset,3,size,false,true);
         objv = R*xv_.cols(obj_range_[2*o],obj_range_[2*o+1]);
         objv.each_col() += t;
     }
-
-    std::cerr<<omp_get_thread_num()<<":b"<<std::endl;
     //calculate alpha
     arma::mat&  alpha = *alpha_ptrlst_[i];
     for(int r = 0 ; r < alpha.n_rows ; ++r )
@@ -53,18 +57,13 @@ void SJRCSBase::step_a(int i)
         arma::mat tmpv = arma::conv_to<arma::mat>::from(xtv_.each_col() - vv_.col(r));
         alpha.row(r)  = arma::sum(arma::square(tmpv));
     }
-    std::cerr<<omp_get_thread_num()<<":b1"<<std::endl;
     alpha.each_row() %= (-0.5*x_invvar_);
-    alpha = arma::exp(alpha);
+    alpha = arma::trunc_exp(alpha);
     alpha.each_row() %= arma::pow(x_invvar_,1.5);
     alpha.each_row() %= x_p_;
-
     //normalise alpha
     arma::vec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
     alpha.each_col() /= alpha_rowsum;
-    alpha_rowsum = arma::sum(alpha,1);
-
-    std::cerr<<omp_get_thread_num()<<":c"<<std::endl;
     //calculate residue functions
     for(int c = 0 ; c < funcs_.n_cols ; ++c )
     {
@@ -76,18 +75,20 @@ void SJRCSBase::step_a(int i)
         to_model_func(alpha,tmp,tmp);
         res_(c,i) = res_energy(funcs_.col(c),tmp);
     }
+//    std::cerr<<"step_a("<<i<<")"<<std::endl;
 }
 
 void SJRCSBase::step_b(void)
 {
-    median_res_ = arma::median(res_,1);
+    if(!res_.empty())median_res_ = arma::median(res_,1);
+    QCoreApplication::processEvents();
 }
 
 void SJRCSBase::step_c(int i)
 {
     //max of circular correlation
     arma::uword cir;
-    max_cir_cor(median_res_,res_.col(i),cir);
+    if(!res_.empty())max_cir_cor(median_res_,res_.col(i),cir);
     arma::mat&  alpha = *alpha_ptrlst_[i];
     //circulate the alpha accordingly
     cir_mat(cir,alpha);
@@ -100,6 +101,7 @@ void SJRCSBase::step_c(int i)
     arma::fmat& wv = *wvs_ptrlst_[i];
     arma::fmat& wn = *wns_ptrlst_[i];
     arma::Mat<uint8_t>& wc = *wcs_ptrlst_[i];
+    arma::frowvec alpha_colsum = arma::conv_to<arma::frowvec>::from(arma::sum( alpha ));
     calc_weighted(vv,vn,vc,alpha,wv,wn,wc);
     //#2 calculating RT for each object
     Ts& rt = rt_lst_[i];
@@ -113,12 +115,32 @@ void SJRCSBase::step_c(int i)
         arma::fvec dt;
         arma::fmat R(rt[o].R,3,3,false,true);
         arma::fvec t(rt[o].t,3,false,true);
-        arma::uword offset = 3*obj_range_[2*o]+1;
+        arma::uword offset = 3*obj_range_[2*o];
         arma::uword size = obj_range_[2*o+1] - obj_range_[2*o] + 1;
         arma::fmat objv(((float*)xtv_.memptr())+offset,3,size,false,true);
         arma::fmat v = wv.cols(obj_range_[2*o],obj_range_[2*o+1]);
         arma::fmat cv = v.each_col() - arma::mean(v,1);
-        A = cv*( objv.each_col() - arma::mean(objv,1) );
+        if(!v.is_finite())
+        {
+            std::cerr<<iter_count_<<":"<<o<<":!v.is_finite()"<<std::endl;
+        }
+        arma::frowvec square_lambda = arma::conv_to<arma::frowvec>::from(x_invvar_.cols(obj_range_[2*o],obj_range_[2*o+1]));
+        square_lambda %= alpha_colsum.cols(obj_range_[2*o],obj_range_[2*o+1]);
+        square_lambda += std::numeric_limits<float>::epsilon(); // for numeric stability
+        if(!square_lambda.is_finite())
+        {
+            std::cerr<<"!square_lambda.is_finite()"<<std::endl;
+        }
+        arma::frowvec p(square_lambda.n_cols,arma::fill::ones);
+        arma::frowvec square_norm_lambda = square_lambda / arma::accu(square_lambda);
+        if(!square_norm_lambda.is_finite())
+        {
+            std::cerr<<"!square_norm_lambda.is_finite()"<<std::endl;
+        }
+        p -= square_norm_lambda;
+        arma::fmat tmp = objv.each_col() - arma::mean(objv,1) ;
+        tmp.each_row() %= p % square_lambda;
+        A = cv*tmp.t();
         switch(rttype_)
         {
         case Gamma:
@@ -131,7 +153,19 @@ void SJRCSBase::step_c(int i)
                 C(1,1) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
                 arma::fmat dR2D = U*C*(V.t());
                 dR.submat(0,0,1,1) = dR2D;
-                dt = arma::mean( v - dR*objv,1);
+                if(!dR.is_finite())
+                {
+                    std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
+                    dR.fill(arma::fill::eye);
+                }
+                arma::fmat tmp = v - dR*objv;
+                tmp.each_row() %= square_norm_lambda;
+                dt = arma::sum(tmp,1);
+                if(!dt.is_finite())
+                {
+                    std::cerr<<iter_count_<<":!dt.is_finite()"<<std::endl;
+                    dt.fill(arma::fill::zeros);
+                }
             }
         }
             break;
@@ -142,10 +176,25 @@ void SJRCSBase::step_c(int i)
                 arma::fmat C(3,3,arma::fill::eye);
                 C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
                 dR = U*C*(V.t());
-                dt = arma::mean( v - dR*objv,1);
+                if(!dR.is_finite())
+                {
+                    std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
+                    dR.fill(arma::fill::eye);
+                }
+                arma::fmat tmp = v - dR*objv;
+                tmp.each_row() %= square_norm_lambda;
+                dt = arma::sum(tmp,1);
+                if(!dt.is_finite())
+                {
+                    std::cerr<<iter_count_<<":!dt.is_finite()"<<std::endl;
+                    dt.fill(arma::fill::zeros);
+                }
             }
         }
         }
+
+        objv = dR*objv;
+        objv.each_col() += dt;
 
         //updating R T
         R = dR*R;
@@ -158,8 +207,9 @@ void SJRCSBase::step_c(int i)
         alpha_2.row(r) = arma::sum(arma::square(xtv_.each_col() - vv.col(r)));
     }
     var_.row(i) = arma::sum(alpha_2%alpha);
-
+//    std::cerr<<"step_c("<<i<<")"<<std::endl;
 }
+
 void SJRCSBase::step_d(void)
 {
     //Updating X
@@ -168,8 +218,12 @@ void SJRCSBase::step_d(void)
     arma::fmat xc(xc_ptr_->n_rows,xc_ptr_->n_cols,arma::fill::zeros);
     for(int i=0;i<wvs_ptrlst_.size();++i)
     {
-        float rate0 = float(i) / float(i+1);
+        float rate0 = float(i) / float(i+1.0);
         float rate1 = 1.0 - rate0;
+        if( i >= rt_lst_.size() )
+        {
+            std::cerr<<"i >= rt_lst_.size()"<<std::endl;
+        }
         Ts& rt = rt_lst_[i];
         arma::fmat& wv = *wvs_ptrlst_[i];
         arma::fmat& wn = *wns_ptrlst_[i];
@@ -179,16 +233,42 @@ void SJRCSBase::step_d(void)
         {
             arma::fmat R(rt[o].R,3,3,false,true);
             arma::fvec t(rt[o].t,3,false,true);
+            arma::fmat invR = R.i();
+            if(!invR.is_finite())
+            {
+                std::cerr<<iter_count_<<":"<<o<<":!invR.is_finite()"<<std::endl;
+            }
+            if(!t.is_finite())
+            {
+                std::cerr<<iter_count_<<":"<<o<<":!t.is_finite()"<<std::endl;
+            }
             arma::uword s = obj_range_[2*o];
             arma::uword e = obj_range_[2*o+1];
             arma::fmat tv = wv.cols(s,e);
+            if(!tv.is_finite())
+            {
+                std::cerr<<iter_count_<<":"<<o<<":!tv.is_finite()"<<std::endl;
+            }
             tv.each_col() -= t;
-            xv_ptr_->cols(s,e) =  rate0*xv_ptr_->cols(s,e)+rate1*(R.i()*tv);
-            xn_ptr_->cols(s,e) = rate0*xv_ptr_->cols(s,e)+rate1*R.i()*wn.cols(s,e);
+            xv_ptr_->cols(s,e) =  rate0*xv_ptr_->cols(s,e)+rate1*(invR*tv);
+            xn_ptr_->cols(s,e) = rate0*xv_ptr_->cols(s,e)+rate1*invR*wn.cols(s,e);
             xc.cols(s,e) = rate0*xc.cols(s,e)+rate1*wc.cols(s,e);
         }
     }
+    if(!xv_ptr_->is_finite())
+    {
+        std::cerr<<iter_count_<<":!xv_ptr_->is_finite()"<<std::endl;
+    }
+    if(!xn_ptr_->is_finite())
+    {
+        std::cerr<<iter_count_<<":!xn_ptr_->is_finite()"<<std::endl;
+    }
+    if(!xc.is_finite())
+    {
+        std::cerr<<"!xc.is_finite()"<<std::endl;
+    }
     //fix the x center position
+//    std::cerr<<"xv:"<<xv_ptr_->n_cols<<std::endl;
     #pragma omp parallel for
     for(int o = 0 ; o < obj_num_ ; ++o )
     {
@@ -216,49 +296,61 @@ void SJRCSBase::step_d(void)
     x_p_ = alpha_sum;
     if( mu != 0)x_p_ /= mu;
 }
+
 void SJRCSBase::finish_steps(void)
 {
+    update_color_label();
+    calc_obj();
+    std::cout<<"sjrcsbase obj("<<iter_count_<<"):"<<-0.5*obj_<<std::endl;
     ++ iter_count_;
-    JRCSBase::update_color_label();
+    QCoreApplication::processEvents();
 }
+
 void SJRCSBase::to_frame_func(const arma::mat& alpha,const arma::vec& model_func,arma::vec& frame_func)
 {
     ;
 }
+
 void SJRCSBase::to_vox_func(int index,const arma::vec& frame_func,arma::vec& vox_func)
 {
     ;
 }
+
 void SJRCSBase::proj_and_rebuild(int index,const arma::vec& vox_func,arma::vec& re_vox_func)
 {
     ;
 }
+
 void SJRCSBase::to_pix_func(int index,const arma::vec& vox_func,arma::vec& pix_func)
 {
     ;
 }
+
 void SJRCSBase::to_model_func(const arma::mat& alpha,const arma::vec& frame_func,arma::vec& model_func)
 {
     ;
 }
+
 double SJRCSBase::res_energy(const arma::vec& func0,const arma::vec& func1)
 {
     assert(func0.size()==func1.size());
     return arma::accu(arma::square(func0 - func1));
 }
+
 void SJRCSBase::max_cir_cor(const arma::vec&,const arma::vec&,arma::uword& max_cir)
 {
     ;
 }
+
 void SJRCSBase::cir_mat(const arma::sword& cir,arma::mat& alpha)
 {
     ;
 }
-void SJRCSBase::calc_weighted(
-        const arma::fmat&vv,
+
+void SJRCSBase::calc_weighted(const arma::fmat&vv,
         const arma::fmat&vn,
         arma::Mat<uint8_t>&vc,
-        const arma::mat& alpha,
+        const arma::mat &alpha,
         arma::fmat&wv,
         arma::fmat&wn,
         arma::Mat<uint8_t>&wc
@@ -284,11 +376,18 @@ void SJRCSBase::calc_weighted(
         trunc_alpha.col(c) = col;
     }
 
-    arma::rowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
+    trunc_alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
+
+    arma::rowvec trunc_alpha_colsum = arma::sum( trunc_alpha );
 
     wv = vv*arma::conv_to<arma::fmat>::from(trunc_alpha);
     wn = vn*arma::conv_to<arma::fmat>::from(trunc_alpha);
     fwc = arma::conv_to<arma::fmat>::from(vc)*arma::conv_to<arma::fmat>::from(trunc_alpha);
+
+    if(!wv.is_finite())
+    {
+        std::cerr<<iter_count_<<":a:!wv.is_finite()"<<std::endl;
+    }
 
     for(int c=0;c<alpha.n_cols;++c)
     {
@@ -300,7 +399,15 @@ void SJRCSBase::calc_weighted(
         }
     }
 
+    if(!wv.is_finite())
+    {
+        std::cerr<<iter_count_<<":b:!wv.is_finite()"<<std::endl;
+    }
+
     wn = arma::normalise( wn );
+    assert(wv.is_finite());
+    assert(wn.is_finite());
+    assert(fwc.is_finite());
     wc = arma::conv_to<arma::Mat<uint8_t>>::from(fwc);
 }
 
@@ -318,8 +425,9 @@ int SJRCSBase::evaluate_k()
         k_lst(idx) = (*iter)->n_cols;
         ++idx;
     }
-    return arma::median(k_lst)/2  + 5;//median size but at least five;
+    return arma::median(k_lst) / 2  + 5;//median size but at least five;
 }
+
 void SJRCSBase::initx(
         const MatPtr& xv,
         const MatPtr& xn,
@@ -330,7 +438,7 @@ void SJRCSBase::initx(
     xn_ptr_ = xn;
     xc_ptr_ = xc;
 
-    max_obj_radius_ = 0.5;// for randomly reset rt
+    max_obj_radius_ = 1.0;// for randomly reset rt
     init_alpha_ = false;  //for this method no init of alpha is used
 
     int k = xv_ptr_->n_cols;
@@ -394,4 +502,86 @@ void SJRCSBase::rand_sphere(
         std::random_shuffle(ov.begin_col(i),ov.end_col(i));
     }
 }
+
+void SJRCSBase::reset_prob()
+{
+    if(verbose_>0)std::cerr<<"initializing probability"<<std::endl;
+
+    arma::fvec maxAllXYZ,minAllXYZ;
+    MatPtrLst::iterator vviter;
+    for( vviter = vvs_ptrlst_.begin() ; vviter != vvs_ptrlst_.end() ; ++vviter )
+    {
+        arma::fmat&v = **vviter;
+        arma::fvec maxVXYZ = arma::max(v,1);
+        arma::fvec minVXYZ = arma::min(v,1);
+        if(vviter==vvs_ptrlst_.begin())
+        {
+            maxAllXYZ = maxVXYZ;
+            minAllXYZ = minVXYZ;
+        }else{
+            maxAllXYZ = arma::max(maxVXYZ,maxAllXYZ);
+            minAllXYZ = arma::min(minVXYZ,minAllXYZ);
+        }
+    }
+
+    float maxvar = arma::accu(arma::square(maxAllXYZ-minAllXYZ));
+    x_invvar_ = arma::rowvec(xv_ptr_->n_cols);
+    x_invvar_.fill(1.0/maxvar);
+
+    var_ = arma::mat(vvs_ptrlst_.size(),xv_ptr_->n_cols);
+
+    x_p_ = arma::rowvec(xv_ptr_->n_cols);
+    x_p_.fill(1.0/float(xv_ptr_->n_cols));
+
+    if(verbose_>0)std::cerr<<"done probability"<<std::endl;
+}
+
+void SJRCSBase::update_color_label()
+{
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[idx];
+        arma::mat obj_p(alpha.n_rows,obj_num_);
+        arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
+        #pragma omp parallel for
+        for(int o = 0 ; o < obj_num_ ; ++o )
+        {
+            arma::mat sub_alpha = alpha.cols(obj_range_[2*o],obj_range_[2*o+1]);
+            obj_p.col(o) = arma::sum(sub_alpha,1);
+        }
+        arma::uvec label(alpha.n_rows);
+        #pragma omp parallel for
+        for(int r = 0 ; r < obj_p.n_rows ; ++r )
+        {
+            arma::uword l;
+            arma::rowvec point_prob = obj_p.row(r);
+            point_prob.max(l);
+            label(r) = l+1;
+        }
+        ColorArray::colorfromlabel((uint32_t*)vl.memptr(),vl.size(),label);
+    }
+}
+
+void SJRCSBase::calc_obj(void)
+{
+    obj_ = 0.0;
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[idx];
+        arma::fmat& vv_ = *vvs_ptrlst_[idx];
+        Ts& rt = rt_lst_[idx];
+        arma::fmat& xtv_ = *xtv_ptrlst_[idx];
+        arma::fmat alpha_2(alpha.n_rows,alpha.n_cols);
+        #pragma omp parallel for
+        for(int r=0;r<alpha_2.n_rows;++r)
+        {
+            alpha_2.row(r) = arma::sum(arma::square(xtv_.each_col() - vv_.col(r)));
+            alpha_2.row(r) %= arma::conv_to<arma::frowvec>::from(x_invvar_);
+            alpha_2.row(r) -= 1.5*arma::conv_to<arma::frowvec>::from(arma::trunc_log(x_invvar_));
+            alpha_2.row(r) -= 2.0*arma::conv_to<arma::frowvec>::from(arma::trunc_log(x_p_));
+        }
+        obj_ += arma::accu(alpha%alpha_2);
+    }
+}
+
 }

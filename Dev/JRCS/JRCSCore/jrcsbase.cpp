@@ -524,6 +524,7 @@ void JRCSBase::computeOnce()
             arma::fvec dt;
             arma::fmat objv = *objv_ptrlst_[o];
             arma::uvec oidx = arma::find(obj_label_==(o+1));
+            std::cerr<<"(s,e)=("<<oidx.min()<<","<<oidx.max()<<")"<<std::endl;
             arma::fmat v;
             v = wv.cols(oidx);
             arma::fmat cv = v.each_col() - arma::mean(v,1);
@@ -596,6 +597,7 @@ void JRCSBase::computeOnce()
     *xv_ptr_ = xv_sum_;
 //    assert((*xv_ptr_).has_inf()||(*xv_ptr_).has_nan());
     //fix the x center position
+    std::cerr<<"xv:"<<xv_ptr_->n_cols<<std::endl;
     #pragma omp parallel for
     for(int o = 0 ; o < obj_num_ ; ++o )
     {
@@ -610,9 +612,9 @@ void JRCSBase::computeOnce()
     *xc_ptr_ = arma::conv_to<arma::Mat<uint8_t>>::from( xc_sum_ );
 
     x_invvar_ = ( (3.0*alpha_sum ) / ( var_sum + 1e-6 ) );//restore reciprocal fractions of variation
-    float mu = arma::accu(alpha_sumij);
+    float mu = arma::accu(alpha_sum);
     mu *= ( 1.0 + beta_ );
-    x_p_ = alpha_sumij;
+    x_p_ = alpha_sum;
     if( mu != 0)x_p_ /= mu;
 }
 

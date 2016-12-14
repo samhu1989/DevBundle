@@ -4,7 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
+QT  += core  gui
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = JRCSCore
 TEMPLATE = lib
@@ -12,8 +14,8 @@ CONFIG += c++11
 QMAKE_CXXFLAGS += -fopenmp
 LIBS += -lgomp -lpthread
 DEFINES += JRCSCORE_LIBRARY
-DEFINES -= UNICODE
-DEFINES -= _UNICODE
+#DEFINES -= UNICODE
+#DEFINES -= _UNICODE
 SOURCES += \
     jrcsbase.cpp \
     jrcsinitbase.cpp \

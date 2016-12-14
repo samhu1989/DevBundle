@@ -140,14 +140,17 @@ void JRCSView::move_worker_to_thread( JRCSThread* jrcs_worker )
 void JRCSView::start()
 {
     emit message(tr("Starting"),1000);
-    jrcs_thread_->start(QThread::HighPriority);
-    t_.start(300);
+    jrcs_thread_->start(QThread::NormalPriority);
+    t_.start(751);
+    time.restart();
 }
 
 void JRCSView::finished()
 {
     std::cerr<<"JRCSView::finished"<<std::endl;
     QThread* th = qobject_cast<QThread*>(sender());
+    QString msg;
+    msg = msg.sprintf("%s is finished: %d iterations in %u ms",jrcs_worker_->get_method_name().c_str(),jrcs_worker_->get_iter(),time.elapsed());
     if(th&&th==jrcs_thread_)
     {
         t_.disconnect(geo_view_,SLOT(updateGL()));
@@ -162,7 +165,8 @@ void JRCSView::finished()
         jrcs_thread_->deleteLater();
         jrcs_thread_ = NULL;
     }
-    emit message(tr("JRCSView is finished"),1000);
+    std::cerr<<msg.toStdString()<<std::endl;
+    emit message(msg,1000);
     connect(ui->spinBox,SIGNAL(valueChanged(int)),this,SLOT(align(int)));
     ui->spinBox->show();
     move(pos().x()+1,pos().y());

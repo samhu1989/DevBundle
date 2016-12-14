@@ -1,7 +1,6 @@
 #ifndef SJRCSBASE_H
 #define SJRCSBASE_H
 #include "jrcscore_global.h"
-#include "common.h"
 #include <QCoreApplication>
 #include "jrcsbase.h"
 namespace JRCS{
@@ -31,15 +30,11 @@ public:
     virtual ~SJRCSBase(){}
     virtual std::string name()const{return "SJRCSBase";}
     virtual bool configure(Config::Ptr);
-    virtual int evaluate_k();//evalute a proper number for x
     virtual void initx(
             const MatPtr& xv,
             const MatPtr& xn,
             const CMatPtr& xc
             );//randomly initialize the X
-    virtual void rand_sphere(
-            arma::fmat& ov
-            );
     //Step A:
     //Calculate Alpha(Expectation)
     //Construct Residue Function
@@ -63,16 +58,13 @@ public:
                 step_a(i);
             }
             step_b();
-            QCoreApplication::processEvents();
             #pragma omp parallel for
             for( int i=0 ; i < vvs_ptrlst_.size() ; ++i )
             {
                 step_c(i);
             }
-            QCoreApplication::processEvents();
             step_d();
             finish_steps();
-            QCoreApplication::processEvents();
         }
     }
 protected:
@@ -84,6 +76,12 @@ protected:
     virtual void step_d(void);
     virtual void finish_steps(void);
 protected:
+    virtual int evaluate_k();//evalute a proper number for x
+    virtual void rand_sphere(
+            arma::fmat& ov
+            );//randomly sample point on sphere
+    virtual void reset_prob();
+    virtual void update_color_label();
     void to_frame_func(const arma::mat& alpha,const arma::vec& model_func,arma::vec& frame_func);
     void to_vox_func(int index,const arma::vec& frame_func,arma::vec& vox_func);
     void proj_and_rebuild(int index,const arma::vec& vox_func,arma::vec& re_vox_func);
@@ -101,6 +99,7 @@ protected:
             arma::fmat&wn,
             arma::Mat<uint8_t>&wc
             );
+    void calc_obj(void);
 protected:
     //iteration count
     using JRCSBase::iter_count_;
@@ -152,6 +151,8 @@ protected:
     std::vector<arma::uword> obj_range_;//start and end index for objects in centroid model
     using JRCSBase::obj_pos_;
 
+    //minimization object
+    double obj_;
     //configuration
     Config::Ptr config_;
     //verbose level

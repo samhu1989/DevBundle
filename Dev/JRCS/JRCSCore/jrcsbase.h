@@ -36,7 +36,7 @@ public:
         Beta,
         Gamma
     }RotationType;
-    JRCSBase():beta_(1e-5),max_init_iter_(0){arma::arma_rng::set_seed_random();}
+    JRCSBase():beta_(1e-5),max_init_iter_(0){arma::arma_rng::set_seed(std::time(NULL));}
     virtual ~JRCSBase(){}
     virtual std::string name()const{ return "JRCSBase";}
     virtual bool configure(Config::Ptr config);

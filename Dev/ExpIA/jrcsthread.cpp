@@ -64,6 +64,7 @@ void JRCSThread::resetx(
 
 void JRCSThread::process(void)
 {
+    t_.restart();
     if(verbose_>0)std::cerr<<"Running "<<jrcs_->name()<<std::endl;
     jrcs_->reset_iteration();
     jrcs_->compute();
@@ -76,13 +77,13 @@ void JRCSThread::get_iter_info()
     int n = jrcs_->get_max_iter();
     int init_n = jrcs_->get_max_init_iter();
     int iter_i = jrcs_->get_iter_num();
-    if(init_n==0)msg = msg.sprintf("iter:%u/%u",iter_i,n);
+    if(init_n==0)msg = msg.sprintf("iter:%u/%u,in %d ms",iter_i,n,t_.elapsed());
     else {
         if( iter_i <= init_n )
         {
-            msg = msg.sprintf("init:%u/%u",iter_i,init_n);
+            msg = msg.sprintf("init:%u/%u,in %d ms",iter_i,init_n,t_.elapsed());
         }else{
-            msg = msg.sprintf("iter:%u/%u",iter_i,n);
+            msg = msg.sprintf("iter:%u/%u,in %d ms",iter_i,n,t_.elapsed());
         }
     }
     emit message(msg,0);

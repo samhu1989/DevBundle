@@ -4,6 +4,7 @@
 #include <QObject>
 #include "objectmodel.h"
 #include "jrcsbase.h"
+#include <QTime>
 class JRCSThread:public QObject
 {
     Q_OBJECT
@@ -46,15 +47,19 @@ public:
     inline void get_lbl(std::vector<arma::uvec>&lbl){jrcs_->get_label(lbl);}
     inline void set_method(std::shared_ptr<JRCS::JRCSBase> method){jrcs_ = method;}
     inline void set_init_method(std::shared_ptr<JRCS::JRCSInitBase> method){jrcs_->set_init_method(method);}
+    inline int get_iter(){if(jrcs_)return jrcs_->get_iter_num();else return -1;}
+    inline std::string get_method_name()const{if(jrcs_)return jrcs_->name();else return std::string("unkown method");}
 public slots:
     void process(void);
     void get_iter_info(void);
+
 signals:
     void message(QString,int);
     void end(void);
 private:
     Config::Ptr config_;
     int verbose_;
+    QTime t_;
     std::shared_ptr<JRCS::JRCSBase> jrcs_;
 };
 

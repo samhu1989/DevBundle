@@ -7,6 +7,7 @@
 #include "MeshListViewerWidget.h"
 #include "jrcsthread.h"
 #include <QTimer>
+#include <QTime>
 namespace Ui {
 class JRCSView;
 }
@@ -58,6 +59,7 @@ private:
     LabelList& labels_;
     ModelList& objects_;
     QTimer t_;
+    QTime time;
 };
 
 #endif // JRCSVIEW_H

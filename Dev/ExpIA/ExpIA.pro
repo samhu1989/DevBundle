@@ -12,7 +12,7 @@ TARGET = ExpIA
 TEMPLATE = app
 CONFIG += c++11
 #CONFIG += console
-CONFIG -= app_bundle
+#CONFIG -= app_bundle
 QMAKE_CXXFLAGS += -fopenmp
 LIBS += -lgomp -lpthread
 
