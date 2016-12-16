@@ -4,11 +4,32 @@ SJRCSBase::SJRCSBase():JRCSBase()
 {
     max_init_iter_ = 0;
     max_iter_ = 3;
+    use_res_ = false;
 }
 
 bool SJRCSBase::configure(Config::Ptr config)
 {
     config_ = config;
+    if(config_->has("SJRCS_use_res"))
+    {
+        if(config_->getInt("SJRCS_use_res"))
+        {
+            use_res_ = true;
+        }else{
+            use_res_ = false;
+        }
+    }
+    if(use_res_)
+    {
+        if(config_->has("SJRCS_res_step"))
+        {
+            res_step_ = config_->getInt("SJRCS_res_step");
+        }else res_step_ = 2;
+        if(config_->has("SJRCS_rebuild_k"))
+        {
+            rebuild_k_ = config_->getInt("SJRCS_rebuild_k");
+        }else rebuild_k_ = 30;
+    }
     return JRCSBase::configure(config);
 }
 
@@ -29,6 +50,7 @@ void SJRCSBase::prepare_compute(void)
         xtv_ptrlst_[i].reset(new arma::fmat(xv_ptr_->n_rows,xv_ptr_->n_cols,arma::fill::zeros));
     }
     reset_prob();
+    if(use_res_)prepare_for_residue_correlation();
     QCoreApplication::processEvents();
     if(verbose_)std::cerr<<"done prepare"<<std::endl;
 }
@@ -64,18 +86,36 @@ void SJRCSBase::step_a(int i)
     //normalise alpha
     arma::vec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
     alpha.each_col() /= alpha_rowsum;
+
+    //truncating alpha with median to map the function
+
+    arma::mat row_trunc_alpha;
+    arma::vec trunc_alpha_rowsum;
+    arma::mat col_trunc_alpha;
+    arma::vec trunc_alpha_colsum;
+
+    if(!funcs_.empty()) //only needed if we do calculate residue functions
+    {
+        truncate_alpha(
+                    alpha,
+                    row_trunc_alpha,
+                    trunc_alpha_rowsum,
+                    col_trunc_alpha,
+                    trunc_alpha_colsum
+                    );
+    }
+
     //calculate residue functions
     for(int c = 0 ; c < funcs_.n_cols ; ++c )
     {
         arma::vec tmp;
-        to_frame_func(alpha,funcs_.col(c),tmp);
+        to_frame_func(row_trunc_alpha,trunc_alpha_rowsum,funcs_.col(c),tmp);
         to_vox_func(i,tmp,tmp);
         proj_and_rebuild(i,tmp,tmp);
         to_pix_func(i,tmp,tmp);
-        to_model_func(alpha,tmp,tmp);
+        to_model_func(col_trunc_alpha,trunc_alpha_colsum,tmp,tmp);
         res_(c,i) = res_energy(funcs_.col(c),tmp);
     }
-//    std::cerr<<"step_a("<<i<<")"<<std::endl;
 }
 
 void SJRCSBase::step_b(void)
@@ -87,11 +127,11 @@ void SJRCSBase::step_b(void)
 void SJRCSBase::step_c(int i)
 {
     //max of circular correlation
-    arma::uword cir;
-    if(!res_.empty())max_cir_cor(median_res_,res_.col(i),cir);
+    arma::uword cir = std::numeric_limits<arma::uword>::max();
+    if( use_res_ && !res_.empty() )max_cir_cor(median_res_,res_.col(i),cir);
     arma::mat&  alpha = *alpha_ptrlst_[i];
     //circulate the alpha accordingly
-    cir_mat(cir,alpha);
+    if( use_res_ && cir_indices_.n_cols > cir )cir_mat(cir,alpha);
 
     //update RT
     //#1 calculate weighted point cloud
@@ -306,45 +346,154 @@ void SJRCSBase::finish_steps(void)
     QCoreApplication::processEvents();
 }
 
-void SJRCSBase::to_frame_func(const arma::mat& alpha,const arma::vec& model_func,arma::vec& frame_func)
+//prepare circulated indicating functions
+void SJRCSBase::prepare_for_residue_correlation(void)
 {
-    ;
+    arma::vec func_ = arma::linspace<arma::vec>(-1.0,1.0,xv_ptr_->n_cols);
+    arma::uvec cir_indice_ = arma::linspace<arma::uvec>(0,xv_ptr_->n_cols-1,xv_ptr_->n_cols);
+    arma::uword N = func_.size();
+    arma::uword N_step = std::floor( xv_ptr_->n_cols / res_step_ ) ;
+    cir_pos_ = arma::linspace<arma::uvec>( 0 , func_.size() - 1 , N_step );
+    funcs_ = arma::mat(xv_ptr_->n_cols,cir_pos_.size(),arma::fill::zeros);
+    #pragma omp parallel for
+    for( int i = 0 ; i < N_step ; ++i )
+    {
+        funcs_.submat(cir_pos_(i),i,N-1,i) = func_.rows(0,N-1-cir_pos_(i));
+        cir_indices_.submat(cir_pos_(i),i,N-1,i) = cir_indice_.rows(0,N-1-cir_pos_(i));
+        if( cir_pos_(i) > 0 ){
+            funcs_.submat(0,i,cir_pos_(i)-1,i) = func_.rows( N - cir_pos_(i) , N - 1 );
+            cir_indices_.submat(0,i,cir_pos_(i)-1,i) = cir_indice_.rows( N - cir_pos_(i) , N - 1 );
+        }
+    }
+    res_ = arma::mat(cir_pos_.size(),vvs_ptrlst_.size(),arma::fill::zeros);
+}
+
+void SJRCSBase::truncate_alpha(
+        const arma::mat& alpha,
+        arma::mat& row_trunc_alpha,
+        arma::vec& trunc_alpha_rowsum,
+        arma::mat& col_trunc_alpha,
+        arma::vec& trunc_alpha_colsum
+        )
+{
+
+    //row_trunc_alpha for forward mapping
+    arma::vec alpha_row_median = arma::median( alpha , 1 );
+    row_trunc_alpha = alpha;
+    for(int r=0 ; r < row_trunc_alpha.n_rows ; ++r )
+    {
+        arma::rowvec row = row_trunc_alpha.row(r);
+        row( row < alpha_row_median(r) ).fill(0.0);
+        row_trunc_alpha.row(r) = row;
+    }
+    row_trunc_alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
+    trunc_alpha_rowsum = arma::sum( row_trunc_alpha , 1 );
+
+    //col_trunc_alpha for backward mapping
+    arma::rowvec alpha_col_median = arma::median( alpha );
+    col_trunc_alpha = alpha;
+    for(int c=0 ; c < col_trunc_alpha.n_cols ; ++c )
+    {
+        arma::vec col = col_trunc_alpha.col(c);
+        col( col < alpha_col_median(c) ).fill(0.0);
+        col_trunc_alpha.col(c) = col;
+    }
+    col_trunc_alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
+    trunc_alpha_colsum = arma::sum( col_trunc_alpha ).t();
+}
+
+void SJRCSBase::to_frame_func(
+        const arma::mat& row_trunc_alpha,
+        const arma::vec& trunc_alpha_rowsum,
+        const arma::vec& model_func,
+        arma::vec& frame_func)
+{
+    if(model_func.n_rows!=row_trunc_alpha.n_cols)return;
+    frame_func = row_trunc_alpha*model_func;
+    for(int r=0;r<row_trunc_alpha.n_rows;++r)
+    {
+        if( 0 != trunc_alpha_rowsum(r) )
+        {
+            frame_func(r) /= trunc_alpha_rowsum(r);
+        }
+    }
 }
 
 void SJRCSBase::to_vox_func(int index,const arma::vec& frame_func,arma::vec& vox_func)
 {
-    ;
+    MeshBundle<DefaultMesh>::Ptr m_ptr = inputs_[index];
+    arma::vec tmp = frame_func;
+    m_ptr->graph_.getVoxFunc(tmp,vox_func);
 }
 
 void SJRCSBase::proj_and_rebuild(int index,const arma::vec& vox_func,arma::vec& re_vox_func)
 {
-    ;
+    arma::vec coeff = arma::vectorise(vox_func.t()*( *bases_[index] ));
+    arma::uvec sorted_i = arma::sort_index(arma::abs(coeff),"descend");
+    arma::uvec selected_i = sorted_i.head(rebuild_k_);
+    arma::vec sub_coeff = coeff.rows(selected_i);
+    arma::mat sub_bases = (*bases_[index]).cols(selected_i);
+    re_vox_func = sub_bases*sub_coeff;
 }
 
 void SJRCSBase::to_pix_func(int index,const arma::vec& vox_func,arma::vec& pix_func)
 {
-    ;
+    MeshBundle<DefaultMesh>::Ptr m_ptr = inputs_[index];
+    arma::vec tmp = vox_func;
+    m_ptr->graph_.getPixFunc(tmp,pix_func);
 }
 
-void SJRCSBase::to_model_func(const arma::mat& alpha,const arma::vec& frame_func,arma::vec& model_func)
+void SJRCSBase::to_model_func(
+        const arma::mat& col_trunc_alpha,
+        const arma::vec& trunc_alpha_colsum,
+        const arma::vec& frame_func,
+        arma::vec& model_func)
 {
-    ;
+    if(frame_func.n_rows!=col_trunc_alpha.n_rows)return;
+    model_func = (col_trunc_alpha.t())*frame_func;
+    for(int c=0;c<col_trunc_alpha.n_cols;++c)
+    {
+        if( 0 != trunc_alpha_colsum(c) )
+        {
+            model_func(c) /= trunc_alpha_colsum(c);
+        }
+    }
 }
 
 double SJRCSBase::res_energy(const arma::vec& func0,const arma::vec& func1)
 {
-    assert(func0.size()==func1.size());
+    if(func0.size()!=func1.size()){
+        std::cerr<<"func0.size()!=func1.size()"<<std::endl;
+        return -1.0;
+    }
     return arma::accu(arma::square(func0 - func1));
 }
 
-void SJRCSBase::max_cir_cor(const arma::vec&,const arma::vec&,arma::uword& max_cir)
+void SJRCSBase::max_cir_cor(const arma::vec& func0,const arma::vec& func1,arma::uword& max_cir)
 {
-    ;
+    if(func0.size()!=func1.size()){
+        std::cerr<<"func0.size()!=func1.size()"<<std::endl;
+        return;
+    }
+    arma::vec cor(func0.size(),arma::fill::zeros);
+    arma::uword N = func0.size();
+    double max = std::numeric_limits<double>::lowest();
+    for(arma::uword i=0 ; i<N ; ++i)//position of func0
+        for(arma::uword j=0 ; j<N ; ++j)//circulation
+        {
+            arma::uword k = (i+j) % N ;
+            cor(j) += func0(i)*func1(k);
+            if( cor(j) > max ){
+                max = cor(j);
+                max_cir = j;
+            }
+        }
 }
 
-void SJRCSBase::cir_mat(const arma::sword& cir,arma::mat& alpha)
+void SJRCSBase::cir_mat(const arma::uword& cir,arma::mat& alpha)
 {
-    ;
+    //reverse the circulation
+    alpha.cols(cir_indices_.col(cir)) = alpha;
 }
 
 void SJRCSBase::calc_weighted(const arma::fmat&vv,
@@ -358,15 +507,6 @@ void SJRCSBase::calc_weighted(const arma::fmat&vv,
 {
     arma::fmat fwc = arma::conv_to<arma::fmat>::from(wc);
     arma::rowvec alpha_median = arma::median( alpha );
-    arma::uvec closest_i(alpha.n_cols);
-
-    for(int c=0;c<alpha.n_cols;++c)
-    {
-        arma::vec col = alpha.col(c);
-        arma::uword m;
-        col.max(m);
-        closest_i(c)=m;
-    }
 
     arma::mat trunc_alpha = alpha;
     for(int c=0;c<alpha.n_cols;++c)

@@ -24,6 +24,7 @@ public:
     using JRCSBase::Ts;
     using JRCSBase::TsLst;
     using JRCSBase::RotationType;
+    typedef std::vector<MeshBundle<DefaultMesh>::Ptr> MeshList;
 
 public:
     SJRCSBase();
@@ -82,14 +83,16 @@ protected:
             );//randomly sample point on sphere
     virtual void reset_prob();
     virtual void update_color_label();
-    void to_frame_func(const arma::mat& alpha,const arma::vec& model_func,arma::vec& frame_func);
+    void prepare_for_residue_correlation(void);
+    void truncate_alpha(const arma::mat&,arma::mat&,arma::vec&,arma::mat&,arma::vec&);
+    void to_frame_func(const arma::mat&,const arma::vec&,const arma::vec&,arma::vec&);
     void to_vox_func(int index,const arma::vec& frame_func,arma::vec& vox_func);
     void proj_and_rebuild(int index,const arma::vec& vox_func,arma::vec& re_vox_func);
     void to_pix_func(int index,const arma::vec& vox_func,arma::vec& pix_func);
-    void to_model_func(const arma::mat& alpha,const arma::vec& frame_func,arma::vec& model_func);
+    void to_model_func(const arma::mat&,const arma::vec&,const arma::vec&,arma::vec&);
     double res_energy(const arma::vec& func0,const arma::vec& func1);
     void max_cir_cor(const arma::vec&,const arma::vec&,arma::uword& max_cir);//maximum of circular correlation
-    void cir_mat(const arma::sword& cir,arma::mat& alpha);//perform cirulation on alpha
+    void cir_mat(const arma::uword& cir,arma::mat& alpha);//perform cirulation on alpha
     void calc_weighted(
             const arma::fmat&vv,
             const arma::fmat&vn,
@@ -120,12 +123,24 @@ protected:
     //result correspondece
     using JRCSBase::alpha_ptrlst_;
 
-    //indicating functions
+    //use residue
+    bool use_res_;
+    arma::uword res_step_;
+    arma::uword rebuild_k_;
+    //circulated indicating functions
     arma::mat funcs_;
+    //circulating position
+    arma::uvec cir_pos_;
+    //circulated indices
+    arma::umat cir_indices_;
 
     //residue function
     arma::mat res_;
     arma::vec median_res_;
+    MeshList inputs_;
+    DMatPtrLst bases_;
+
+
 
     //weighted V
     using JRCSBase::wvs_ptrlst_;
