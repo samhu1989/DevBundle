@@ -1,10 +1,11 @@
+#include "featurecore.h"
 #include "colorhistogram.hpp"
 #include "blockbasedfeature.hpp"
 #include "agd.hpp"
-#include "featurecore.h"
 #include "pointnormal.h"
 #include "hks.hpp"
 #include "bof.hpp"
+#include "gdcoord.hpp"
 void extract_patch_feature(DefaultMesh&mesh,arma::vec&feature,Config::Ptr config_)
 {
 //    std::cerr<<"0"<<std::endl;

@@ -47,7 +47,8 @@ SOURCES += main.cpp\
     jrcs.cpp \
     labelcompactor.cpp \
     spectrum.cpp \
-    annotator.cpp
+    annotator.cpp \
+    gdcthread.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -78,7 +79,8 @@ HEADERS  += mainwindow.h \
     jrcs.h \
     labelcompactor.h \
     spectrum.h \
-    annotator.h
+    annotator.h \
+    gdcthread.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

@@ -29,7 +29,9 @@ HEADERS += featurecore.h\
     hks.h \
     hks.hpp \
     bof.h \
-    bof.hpp
+    bof.hpp \
+    gdcoord.h \
+    gdcoord.hpp
 
 unix {
     target.path = /usr/lib

@@ -526,7 +526,7 @@ void NormalizedCuts<Mesh>::decomposeNormarlized()
 template<typename Mesh>
 void NormalizedCuts<Mesh>::decomposeMin()
 {
-    std::cerr<<"MinCut:"<<std::endl;
+//    std::cerr<<"Thread["<<omp_get_thread_num()<<"]:MinCut:"<<std::endl;
     arma::vec D = arma::vectorise(arma::mat(arma::sum(*W_)));
     arma::sp_mat Dmat = arma::speye<arma::sp_mat>(W_->n_rows,W_->n_cols);
     Dmat.diag() = D;
@@ -537,10 +537,10 @@ void NormalizedCuts<Mesh>::decomposeMin()
     double etol = std::numeric_limits<double>::epsilon();
     success = arma_custom::eigs_sym(lambda_,Y_,A_,(k_+1),"sm",stol,etol);
     if(!success)std::cerr<<"Failed on decomposition, Please relax the tol"<<std::endl;//failed
-    lambda_.print("lambda_:");
+//    lambda_.print("lambda_:");
     arma::uvec index = arma::find( lambda_ <= eps_ );
-    std::cerr<<"eps:"<<eps_<<std::endl;
-    index.print("index:");
+//    std::cerr<<"eps:"<<eps_<<std::endl;
+//    index.print("index:");
     if(!index.empty()){
         lambda_.shed_rows(index(0),index(index.size()-1));
         Y_.shed_cols(index(0),index(index.size()-1));

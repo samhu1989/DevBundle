@@ -64,6 +64,9 @@ public:
             const CMatPtrLst& vc,
             const LCMatPtrLst& vl
             );
+    virtual bool input_extra(
+            const MeshBundle<DefaultMesh>::PtrList& inputs
+            ){ return true;}
     virtual void input_with_label(
             const MatPtrLst& vv,
             const MatPtrLst& vn,

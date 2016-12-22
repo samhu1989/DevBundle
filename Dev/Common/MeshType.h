@@ -28,6 +28,7 @@ public:
     {}
     MeshPtr mesh_ptr(){return std::shared_ptr<M>(&mesh_);}
     std::string name_;
+    arma::fmat                  p_feature_;
     M                           mesh_;
     MeshColor<M>        custom_color_;
     VoxelGraph<M>              graph_;

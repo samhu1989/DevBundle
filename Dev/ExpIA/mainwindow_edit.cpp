@@ -20,6 +20,7 @@
 #include "jrcs.h"
 #include "labelcompactor.h"
 #include "annotator.h"
+#include "gdcthread.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -602,6 +603,27 @@ void MainWindow::start_editing()
         s->show();
         w->start();
     }
+    if(edit==ui->actionJRCS_Opt_Bilateral)
+    {
+        JRCSView* w = new JRCSView(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        JRCSWork::set_opt_bilateral(w);
+        if(!w->configure(config_)){
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        s->show();
+        w->start();
+    }
     if(edit==ui->actionJRCS_Old)
     {
         JRCSView* w = new JRCSView(
@@ -655,6 +677,27 @@ void MainWindow::start_editing()
 
         edit_thread_ = th;
     }
+
+    if(edit==ui->actionGDCoord)
+    {
+        GDCThread* worker = new GDCThread(mesh_views_,gl_timer);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(process()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("GDCoord"));
+        edit_thread_ = th;
+    }
+
     if(edit_thread_){
         connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
         edit_thread_->start(QThread::HighestPriority);

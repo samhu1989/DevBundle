@@ -29,6 +29,13 @@ void JRCSThread::input(
     jrcs_->input(vv,vn,vc,vl);
 }
 
+bool JRCSThread::input_extra(
+      const MeshBundle<DefaultMesh>::PtrList& inputs
+     )
+{
+    return jrcs_->input_extra(inputs);
+}
+
 void JRCSThread::input_with_label(
       const MatPtrLst& vv,
       const MatPtrLst& vn,

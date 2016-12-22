@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionIn_Patch_Graph_Cut,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionIterate,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionGet_Compact_Label,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+
     connect(ui->actionJRCS_Old,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Init_SIHKS,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -78,6 +79,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionJRCS_Opt_AONI,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_AOPT,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_Spectrum,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS_Opt_Bilateral,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+
+    connect(ui->actionGDCoord,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionDebug_Convexity,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -794,7 +799,6 @@ void MainWindow::load_vox_index_picked()
             }
             ++index;
             connect(&gl_timer,SIGNAL(timeout()),w,SLOT(updateGL()));
-
         }
     }
 

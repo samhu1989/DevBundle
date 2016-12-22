@@ -32,7 +32,7 @@ public:
       tex_mode_(GL_MODULATE),
       use_color_(true),
       custom_color_(false),
-      show_vnormals_(false),
+      show_vnormals_(true),
       show_fnormals_(false),
       current_mesh_start_(0),
       current_visible_num_(1)

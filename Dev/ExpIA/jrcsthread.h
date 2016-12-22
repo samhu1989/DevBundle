@@ -24,6 +24,9 @@ public:
           const CMatPtrLst& vc,
           const LCMatPtrLst& vl
          );
+    bool input_extra(
+          const MeshBundle<DefaultMesh>::PtrList& inputs
+         );
     void input_with_label(
           const MatPtrLst& vv,
           const MatPtrLst& vn,

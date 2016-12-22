@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  9 DEC 2016 19:42
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  22 DEC 2016 13:32
 entering extended mode
 **JRCS.tex
 (JRCS.tex
@@ -487,13 +487,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 21--31
 
  []
 
+
+Overfull \hbox (1.639pt too wide) detected at line 37
+\OML/cmm/m/it/9 P\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 v[]; f[]\OT1/cmr/m/n/9 ) = [] 
+\OML/cmm/m/it/9 p[]N\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 v[]\OMS/cmsy/m/n/9 j\OML/cm
+m/m/it/9 ^^^[]\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 xv[]\OT1/cmr/m/n/9 )\OML/cmm/m/it
+/9 ; ^^[v[]\OT1/cmr/m/n/9 )\OML/cmm/m/it/9 N\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 f[]
+\OMS/cmsy/m/n/9 j\OML/cmm/m/it/9 xf[]; ^^[v[]\OT1/cmr/m/n/9 ))
+ []
+
 ) (imp.tex
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 11.
 ) (experiment&discussion.tex (exp_residue.tex
 File: images/exp_res/inputs.png Graphic file (type QTm)
 
-<use  "images/exp_res/inputs.png" >
+<use  "images/exp_res/inputs.png" > [2]
 
 LaTeX Warning: Command \l invalid in math mode on input line 21.
 
@@ -554,9 +563,9 @@ Underfull \hbox (badness 1122) in paragraph at lines 29--135
 \OT1/ptm/m/n/9 Based on the lapla-cian ma-trix we can get its eigen-func-tions
  []
 
-[2] (JRCS.bbl
+[3] [4] [5] (JRCS.bbl
 Requested font "ptmrc7t" at 9.0pt
- [3] [4] [5]
+
 Underfull \hbox (badness 2065) in paragraph at lines 58--62
 []\OT1/ptm/m/sc/9 Fisher, M., Savva, M., Li, Y., Han-ra-han, P., and
  []
@@ -581,7 +590,7 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 190.
 Here is how much of TeX's memory you used:
  10743 strings out of 428790
  150695 string characters out of 3164816
- 244505 words of memory out of 3000000
+ 239505 words of memory out of 3000000
  13943 multiletter control sequences out of 15000+200000
  17665 words of font info for 47 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191

@@ -22,7 +22,8 @@ SOURCES += \
     jrcsinitexternal.cpp \
     jrcsaoni.cpp \
     jrcsaopt.cpp \
-    sjrcsbase.cpp
+    sjrcsbase.cpp \
+    jrcsbilateral.cpp
 
 HEADERS +=\
         jrcscore_global.h \
@@ -31,7 +32,8 @@ HEADERS +=\
     jrcsinitexternal.h \
     jrcsaoni.h \
     jrcsaopt.h \
-    sjrcsbase.h
+    sjrcsbase.h \
+    jrcsbilateral.h
 
 unix {
     target.path = /usr/lib
@@ -93,3 +95,13 @@ win32: LIBS += -L$$OUT_PWD/../../Feature/FeatureCore/ -lFeatureCore
 
 INCLUDEPATH += $$PWD/../../Feature/FeatureCore
 DEPENDPATH += $$PWD/../../Feature/FeatureCore
+
+win32: LIBS += -L$$OUT_PWD/../../ML/Clustering/ -lClustering
+
+INCLUDEPATH += $$PWD/../../ML/Clustering
+DEPENDPATH += $$PWD/../../ML/Clustering
+
+win32: LIBS += -L$$OUT_PWD/../../IO/IOCore/ -lIOCore
+
+INCLUDEPATH += $$PWD/../../IO/IOCore
+DEPENDPATH += $$PWD/../../IO/IOCore

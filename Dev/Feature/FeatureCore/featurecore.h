@@ -10,11 +10,13 @@
 #include "agd.h"
 #include "hks.h"
 #include "bof.h"
+#include "gdcoord.h"
 template class FEATURECORESHARED_EXPORT Feature::NormalHistogram<DefaultMesh>;
 template class FEATURECORESHARED_EXPORT Feature::ColorHistogramLab<DefaultMesh>;
 template class FEATURECORESHARED_EXPORT Feature::ColorHistogramRGB<DefaultMesh>;
 template class FEATURECORESHARED_EXPORT Feature::BlockBasedFeature<DefaultMesh>;
 template class FEATURECORESHARED_EXPORT Feature::AGD<DefaultMesh>; //Average Geodesic Distance
 template class FEATURECORESHARED_EXPORT Feature::HKS<DefaultMesh>;
+template class FEATURECORESHARED_EXPORT Feature::GDCoord<DefaultMesh>;
 void FEATURECORESHARED_EXPORT extract_patch_feature(DefaultMesh&, arma::vec&, Config::Ptr);
 #endif // FEATURECORE_H

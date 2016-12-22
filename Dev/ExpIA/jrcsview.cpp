@@ -33,6 +33,7 @@ bool JRCSView::configure(Config::Ptr config)
 bool JRCSView::init(Config::Ptr config)
 {
     std::cerr<<"JRCSView::init"<<std::endl;
+    std::cerr<<"On "<<jrcs_worker_->get_method_name()<<std::endl;
     ui->spinBox->hide();
     connect(jrcs_worker_,SIGNAL(message(QString,int)),this,SLOT(passMessage(QString,int)));
     connect(&t_,SIGNAL(timeout()),jrcs_worker_,SLOT(get_iter_info()));
@@ -70,6 +71,7 @@ void JRCSView::input( JRCSThread* jrcs_worker_ )
     }
     if(use_init_label_)
     {
+        std::cerr<<"using init labels"<<std::endl;
         LMatPtrLst vl;
         std::vector<arma::uvec>::iterator liter;
         for(liter=labels_.begin();liter!=labels_.end();++liter)
@@ -86,7 +88,10 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
     MatPtrLst wv,wn;
     CMatPtrLst wc;
     int k = jrcs_worker_->get_k();
-    if(k<0)return false;
+    if(k<0){
+        std::cerr<<"JRCSView::invalid k:"<<k<<std::endl;
+        return false;
+    }
     int M = inputs_.size();
     for(int i = 0 ; i < M ; i++ )
     {
@@ -122,8 +127,8 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
     std::cerr<<"JRCSView::allocate_x:reseting x"<<std::endl;
     jrcs_worker_->resetx(xv,xn,xc);
     std::cerr<<"JRCSView::allocate_x:done reseting x"<<std::endl;
+    geo_view_->reset_center();
     geo_view_->show_back();
-
     return true;
 }
 
@@ -140,6 +145,11 @@ void JRCSView::move_worker_to_thread( JRCSThread* jrcs_worker )
 void JRCSView::start()
 {
     emit message(tr("Starting"),1000);
+    if(!jrcs_worker_->input_extra(inputs_))
+    {
+        emit message(tr("Failed at input extra: perhaps missing some inputs"),0);
+        std::cerr<<"Failed at input extra: perhaps missing some inputs"<<std::endl;
+    }
     jrcs_thread_->start(QThread::NormalPriority);
     t_.start(751);
     time.restart();
@@ -165,7 +175,7 @@ void JRCSView::finished()
         jrcs_thread_->deleteLater();
         jrcs_thread_ = NULL;
     }
-    std::cerr<<msg.toStdString()<<std::endl;
+    std::cout<<msg.toStdString()<<std::endl;
     emit message(msg,1000);
     connect(ui->spinBox,SIGNAL(valueChanged(int)),this,SLOT(align(int)));
     ui->spinBox->show();

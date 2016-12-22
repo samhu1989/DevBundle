@@ -150,6 +150,7 @@
       <addaction name="actionJRCS_Opt_AONI"/>
       <addaction name="actionJRCS_Opt_AOPT"/>
       <addaction name="actionJRCS_Opt_Spectrum"/>
+      <addaction name="actionJRCS_Opt_Bilateral"/>
      </widget>
      <addaction name="menuInitialization"/>
      <addaction name="menuOptimization"/>
@@ -200,8 +201,27 @@
     <addaction name="actionInside_Bounding_Box"/>
     <addaction name="actionAGD_test"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <widget class="QMenu" name="menuFeature">
+     <property name="title">
+      <string>Feature</string>
+     </property>
+     <widget class="QMenu" name="menuVox_Based">
+      <property name="title">
+       <string>Vox Based</string>
+      </property>
+      <addaction name="actionGDCoord"/>
+     </widget>
+     <addaction name="menuVox_Based"/>
+    </widget>
+    <addaction name="menuFeature"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuTools"/>
    <addaction name="menuReplay"/>
    <addaction name="menuTests"/>
   </widget>
@@ -565,6 +585,16 @@
   <action name="actionJRCS_Opt_Spectrum">
    <property name="text">
     <string>Spectrum</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Opt_Bilateral">
+   <property name="text">
+    <string>Bilateral</string>
+   </property>
+  </action>
+  <action name="actionGDCoord">
+   <property name="text">
+    <string>Geodesic Coordinates</string>
    </property>
   </action>
  </widget>

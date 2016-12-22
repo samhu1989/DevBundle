@@ -218,6 +218,7 @@ void JRCSBase::initx(
         int obj_size = int(float(k)*float(obj_prob_(obj_idx)));
         obj_size = std::max(9,obj_size);
         obj_size = std::min(r_k,obj_size);
+        if( obj_idx == ( obj_prob_.size() - 1 ) ) obj_size = r_k;
         objv_ptrlst_.emplace_back(new arma::fmat(pxv,3,obj_size,false,true));
         objn_ptrlst_.emplace_back(new arma::fmat(pxn,3,obj_size,false,true));
         objc_ptrlst_.emplace_back(new arma::Mat<uint8_t>(pxc,3,obj_size,false,true));

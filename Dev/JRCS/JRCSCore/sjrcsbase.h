@@ -31,6 +31,9 @@ public:
     virtual ~SJRCSBase(){}
     virtual std::string name()const{return "SJRCSBase";}
     virtual bool configure(Config::Ptr);
+    virtual bool input_extra(
+            const MeshBundle<DefaultMesh>::PtrList& inputs
+            );
     virtual void initx(
             const MatPtr& xv,
             const MatPtr& xn,
@@ -50,20 +53,25 @@ public:
     //Update var pk
     virtual void compute(void)
     {
+        std::cerr<<"preparing"<<std::endl;
         prepare_compute();
         while(!isEnd())
         {
+            std::cerr<<"step a"<<std::endl;
             #pragma omp parallel for
             for( int i=0 ; i < vvs_ptrlst_.size() ; ++i )
             {
                 step_a(i);
             }
+            std::cerr<<"step b"<<std::endl;
             step_b();
+            std::cerr<<"step c"<<std::endl;
             #pragma omp parallel for
             for( int i=0 ; i < vvs_ptrlst_.size() ; ++i )
             {
                 step_c(i);
             }
+            std::cerr<<"step d"<<std::endl;
             step_d();
             finish_steps();
         }
@@ -102,7 +110,9 @@ protected:
             arma::fmat&wn,
             arma::Mat<uint8_t>&wc
             );
-    void calc_obj(void);
+    void reset_x(void);
+    void reset_var_p(void);
+    virtual void calc_obj(void);
 protected:
     //iteration count
     using JRCSBase::iter_count_;
@@ -127,20 +137,24 @@ protected:
     bool use_res_;
     arma::uword res_step_;
     arma::uword rebuild_k_;
+    arma::uword base_k_;
+    arma::uword res_act_freq_;
     //circulated indicating functions
     arma::mat funcs_;
     //circulating position
     arma::uvec cir_pos_;
     //circulated indices
     arma::umat cir_indices_;
+    //cir frame
+    arma::uword cir_frame_;
+    //cir value
+    arma::uvec cir_value_;
 
     //residue function
     arma::mat res_;
     arma::vec median_res_;
     MeshList inputs_;
     DMatPtrLst bases_;
-
-
 
     //weighted V
     using JRCSBase::wvs_ptrlst_;
@@ -155,7 +169,7 @@ protected:
     //transformed centroid
     MatPtrLst  xtv_ptrlst_;
 
-    arma::mat var_;
+    arma::mat vvar_;
     //latent model parameter
     using JRCSBase::x_p_;      //probability
     using JRCSBase::x_invvar_; //inversed variance
