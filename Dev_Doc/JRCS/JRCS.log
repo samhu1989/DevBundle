@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  22 DEC 2016 13:32
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  23 DEC 2016 18:26
 entering extended mode
 **JRCS.tex
 (JRCS.tex
@@ -465,8 +465,44 @@ Requested font "cmex9" at 9.0pt
 Requested font "ptmri7t" at 9.0pt
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <8> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 128.
- (introduction.tex)
-(relatedwork.tex
+ (introduction.tex
+File: images/intro_ill_condition/toy_demo.pdf Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/toy_demo.pdf" >
+File: images/intro_ill_condition/01_input.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/01_input.png" >
+File: images/intro_ill_condition/01_seg.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/01_seg.png" >
+File: images/intro_ill_condition/01_compose.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/01_compose.png" >
+File: images/intro_ill_condition/02_input.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/02_input.png" >
+File: images/intro_ill_condition/02_seg.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/02_seg.png" >
+File: images/intro_ill_condition/02_compose.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/02_compose.png" >
+File: images/intro_ill_condition/03_input.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/03_input.png" >
+File: images/intro_ill_condition/03_seg.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/03_seg.png" >
+File: images/intro_ill_condition/03_compose.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/03_compose.png" >
+File: images/intro_ill_condition/objects.png Graphic file (type QTm)
+
+<use  "images/intro_ill_condition/objects.png" >) (relatedwork.tex
+Underfull \hbox (badness 10000) in paragraph at lines 3--1
+
+ []
+
 LaTeX Font Info:    Font shape `OT1/phv/m/n' will be
 (Font)              scaled to size 9.19998pt on input line 3.
 Requested font "phvr7t" at 9.19998pt
@@ -479,7 +515,10 @@ Requested font "phvb7t" at 9.19998pt
 
 LaTeX Warning: Reference `fig:syn-data' on page 1 undefined on input line 4.
 
-[1
+
+Underfull \vbox (badness 1629) has occurred while \output is active []
+
+ [1
 
 
 ]
@@ -499,10 +538,10 @@ m/m/it/9 ^^^[]\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 xv[]\OT1/cmr/m/n/9 )\OML/cmm/m/it
 ) (imp.tex
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 11.
-) (experiment&discussion.tex (exp_residue.tex
+ [2]) (experiment&discussion.tex (exp_residue.tex
 File: images/exp_res/inputs.png Graphic file (type QTm)
 
-<use  "images/exp_res/inputs.png" > [2]
+<use  "images/exp_res/inputs.png" >
 
 LaTeX Warning: Command \l invalid in math mode on input line 21.
 
@@ -563,20 +602,23 @@ Underfull \hbox (badness 1122) in paragraph at lines 29--135
 \OT1/ptm/m/n/9 Based on the lapla-cian ma-trix we can get its eigen-func-tions
  []
 
-[3] [4] [5] (JRCS.bbl
+(JRCS.bbl [3]
 Requested font "ptmrc7t" at 9.0pt
 
 Underfull \hbox (badness 2065) in paragraph at lines 58--62
 []\OT1/ptm/m/sc/9 Fisher, M., Savva, M., Li, Y., Han-ra-han, P., and
  []
 
+[4] [5] [6]
 Missing character: There is no ö in font ptmrc7t!
 Missing character: There is no ö in font ptmrc7t!
 Missing character: There is no à in font ptmrc7t!
 Missing character: There is no ò in font ptmrc7t!
 )
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 190.
- [6]
+ [7
+
+]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 190.
  (JRCS.aux)
 Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 190.
@@ -588,12 +630,12 @@ LaTeX Warning: There were undefined references.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 190.
  ) 
 Here is how much of TeX's memory you used:
- 10743 strings out of 428790
- 150695 string characters out of 3164816
- 239505 words of memory out of 3000000
- 13943 multiletter control sequences out of 15000+200000
+ 10770 strings out of 428790
+ 151381 string characters out of 3164816
+ 240681 words of memory out of 3000000
+ 13958 multiletter control sequences out of 15000+200000
  17665 words of font info for 47 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
  43i,15n,75p,1734b,442s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on JRCS.pdf (6 pages).
+Output written on JRCS.pdf (7 pages).

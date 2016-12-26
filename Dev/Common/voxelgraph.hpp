@@ -158,7 +158,7 @@ typename VoxelGraph<M>::Ptr VoxelGraph<M>::getSubGraphPtr(const VoxelGraph& pare
 //    std::cerr<<"done"<<std::endl;
     return sub_graph;
 }
-
+//resulted index start from one
 template <typename M>
 void VoxelGraph<M>::getSvIndex(const arma::uvec& pix,arma::uvec& sv)
 {

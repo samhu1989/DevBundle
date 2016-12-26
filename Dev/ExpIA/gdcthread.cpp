@@ -66,16 +66,16 @@ void GDCThread::process()
 void GDCThread::feature_to_color(uint32_t* ptr,arma::uword size,const arma::fmat& f)
 {
     assert( f.n_cols == size );
-    float max = f.max();
-    float min = f.min();
+    arma::fvec max = arma::max(f,1);
+    arma::fvec min = arma::min(f,1);
 //    std::cerr<<"f("<<min<<","<<max<<")"<<std::endl;
     #pragma omp parallel for
     for(int i = 0 ; i < f.n_cols ; ++i )
     {
         float r = 1.0 , g = 1.0 , b = 1.0 ;
-        if(f.n_rows>0) r = ( f(0,i) - min ) / ( max - min );
-        if(f.n_rows>1) g = ( f(1,i) - min ) / ( max - min );
-        if(f.n_rows>2) b = ( f(2,i) - min ) / ( max - min );
+        if(f.n_rows>0) r = ( f(0,i) - min(0) ) / ( max(0) - min(0) );
+        if(f.n_rows>1) g = ( f(1,i) - min(1) ) / ( max(1) - min(1) );
+        if(f.n_rows>2) b = ( f(2,i) - min(2) ) / ( max(2) - min(2) );
         ptr[i] = qRgb( 255.0*r, 255.0*g, 255.0*b );
     }
 }

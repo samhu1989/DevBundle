@@ -175,6 +175,7 @@ protected:
   virtual void processSelections();
   PointSelections selections_;
   float            radius_;
+  float            point_size_;
 private:
    
   // updates projection matrix

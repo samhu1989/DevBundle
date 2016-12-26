@@ -6,4 +6,30 @@ Another way is to automatically generate scenes from 3D shape models according t
 We prefer a approach that helps us build such data set directly from the captured data. One of the major gap between the required data set and available scene capturing framework(e.g.\cite{KinectFusion}) is the general object level segmentation. We want to stress that a general object level segmentation problem should not be treated as an equivalence of multilabel classification problem since it is not limited to a certain set of objects. For 3D data, \cite{3DReasoningfromBlockstoStability} used some simplified physical prior knowledge (i.e. the block based stability) to help acheiving the general object segmentation, while the work of \cite{Xu:2015:ACS:2816795.2818075} proposes a practical and rather complete framework to close the gap between the required data set and available scene capturing method. One of the observation in \cite{Xu:2015:ACS:2816795.2818075} is that the motion consistency of rigid object can serve as a strong evidence of general objectness. To exploit this fact, they employ a robot to do proactive push and use the movement tracking to verify and iteratively improve their object level segmentation result. Our work presented in this paper is trying to exploit the same observation from a different approach.\\
 We intend to use the motion consistency that is naturally revealed by human activities along the time. Down to this approach, we are facing the choice of scanning scheme. One way is to record the change of the scene along with the human activities, another is to arrange a daily or even a once every half day sweep to only record the result of human activities but avoid the instant of human motion. The main challenge brought in by the second scheme is that we may not be able to solve the object correspondence by a local search due to the sparse sampling over time, but the very same challenge exists in the first scheme due to the exclusion caused by human bodies not to mention other additional process(e.g. tracking with severe oclussion ) needed for human bodies. With the second scanning scheme, our original intention of building 3D scene data set from capturing naturally leads us to the problem of coupled joint registration and co-segmentation.\\ In this problem, registration and segmentaion are entangled in each other. On one hand the segmentation depends on the registration to connect the point clouds into series of rigid movement so that the object level segmentation can be done based on the motion consistency, on the other hand, the registration depends on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift(A pair of points is close to each other in one point set but their correspondent pair of points in another point set is far from each other, in other words, the point drift of this pair is non-coherent. This happens when this pair of points actually belong to different objects.)\\
 To model the problem, we employ a group of gaussian mixture models and each of these gaussian mixture models represents a potential objects. This modeling handles the entanglement of registration and segmentation in the way that      
-      
+\begin{figure*}
+	\subfigure[Multiple Explanation for the Same Set of Observation]{
+		\includegraphics[width=0.3\linewidth]{images/intro_ill_condition/toy_demo}
+		\label{fig:ill_condition_toydemo}
+	}
+	\subfigure[Three Sample Frame:from top to down are input, segmentation and composed with latent model]{
+		\label{fig:sample_frames}
+		\begin{minipage}[b]{0.1\linewidth}
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/01_input.png}
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/01_seg.png}\\
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/01_compose.png}
+		\end{minipage}
+		\begin{minipage}[b]{0.1\linewidth}
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/02_input.png}
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/02_seg.png}\\
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/02_compose.png}
+		\end{minipage}
+		\begin{minipage}[b]{0.1\linewidth}
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/03_input.png}
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/03_seg.png}\\
+		\includegraphics[width=\linewidth]{images/intro_ill_condition/03_compose.png}
+		\end{minipage}
+	}
+	\subfigure[latent model]{
+		\includegraphics[height=0.4\linewidth]{images/intro_ill_condition/objects.png}
+	}
+\end{figure*}\\

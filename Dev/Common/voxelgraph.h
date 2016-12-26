@@ -23,7 +23,7 @@ public:
     void sv2pix(const arma::uvec& sv,arma::uvec& pix);//supervoxel label to pixel label
     void sv2pix(arma::Col<uint32_t>&,arma::Col<uint32_t>&);//supervoxel color to pixel color
     void sv2pix(arma::Mat<uint8_t>&,arma::Mat<uint8_t>&);//supervoxel color to pixel color
-    void getSvIndex(const arma::uvec& pix,arma::uvec& sv);//pixel index to supervoxel index
+    void getSvIndex(const arma::uvec& pix,arma::uvec& sv);//pixel index to supervoxel index-result index start from one input index start from zero
     void getSvIndexv0(const arma::uvec& pix,arma::uvec& sv);//pixel index to supervoxel index
     void getPixIndex(const arma::uvec& sv,arma::uvec& pix);//supervoxel index to pixel index
     void getPixFunc(const arma::vec& voxFunc,arma::vec& pixFunc);

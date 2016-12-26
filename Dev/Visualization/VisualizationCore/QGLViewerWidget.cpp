@@ -134,6 +134,7 @@ QGLViewerWidget::init(void)
   connect( draw_modes_group_, SIGNAL(triggered(QAction*)),
 	   this, SLOT(slotDrawMode(QAction*)));
 
+  point_size_ = 5.0;
 
   rect_select_ = false;
   rect_selecting_ = false;
@@ -486,9 +487,17 @@ QGLViewerWidget::mouseReleaseEvent( QMouseEvent* _event )
 void QGLViewerWidget::wheelEvent(QWheelEvent* _event)
 {
   // Use the mouse wheel to zoom in/out
-
-  float d = -(float)_event->delta() / 120.0 * 0.2 * radius_;
-  translate(Vec3f(0.0, 0.0, d));
+  if( _event->modifiers() & AltModifier )
+  {
+      float d = -(float)_event->delta() / 120.0 * 0.05 * 30.0;
+      point_size_ += d;
+      if(point_size_>30.0)point_size_=30.0;
+      if(point_size_<1.0)point_size_=1.0;
+  }else
+  {
+      float d = -(float)_event->delta() / 120.0 * 0.2 * radius_;
+      translate(Vec3f(0.0, 0.0, d));
+  }
   updateGL();
   _event->accept();
 }

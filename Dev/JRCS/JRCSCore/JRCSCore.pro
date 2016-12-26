@@ -23,7 +23,8 @@ SOURCES += \
     jrcsaoni.cpp \
     jrcsaopt.cpp \
     sjrcsbase.cpp \
-    jrcsbilateral.cpp
+    jrcsbilateral.cpp \
+    jrcshough.cpp
 
 HEADERS +=\
         jrcscore_global.h \
@@ -33,7 +34,8 @@ HEADERS +=\
     jrcsaoni.h \
     jrcsaopt.h \
     sjrcsbase.h \
-    jrcsbilateral.h
+    jrcsbilateral.h \
+    jrcshough.h
 
 unix {
     target.path = /usr/lib

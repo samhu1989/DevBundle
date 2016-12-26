@@ -617,7 +617,7 @@ MeshViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode)
           glColorPointer(4, GL_UNSIGNED_BYTE, 0, custom_color_->vertex_colors());
       }
     }
-    glPointSize(5);
+    glPointSize(point_size_);
     glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);

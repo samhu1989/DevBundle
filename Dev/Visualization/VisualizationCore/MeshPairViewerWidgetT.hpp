@@ -258,7 +258,7 @@ void MeshPairViewerWidgetT<M>::draw_selected()
 {
     if(first_selected_.empty())return;
     glDisable(GL_LIGHTING);
-    glPointSize(8.0);
+    glPointSize(2.0*point_size_);
     glBegin(GL_POINTS);
     glColor3f(1.0f,0.0f,0.0f); // red
     float* p = (float*)first_->mesh_.points();
@@ -552,7 +552,7 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
             glColorPointer(4, GL_UNSIGNED_BYTE, 0, color_.vertex_colors());
         }
     }
-    glPointSize(4.0);
+    glPointSize(point_size_);
     glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);

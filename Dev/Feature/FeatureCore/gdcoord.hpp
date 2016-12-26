@@ -20,6 +20,7 @@ void GDCoord<Mesh>::extract(const VoxelGraph<Mesh>& graph, const arma::uvec& axi
     std::cerr<<"GDCoord<Mesh>::extract()"<<std::endl;
     if(feature.n_rows!=axis_index.size()||feature.n_cols!=graph.size())feature = arma::fmat(axis_index.size(),graph.size());
     feature.fill( std::numeric_limits<float>::max() - 1.0 );
+    arma::uvec axis = axis_index - 1;
     //build connected matrix
     size_t N = graph.size();
     arma::sp_fmat w(N,N);
@@ -31,7 +32,7 @@ void GDCoord<Mesh>::extract(const VoxelGraph<Mesh>& graph, const arma::uvec& axi
         w(i,j) = dist;
         w(j,i) = dist;
     }
-    arma::uword dim = axis_index.size();
+    arma::uword dim = axis.size();
     std::cerr<<"dim:"<<dim<<std::endl;
     float* f_ptr_ = feature.memptr();
     #pragma omp parallel for
@@ -47,8 +48,8 @@ void GDCoord<Mesh>::extract(const VoxelGraph<Mesh>& graph, const arma::uvec& axi
             node.dist_ = &f_ptr_[j*dim+i];
             node.visited_ = false;
         }
-        q.push(d[axis_index(i)]);
-        *d[axis_index(i)].dist_  = 0.0;
+        q.push(d[axis(i)]);
+        *d[axis(i)].dist_  = 0.0;
         while(!q.empty())
         {
             Node cd = q.top();
@@ -68,6 +69,8 @@ void GDCoord<Mesh>::extract(const VoxelGraph<Mesh>& graph, const arma::uvec& axi
         }
     }
 //    std::cerr<<"f:"<<feature<<std::endl;
+    feature += 1.0 ;
+    feature = 1.0 / feature;
     if(!feature.is_finite())
     {
         std::cerr<<"infinite feature GDCoord<Mesh>::extract"<<std::endl;
