@@ -2,7 +2,7 @@
 \label{sec:method}
 \subsection{Problem Statement}
 Given a set of point clouds which record the same group of rigid indoor objects with different layout. We intend to samutaneously partition the point clouds into objects and align the points of same object to recover layouts for corresponding object. Figure~\ref{fig:syn-data} shows an example of input point clouds set.
-\subsection{Formulation}
+\subsection{Baseline Formulation}
 To formulate the relation between the unknown object set and the input point clouds. We come up with a generation model as follows:
 \begin{equation}
 \label{equ:model}
@@ -30,12 +30,35 @@ $v_{mi}$ is the i-th point of the m-th point cloud.\\
 $Z$ is a latent variable set defined as:\\
 $$Z=\{z_{ij}|j=1...M,i=1...N_j\}$$
 among which if $z_{ij}=k(k=1...\sum{K_n})$ assign the observation of $\phi_{mn}(v_{mi})$ to the k-th component of Gaussian mixture model.Such formulation can be seen as an extention of joint registration formulation in \cite{Evangelidis2014}, upon which we add several gaussian mixture model together to express a group of objects. By solving this new problem we simutaneously solve  the object co-segmentation of given observation.
-\subsection{Bilateral GMM Formulation}
+\subsection{Bilateral Formulation}
 When considering features, we can develop it into a bilateral GMM formulation.
 \begin{equation}
 P(v_{mi},f_{mi})=\sum^{K_n}_{k=1}p_kN(v_{mi}|\phi_{mn}(xv_k),\sigma v_k)N(f_{mi}|xf_k,\sigma v_f))
 \end{equation}
-we measure the feature difference by a gaussian with diagnal $\Sigma$, to make this measurement valid we need to re-scale the feature space.
+we measure the feature difference by a gaussian with diagnal $\Sigma$, to make this measurement valid we rotate and scale the feature space with PCA.
+\subsection{Hough Based Formulation}
+In order to constrain the shape of objects and allow optimization of the shape, we assume that the surface of any indoor object is composed of five axist aligned rectangle plates.
+\begin{equation}
+\label{equ:hough}
+P(v_{mi})=\sum^{K_n}_{k=1}p_kN(v_{mi}|\phi_{mn}(Y_k),\Sigma_k)
+\end{equation}
+where $Y_k$ is a rectangle plate and the $N(v_{mi}|\phi_{mn}(Y_k),\Sigma_k)$ are expanded as
+$$
+(\sqrt{2\pi})^{-3}|\Sigma_k|^{-1}\exp(-0.5\inf_{x\in Y_k}\{||v_{mi}-\phi_{mn}(x)||^2_{\Sigma_k}\})
+$$
+in which the $$\inf_{x \in Y_k}\{||v_{mi}-\phi_{mn}(x)||^2_{\Sigma_k}\}$$ means that the distance from a point to a plate is defined as the infimum of distances from this point to points inside the plate. 
+For plate model, with other parameter fixed the update of $\phi_{mn}$ can be solved as a problem
+\begin{equation}
+\left\{
+\begin{aligned}
+\min_{R_{mn},t_{mn}}~&~|| (R_{mn}W_{mn} + t_{mn}e^{T} - C(\{Y\}_n))\Lambda_{mn}||^2_{F} \\
+s.t.~&~R_{mn}R_{mn}^{T}=I,~|R_{mn}|=1
+\end{aligned}
+\right.
+\end{equation}
+in which $C(\{Y_k\}_n)$ is a $3 \times 5$ matrix with each column being a center coordinates of a plate in nth object
+and $W_{mn}=[w_{mk_1},...,w_{mk_5}]_{k_j \in O_n}$ is matrix with size of $3 \times 5$ and each column being a virtual 3D point given by
+$$w_{mk_j}=\frac{\sum^{N_m}_{i=1}\alpha_{mik}v_{mi}}{\sum^{N_m}_{i=1}\alpha_{mik}}$$
 \subsection{Sparsity in Height of Supporting Plane and Gravity Axis Translation}
 The height of supporting plane and the translation of the object along the gravity axis is sparse in a physical world.\\
 For translation:
@@ -46,3 +69,4 @@ For translation:
 \vec{z}_{plane}(X) = <\vec{w_x},\vec{h}>~~~~~|\vec{w_x}| = 1
 \end{equation}
 where $\vec{h}$ is the space of supporting plane and always have a zero element as the floor is always a supporting plane. $\vec{t_z}(\phi_{mn})$ is the translation component of the transformation $\phi_{mn}$. $\vec{z}_{plane}$ is a height of supporting plane in latent object model. $\vec{h}$ can be constructed by detecting horizontal planes in the observations.
+
