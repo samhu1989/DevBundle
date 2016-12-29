@@ -80,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionJRCS_Opt_AOPT,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_Spectrum,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_Bilateral,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS_Opt_Primitive,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionGDCoord,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 

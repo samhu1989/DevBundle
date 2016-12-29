@@ -217,14 +217,16 @@ template <typename M>
 void
 MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _draw_mode)
 {
-  Mesh& mesh_ = b.mesh_;
-  Stripifier& strips_ = b.strips_;
-  MeshColor<Mesh>& color_ = b.custom_color_;
+//    std::cout<<"draw_openmesh"<<std::endl;
+//    std::cout<<"draw_mode_:"<<_draw_mode<<std::endl;
+    Mesh& mesh_ = b.mesh_;
+    Stripifier& strips_ = b.strips_;
+    MeshColor<Mesh>& color_ = b.custom_color_;
 
-  typename Mesh::ConstFaceIter    fIt(mesh_.faces_begin()),
-                                  fEnd(mesh_.faces_end());
+    typename Mesh::ConstFaceIter    fIt(mesh_.faces_begin()),
+            fEnd(mesh_.faces_end());
 
-  typename Mesh::ConstFaceVertexIter fvIt;
+    typename Mesh::ConstFaceVertexIter fvIt;
 
 #if defined(OM_USE_OSG) && OM_USE_OSG
   if (_draw_mode == "OpenSG Indices") // --------------------------------------
@@ -256,253 +258,252 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
   else
 #endif
 
-  if (_draw_mode == "Wireframe") // -------------------------------------------
-  {
-     glBegin(GL_TRIANGLES);
-     for (; fIt!=fEnd; ++fIt)
-     {
-        fvIt = mesh_.cfv_iter(*fIt);
-        glVertex3fv( &mesh_.point(*fvIt)[0] );
-        ++fvIt;
-        glVertex3fv( &mesh_.point(*fvIt)[0] );
-        ++fvIt;
-        glVertex3fv( &mesh_.point(*fvIt)[0] );
-     }
-     glEnd();
-  }
+      if (_draw_mode == "Wireframe") // -------------------------------------------
+      {
+          glBegin(GL_TRIANGLES);
+          for (; fIt!=fEnd; ++fIt)
+          {
+              fvIt = mesh_.cfv_iter(*fIt);
+              glVertex3fv( &mesh_.point(*fvIt)[0] );
+              ++fvIt;
+              glVertex3fv( &mesh_.point(*fvIt)[0] );
+              ++fvIt;
+              glVertex3fv( &mesh_.point(*fvIt)[0] );
+          }
+          glEnd();
+      }
 
-  else if (_draw_mode == "Solid Flat") // -------------------------------------
-  {
-    glBegin(GL_TRIANGLES);
-    for (; fIt!=fEnd; ++fIt)
-    {
-      glNormal3fv( &mesh_.normal(*fIt)[0] );
+      else if (_draw_mode == "Solid Flat") // -------------------------------------
+      {
+          glBegin(GL_TRIANGLES);
+          for (; fIt!=fEnd; ++fIt)
+          {
+              glNormal3fv( &mesh_.normal(*fIt)[0] );
 
-      fvIt = mesh_.cfv_iter(*fIt);
-      glVertex3fv( &mesh_.point(*fvIt)[0] );
-      ++fvIt;
-      glVertex3fv( &mesh_.point(*fvIt)[0] );
-      ++fvIt;
-      glVertex3fv( &mesh_.point(*fvIt)[0] );
-    }
-    glEnd();
+              fvIt = mesh_.cfv_iter(*fIt);
+              glVertex3fv( &mesh_.point(*fvIt)[0] );
+              ++fvIt;
+              glVertex3fv( &mesh_.point(*fvIt)[0] );
+              ++fvIt;
+              glVertex3fv( &mesh_.point(*fvIt)[0] );
+          }
+          glEnd();
 
-  }
-
-
-  else if (_draw_mode == "Solid Smooth") // -----------------------------------
-  {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
-
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
-
-    if ( tex_id_ && mesh_.has_vertex_texcoords2D() )
-    {
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(2, GL_FLOAT, 0, mesh_.texcoords2D());
-      glEnable(GL_TEXTURE_2D);
-      glBindTexture(GL_TEXTURE_2D, tex_id_);
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, tex_mode_);
-    }
-
-    glBegin(GL_TRIANGLES);
-    for (; fIt!=fEnd; ++fIt)
-    {
-      fvIt = mesh_.cfv_iter(*fIt);
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-    }
-    glEnd();
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    if ( tex_id_ && mesh_.has_vertex_texcoords2D() )
-    {
-      glDisable(GL_TEXTURE_2D);
-    }
-  }
-
-  else if (_draw_mode == "Colored Vertices") // --------------------------------
-  {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
-
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
-
-    if ( mesh_.has_vertex_colors() )
-    {
-      glEnableClientState( GL_COLOR_ARRAY );
-      glColorPointer(3, GL_UNSIGNED_BYTE, 0,mesh_.vertex_colors());
-    }
-
-    glBegin(GL_TRIANGLES);
-    for (; fIt!=fEnd; ++fIt)
-    {
-      fvIt = mesh_.cfv_iter(*fIt);
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-    }
-    glEnd();
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-  }
+      }
 
 
-  else if (_draw_mode == "Solid Colored Faces") // -----------------------------
-  {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
+      else if (_draw_mode == "Solid Smooth") // -----------------------------------
+      {
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
+          glEnableClientState(GL_NORMAL_ARRAY);
+          glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
 
-    glBegin(GL_TRIANGLES);
-    for (; fIt!=fEnd; ++fIt)
-    {
-      glColor( mesh_,*fIt );
+          if ( tex_id_ && mesh_.has_vertex_texcoords2D() )
+          {
+              glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+              glTexCoordPointer(2, GL_FLOAT, 0, mesh_.texcoords2D());
+              glEnable(GL_TEXTURE_2D);
+              glBindTexture(GL_TEXTURE_2D, tex_id_);
+              glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, tex_mode_);
+          }
 
-      fvIt = mesh_.cfv_iter(*fIt);
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-    }
-    glEnd();
+          glBegin(GL_TRIANGLES);
+          for (; fIt!=fEnd; ++fIt)
+          {
+              fvIt = mesh_.cfv_iter(*fIt);
+              glArrayElement(fvIt->idx());
+              ++fvIt;
+              glArrayElement(fvIt->idx());
+              ++fvIt;
+              glArrayElement(fvIt->idx());
+          }
+          glEnd();
 
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-  }
+          glDisableClientState(GL_VERTEX_ARRAY);
+          glDisableClientState(GL_NORMAL_ARRAY);
+          glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
+          if ( tex_id_ && mesh_.has_vertex_texcoords2D() )
+          {
+              glDisable(GL_TEXTURE_2D);
+          }
+      }
 
-  else if (_draw_mode == "Smooth Colored Faces") // ---------------------------
-  {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
+      else if (_draw_mode == "Colored Vertices") // --------------------------------
+      {
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
+          glEnableClientState(GL_NORMAL_ARRAY);
+          glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
 
-    glBegin(GL_TRIANGLES);
-    for (; fIt!=fEnd; ++fIt)
-    {
-      glMaterial( mesh_,*fIt );
+          if ( mesh_.has_vertex_colors() )
+          {
+              glEnableClientState( GL_COLOR_ARRAY );
+              glColorPointer(3, GL_UNSIGNED_BYTE, 0,mesh_.vertex_colors());
+          }
 
-      fvIt = mesh_.cfv_iter(*fIt);
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-    }
-    glEnd();
+          glBegin(GL_TRIANGLES);
+          for (; fIt!=fEnd; ++fIt)
+          {
+              fvIt = mesh_.cfv_begin(*fIt);
+              while(fvIt!=mesh_.cfv_end(*fIt))
+              {
+                    glArrayElement(fvIt->idx());
+                    ++fvIt;
+              }
+          }
+          glEnd();
 
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-  }
-
-
-  else if ( _draw_mode == "Strips'n VertexArrays" ) // ------------------------
-  {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
-
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
-
-    if ( tex_id_ && mesh_.has_vertex_texcoords2D() )
-    {
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(2, GL_FLOAT, 0, mesh_.texcoords2D());
-      glEnable(GL_TEXTURE_2D);
-      glBindTexture(GL_TEXTURE_2D, tex_id_);
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, tex_mode_);
-    }
-
-    typename Stripifier::StripsIterator strip_it = strips_.begin();
-    typename Stripifier::StripsIterator strip_last = strips_.end();
-
-    // Draw all strips
-    for (; strip_it!=strip_last; ++strip_it)
-    {
-      glDrawElements(GL_TRIANGLE_STRIP,
-          static_cast<GLsizei>(strip_it->size()), GL_UNSIGNED_INT, &(*strip_it)[0] );
-    }
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  }
+          glDisableClientState(GL_VERTEX_ARRAY);
+          glDisableClientState(GL_NORMAL_ARRAY);
+          glDisableClientState(GL_COLOR_ARRAY);
+      }
 
 
-  else if (_draw_mode == "Show Strips" && strips_.is_valid() ) // -------------
-  {
-    typename Stripifier::StripsIterator strip_it = strips_.begin();
-    typename Stripifier::StripsIterator strip_last = strips_.end();
+      else if (_draw_mode == "Solid Colored Faces") // -----------------------------
+      {
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
-    float cmax  = 256.0f;
-    int   range = 220;
-    int   base  = (int)cmax-range;
-    int   drcol  = 13;
-    int   dgcol  = 31;
-    int   dbcol  = 17;
+          glEnableClientState(GL_NORMAL_ARRAY);
+          glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
 
-    int rcol=0, gcol=dgcol, bcol=dbcol+dbcol;
+          for (; fIt!=fEnd; ++fIt)
+          {
+              glBegin(GL_POLYGON);
+              glColor( mesh_,*fIt );
+              fvIt = mesh_.cfv_begin(*fIt);
+              while(fvIt!=mesh_.cfv_end(*fIt))
+              {
+                    glArrayElement(fvIt->idx());
+                    ++fvIt;
+              }
+              glEnd();
+          }
 
-    // Draw all strips
-    for (; strip_it!=strip_last; ++strip_it)
-    {
-      typename Stripifier::IndexIterator idx_it   = strip_it->begin();
-      typename Stripifier::IndexIterator idx_last = strip_it->end();
-
-      rcol = (rcol+drcol) % range;
-      gcol = (gcol+dgcol) % range;
-      bcol = (bcol+dbcol) % range;
-
-      glBegin(GL_TRIANGLE_STRIP);
-      glColor3f((rcol+base)/cmax, (gcol+base)/cmax, (bcol+base)/cmax);
-      for ( ;idx_it != idx_last; ++idx_it )
-        glVertex3fv(&mesh_.point( OM_TYPENAME Mesh::VertexHandle(*idx_it))[0]);
-      glEnd();
-    }
-    glColor3f(1.0, 1.0, 1.0);
-  }
+          glDisableClientState(GL_VERTEX_ARRAY);
+          glDisableClientState(GL_NORMAL_ARRAY);
+      }
 
 
-  else if( _draw_mode == "Points" ) // -----------------------------------------
-  {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
+      else if (_draw_mode == "Smooth Colored Faces") // ---------------------------
+      {
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
-    if ( use_color_)
-    {
-        if( mesh_.has_vertex_colors() && !custom_color_)
-        {
-            glEnableClientState(GL_COLOR_ARRAY);
-            glColorPointer(3, GL_UNSIGNED_BYTE, 0, mesh_.vertex_colors());
-        }else{
-            glEnableClientState(GL_COLOR_ARRAY);
-            glColorPointer(4, GL_UNSIGNED_BYTE, 0, color_.vertex_colors());
-        }
-    }
-    glPointSize(point_size_);
-    glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-  }
+          glEnableClientState(GL_NORMAL_ARRAY);
+          glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
+
+          glBegin(GL_TRIANGLES);
+          for (; fIt!=fEnd; ++fIt)
+          {
+              glMaterial( mesh_,*fIt );
+
+              fvIt = mesh_.cfv_iter(*fIt);
+              glArrayElement(fvIt->idx());
+              ++fvIt;
+              glArrayElement(fvIt->idx());
+              ++fvIt;
+              glArrayElement(fvIt->idx());
+          }
+          glEnd();
+
+          glDisableClientState(GL_VERTEX_ARRAY);
+          glDisableClientState(GL_NORMAL_ARRAY);
+      }
+
+
+      else if ( _draw_mode == "Strips'n VertexArrays" ) // ------------------------
+      {
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
+
+          glEnableClientState(GL_NORMAL_ARRAY);
+          glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
+
+          if ( tex_id_ && mesh_.has_vertex_texcoords2D() )
+          {
+              glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+              glTexCoordPointer(2, GL_FLOAT, 0, mesh_.texcoords2D());
+              glEnable(GL_TEXTURE_2D);
+              glBindTexture(GL_TEXTURE_2D, tex_id_);
+              glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, tex_mode_);
+          }
+
+          typename Stripifier::StripsIterator strip_it = strips_.begin();
+          typename Stripifier::StripsIterator strip_last = strips_.end();
+
+          // Draw all strips
+          for (; strip_it!=strip_last; ++strip_it)
+          {
+              glDrawElements(GL_TRIANGLE_STRIP,
+                             static_cast<GLsizei>(strip_it->size()), GL_UNSIGNED_INT, &(*strip_it)[0] );
+          }
+
+          glDisableClientState(GL_VERTEX_ARRAY);
+          glDisableClientState(GL_NORMAL_ARRAY);
+          glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      }
+
+
+      else if (_draw_mode == "Show Strips" && strips_.is_valid() ) // -------------
+      {
+          typename Stripifier::StripsIterator strip_it = strips_.begin();
+          typename Stripifier::StripsIterator strip_last = strips_.end();
+
+          float cmax  = 256.0f;
+          int   range = 220;
+          int   base  = (int)cmax-range;
+          int   drcol  = 13;
+          int   dgcol  = 31;
+          int   dbcol  = 17;
+
+          int rcol=0, gcol=dgcol, bcol=dbcol+dbcol;
+
+          // Draw all strips
+          for (; strip_it!=strip_last; ++strip_it)
+          {
+              typename Stripifier::IndexIterator idx_it   = strip_it->begin();
+              typename Stripifier::IndexIterator idx_last = strip_it->end();
+
+              rcol = (rcol+drcol) % range;
+              gcol = (gcol+dgcol) % range;
+              bcol = (bcol+dbcol) % range;
+
+              glBegin(GL_TRIANGLE_STRIP);
+              glColor3f((rcol+base)/cmax, (gcol+base)/cmax, (bcol+base)/cmax);
+              for ( ;idx_it != idx_last; ++idx_it )
+                  glVertex3fv(&mesh_.point( OM_TYPENAME Mesh::VertexHandle(*idx_it))[0]);
+              glEnd();
+          }
+          glColor3f(1.0, 1.0, 1.0);
+      }
+
+
+      else if( _draw_mode == "Points" ) // -----------------------------------------
+      {
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
+
+          if ( use_color_)
+          {
+              if( mesh_.has_vertex_colors() && !custom_color_)
+              {
+                  glEnableClientState(GL_COLOR_ARRAY);
+                  glColorPointer(3, GL_UNSIGNED_BYTE, 0, mesh_.vertex_colors());
+              }else{
+                  glEnableClientState(GL_COLOR_ARRAY);
+                  glColorPointer(4, GL_UNSIGNED_BYTE, 0, color_.vertex_colors());
+              }
+          }
+          glPointSize(point_size_);
+          glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
+          glDisableClientState(GL_VERTEX_ARRAY);
+          glDisableClientState(GL_COLOR_ARRAY);
+      }
 
 
 }
@@ -559,14 +560,21 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
         if(iter==mesh_list_.end())iter=mesh_list_.begin();
     }
   }
-//  else if (_draw_mode == "Wireframe")
-//  {
-//    glDisable(GL_LIGHTING);
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
-//    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//  }
+  else if (_draw_mode == "Wireframe")
+  {
+    glDisable(GL_LIGHTING);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+    int cnt = 0;
+    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+    {
+        if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
+        ++cnt;
+        ++iter;
+        if(iter==mesh_list_.end())iter=mesh_list_.begin();
+    }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
 
 //  else if ( _draw_mode == "Hidden-Line" )
 //  {
@@ -587,22 +595,36 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 //    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
 //  }
 
-//  else if (_draw_mode == "Solid Flat")
-//  {
-//    glEnable(GL_LIGHTING);
-//    glShadeModel(GL_FLAT);
-//    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
-//    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
-//  }
+  else if (_draw_mode == "Solid Flat")
+  {
+    glEnable(GL_LIGHTING);
+    glShadeModel(GL_FLAT);
+    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+    int cnt = 0;
+    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+    {
+        if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
+        ++cnt;
+        ++iter;
+        if(iter==mesh_list_.end())iter=mesh_list_.begin();
+    }
+  }
 
-//  else if (_draw_mode == "Solid Smooth"        ||
-//       _draw_mode == "Strips'n VertexArrays" )
-//  {
-//    glEnable(GL_LIGHTING);
-//    glShadeModel(GL_SMOOTH);
-//    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
-//    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
-//  }
+  else if (_draw_mode == "Solid Smooth"        ||
+       _draw_mode == "Strips'n VertexArrays" )
+  {
+    glEnable(GL_LIGHTING);
+    glShadeModel(GL_SMOOTH);
+    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+    int cnt = 0;
+    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+    {
+        if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
+        ++cnt;
+        ++iter;
+        if(iter==mesh_list_.end())iter=mesh_list_.begin();
+    }
+  }
 
 //  else if (_draw_mode == "Show Strips")
 //  {
@@ -611,31 +633,52 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 //    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
 //  }
 
-//  else if (_draw_mode == "Colored Vertices" )
-//  {
-//    glDisable(GL_LIGHTING);
-//    glShadeModel(GL_SMOOTH);
-//    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
-//    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
-//  }
+  else if (_draw_mode == "Colored Vertices" )
+  {
+    glDisable(GL_LIGHTING);
+    glShadeModel(GL_FLAT);
+    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+    int cnt = 0;
+    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+    {
+        if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
+        ++cnt;
+        ++iter;
+        if(iter==mesh_list_.end())iter=mesh_list_.begin();
+    }
+  }
 
-//  else if (_draw_mode == "Solid Colored Faces")
-//  {
-//    glDisable(GL_LIGHTING);
-//    glShadeModel(GL_FLAT);
-//    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
-//    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
-//    setDefaultMaterial();
-//  }
+  else if (_draw_mode == "Solid Colored Faces")
+  {
+    glDisable(GL_LIGHTING);
+    glShadeModel(GL_FLAT);
+    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+    int cnt = 0;
+    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+    {
+        if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
+        ++cnt;
+        ++iter;
+        if(iter==mesh_list_.end())iter=mesh_list_.begin();
+    }
+    setDefaultMaterial();
+  }
 
-//  else if (_draw_mode == "Smooth Colored Faces" )
-//  {
-//    glEnable(GL_LIGHTING);
-//    glShadeModel(GL_SMOOTH);
-//    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
-//    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
-//    setDefaultMaterial();
-//  }
+  else if (_draw_mode == "Smooth Colored Faces" )
+  {
+    glEnable(GL_LIGHTING);
+    glShadeModel(GL_SMOOTH);
+    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+    int cnt = 0;
+    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+    {
+        if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
+        ++cnt;
+        ++iter;
+        if(iter==mesh_list_.end())iter=mesh_list_.begin();
+    }
+    setDefaultMaterial();
+  }
 
   if (show_vnormals_)
   {

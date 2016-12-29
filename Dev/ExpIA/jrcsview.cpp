@@ -114,21 +114,39 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
     geo_view_->list().emplace_back(new MeshBundle<DefaultMesh>());
     DefaultMesh& mesh = geo_view_->list().back()->mesh_;
     std::cerr<<"k:"<<k<<std::endl;
-    for( int j=0 ; j < k ; ++j )
+    std::vector<DefaultMesh::VertexHandle>  face_vhandles_a,face_vhandles_b;
+    face_vhandles_a.reserve(3);
+    face_vhandles_a.reserve(3);
+    for( int j=1 ; j <= k ; j+=4 )
     {
-        mesh.add_vertex(DefaultMesh::Point(0,0,0));
+        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+        face_vhandles_b.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+        face_vhandles_b.push_back(face_vhandles_a[0]);
+        face_vhandles_b.push_back(face_vhandles_a[2]);
+        mesh.add_face(face_vhandles_a);
+        mesh.add_face(face_vhandles_b);
+        face_vhandles_a.clear();
+        face_vhandles_b.clear();
     }
+
+    mesh.request_face_normals();
+    mesh.request_face_colors();
     mesh.request_vertex_normals();
     mesh.request_vertex_colors();
+
     xv = std::make_shared<arma::fmat>((float*)mesh.points(),3,mesh.n_vertices(),false,true);
     xn = std::make_shared<arma::fmat>((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
     xc = std::make_shared<arma::Mat<uint8_t>>((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
 
     std::cerr<<"JRCSView::allocate_x:reseting x"<<std::endl;
     jrcs_worker_->resetx(xv,xn,xc);
+    mesh.update_face_normals();
     std::cerr<<"JRCSView::allocate_x:done reseting x"<<std::endl;
     geo_view_->reset_center();
     geo_view_->show_back();
+
     return true;
 }
 

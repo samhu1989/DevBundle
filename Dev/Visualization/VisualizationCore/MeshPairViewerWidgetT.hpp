@@ -274,6 +274,8 @@ template <typename M>
 void
 MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _draw_mode)
 {
+//    std::cout<<"draw_openmesh"<<std::endl;
+//    std::cout<<"draw_mode_:"<<_draw_mode<<std::endl;
   Mesh& mesh_ = b.mesh_;
   Stripifier& strips_ = b.strips_;
   MeshColor<Mesh>& color_ = b.custom_color_;
@@ -330,11 +332,11 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
 
   else if (_draw_mode == "Solid Flat") // -------------------------------------
   {
+    std::cerr<<"solid flat"<<std::endl;
     glBegin(GL_TRIANGLES);
     for (; fIt!=fEnd; ++fIt)
     {
       glNormal3fv( &mesh_.normal(*fIt)[0] );
-
       fvIt = mesh_.cfv_iter(*fIt);
       glVertex3fv( &mesh_.point(*fvIt)[0] );
       ++fvIt;
@@ -609,6 +611,7 @@ template <typename M>
 void
 MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 {
+//    std::cout<<"draw_scene_:"<<_draw_mode<<std::endl;
 
   if ( (!first_->mesh_.n_vertices()) && (!second_->mesh_.n_vertices()) )
     return;

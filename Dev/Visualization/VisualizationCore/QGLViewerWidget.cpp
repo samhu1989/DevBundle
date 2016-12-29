@@ -159,6 +159,7 @@ QGLViewerWidget::init(void)
 
 QGLViewerWidget::~QGLViewerWidget()
 {
+
 }
 
 
@@ -232,8 +233,8 @@ QGLViewerWidget::initializeGL()
   glFogfv(GL_FOG_COLOR,  fogColor);
   glFogf(GL_FOG_DENSITY, 0.35);
   glHint(GL_FOG_HINT,    GL_DONT_CARE);
-  glFogf(GL_FOG_START,    5.0f);
-  glFogf(GL_FOG_END,     25.0f);
+  glFogf(GL_FOG_START,    8.0f);
+  glFogf(GL_FOG_END,     50.0f);
 
   // scene pos and size
   glMatrixMode(GL_MODELVIEW);
@@ -797,7 +798,7 @@ void QGLViewerWidget::removeAction(QAction* act)
     }
     if (found != e) {
         names_to_actions.erase(found);
-}
+    }
     popup_menu_->removeAction(act);
     draw_modes_group_->removeAction(act);
     Super::removeAction(act);
@@ -818,12 +819,11 @@ QAction* QGLViewerWidget::findAction(const char* name)
 {
     QString namestr = QString(name);
     ActionMap::iterator e = names_to_actions.end();
-
     ActionMap::iterator found = names_to_actions.find(namestr);
     if (found != e) {
         return found->second;
     }
-    return 0;
+    return NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -832,34 +832,50 @@ QAction* QGLViewerWidget::findAction(const char* name)
 void 
 QGLViewerWidget::del_draw_mode(const std::string& _s)
 {
-    QString cmp = _s.c_str();
-    QList<QAction*> actions_ = popup_menu_->actions();
-    QList<QAction*>::iterator it=actions_.begin(), e=actions_.end();
-    for(; it!=e; ++it) {
-        if ((*it)->text() == cmp) { break; }
+    QAction* act = findAction(_s.c_str());
+    if(act->data().toUInt()!=n_draw_modes_)
+    {
+        for(QList<QAction*>::reverse_iterator iter=draw_modes_group_->actions().rbegin();iter!=draw_modes_group_->actions().rend();++iter)
+        {
+            QAction* tmp = *iter;
+            if(tmp->data().toUInt()==n_draw_modes_)
+            {
+                tmp->setData(act->data().toUInt());
+            }
+        }
     }
-  
-#if _DEBUG
-  assert( it != e );
-#else
-  if ( it == e )
-    return;
-#endif
-
-  popup_menu_->removeAction(*it);
-  //QActionGroup *grp = draw_modes_group_;
-
+    removeAction(act);
+    -- n_draw_modes_;
 }
 
 
 //----------------------------------------------------------------------------
-
+void
+QGLViewerWidget::set_draw_mode(const std::string& _s)
+{
+    QAction* act = findAction(_s.c_str());
+    if(act){
+        slotDrawMode(act);
+    }
+    else {
+        std::cerr<<"Can't find action named:"<<_s<<std::endl;
+    }
+}
 
 void
 QGLViewerWidget::slotDrawMode(QAction* _mode)
 {
   if( !_mode->isChecked() ) _mode->setChecked(true);//use as normal function
-  draw_mode_ = _mode->data().toInt();//use as slot
+  draw_mode_ = _mode->data().toUInt();//use as slot
+//  std::cout<<"Draw Modes:"<<std::endl;
+//  for(std::vector<std::string>::iterator iter = draw_mode_names_.begin();iter!=draw_mode_names_.end();++iter)
+//  {
+//      std::cout<<*iter<<std::endl;
+//  }
+//  foreach(QAction* act,draw_modes_group_->actions())
+//  {
+//      std::cout<<act->data().toUInt()<<":"<<act->text().toStdString()<<std::endl;
+//  }
   updateGL();
 }
 

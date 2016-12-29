@@ -37,6 +37,7 @@ public:
     bool init(Config::Ptr);
     inline void set_method(std::shared_ptr<JRCS::JRCSBase> method){jrcs_worker_->set_method(method);}
     inline void set_init_method(std::shared_ptr<JRCS::JRCSInitBase> method){jrcs_worker_->set_init_method(method);}
+    inline void set_show_mode(const std::string& _s){geo_view_->set_draw_mode(_s);}
     void start();
 signals:
     void message(QString,int);

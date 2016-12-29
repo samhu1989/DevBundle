@@ -1,25 +1,10 @@
-#ifndef JRCSHOUGH_H
-#define JRCSHOUGH_H
+#ifndef JRCSPRIMITIVE_H
+#define JRCSPRIMITIVE_H
 #include "jrcsbilateral.h"
 #include <ext/hash_map>"
 namespace JRCS{
-struct  HoughSpace{
-    void vote(
-            const arma::fvec& v,
-            const arma::fvec& n,
-            const arma::Col<uint8_t>& c
-            );
-    void get_prob(
-            const arma::fvec& v,
-            const arma::fvec& n,
-            const arma::Col<uint8_t>& c,
-            arma::rowvec& prob
-            );
-    void extract(
-            arma::fmat& v,
-            arma::fmat& n,
-            arma::Mat<uint8_t>& c
-            );
+struct  Plate{
+    typedef std::shared_ptr<Plate> Ptr;
 private:
     arma::fmat R_;
     arma::fvec t_;
@@ -42,11 +27,28 @@ private:
     arma::fvec  res_y_f_;
     arma::fvec  res_y_b_;
 };
-class JRCSCORESHARED_EXPORT JRCSHough:public JRCSBilateral
+class JRCSCORESHARED_EXPORT JRCSPrimitive:public JRCSBilateral
 {
 public:
-    JRCSHough();
+    JRCSPrimitive();
+    virtual ~JRCSPrimitive(){}
+    virtual std::string name()const{return "JRCSPrimitive";}
+    virtual void initx(
+            const MatPtr& xv,
+            const MatPtr& xn,
+            const CMatPtr& xc
+            );//randomly initialize the X
 protected:
+    virtual void reset_obj_vn(
+            float radius,
+            arma::fvec& pos,
+            arma::fmat& ov,
+            arma::fmat& on
+            );
+    virtual void compute(void);
+protected:
+    virtual void prepare_primitive();
+    virtual void finish_primitive();
     //calculate alpha
     //update r t
     //voting
@@ -54,8 +56,9 @@ protected:
     //extracting new planes
     //updating var and p
     void step_2(void);
+    virtual bool isEnd_primitive(void);
 private:
-    std::vector<std::shared_ptr<HoughSpace>> hough_ptrlst_;
+    std::vector<Plate::Ptr> plate_ptrlst_;
 };
 }
 #endif // JRCSHOUGH_H

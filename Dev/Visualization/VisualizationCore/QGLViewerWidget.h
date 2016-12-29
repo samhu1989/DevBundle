@@ -116,6 +116,9 @@ public:
   /// delete draw mode from popup menu
   void del_draw_mode(const std::string& _s);
 
+  // set draw mode to
+  void set_draw_mode(const std::string& _s);
+
   const std::string& current_draw_mode() const 
   { return draw_mode_ ? draw_mode_names_[draw_mode_-1] : nomode_; }
 
