@@ -5,27 +5,22 @@
 namespace JRCS{
 struct  Plate{
     typedef std::shared_ptr<Plate> Ptr;
-private:
-    arma::fmat R_;
-    arma::fvec t_;
-    //voting space
-    arma::fcube param_z_u_;
-    arma::fcube param_x_f_;
-    arma::fcube param_x_b_;
-    arma::fcube param_y_f_;
-    arma::fcube param_y_b_;
-    //color space
-    arma::fvec  rgb_z_u_;
-    arma::fvec  rgb_x_f_;
-    arma::fvec  rgb_x_b_;
-    arma::fvec  rgb_y_f_;
-    arma::fvec  rgb_y_b_;
-    //parameter
-    arma::fvec  res_z_u_;
-    arma::fvec  res_x_f_;
-    arma::fvec  res_x_b_;
-    arma::fvec  res_y_f_;
-    arma::fvec  res_y_b_;
+    typedef std::vector<Ptr> PtrLst;
+    Plate();
+    Plate(
+        const arma::fmat& v,
+        const arma::fmat& n,
+        const arma::Mat<uint8_t>& c
+    );
+    void transform(
+            const arma::fmat& R,
+            const arma::fvec& t,
+            Plate&
+            );
+    arma::vec get_alpha(const arma::fmat& v);
+    std::shared_ptr<arma::fmat> xv_;
+    std::shared_ptr<arma::fmat> xn_;
+    std::shared_ptr<arma::Mat<uint8_t>> xc_;
 };
 class JRCSCORESHARED_EXPORT JRCSPrimitive:public JRCSBilateral
 {
@@ -47,6 +42,8 @@ protected:
             );
     virtual void compute(void);
 protected:
+    virtual void reset_alpha_primitive();
+    virtual void reset_prob_primitive();
     virtual void prepare_primitive();
     virtual void finish_primitive();
     //calculate alpha
@@ -58,7 +55,10 @@ protected:
     void step_2(void);
     virtual bool isEnd_primitive(void);
 private:
-    std::vector<Plate::Ptr> plate_ptrlst_;
+    Plate::PtrLst plate_ptrlst_;
+    std::vector<Plate::PtrLst> plate_t_ptrlst_;
+    int plate_num_for_obj_;
+    int point_num_for_plate_;
 };
 }
 #endif // JRCSHOUGH_H

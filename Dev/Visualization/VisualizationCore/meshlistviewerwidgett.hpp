@@ -261,6 +261,7 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
       if (_draw_mode == "Wireframe") // -------------------------------------------
       {
           glBegin(GL_TRIANGLES);
+          glColor3f(1.0,1.0,1.0);
           for (; fIt!=fEnd; ++fIt)
           {
               fvIt = mesh_.cfv_iter(*fIt);
@@ -279,7 +280,6 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
           for (; fIt!=fEnd; ++fIt)
           {
               glNormal3fv( &mesh_.normal(*fIt)[0] );
-
               fvIt = mesh_.cfv_iter(*fIt);
               glVertex3fv( &mesh_.point(*fvIt)[0] );
               ++fvIt;
@@ -362,6 +362,39 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
           glDisableClientState(GL_COLOR_ARRAY);
       }
 
+      else if (_draw_mode == "Flat Colored Vertices") // --------------------------------
+      {
+          glEnableClientState(GL_VERTEX_ARRAY);
+          glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
+
+          glEnableClientState(GL_NORMAL_ARRAY);
+          glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
+
+          if ( mesh_.has_vertex_colors() )
+          {
+              glEnableClientState( GL_COLOR_ARRAY );
+              glColorPointer(3, GL_UNSIGNED_BYTE, 0,mesh_.vertex_colors());
+          }
+
+          glBegin(GL_TRIANGLES);
+          for (; fIt!=fEnd; ++fIt)
+          {
+              fvIt = mesh_.cfv_begin(*fIt);
+              glMaterial(mesh_,*fvIt);
+              glMaterial(mesh_,*fvIt,GL_FRONT_AND_BACK,GL_SPECULAR);
+              while(fvIt!=mesh_.cfv_end(*fIt))
+              {
+                    glArrayElement(fvIt->idx());
+                    ++fvIt;
+              }
+          }
+          glEnd();
+
+          glDisableClientState(GL_VERTEX_ARRAY);
+          glDisableClientState(GL_NORMAL_ARRAY);
+          glDisableClientState(GL_COLOR_ARRAY);
+      }
+
 
       else if (_draw_mode == "Solid Colored Faces") // -----------------------------
       {
@@ -401,7 +434,6 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
           for (; fIt!=fEnd; ++fIt)
           {
               glMaterial( mesh_,*fIt );
-
               fvIt = mesh_.cfv_iter(*fIt);
               glArrayElement(fvIt->idx());
               ++fvIt;
@@ -646,6 +678,22 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
         ++iter;
         if(iter==mesh_list_.end())iter=mesh_list_.begin();
     }
+  }
+
+  else if (_draw_mode == "Flat Colored Vertices" )
+  {
+    glEnable(GL_LIGHTING);
+    glShadeModel(GL_FLAT);
+    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+    int cnt = 0;
+    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+    {
+        if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
+        ++cnt;
+        ++iter;
+        if(iter==mesh_list_.end())iter=mesh_list_.begin();
+    }
+    setDefaultMaterial();
   }
 
   else if (_draw_mode == "Solid Colored Faces")

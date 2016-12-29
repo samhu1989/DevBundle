@@ -645,7 +645,7 @@ void MainWindow::start_editing()
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
         s->show();
-        w->set_show_mode("Colored Vertices");
+        w->set_show_mode("Flat Colored Vertices");
 //        w->start();
     }
     if(edit==ui->actionJRCS_Old)

@@ -168,10 +168,10 @@ QGLViewerWidget::~QGLViewerWidget()
 void 
 QGLViewerWidget::setDefaultMaterial(void)
 {
-  GLfloat mat_a[] = {0.110000, 0.060000, 0.090000, 1.0};
-  GLfloat mat_d[] = {0.430000, 0.470000, 0.540000, 1.0};
-  GLfloat mat_s[] = {0.330000, 0.330000, 0.520000, 1.0};
-  GLfloat shine[] = {22.0};
+  GLfloat mat_a[] = {0.250000, 0.148000, 0.064750, 1.000000};
+  GLfloat mat_d[] = {0.400000, 0.236800, 0.103600, 1.000000};
+  GLfloat mat_s[] = {0.774597, 0.458561, 0.200621, 1.000000};
+  GLfloat shine[] = {76.800003};
   
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_a);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_d);
