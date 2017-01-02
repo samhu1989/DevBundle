@@ -1,0 +1,89 @@
+\documentclass{onrannual}
+
+% provide additional characters
+\usepackage{textcomp}
+
+% Bibliography style; customize as appropriate, or remove if you don't use
+% BibTeX or have no citations.
+\usepackage[round]{natbib}
+\setlength{\bibhang}{0pt}
+
+% allow graphics inclusion
+\usepackage{graphicx}
+
+% for highlighting messages
+\usepackage{color}
+
+% optional: use hyperref to add in some PDF metadata
+\hypersetup {
+    pdftitle={Project Annual Report},
+    pdfsubject={FY16 Annual Report},
+    pdfauthor={Author},
+    pdfkeywords={annual report, LaTeX, ONR}
+}
+
+%%
+%% Two ways to specify an author.  Note the manual paragraph requirements if \affil is used.
+%%
+
+\author{SamHu}
+\affil{%
+%Academic Institute \\
+%Laboratory 1 \\
+%Somewhere, WA 11111 \\
+%% NOTE: the trailing \\ is required at the end of this last line to separate authors
+phone: +8615656928957  email: \href{sy891228@mail.ustc.edu.cn}{sy891228@mail.ustc.edu.cn} \\}
+
+%% NOTE: distribution statements taken from 2009 guidance, and should be updated as appropriate for the current year.
+%% One of these statements is required. so modify or uncomment as appropriate.
+\distribution{DISTRIBUTION STATEMENT A: Distribution approved for public release; distribution is unlimited.}
+
+%\distribution{DISTRIBUTION STATEMENT D: Distribution authorized to DoD components and U.S. DoD contractors only; Critical Technology; Dec 2009. Other requests for this document shall be referred to The Office of Naval Research (code 32). Destroy by any method that will prevent disclosure of contents or reconstruction of the document.}
+
+% required
+\title{Project Annual Report}
+
+% required: always starts with N00014
+\awardnumber{N00014-000-0000}
+
+% optional
+\projecturl{\url{https://github.com/samhu1989/DevBundle/}}
+
+%% Meat of the document goes here
+\begin{document}
+    
+% The author prefers apalike, but it doesn't work when the year is missing.
+% This causes problems for the fake citation used to show that the
+% references section is optional.
+\bibliographystyle{abbrvnat}
+
+% print the title/author frontmatter
+\maketitle
+
+\section{LONG-TERM GOALS}
+Publish a Class-A~Paper.
+\section{OBJECTIVES}
+Our intension is to develop a fully automatic and unsupervised method to recover the object information (object shape and object-level segmentation) from a set of point clouds. We further assume that this set of point clouds contain the same set of objects but differ in the object motion.
+
+\section{APPROACH}
+This year we change the approach from an interleaving of region-grow and graph-cut to a EM based iteration framework. The advantage of this framework is that it comes with a more clear formulation (GMM based generative model) of the problem and it provide some guarantee of convergency. Under this framework we focuses on further improve our procedure to avoid local minimums.\\
+Firstly, we try to start with a better initialization.\\
+Secondly, we try to add the features as constraints inside the iteration(lead to a bilateral GMM model).\\
+Now, we try to add assumptions to the shape of the objects.
+
+\section{WORK COMPLETED}
+I have done a series of experiment to exploration and verify different approahes. Along with it I have implemented a series of algorithms for feature extraction, segmentation, optimization, registration.I have also implemented a series of tools for visualization, data generation, annotation and debugging.
+
+\section{RESULTS}
+
+\section{IMPACT/APPLICATIONS}
+Potential future impact for science and/or systems applications
+
+\section{TRANSITIONS}
+
+%% If none, so state
+\section{RELATED PROJECTS}
+
+\section{PUBLICATIONS}
+
+\end{document}
