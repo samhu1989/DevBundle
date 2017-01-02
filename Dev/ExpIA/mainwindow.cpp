@@ -105,6 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLAPACKE_dggsvd,SIGNAL(triggered(bool)),this,SLOT(LAPACKE_dggsvd_test()));
     connect(ui->actionInside_Bounding_Box,SIGNAL(triggered(bool)),this,SLOT(Inside_BBox_test()));
     connect(ui->actionAGD_test,SIGNAL(triggered(bool)),this,SLOT(agd_test()));
+    connect(ui->actionJRCS_Plate,SIGNAL(triggered(bool)),this,SLOT(jrcs_plate_test()));
 
     io_opt_ += OpenMesh::IO::Options::VertexColor;
     io_opt_ += OpenMesh::IO::Options::VertexNormal;

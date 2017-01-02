@@ -9,6 +9,7 @@
 #include "agd.h"
 #include "voxelgraph.h"
 #include "voxelgraph.hpp"
+#include "jrcsplatedialog.h"
 namespace TEST {
 void LAPACKE_dggsvd_test()
 {
@@ -89,6 +90,12 @@ void agd_test()
     agd.extract(graph,adg_vec);
     std::cerr<<"agd_vec:"<<std::endl;
     std::cerr<<adg_vec<<std::endl;
+}
+void jrcs_plate_test()
+{
+    JRCSPlateDialog dialog;
+
+    dialog.exec();
 }
 }
 #endif // TESTS

@@ -418,8 +418,38 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
   }
+  else if (_draw_mode == "Flat Colored Vertices") // --------------------------------
+  {
+      glEnableClientState(GL_VERTEX_ARRAY);
+      glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
+      glEnableClientState(GL_NORMAL_ARRAY);
+      glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
 
+      if ( mesh_.has_vertex_colors() )
+      {
+          glEnableClientState( GL_COLOR_ARRAY );
+          glColorPointer(3, GL_UNSIGNED_BYTE, 0,mesh_.vertex_colors());
+      }
+
+      glBegin(GL_TRIANGLES);
+      for (; fIt!=fEnd; ++fIt)
+      {
+          fvIt = mesh_.cfv_begin(*fIt);
+          glMaterial(mesh_,*fvIt);
+          glMaterial(mesh_,*fvIt,GL_FRONT_AND_BACK,GL_SPECULAR);
+          while(fvIt!=mesh_.cfv_end(*fIt))
+          {
+                glArrayElement(fvIt->idx());
+                ++fvIt;
+          }
+      }
+      glEnd();
+
+      glDisableClientState(GL_VERTEX_ARRAY);
+      glDisableClientState(GL_NORMAL_ARRAY);
+      glDisableClientState(GL_COLOR_ARRAY);
+  }
   else if (_draw_mode == "Solid Colored Faces") // -----------------------------
   {
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -681,6 +711,16 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
       glDepthRange( 0.0, 1.0 );
       if(0<first_->graph_.voxel_neighbors.n_cols)draw_openmesh( *first_, "VoxelGraph" );
   }
+  else if( _draw_mode == "Plate")
+    {
+        glEnable(GL_LIGHTING);
+        glShadeModel(GL_FLAT);
+        if(0<first_->mesh_.n_vertices())draw_openmesh( *first_ , "Flat Colored Vertices" );
+
+        glDisable(GL_LIGHTING);
+        if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, "Points" );
+    }
+
   else if (_draw_mode == "Solid Flat")
   {
     glEnable(GL_LIGHTING);
@@ -709,6 +749,14 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   {
     glDisable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
+    if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
+    if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
+  }
+
+  else if (_draw_mode == "Flat Colored Vertices" )
+  {
+    glEnable(GL_LIGHTING);
+    glShadeModel(GL_FLAT);
     if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
     if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
   }

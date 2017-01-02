@@ -10,7 +10,8 @@ TARGET = OptimizationCore
 TEMPLATE = lib
 
 DEFINES += OPTIMIZATIONCORE_LIBRARY
-DEFINES += USE_SSE HAVE_EMMINTRIN_H BIT64
+DEFINES += USE_SSE HAVE_CONFIG_H
+DEFINES -= __SSE3__
 CONFIG += c++11
 QMAKE_CXXFLAGS += -fopenmp
 LIBS += -lgomp -lpthread
@@ -26,7 +27,8 @@ HEADERS += optimizationcore.h\
     LBFGS/arithmetic_sse_double.h \
     LBFGS/arithmetic_sse_float.h \
     LBFGS/lbfgscore.h \
-    sdp.h
+    sdp.h \
+    LBFGS/config.h
 
 unix {
     target.path = /usr/lib
@@ -62,4 +64,4 @@ DEPENDPATH += $$PWD/../../../3rdParty/CSDP/include
 win32:!win32-g++: PRE_TARGETDEPS += $$PWD/../../../3rdParty/CSDP/lib/sdp.lib
 else:win32-g++: PRE_TARGETDEPS += $$PWD/../../../3rdParty/CSDP/lib/libsdp.a
 
-LIBS += -lopenblas
+LIBS += -lopenblas -lm

@@ -62,15 +62,14 @@ licence.
 */
 
 #ifdef  HAVE_CONFIG_H
-#include <config.h>
+#include "config.h"
 #endif/*HAVE_CONFIG_H*/
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-#include <LBFGS/lbfgscore.h>
+#include "lbfgscore.h"
 
 #ifdef  _MSC_VER
 #define inline  __inline

@@ -39,6 +39,8 @@ public:
     add_draw_mode("Hidden-Line");
     add_draw_mode("Octree");
     add_draw_mode("VoxelGraph");
+    add_draw_mode("Flat Colored Vertices");
+    add_draw_mode("Plate");
     slotDrawMode(a);
   }
 
@@ -112,6 +114,24 @@ protected:
     OpenMesh::Vec4f m( c[0], c[1], c[2], 1.0f );
 
     glMaterialfv(_f, _m, &m[0]);
+  }
+
+  void glMaterial( const Mesh &mesh, const typename Mesh::VertexHandle _vh,
+           int _f=GL_FRONT_AND_BACK, int _m=GL_AMBIENT_AND_DIFFUSE )
+  {
+    OpenMesh::Vec3f c=OpenMesh::color_cast<OpenMesh::Vec3f>(mesh.color(_vh));
+    if(_m==GL_AMBIENT_AND_DIFFUSE)
+    {
+        OpenMesh::Vec4f m( c[0], c[1], c[2], 1.0f );
+        glMaterialfv(_f, _m, &m[0]);
+    }
+    if(_m==GL_SPECULAR)
+    {
+        QColor color(c[0],c[1],c[2],1.0);
+        color = color.lighter();
+        OpenMesh::Vec4f m(color.redF(),color.greenF(),color.blueF(), 1.0f );
+        glMaterialfv(_f, _m, &m[0]);
+    }
   }
 
 

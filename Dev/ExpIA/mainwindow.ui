@@ -201,6 +201,7 @@
     <addaction name="actionLAPACKE_dggsvd"/>
     <addaction name="actionInside_Bounding_Box"/>
     <addaction name="actionAGD_test"/>
+    <addaction name="actionJRCS_Plate"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -601,6 +602,11 @@
   <action name="actionJRCS_Opt_Primitive">
    <property name="text">
     <string>Primitive</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Plate">
+   <property name="text">
+    <string>JRCS_Plate</string>
    </property>
   </action>
  </widget>

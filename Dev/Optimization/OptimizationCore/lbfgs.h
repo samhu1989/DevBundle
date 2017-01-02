@@ -8,7 +8,7 @@ class OPTIMIZATIONCORESHARED_EXPORT LBFGS : public Optimizer
 public:
     LBFGS();
     virtual ~LBFGS(){}
-    virtual arma::vec minimize(EnergyFunction& efun,int restart = 0,bool verbose = false);
+    virtual void minimize(EnergyFunction& efun,arma::vec& x,int restart = 0,bool verbose = false);
     static lbfgsfloatval_t evaluate(
             void *instance,
             const lbfgsfloatval_t *x,

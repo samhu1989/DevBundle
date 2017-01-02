@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     DimensionReduction \
-    Clustering
+    Clustering \
+    DL

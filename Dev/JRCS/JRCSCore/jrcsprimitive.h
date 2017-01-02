@@ -3,24 +3,57 @@
 #include "jrcsbilateral.h"
 #include <ext/hash_map>"
 namespace JRCS{
-struct  Plate{
+struct  JRCSCORESHARED_EXPORT Plate{
     typedef std::shared_ptr<Plate> Ptr;
     typedef std::vector<Ptr> PtrLst;
+//    /*   Y axis
+//     *   ^
+//     *   |
+//     *   B
+//     * C E A -> X axis
+//     *   D
+//     *
+//     */
+//    typedef enum{
+//        A,B,C,D,E
+//    }TYPE;
     Plate();
-    Plate(
-        const arma::fmat& v,
+    Plate(const arma::fmat& v,
         const arma::fmat& n,
-        const arma::Mat<uint8_t>& c
-    );
+        const arma::Mat<uint8_t>& c,
+        const arma::fvec &pos
+          );
+    void translate(
+            const arma::fvec& t,
+            Plate& result
+            );
     void transform(
             const arma::fmat& R,
             const arma::fvec& t,
-            Plate&
+            Plate& result
             );
-    arma::vec get_alpha(const arma::fmat& v);
+    arma::vec get_dist2(const arma::fmat& v);
+    arma::vec dist(const arma::fmat& v,arma::uword dim);
+    void get_weighted_centroid(const arma::fmat& v, const arma::vec &alpha);
+    void accumulate(
+            const arma::fmat& v,
+            const arma::fmat& n,
+            const arma::Mat<uint8_t>& c,
+            const arma::vec alpha
+            );
+    void accumulate(const Plate&);
+    void average(void);
+    arma::fvec size_;
+    arma::fmat R_;
+    arma::fvec t_;
+    arma::fmat corners_;
+    arma::fvec centroid_;
+    arma::fvec weighted_centroid_;
+    arma::fvec obj_pos_;
     std::shared_ptr<arma::fmat> xv_;
     std::shared_ptr<arma::fmat> xn_;
     std::shared_ptr<arma::Mat<uint8_t>> xc_;
+//    TYPE type_;
 };
 class JRCSCORESHARED_EXPORT JRCSPrimitive:public JRCSBilateral
 {

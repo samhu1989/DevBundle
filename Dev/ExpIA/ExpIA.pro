@@ -48,7 +48,8 @@ SOURCES += main.cpp\
     labelcompactor.cpp \
     spectrum.cpp \
     annotator.cpp \
-    gdcthread.cpp
+    gdcthread.cpp \
+    jrcsplatedialog.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -80,7 +81,8 @@ HEADERS  += mainwindow.h \
     labelcompactor.h \
     spectrum.h \
     annotator.h \
-    gdcthread.h
+    gdcthread.h \
+    jrcsplatedialog.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
@@ -92,7 +94,8 @@ FORMS    += mainwindow.ui \
     featureview.ui \
     jrcsview.ui \
     spectrum.ui \
-    annotator.ui
+    annotator.ui \
+    jrcsplatedialog.ui
 
 RC_FILE += ../Common/rc.rc
 
