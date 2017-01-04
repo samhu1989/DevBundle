@@ -172,7 +172,7 @@ void MeshPairViewerWidgetT<M>::set_center_at_mesh(const Mesh& mesh_)
     // set center and radius
     set_scene_pos( (bbMin+bbMax)*0.5, (bbMin-bbMax).norm()*0.5 );
     // for normal display
-    normal_scale_ = (bbMax-bbMin).min()*0.05f;
+    normal_scale_ = (bbMax-bbMin).mean()*0.05f;
 }
 
 //-----------------------------------------------------------------------------

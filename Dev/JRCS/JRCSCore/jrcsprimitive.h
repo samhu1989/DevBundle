@@ -32,6 +32,10 @@ struct  JRCSCORESHARED_EXPORT Plate{
             const arma::fvec& t,
             Plate& result
             );
+    void scale(
+            const arma::fvec& s,
+            Plate& result
+            );
     arma::vec get_dist2(const arma::fmat& v);
     arma::vec dist(const arma::fmat& v,arma::uword dim);
     void get_weighted_centroid(const arma::fmat& v, const arma::vec &alpha);

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  2 JAN 2017 20:53
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  3 JAN 2017 14:01
 entering extended mode
 **skeleton.tex
 (skeleton.tex
@@ -500,24 +500,51 @@ Requested font "ptmb7t" at 7.0pt
 Requested font "ptmri7t" at 12.0pt
 Requested font "ptmri7t" at 9.0pt
 Requested font "ptmri7t" at 7.0pt
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 89.
  [1
 
-] [2]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 89.
+]
+File: images/ncut.png Graphic file (type QTm)
 
-(skeleton.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 89.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 89.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 89.
+<use  "images/ncut.png" >
+LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <12> not available
+(Font)              Font shape `OT1/ptm/b/it' tried instead on input line 93.
+Requested font "ptmbi7t" at 12.0pt
+File: images/spec.png Graphic file (type QTm)
+ <use  "images/spec.png" >
+File: images/fgen.png Graphic file (type QTm)
+ <use  "images/fgen.png" >
+File: images/ann.png Graphic file (type QTm)
+
+<use  "images/ann.png" > [2] [3]
+File: images/gmm.png Graphic file (type QTm)
+ <use  "images/gmm.png" >
+File: images/biagmm.png Graphic file (type QTm)
+
+<use  "images/biagmm.png" >
+File: images/plate_a.png Graphic file (type QTm)
+ <use  "images/plate_a.png" >
+File: images/plate_b.png Graphic file (type QTm)
+
+<use  "images/plate_b.png" >
+Overfull \hbox (2.28001pt too wide) in paragraph at lines 143--145
+[][] [] 
+ []
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 157.
+[4] [5] [6]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 157.
+ (skeleton.aux)
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 157.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 157.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 157.
  ) 
 Here is how much of TeX's memory you used:
- 10392 strings out of 428790
- 147690 string characters out of 3164816
- 218443 words of memory out of 3000000
- 13653 multiletter control sequences out of 15000+200000
- 14509 words of font info for 38 fonts, out of 3000000 for 9000
+ 10425 strings out of 428790
+ 148071 string characters out of 3164816
+ 219084 words of memory out of 3000000
+ 13674 multiletter control sequences out of 15000+200000
+ 15042 words of font info for 39 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
- 43i,6n,40p,393b,323s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 43i,7n,40p,393b,331s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on skeleton.pdf (2 pages).
+Output written on skeleton.pdf (6 pages).

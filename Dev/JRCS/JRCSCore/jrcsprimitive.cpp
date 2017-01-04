@@ -13,16 +13,13 @@ Plate::Plate(
     const arma::fvec& pos
 ):corners_(3,4,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma::fill::zeros)
 {
-    xv_.reset(new arma::fmat(v.memptr(),v.n_rows,v.n_cols));
-    xn_.reset(new arma::fmat(n.memptr(),v.n_rows,v.n_cols));
-    xc_.reset(new arma::Mat<uint8_t>(c.memptr(),c.n_rows,c.n_cols));
-//    std::cerr<<"xv("<<xv_->n_rows<<","<<xv_->n_cols<<")"<<std::endl;
-    corners_ = *xv_;
-//    std::cerr<<"corners("<<corners_.n_rows<<","<<corners_.n_cols<<")"<<std::endl;
-    centroid_ = arma::mean(*xv_,1);
-//    std::cerr<<"centroid:"<<centroid_.t()<<std::endl;
+    xv_.reset(new arma::fmat((float*)v.memptr(),v.n_rows,v.n_cols,false,true));
+    xn_.reset(new arma::fmat((float*)n.memptr(),n.n_rows,n.n_cols,false,true));
+    xc_.reset(new arma::Mat<uint8_t>((uint8_t*)c.memptr(),c.n_rows,c.n_cols,false,true));
+    t_ = arma::mean(*xv_,1);
+    corners_ = xv_->each_col() - t_;
+    centroid_ = arma::fvec(3,arma::fill::zeros);
     size_ = arma::max(arma::abs(corners_.each_col() - centroid_),1);
-//    std::cerr<<"size:"<<size_.t()<<std::endl;
     obj_pos_ = pos;
 }
 
@@ -32,6 +29,21 @@ void Plate::translate(
         )
 {
     result.t_ = t_ + t;
+    *result.xv_ = *xv_;
+    result.xv_->each_col() += t;
+    if(this!=&result)
+    {
+        result.R_ = R_;
+        *result.xc_ = *xc_;
+        *result.xn_ = *xn_;
+        result.size_ = size_;
+        result.corners_ = corners_;
+        result.centroid_ = centroid_;
+        result.weighted_centroid_ = weighted_centroid_;
+        result.obj_pos_ = obj_pos_;
+    }else{
+//        std::cerr<<"translate in place"<<std::endl;
+    }
 }
 
 void Plate::transform(
@@ -42,22 +54,55 @@ void Plate::transform(
 {
     result.R_ = R*R_;
     result.t_ = R*t_ + t;
+    *result.xv_ = R*(*xv_);
+    result.xv_->each_col() += t;
+    *result.xn_ = R*(*xn_);
+    if(this!=&result)
+    {
+        *result.xc_ = *xc_;
+        result.size_ = size_;
+        result.corners_ = corners_;
+        result.centroid_ = centroid_;
+        result.weighted_centroid_ = weighted_centroid_;
+        result.obj_pos_ = obj_pos_;
+    }else{
+//        std::cerr<<"transform in place"<<std::endl;
+    }
+}
+
+void Plate::scale(
+        const arma::fvec& s,
+        Plate& result
+        )
+{
+    std::cerr<<"scaling"<<std::endl;
+    std::cerr<<s<<std::endl;
+    result.size_ = size_ % s;
+    result.corners_ = corners_.each_col() % s;
+    *result.xv_ = R_*result.corners_;
+    result.xv_ -> each_col() += t_;
+    if(this!=&result)
+    {
+        result.t_ = t_;
+        result.R_ = R_;
+        *result.xc_ = *xc_;
+        *result.xn_ = *xn_;
+        result.centroid_ = centroid_;
+        result.weighted_centroid_ = weighted_centroid_;
+        result.obj_pos_ = obj_pos_;
+    }else{
+        std::cerr<<"scale in place"<<std::endl;
+    }
 }
 
 arma::vec Plate::get_dist2(
         const arma::fmat& v
         )
 {
-//    std::cerr<<"getting dist a"<<std::endl;
-//    std::cerr<<"v:"<<v.n_rows<<","<<v.n_cols<<std::endl;
-//    std::cerr<<t_<<std::endl;
-    //transform back to axis aligned space
     arma::fmat tv = v.each_col() - t_;
-//    std::cerr<<"getting dist b"<<std::endl;
     arma::fmat invR = R_.i();
     assert(invR.is_finite());
     tv = R_.i()*tv;
-    std::cerr<<"__"<<std::endl;
     return dist(tv,0)+dist(tv,1)+dist(tv,2);
 }
 

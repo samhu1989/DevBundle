@@ -305,7 +305,8 @@ void JRCSBase::reset_rt()
 
 int JRCSBase::evaluate_k(const arma::uvec& sizes)
 {
-    return ( arma::max(sizes) + 5 ) ;
+    arma::uword k = arma::median(sizes);
+    return ( k/2 + 7 ) ;
 }
 
 int JRCSBase::evaluate_k()
@@ -322,7 +323,8 @@ int JRCSBase::evaluate_k()
         k_lst(idx) = (*iter)->n_cols;
         ++idx;
     }
-    return evaluate_k(k_lst);//median size but at least five;
+    int k =  evaluate_k(k_lst);//median size but at least five;
+    return k;
 }
 
 void JRCSBase::computeOnce()
@@ -466,16 +468,17 @@ void JRCSBase::computeOnce()
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[idx]);
         arma::rowvec alpha_colsum = arma::sum( alpha );
         arma::rowvec alpha_median = arma::median( alpha );
-        arma::uvec closest_i(alpha.n_cols);
+        std::cerr<<"a"<<std::endl;
+//        arma::uvec closest_i(alpha.n_cols);
 
-        #pragma omp parallel for
-        for(int c=0;c<alpha.n_cols;++c)
-        {
-            arma::vec col = alpha.col(c);
-            arma::uword m;
-            col.max(m);
-            closest_i(c)=m;
-        }
+//        #pragma omp parallel for
+//        for(int c=0;c<alpha.n_cols;++c)
+//        {
+//            arma::vec col = alpha.col(c);
+//            arma::uword m;
+//            col.max(m);
+//            closest_i(c)=m;
+//        }
 
         arma::mat trunc_alpha = alpha;
 
@@ -492,6 +495,7 @@ void JRCSBase::computeOnce()
         arma::rowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
 
         wv = vv_*arma::conv_to<arma::fmat>::from(trunc_alpha);
+
         wn = vn_*arma::conv_to<arma::fmat>::from(trunc_alpha);
         wc = arma::conv_to<arma::fmat>::from(vc_)*arma::conv_to<arma::fmat>::from(trunc_alpha);
 

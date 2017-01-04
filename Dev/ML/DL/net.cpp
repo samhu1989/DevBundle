@@ -22,10 +22,11 @@ void Net::initialValue(arma::vec& x)
 double Net::gradient(const arma::vec& x,arma::vec& dx)
 {
     assert(x.size()!=n_);
-    std::copy(x.memptr(),x.memptr()+x.size(),x_ptr_);
+    assert(dx.size()!=n_);
+    x_ptr_ = (double*)x.memptr();
+    dx_ptr_ = dx.memptr();
     forward();
     backward();
-    std::copy(dx_ptr_,dx_ptr_+n_,dx.memptr());
     return fx_; // return function value
 }
 

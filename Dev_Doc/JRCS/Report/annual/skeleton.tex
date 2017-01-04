@@ -68,16 +68,84 @@ Our intension is to develop a fully automatic and unsupervised method to recover
 \section{APPROACH}
 This year we change the approach from an interleaving of region-grow and graph-cut to a EM based iteration framework. The advantage of this framework is that it comes with a more clear formulation (GMM based generative model) of the problem and it provide some guarantee of convergency. Under this framework we focuses on further improve our procedure to avoid local minimums.\\
 Firstly, we try to start with a better initialization.\\
+This is attempt is fanally dropped due to following reasons:\\
+1. We don't know how "good" the initializations need to be.\\
+2. It is not reasonable to ask for a good initializations from the users.A good enough initialization may need as much interaction (mannual annotation) as before.\\
+3. Even with a pretty good initialization on correspondence, it works on some data but don't work on others.\\
 Secondly, we try to add the features as constraints inside the iteration(lead to a bilateral GMM model).\\
-Now, we try to add assumptions to the shape of the objects.
-
+This is dropped due to following reasons:\\
+1. It is hard to find a consistent feature on noisy point clouds of indoor objects.\\
+2. When given a pretty good feature (generated according to human annotation, not a reasonable way to extract feature but can help with the experiment), the result is better but still far from the ground truth object. It will form some odd objects that split objects and merge to other parts from different objects.\\
+Now, we try to add assumptions to the shape of the objects. we plan to enforce such assumptions using primitive shapes.
+I am planning to start with rectangle plates as primitives. I anticipate a group of five plates should be a good reprensentation for indoor objects.\\
+This change will lead to a new method for the caculation of prior probability and update of objects.
 \section{WORK COMPLETED}
-I have done a series of experiment to exploration and verify different approahes. Along with it I have implemented a series of algorithms for feature extraction, segmentation, optimization, registration.I have also implemented a series of tools for visualization, data generation, annotation and debugging.
-
+1. I have done a series of experiments to exploration and verify different approahes.\\
+a.JRCS baseline(Figure~\ref{fig:gmm})\\
+b.JRCS bilateral(Figure~\ref{fig:biagmm})\\
+b.JRCS primitive(Figure~\ref{fig:plate})\\
+2. Along with it I have implemented a series of algorithms for feature extraction, segmentation, optimization, registration.\\
+a. Normalized cut(Figure~\ref{fig:ncut})\\
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=\linewidth]{images/ncut.png}
+	\end{center}
+	\caption{Normalized Cut}
+	\label{fig:ncut}
+\end{figure}
+b. Spectral analysis tool(Figure~\ref{fig:spec})\\
+I have used this tool to explore the possibility of a spectral feature that is consistent among frames. However, the effort didn't pay off.
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=\linewidth]{images/spec.png}
+	\end{center}
+	\caption{Spectral Analysis Tool:\\This tool was used to explore the spectral feature that is consistent among frames, however the feature I found is not significant when the point clouds comes with noise and the correspondence is not accurate}
+	\label{fig:spec}
+\end{figure}
+c. Feature generation according to annotation(Figure~\ref{fig:fgen})\\
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=\linewidth]{images/fgen.png}
+	\end{center}
+	\caption{Feature Generation According to Annotation}
+	\label{fig:fgen}
+\end{figure}
+d. Mannually annotation tool(Figure~\ref{fig:ann})\\
+This was actually done for Lin Yanting, but he eventually didn't use it. Since mannually annotate ground truth takes too much time.
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=\linewidth]{images/ann.png}
+	\end{center}
+	\caption{Mannually Annotation Tool}
+	\label{fig:ann}
+\end{figure}
+3. I have implemented a series of tools for visualization, data generation, annotation and debugging.\\
 \section{RESULTS}
-
+1. Baseline (GMM)(Figure~\ref{fig:gmm})\\
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=\linewidth]{images/gmm.png}
+	\end{center}
+	\caption{Baseline Result}
+	\label{fig:gmm}
+\end{figure}
+2. Bilateral GMM + Feature By Annotation(Figure~\ref{fig:biagmm})\\
+The feature used is generated with the tool shown in Figure~\ref{fig:fgen}. It is basically gedesic distance to several landmark points(the number of points is the dimession of this feature). These points are mannually picked and corresponding to some semantic feature positions\\
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=\linewidth]{images/biagmm.png}
+	\end{center}
+	\caption{Bilateral Result}
+	\label{fig:biagmm}
+\end{figure}
+3. Tests On the Plate as Primitive Shape
+\begin{figure}
+	\includegraphics[width=0.425\linewidth]{images/plate_a.png}
+	\includegraphics[width=0.575\linewidth]{images/plate_b.png}
+	\caption{Tests on the Plate as Primitive Shape: this is something under implementation}
+	\label{fig:plate}
+\end{figure}
 \section{IMPACT/APPLICATIONS}
-Potential future impact for science and/or systems applications
 
 \section{TRANSITIONS}
 

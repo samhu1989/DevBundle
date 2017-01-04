@@ -117,18 +117,25 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
     std::vector<DefaultMesh::VertexHandle>  face_vhandles_a,face_vhandles_b;
     face_vhandles_a.reserve(3);
     face_vhandles_a.reserve(3);
-    for( int j=1 ; j <= k ; j+=4 )
+    for( int j=1 ; j <= k ;  )
     {
-        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-        face_vhandles_b.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-        face_vhandles_b.push_back(face_vhandles_a[0]);
-        face_vhandles_b.push_back(face_vhandles_a[2]);
-        mesh.add_face(face_vhandles_a);
-        mesh.add_face(face_vhandles_b);
-        face_vhandles_a.clear();
-        face_vhandles_b.clear();
+        if( (j + 4) <= k )
+        {
+            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+            face_vhandles_b.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+            face_vhandles_b.push_back(face_vhandles_a[0]);
+            face_vhandles_b.push_back(face_vhandles_a[2]);
+            mesh.add_face(face_vhandles_a);
+            mesh.add_face(face_vhandles_b);
+            face_vhandles_a.clear();
+            face_vhandles_b.clear();
+            j += 4;
+        }else{
+            mesh.add_vertex(DefaultMesh::Point(0,0,0));
+            ++ j;
+        }
     }
 
     mesh.request_face_normals();

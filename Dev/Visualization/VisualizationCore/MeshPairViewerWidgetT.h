@@ -33,7 +33,8 @@ public:
       show_fnormals_(false),
       custom_color_(false),
       first_(new MeshBundle<Mesh>()),
-      second_(new MeshBundle<Mesh>())
+      second_(new MeshBundle<Mesh>()),
+      normal_scale_(0.05)
   {
     QAction* a = add_draw_mode("Points");
     add_draw_mode("Hidden-Line");
@@ -61,6 +62,8 @@ public:
 
   void enable_strips();
   void disable_strips();
+
+  inline void set_normal_scale(float s){normal_scale_=s;}
 
   MeshBundle<Mesh>& first() { return *first_; }
   const MeshBundle<Mesh>& first() const { return *first_; }
