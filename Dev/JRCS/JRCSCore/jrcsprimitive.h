@@ -46,6 +46,7 @@ struct  JRCSCORESHARED_EXPORT Plate{
             const arma::vec alpha
             );
     void accumulate(const Plate&);
+    void fit(void);
     void average(void);
     arma::fvec size_;
     arma::fmat R_;
@@ -57,6 +58,12 @@ struct  JRCSCORESHARED_EXPORT Plate{
     std::shared_ptr<arma::fmat> xv_;
     std::shared_ptr<arma::fmat> xn_;
     std::shared_ptr<arma::Mat<uint8_t>> xc_;
+    //scale dim0
+    //scale dim1
+    //dt    dim2
+    arma::fvec  scale_r_;
+    arma::fvec  trans_r_;
+    arma::fcube param_;
 //    TYPE type_;
 };
 class JRCSCORESHARED_EXPORT JRCSPrimitive:public JRCSBilateral

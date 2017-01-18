@@ -4,6 +4,8 @@ namespace JRCS{
 Plate::Plate():corners_(3,4,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma::fill::zeros)
 {
     t_ = obj_pos_;
+    scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
+    trans_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
 }
 
 Plate::Plate(
@@ -21,6 +23,8 @@ Plate::Plate(
     centroid_ = arma::fvec(3,arma::fill::zeros);
     size_ = arma::max(arma::abs(corners_.each_col() - centroid_),1);
     obj_pos_ = pos;
+    scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
+    trans_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
 }
 
 void Plate::translate(
@@ -133,12 +137,59 @@ void Plate::accumulate(
         const arma::vec alpha
         )
 {
-    ;
+    std::cerr<<"accumulating"<<std::endl;
+    arma::fvec scale_size(3,arma::fill::zeros);
+    param_ = arma::fcube(scale_r_.size(),scale_r_.size(),trans_r_.size(),arma::fill::zeros);
+    int dim = -1;
+    for(int i = 0;i<scale_r_.size();++i)
+    {
+        if( size_(0)!=0.0 )
+        {
+            scale_size(0)=scale_r_(i);
+        }
+        else scale_size(1) = scale_r_(i);
+        for(int j=0;j<scale_r_.size();++j)
+        {
+            if( size_(0)==0.0 )
+            {
+                dim = 0;
+                scale_size(2) = scale_r_(j);
+            }else if(size_(1)==0.0){
+                dim = 1;
+                scale_size(2) = scale_r_(j);
+            }else scale_size(1) = scale_r_(j);
+            if(-1==dim)dim=2;
+            for(float k=0;k<=trans_r_.size();++k)
+            {
+                arma::fmat tmpv((float*)xv_->memptr(),xv_->n_rows,xv_->n_cols,true,true);
+                arma::fmat tmpn((float*)xn_->memptr(),xn_->n_rows,xn_->n_cols,true,true);
+                arma::Mat<uint8_t> tmpc((uint8_t*)xc_->memptr(),xc_->n_rows,xc_->n_cols,true,true);
+                Plate::Ptr tmp_plate(new Plate(tmpv,tmpn,tmpc,obj_pos_));
+                scale(scale_size,*tmp_plate);
+                arma::fvec t(3,arma::fill::ones);
+                t(dim) = trans_r_(k);
+                tmp_plate->translate(t,*tmp_plate);
+                arma::vec dist2 = tmp_plate->get_dist2(v);
+                dist2 %= alpha;
+                param_(i,j,k) = arma::accu(dist2);
+            }
+        }
+    }
 }
 
 void Plate::accumulate(const Plate&)
 {
     ;
+}
+
+void Plate::fit(void)
+{
+    std::cerr<<"fitting:"<<std::endl;
+    arma::fvec s = arma::linspace<arma::fvec>(0.5,1.5,10);
+    arma::fvec t = arma::linspace<arma::fvec>(0.5,1.5,10);
+    arma::uword i,j,k;
+    param_.min(i,j,k);//find the minimum
+    //update this with the minimum
 }
 
 void Plate::average(void)
@@ -248,6 +299,7 @@ void JRCSPrimitive::reset_obj_vn(
     };
     on = n;
 }
+
 void JRCSPrimitive::compute(void)
 {
     if(verbose_)std::cerr<<"preparing"<<std::endl;

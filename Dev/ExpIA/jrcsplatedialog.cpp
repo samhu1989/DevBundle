@@ -16,6 +16,7 @@ JRCSPlateDialog::JRCSPlateDialog(QWidget *parent) :
     geo_view_->set_center_at_mesh(geo_view_->first().mesh_);
     geo_view_->set_normal_scale(0.2);
     connect(ui->tranform,SIGNAL(clicked(bool)),this,SLOT(start_transform()));
+    connect(ui->fit,SIGNAL(clicked(bool)),this,SLOT(start_fit()));
     timer_->setSingleShot(false);
     timer_->setInterval(100);
     float dtheta = M_PI / 180 * 1.0;
@@ -119,12 +120,12 @@ void JRCSPlateDialog::start_transform()
 {
     if(!timer_->isActive());
     {
-        connect(timer_,SIGNAL(timeout()),this,SLOT(transform()));
-        timer_->start();
         time_ = 0.0;
         arma::fvec t = helix( time_ );
         plate->translate(t,*plate);
         translate_ = t;
+        connect(timer_,SIGNAL(timeout()),this,SLOT(transform()));
+        timer_->start();
     }
 }
 
@@ -157,13 +158,42 @@ void JRCSPlateDialog::start_fit()
 {
     if(!timer_->isActive());
     {
+        time_ = 0.0;
+        arma::fvec t = {0,0.2,0};
+        arma::fvec s = {0.5,0,1.5};
+        plate->translate(t,*plate);
+        plate->scale(s,*plate);
+        translate_ = t;
         connect(timer_,SIGNAL(timeout()),this,SLOT(fit()));
+        timer_->start();
     }
 }
 
 void JRCSPlateDialog::fit()
 {
-    ;
+    std::cerr<<"fitting voked"<<std::endl;
+    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
+    arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
+    arma::fmat xn((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
+    arma::Mat<uint8_t> xc((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
+    arma::vec value(mesh.n_vertices());
+    value.fill(1.0);
+    std::cerr<<"start accumulate"<<std::endl;
+    plate->accumulate(
+                xv,
+                xn,
+                xc,
+                value
+                );
+    std::cerr<<"fit"<<std::endl;
+    plate->fit();
+    ColorArray::colorfromValue((ColorArray::RGB888*)xc.memptr(),xc.n_cols,arma::sqrt(value));
+    time_ += dt_;
+    geo_view_->updateGL();
+    if(time_>=500*dt_){
+        timer_->stop();
+        timer_->disconnect(this,SLOT(transform()));
+    }
 }
 
 JRCSPlateDialog::~JRCSPlateDialog()
