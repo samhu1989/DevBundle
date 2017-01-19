@@ -20,11 +20,49 @@ Plate::Plate(
     xc_.reset(new arma::Mat<uint8_t>((uint8_t*)c.memptr(),c.n_rows,c.n_cols,false,true));
     t_ = arma::mean(*xv_,1);
     corners_ = xv_->each_col() - t_;
-    centroid_ = arma::fvec(3,arma::fill::zeros);
-    size_ = arma::max(arma::abs(corners_.each_col() - centroid_),1);
+    centroid_ = t_;
+    size_ = arma::max(arma::abs(corners_),1);
     obj_pos_ = pos;
     scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
     trans_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
+}
+
+
+void Plate::get_local_translate(
+        arma::fvec& t
+        )
+{
+    t = R_.i()*t_;
+}
+
+void Plate::local_translate(
+        const arma::fvec& t,
+        Plate& result
+        )
+{
+    *result.xv_ = *xv_;
+    //transform back to local coord
+    result.xv_->each_col() -= t_;
+    *result.xv_ = R_.i()*(*result.xv_);
+    //tranlate locally
+    result.xv_->each_col() += t;
+    //tranlate back
+    *result.xv_ = R_*(*result.xv_);
+    result.xv_->each_col() += t_;
+    result.t_ = R_*t + t_;
+    if(this!=&result)
+    {
+        result.R_ = R_;
+        *result.xc_ = *xc_;
+        *result.xn_ = *xn_;
+        result.size_ = size_;
+        result.corners_ = corners_;
+        result.centroid_ = centroid_;
+        result.weighted_centroid_ = weighted_centroid_;
+        result.obj_pos_ = obj_pos_;
+    }else{
+//        std::cerr<<"translate in place"<<std::endl;
+    }
 }
 
 void Plate::translate(
@@ -141,34 +179,38 @@ void Plate::accumulate(
     arma::fvec scale_size(3,arma::fill::zeros);
     param_ = arma::fcube(scale_r_.size(),scale_r_.size(),trans_r_.size(),arma::fill::zeros);
     int dim = -1;
+    for(int m=0;m<3;++m)
+    {
+        if(0.0==size_(m))dim=m;
+    }
     for(int i = 0;i<scale_r_.size();++i)
     {
-        if( size_(0)!=0.0 )
-        {
-            scale_size(0)=scale_r_(i);
-        }
-        else scale_size(1) = scale_r_(i);
         for(int j=0;j<scale_r_.size();++j)
         {
-            if( size_(0)==0.0 )
-            {
-                dim = 0;
-                scale_size(2) = scale_r_(j);
-            }else if(size_(1)==0.0){
-                dim = 1;
-                scale_size(2) = scale_r_(j);
-            }else scale_size(1) = scale_r_(j);
-            if(-1==dim)dim=2;
             for(float k=0;k<=trans_r_.size();++k)
             {
                 arma::fmat tmpv((float*)xv_->memptr(),xv_->n_rows,xv_->n_cols,true,true);
                 arma::fmat tmpn((float*)xn_->memptr(),xn_->n_rows,xn_->n_cols,true,true);
                 arma::Mat<uint8_t> tmpc((uint8_t*)xc_->memptr(),xc_->n_rows,xc_->n_cols,true,true);
                 Plate::Ptr tmp_plate(new Plate(tmpv,tmpn,tmpc,obj_pos_));
+                if(dim==0)
+                {
+                    scale_size(1) = scale_r_(i);
+                    scale_size(2) = scale_r_(j);
+                }else if(dim==1)
+                {
+                    scale_size(0) = scale_r_(i);
+                    scale_size(2) = scale_r_(j);
+                }else if(dim==2)
+                {
+                    scale_size(0) = scale_r_(i);
+                    scale_size(1) = scale_r_(j);
+                }
                 scale(scale_size,*tmp_plate);
                 arma::fvec t(3,arma::fill::ones);
-                t(dim) = trans_r_(k);
-                tmp_plate->translate(t,*tmp_plate);
+                get_local_translate(t);
+                t(dim) *= trans_r_(k);
+                tmp_plate->local_translate(t,*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 %= alpha;
                 param_(i,j,k) = arma::accu(dist2);
@@ -185,11 +227,35 @@ void Plate::accumulate(const Plate&)
 void Plate::fit(void)
 {
     std::cerr<<"fitting:"<<std::endl;
-    arma::fvec s = arma::linspace<arma::fvec>(0.5,1.5,10);
-    arma::fvec t = arma::linspace<arma::fvec>(0.5,1.5,10);
     arma::uword i,j,k;
-    param_.min(i,j,k);//find the minimum
+    param_.min(i,j,k);
+    //find the minimum
     //update this with the minimum
+    int dim = -1;
+    for(int m=0;m<3;++m)
+    {
+        if(0.0==size_(m))dim=m;
+    }
+    assert(dim>=0&&dim<=2);
+    arma::fvec scale_size(3,arma::fill::zeros);
+    if(dim==0)
+    {
+        scale_size(1) = scale_r_(i);
+        scale_size(2) = scale_r_(j);
+    }else if(dim==1)
+    {
+        scale_size(0) = scale_r_(i);
+        scale_size(2) = scale_r_(j);
+    }else if(dim==2)
+    {
+        scale_size(0) = scale_r_(i);
+        scale_size(1) = scale_r_(j);
+    }
+    scale(scale_size,*this);
+    arma::fvec t(3,arma::fill::ones);
+    get_local_translate(t);
+    t(dim) *= trans_r_(k);
+    local_translate(t,*this);
 }
 
 void Plate::average(void)

@@ -27,6 +27,13 @@ struct  JRCSCORESHARED_EXPORT Plate{
             const arma::fvec& t,
             Plate& result
             );
+    void get_local_translate(
+            arma::fvec& t
+            );
+    void local_translate(
+            const arma::fvec& t,
+            Plate& result
+            );
     void transform(
             const arma::fmat& R,
             const arma::fvec& t,
