@@ -44,7 +44,7 @@ void Plate::local_translate(
         Plate& result
         )
 {
-    std::cerr<<"local_translate:"<<std::endl;
+    std::cerr<<"local_translate:  "<<std::endl;
     std::cerr<<t<<std::endl;
     *result.xv_ = *xv_;
     //transform back to local coord
