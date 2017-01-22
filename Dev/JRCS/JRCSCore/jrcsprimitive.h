@@ -60,6 +60,7 @@ struct  JRCSCORESHARED_EXPORT Plate{
     arma::fvec t_;
     arma::fmat corners_;
     arma::fvec centroid_;
+    arma::fvec origin_;
     arma::fvec weighted_centroid_;
     arma::fvec obj_pos_;
     std::shared_ptr<arma::fmat> xv_;

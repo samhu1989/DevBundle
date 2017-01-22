@@ -18,9 +18,10 @@ Plate::Plate(
     xv_.reset(new arma::fmat((float*)v.memptr(),v.n_rows,v.n_cols,false,true));
     xn_.reset(new arma::fmat((float*)n.memptr(),n.n_rows,n.n_cols,false,true));
     xc_.reset(new arma::Mat<uint8_t>((uint8_t*)c.memptr(),c.n_rows,c.n_cols,false,true));
-    t_ = arma::mean(*xv_,1);
-    corners_ = xv_->each_col() - t_;
-    centroid_ = t_;
+    centroid_ = arma::mean(*xv_,1);
+    origin_ = centroid_;
+    corners_ = xv_->each_col() - centroid_;
+    t_ = arma::fvec(3,arma::fill::zeros);
     size_ = arma::max(arma::abs(corners_),1);
     obj_pos_ = pos;
     scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
@@ -32,7 +33,9 @@ void Plate::get_local_translate(
         arma::fvec& t
         )
 {
-    t = R_.i()*t_;
+    t = centroid_ - t_;
+    t = R_.i()*t;
+    t -= origin_;
 }
 
 void Plate::local_translate(
@@ -40,6 +43,8 @@ void Plate::local_translate(
         Plate& result
         )
 {
+    std::cerr<<"local_translate:"<<std::endl;
+    std::cerr<<t<<std::endl;
     *result.xv_ = *xv_;
     //transform back to local coord
     result.xv_->each_col() -= t_;
@@ -50,6 +55,9 @@ void Plate::local_translate(
     *result.xv_ = R_*(*result.xv_);
     result.xv_->each_col() += t_;
     result.t_ = R_*t + t_;
+    //update centroid
+    result.centroid_ = arma::mean(*result.xv_,1);
+    result.corners_ = result.xv_->each_col() - result.centroid_;
     if(this!=&result)
     {
         result.R_ = R_;
@@ -57,7 +65,6 @@ void Plate::local_translate(
         *result.xn_ = *xn_;
         result.size_ = size_;
         result.corners_ = corners_;
-        result.centroid_ = centroid_;
         result.weighted_centroid_ = weighted_centroid_;
         result.obj_pos_ = obj_pos_;
     }else{
@@ -73,14 +80,15 @@ void Plate::translate(
     result.t_ = t_ + t;
     *result.xv_ = *xv_;
     result.xv_->each_col() += t;
+    //update centroid
+    result.centroid_ = arma::mean(*result.xv_,1);
+    result.corners_ = result.xv_->each_col() - result.centroid_;
     if(this!=&result)
     {
         result.R_ = R_;
         *result.xc_ = *xc_;
         *result.xn_ = *xn_;
         result.size_ = size_;
-        result.corners_ = corners_;
-        result.centroid_ = centroid_;
         result.weighted_centroid_ = weighted_centroid_;
         result.obj_pos_ = obj_pos_;
     }else{
@@ -99,12 +107,13 @@ void Plate::transform(
     *result.xv_ = R*(*xv_);
     result.xv_->each_col() += t;
     *result.xn_ = R*(*xn_);
+    //update centroid
+    result.centroid_ = arma::mean(*result.xv_,1);
+    result.corners_ = result.xv_->each_col() - result.centroid_;
     if(this!=&result)
     {
         *result.xc_ = *xc_;
         result.size_ = size_;
-        result.corners_ = corners_;
-        result.centroid_ = centroid_;
         result.weighted_centroid_ = weighted_centroid_;
         result.obj_pos_ = obj_pos_;
     }else{
@@ -117,19 +126,20 @@ void Plate::scale(
         Plate& result
         )
 {
-    std::cerr<<"scaling"<<std::endl;
+    std::cerr<<"scaling:"<<std::endl;
     std::cerr<<s<<std::endl;
     result.size_ = size_ % s;
     result.corners_ = corners_.each_col() % s;
     *result.xv_ = R_*result.corners_;
     result.xv_ -> each_col() += t_;
+    //updating centroid
+    result.centroid_ = arma::mean(*result.xv_,1);
     if(this!=&result)
     {
         result.t_ = t_;
         result.R_ = R_;
         *result.xc_ = *xc_;
         *result.xn_ = *xn_;
-        result.centroid_ = centroid_;
         result.weighted_centroid_ = weighted_centroid_;
         result.obj_pos_ = obj_pos_;
     }else{
@@ -154,8 +164,8 @@ arma::vec Plate::dist(const arma::fmat& v, arma::uword dim)
     arma::vec result(v.n_cols,arma::fill::zeros);
 
     arma::frowvec vdim = v.row(dim);
-    arma::uvec idx_dim = arma::find( arma::abs( vdim - centroid_(dim) ) > size_(dim));
-    result(idx_dim) = arma::square(arma::abs( arma::conv_to<arma::vec>::from(vdim.cols(idx_dim)) - centroid_(dim) ) - size_(dim));
+    arma::uvec idx_dim = arma::find( arma::abs( vdim - origin_(dim) ) > size_(dim));
+    result(idx_dim) = arma::square(arma::abs( arma::conv_to<arma::vec>::from(vdim.cols(idx_dim)) - origin_(dim) ) - size_(dim));
 
     return result;
 }
@@ -187,7 +197,7 @@ void Plate::accumulate(
     {
         for(int j=0;j<scale_r_.size();++j)
         {
-            for(float k=0;k<=trans_r_.size();++k)
+            for(float k=0;k<trans_r_.size();++k)
             {
                 arma::fmat tmpv((float*)xv_->memptr(),xv_->n_rows,xv_->n_cols,true,true);
                 arma::fmat tmpn((float*)xn_->memptr(),xn_->n_rows,xn_->n_cols,true,true);
@@ -208,9 +218,11 @@ void Plate::accumulate(
                 }
                 scale(scale_size,*tmp_plate);
                 arma::fvec t(3,arma::fill::ones);
+                arma::fvec t0(3,arma::fill::ones);
                 get_local_translate(t);
+                t0 = t;
                 t(dim) *= trans_r_(k);
-                tmp_plate->local_translate(t,*tmp_plate);
+                tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 %= alpha;
                 param_(i,j,k) = arma::accu(dist2);
@@ -253,9 +265,11 @@ void Plate::fit(void)
     }
     scale(scale_size,*this);
     arma::fvec t(3,arma::fill::ones);
+    arma::fvec t0(3,arma::fill::ones);
     get_local_translate(t);
+    t0 = t;
     t(dim) *= trans_r_(k);
-    local_translate(t,*this);
+    local_translate( (t - t0) , *this );
 }
 
 void Plate::average(void)
