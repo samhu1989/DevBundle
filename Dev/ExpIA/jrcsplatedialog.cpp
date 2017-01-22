@@ -131,6 +131,7 @@ void JRCSPlateDialog::start_transform()
 
 void JRCSPlateDialog::transform()
 {
+    timer_->stop();
     DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
     arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
     arma::Mat<uint8_t> xc((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
@@ -149,8 +150,10 @@ void JRCSPlateDialog::transform()
     time_ += dt_;
     geo_view_->updateGL();
     if(time_>=500*dt_){
-        timer_->stop();
         timer_->disconnect(this,SLOT(transform()));
+    }
+    else{
+        timer_->start();
     }
 }
 
@@ -171,6 +174,7 @@ void JRCSPlateDialog::start_fit()
 
 void JRCSPlateDialog::fit()
 {
+    timer_->stop();
     std::cerr<<"fitting voked"<<std::endl;
     DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
     arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
@@ -191,8 +195,9 @@ void JRCSPlateDialog::fit()
     time_ += dt_;
     geo_view_->updateGL();
     if(time_>=500*dt_){
-        timer_->stop();
         timer_->disconnect(this,SLOT(transform()));
+    }else{
+        timer_->start();
     }
 }
 

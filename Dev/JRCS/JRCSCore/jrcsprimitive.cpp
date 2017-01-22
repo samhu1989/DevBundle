@@ -1,4 +1,5 @@
 #include "jrcsprimitive.h"
+#include <QCoreApplication>
 namespace JRCS{
 
 Plate::Plate():corners_(3,4,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma::fill::zeros)
@@ -129,9 +130,11 @@ void Plate::scale(
     std::cerr<<"scaling:"<<std::endl;
     std::cerr<<s<<std::endl;
     result.size_ = size_ % s;
-    result.corners_ = corners_.each_col() % s;
-    *result.xv_ = R_*result.corners_;
-    result.xv_ -> each_col() += t_;
+    result.corners_ = R_.i()*corners_;
+    result.corners_.each_col() %= s;
+    result.corners_ = R_*result.corners_;
+    *result.xv_ = result.corners_;
+    result.xv_ -> each_col() += centroid_;
     //updating centroid
     result.centroid_ = arma::mean(*result.xv_,1);
     if(this!=&result)
@@ -193,11 +196,13 @@ void Plate::accumulate(
     {
         if(0.0==size_(m))dim=m;
     }
+
     for(int i = 0;i<scale_r_.size();++i)
     {
         for(int j=0;j<scale_r_.size();++j)
         {
-            for(float k=0;k<trans_r_.size();++k)
+            #pragma omp parallel for
+            for(int k=0;k<trans_r_.size();++k)
             {
                 arma::fmat tmpv((float*)xv_->memptr(),xv_->n_rows,xv_->n_cols,true,true);
                 arma::fmat tmpn((float*)xn_->memptr(),xn_->n_rows,xn_->n_cols,true,true);
@@ -228,6 +233,7 @@ void Plate::accumulate(
                 param_(i,j,k) = arma::accu(dist2);
             }
         }
+        QCoreApplication::processEvents();
     }
 }
 
