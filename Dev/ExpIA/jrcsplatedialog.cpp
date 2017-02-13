@@ -191,6 +191,7 @@ void JRCSPlateDialog::fit()
                 );
     std::cerr<<"fit"<<std::endl;
     plate->fit();
+    value = plate->get_dist2(xv);
     ColorArray::colorfromValue((ColorArray::RGB888*)xc.memptr(),xc.n_cols,arma::sqrt(value));
     time_ += dt_;
     geo_view_->updateGL();
