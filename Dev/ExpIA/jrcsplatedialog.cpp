@@ -46,30 +46,31 @@ void JRCSPlateDialog::init_plate()
     mesh.request_vertex_normals();
     mesh.request_vertex_colors();
 
-    arma::fmat v = {
+    arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
+    arma::fmat xn((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
+    arma::Mat<uint8_t> xc((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
+
+    xv = {
         {-0.5, 0.5, 0.5,-0.5},
         { 0, 0, 0, 0},
         { 0.5, 0.5, -0.5, -0.5}
     };
-    arma::fmat n = {
+
+    xn = {
         { 0, 0, 0, 0},
         { 1, 1, 1, 1},
         { 0, 0, 0, 0}
     };
-    arma::Mat<uint8_t> c = {
+
+    xc = {
         {137,137,137,137},
         {157,157,157,157},
         {192,192,192,192}
     };
 
-    arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
-    arma::fmat xn((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
-    arma::Mat<uint8_t> xc((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
-
-    xv = v; xn = n; xc = c;
-
     arma::fvec pos = {0,0,0};
 
+    std::cerr<<"xv:"<<xv<<std::endl;
     plate = new JRCS::Plate(xv,xn,xc,pos);
 }
 
@@ -198,7 +199,7 @@ void JRCSPlateDialog::fit()
     if(time_>=500*dt_){
         timer_->disconnect(this,SLOT(transform()));
     }else{
-        timer_->start();
+//        timer_->start();
     }
 }
 

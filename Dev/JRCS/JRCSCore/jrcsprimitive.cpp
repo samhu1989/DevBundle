@@ -19,11 +19,14 @@ Plate::Plate(
     xv_.reset(new arma::fmat((float*)v.memptr(),v.n_rows,v.n_cols,false,true));
     xn_.reset(new arma::fmat((float*)n.memptr(),n.n_rows,n.n_cols,false,true));
     xc_.reset(new arma::Mat<uint8_t>((uint8_t*)c.memptr(),c.n_rows,c.n_cols,false,true));
+//    std::cerr<<*xv_<<std::endl;
     centroid_ = arma::mean(*xv_,1);
+//    std::cerr<<centroid_<<std::endl;
     origin_ = centroid_;
     corners_ = xv_->each_col() - centroid_;
     t_ = arma::fvec(3,arma::fill::zeros);
     size_ = arma::max(arma::abs(corners_),1);
+//    std::cerr<<"size_:"<<size_<<std::endl;
     obj_pos_ = pos;
     scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
     trans_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
@@ -44,8 +47,8 @@ void Plate::local_translate(
         Plate& result
         )
 {
-    std::cerr<<"local_translate:  "<<std::endl;
-    std::cerr<<t<<std::endl;
+//    std::cerr<<"local_translate:  "<<std::endl;
+//    std::cerr<<t<<std::endl;
     *result.xv_ = *xv_;
     //transform back to local coord
     result.xv_->each_col() -= t_;
@@ -127,8 +130,8 @@ void Plate::scale(
         Plate& result
         )
 {
-    std::cerr<<"scaling:"<<std::endl;
-    std::cerr<<s<<std::endl;
+//    std::cerr<<"scaling:"<<std::endl;
+//    std::cerr<<s<<std::endl;
     result.size_ = size_ % s;
     result.corners_ = R_.i()*corners_;
     result.corners_.each_col() %= s;
@@ -146,7 +149,7 @@ void Plate::scale(
         result.weighted_centroid_ = weighted_centroid_;
         result.obj_pos_ = obj_pos_;
     }else{
-        std::cerr<<"scale in place"<<std::endl;
+//        std::cerr<<"scale in place"<<std::endl;
     }
 }
 
@@ -201,7 +204,7 @@ void Plate::accumulate(
     {
         for(int j=0;j<scale_r_.size();++j)
         {
-            #pragma omp parallel for
+//            #pragma omp parallel for
             for(int k=0;k<trans_r_.size();++k)
             {
                 arma::fmat tmpv((float*)xv_->memptr(),xv_->n_rows,xv_->n_cols,true,true);
@@ -227,6 +230,7 @@ void Plate::accumulate(
                 get_local_translate(t);
                 t0 = t;
                 t(dim) *= trans_r_(k);
+                std::cerr<<"t in accumulate"<<t<<std::endl;
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 %= alpha;
@@ -248,6 +252,7 @@ void Plate::fit(void)
     arma::uword i,j,k;
     param_.min(i,j,k);
     //find the minimum
+    std::cerr<<"the minimum:"<<i<<","<<j<<","<<k<<std::endl;
     //update this with the minimum
     int dim = -1;
     for(int m=0;m<3;++m)
