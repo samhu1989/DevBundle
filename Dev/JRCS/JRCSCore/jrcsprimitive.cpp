@@ -4,6 +4,9 @@ namespace JRCS{
 
 Plate::Plate():corners_(3,4,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma::fill::zeros)
 {
+    xv_.reset(new arma::fmat(3,4));
+    xn_.reset(new arma::fmat(3,4));
+    xc_.reset(new arma::Mat<uint8_t>(3,4));
     t_ = obj_pos_;
     scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
     trans_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
@@ -49,6 +52,7 @@ void Plate::local_translate(
 {
 //    std::cerr<<"local_translate:  "<<std::endl;
 //    std::cerr<<t<<std::endl;
+    result.origin_ = origin_;
     *result.xv_ = *xv_;
     //transform back to local coord
     result.xv_->each_col() -= t_;
@@ -81,6 +85,7 @@ void Plate::translate(
         Plate& result
         )
 {
+    result.origin_ = origin_;
     result.t_ = t_ + t;
     *result.xv_ = *xv_;
     result.xv_->each_col() += t;
@@ -106,6 +111,7 @@ void Plate::transform(
         Plate& result
         )
 {
+    result.origin_ = origin_;
     result.R_ = R*R_;
     result.t_ = R*t_ + t;
     *result.xv_ = R*(*xv_);
@@ -132,6 +138,7 @@ void Plate::scale(
 {
 //    std::cerr<<"scaling:"<<std::endl;
 //    std::cerr<<s<<std::endl;
+    result.origin_ = origin_;
     result.size_ = size_ % s;
     result.corners_ = R_.i()*corners_;
     result.corners_.each_col() %= s;
@@ -164,15 +171,12 @@ arma::vec Plate::get_dist2(
     return dist(tv,0)+dist(tv,1)+dist(tv,2);
 }
 
-
 arma::vec Plate::dist(const arma::fmat& v, arma::uword dim)
 {
     arma::vec result(v.n_cols,arma::fill::zeros);
-
     arma::frowvec vdim = v.row(dim);
     arma::uvec idx_dim = arma::find( arma::abs( vdim - origin_(dim) ) > size_(dim));
-    result(idx_dim) = arma::square(arma::abs( arma::conv_to<arma::vec>::from(vdim.cols(idx_dim)) - origin_(dim) ) - size_(dim));
-
+    result(idx_dim) = arma::square( arma::abs( arma::conv_to<arma::vec>::from(vdim.cols(idx_dim)) - origin_(dim) ) - size_(dim) );
     return result;
 }
 
@@ -181,7 +185,9 @@ void Plate::get_weighted_centroid(
         const arma::vec& alpha
         )
 {
-    ;
+    arma::vec tmp = v * alpha;
+    tmp /= arma::accu(alpha);
+    weighted_centroid_ = arma::conv_to<arma::fmat>::from(tmp);
 }
 
 void Plate::accumulate(
@@ -191,15 +197,14 @@ void Plate::accumulate(
         const arma::vec alpha
         )
 {
-    std::cerr<<"accumulating"<<std::endl;
     arma::fvec scale_size(3,arma::fill::zeros);
-    param_ = arma::fcube(scale_r_.size(),scale_r_.size(),trans_r_.size(),arma::fill::zeros);
+    if(param_.empty())param_ = arma::fcube(scale_r_.size(),scale_r_.size(),trans_r_.size(),arma::fill::zeros);
+    else param_.fill(0.0);
     int dim = -1;
     for(int m=0;m<3;++m)
     {
         if(0.0==size_(m))dim=m;
     }
-
     for(int i = 0;i<scale_r_.size();++i)
     {
         for(int j=0;j<scale_r_.size();++j)
@@ -230,7 +235,7 @@ void Plate::accumulate(
                 get_local_translate(t);
                 t0 = t;
                 t(dim) *= trans_r_(k);
-                std::cerr<<"t in accumulate"<<t<<std::endl;
+//                std::cerr<<"t in accumulate"<<t<<std::endl;
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 %= alpha;
@@ -241,18 +246,22 @@ void Plate::accumulate(
     }
 }
 
-void Plate::accumulate(const Plate&)
+void Plate::accumulate(const Plate& p)
 {
-    ;
+    if(param_.empty())
+    {
+        param_ = p.param_;
+    }else{
+        param_ += p.param_;
+    }
 }
 
 void Plate::fit(void)
 {
-    std::cerr<<"fitting:"<<std::endl;
     arma::uword i,j,k;
     param_.min(i,j,k);
     //find the minimum
-    std::cerr<<"the minimum:"<<i<<","<<j<<","<<k<<std::endl;
+//    std::cerr<<"the minimum:"<<i<<","<<j<<","<<k<<std::endl;
     //update this with the minimum
     int dim = -1;
     for(int m=0;m<3;++m)
@@ -281,11 +290,6 @@ void Plate::fit(void)
     t0 = t;
     t(dim) *= trans_r_(k);
     local_translate( (t - t0) , *this );
-}
-
-void Plate::average(void)
-{
-    ;
 }
 
 JRCSPrimitive::JRCSPrimitive():JRCSBilateral(),plate_num_for_obj_(5),point_num_for_plate_(4)
@@ -397,6 +401,7 @@ void JRCSPrimitive::compute(void)
     prepare_primitive();
     while(!isEnd_primitive())
     {
+        update_color_label();
         if(verbose_)std::cerr<<"step 1"<<std::endl;
         #pragma omp parallel for
         for( int i=0 ; i < vvs_ptrlst_.size() ; ++i )
@@ -513,6 +518,7 @@ void JRCSPrimitive::step_1(int i)
         {
             std::cerr<<"!square_lambda.is_finite()"<<std::endl;
         }
+
         arma::frowvec pv(square_lambdav.n_cols,arma::fill::ones);
         arma::frowvec square_norm_lambdav = square_lambdav / arma::accu(square_lambdav);
         if(!square_norm_lambdav.is_finite())
@@ -596,11 +602,12 @@ void JRCSPrimitive::step_1(int i)
     }
     vvar_.row(i) = arma::sum(alpha_v2%alpha);
 
-    if(verbose_>1)std::cerr<<"#3 done RT for each object"<<std::endl;
-    for(int c=0;c<alpha.n_rows;++c)
+    if(verbose_>1)std::cerr<<"#4 done var for each object"<<std::endl;
+    for(int c=0;c<alpha.n_cols;++c)
     {
         plate_t_ptrlst_[i][c]->accumulate(vv_,vn_,vc_,alpha.col(c));
     }
+    if(verbose_>1)std::cerr<<"#5 done accumulation"<<std::endl;
 }
 
 void JRCSPrimitive::step_2(void)
@@ -613,7 +620,7 @@ void JRCSPrimitive::step_2(void)
         {
             plate_ptrlst_[i]->accumulate(*plate_t_ptrlst_[j][i]);
         }
-        plate_ptrlst_[i]->average();
+        plate_ptrlst_[i]->fit();
     }
 
     if(verbose_>1)std::cerr<<"Updating variance of Latent Model"<<std::endl;
@@ -637,7 +644,7 @@ void JRCSPrimitive::step_2(void)
 
 bool JRCSPrimitive::isEnd_primitive(void)
 {
-    if(iter_count_>=1)return true;
+    if(iter_count_>=10)return true;
     else return false;
 }
 

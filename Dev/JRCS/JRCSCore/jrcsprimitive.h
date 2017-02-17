@@ -74,6 +74,7 @@ struct  JRCSCORESHARED_EXPORT Plate{
     arma::fcube param_;
 //    TYPE type_;
 };
+
 class JRCSCORESHARED_EXPORT JRCSPrimitive:public JRCSBilateral
 {
 public:

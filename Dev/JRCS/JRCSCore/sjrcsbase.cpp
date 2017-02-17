@@ -720,7 +720,6 @@ void SJRCSBase::reset_x(void)
         arma::fvec maxVXYZ = arma::max(v,1);
         arma::fvec minVXYZ = arma::min(v,1);
 
-
         float r = maxVXYZ(2) - minVXYZ(2);
         r = std::sqrt(r*r);
 

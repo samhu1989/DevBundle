@@ -646,7 +646,7 @@ void MainWindow::start_editing()
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
         s->show();
         w->set_show_mode("Flat Colored Vertices");
-//        w->start();
+        w->start();
     }
     if(edit==ui->actionJRCS_Old)
     {
