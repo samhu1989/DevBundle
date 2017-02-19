@@ -8,8 +8,8 @@ Plate::Plate():corners_(3,4,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma
     xn_.reset(new arma::fmat(3,4));
     xc_.reset(new arma::Mat<uint8_t>(3,4));
     t_ = obj_pos_;
-    scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
-    trans_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
+    scale_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
+    trans_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
 }
 
 Plate::Plate(
@@ -31,8 +31,8 @@ Plate::Plate(
     size_ = arma::max(arma::abs(corners_),1);
 //    std::cerr<<"size_:"<<size_<<std::endl;
     obj_pos_ = pos;
-    scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
-    trans_r_ = arma::linspace<arma::fvec>(0.5,1.5,10);
+    scale_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
+    trans_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
 }
 
 
@@ -290,6 +290,7 @@ void Plate::fit(void)
     t0 = t;
     t(dim) *= trans_r_(k);
     local_translate( (t - t0) , *this );
+    param_.clear();
 }
 
 JRCSPrimitive::JRCSPrimitive():JRCSBilateral(),plate_num_for_obj_(5),point_num_for_plate_(4)
@@ -348,7 +349,7 @@ void JRCSPrimitive::initx(
         arma::Mat<uint8_t> objc(pxc,3,obj_size,false,true);
 
         arma::fvec pos = obj_pos_.col(obj_idx);
-        reset_obj_vn(0.5,pos,objv,objn);
+        reset_obj_vn(0.05,pos,objv,objn);
         reset_obj_c(objc);
 
         for(int j=0 ; j < plate_num_for_obj_; ++j)
@@ -424,9 +425,22 @@ void JRCSPrimitive::prepare_primitive()
     for( int i = 0 ; i < vvs_ptrlst_.size() ; ++i )
     {
         plate_t_ptrlst_[i].resize(plate_ptrlst_.size());
+        float* pwv = (float*)wvs_ptrlst_[i]->memptr();
+        float* pwn = (float*)wns_ptrlst_[i]->memptr();
+        uint8_t* pwc = (uint8_t*)wcs_ptrlst_[i]->memptr();
         for(int j=0 ; j < plate_t_ptrlst_[i].size() ; ++j )
         {
-            plate_t_ptrlst_[i][j].reset(new Plate());
+            plate_t_ptrlst_[i][j].reset(
+                        new Plate(
+                            arma::fmat(pwv,3,point_num_for_plate_,false,true),
+                            arma::fmat(pwn,3,point_num_for_plate_,false,true),
+                            arma::Mat<uint8_t>(pwc,3,point_num_for_plate_,false,true),
+                            arma::fvec(3,arma::fill::zeros)
+                            )
+                        );
+            pwv += 3*point_num_for_plate_;
+            pwn += 3*point_num_for_plate_;
+            pwc += 3*point_num_for_plate_;
         }
     }
     reset_prob_primitive();
@@ -462,6 +476,7 @@ void JRCSPrimitive::step_1(int i)
         alpha.col(c) = plate_t_ptrlst_[i][c]->get_dist2(vv_);
     }
 
+
     alpha = arma::trunc_exp(alpha);
     alpha.each_row() %=  arma::pow(xv_invvar_,1.5);
 
@@ -469,6 +484,13 @@ void JRCSPrimitive::step_1(int i)
     alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
     arma::vec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
     alpha.each_col() /= alpha_rowsum;
+    // cut the ones below median to zeros for better converge
+    for(int c = 0; c < alpha.n_cols ; ++c )
+    {
+        arma::vec col = alpha.col(c);
+        col(col<arma::median(col)).fill(0.0);
+        alpha.col(c) = col;
+    }
 
     if(!alpha.is_finite())
     {
@@ -582,7 +604,6 @@ void JRCSPrimitive::step_1(int i)
             }
         }
         }
-
         //transforming transformed object
         for(int p=obj_range_[2*o];p<=obj_range_[2*o+1];++p)
         {
@@ -644,7 +665,7 @@ void JRCSPrimitive::step_2(void)
 
 bool JRCSPrimitive::isEnd_primitive(void)
 {
-    if(iter_count_>=10)return true;
+    if(iter_count_>=max_init_iter_)return true;
     else return false;
 }
 
