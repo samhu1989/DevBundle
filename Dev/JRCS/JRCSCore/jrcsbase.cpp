@@ -280,6 +280,7 @@ void JRCSBase::reset_rt()
     {
         throw std::logic_error("JRCSBase::reset_rt: no input");
     }
+    std::cerr<<"JRCSBase::reset_rt()"<<std::endl;
     rt_lst_.resize(vvs_ptrlst_.size());
     TsLst::iterator iter;
     for(iter=rt_lst_.begin();iter!=rt_lst_.end();++iter)
@@ -292,13 +293,14 @@ void JRCSBase::reset_rt()
             arma::fmat R(rt[i].R,3,3,false,true);
             arma::fvec t(rt[i].t,3,false,true);
             R.fill(arma::fill::eye);
-            arma::fvec randw(2*obj_num_,arma::fill::randn);
+            arma::fvec randw(2*obj_num_,arma::fill::randu);
             randw = arma::normalise(randw);
             arma::fvec randt(3,arma::fill::randn);
             arma::fmat pos0 = obj_pos_.each_col() + randt*max_obj_radius_;
             arma::fmat pos1 = obj_pos_.each_col() - randt*max_obj_radius_;
             arma::fmat pos_base = arma::join_rows(pos0,pos1);
             t = pos_base*randw;
+//            std::cerr<<"t for obj["<<i<<"]:"<<t.t()<<std::endl;
         }
     }
 }

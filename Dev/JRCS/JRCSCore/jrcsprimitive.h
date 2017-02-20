@@ -55,6 +55,7 @@ struct  JRCSCORESHARED_EXPORT Plate{
     void accumulate(const Plate&);
     void fit(void);
     void average(void);
+    void print(void);
     arma::fvec size_;
     arma::fmat R_;
     arma::fvec t_;

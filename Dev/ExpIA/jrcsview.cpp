@@ -134,7 +134,7 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
 
         build_mesh(mesh,k,jrcs_worker_->get_obj_n());
 
-        std::cerr<<"face num:"<<mesh.n_faces()<<std::endl;
+//        std::cerr<<"face num:"<<mesh.n_faces()<<std::endl;
 
         wv.emplace_back(new arma::fmat((float*)mesh.points(),3,mesh.n_vertices(),false,true));
         wn.emplace_back(new arma::fmat((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true));
@@ -149,7 +149,7 @@ bool JRCSView::allocate_x( JRCSThread* jrcs_worker_ )
 
     build_mesh(mesh,k,jrcs_worker_->get_obj_n());
 
-    std::cerr<<"face num:"<<mesh.n_faces()<<std::endl;
+//    std::cerr<<"face num:"<<mesh.n_faces()<<std::endl;
 
     xv = std::make_shared<arma::fmat>((float*)mesh.points(),3,mesh.n_vertices(),false,true);
     xn = std::make_shared<arma::fmat>((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);

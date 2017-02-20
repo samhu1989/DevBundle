@@ -1,5 +1,6 @@
 #include "jrcsprimitive.h"
 #include <QCoreApplication>
+#include <QThread>
 namespace JRCS{
 
 Plate::Plate():corners_(3,4,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma::fill::zeros)
@@ -33,6 +34,15 @@ Plate::Plate(
     obj_pos_ = pos;
     scale_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
     trans_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
+}
+
+void Plate::print(void)
+{
+    std::cerr<<"Plate:"<<std::endl;
+    std::cerr<<"xv:"<<std::endl;
+    std::cerr<<*xv_<<std::endl;
+    std::cerr<<"t:"<<std::endl;
+    std::cerr<<t_<<std::endl;
 }
 
 
@@ -310,7 +320,7 @@ void JRCSPrimitive::initx(
     xn_ptr_ = xn;
     xc_ptr_ = xc;
 
-    max_obj_radius_ = 1.0;// for randomly reset rt
+    max_obj_radius_ = 5.0;// for randomly reset rt
 
     xv_ptr_->fill(std::numeric_limits<float>::quiet_NaN());
     xn_ptr_->fill(std::numeric_limits<float>::quiet_NaN());
@@ -412,6 +422,7 @@ void JRCSPrimitive::compute(void)
         if(verbose_)std::cerr<<"step 2"<<std::endl;
         step_2();
         finish_primitive();
+//        QThread::currentThread()->sleep(60);
     }
 //    JRCSBilateral::compute();
 }
@@ -463,6 +474,7 @@ void JRCSPrimitive::step_1(int i)
     {
         arma::fmat R(rt[o].R,3,3,false,true);
         arma::fvec t(rt[o].t,3,false,true);
+
         for(int j=obj_range_[2*o];j<=obj_range_[2*o+1];++j)
         {
             plate_ptrlst_[j]->transform(R,t,*plate_t_ptrlst_[i][j]);
@@ -476,21 +488,28 @@ void JRCSPrimitive::step_1(int i)
         alpha.col(c) = plate_t_ptrlst_[i][c]->get_dist2(vv_);
     }
 
-
+    alpha.each_row() %= (-0.5*xv_invvar_);
     alpha = arma::trunc_exp(alpha);
+
     alpha.each_row() %=  arma::pow(xv_invvar_,1.5);
 
     if(verbose_>1)std::cerr<<"normalize alpha"<<std::endl;
     alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
     arma::vec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
     alpha.each_col() /= alpha_rowsum;
+
     // cut the ones below median to zeros for better converge
     for(int c = 0; c < alpha.n_cols ; ++c )
     {
         arma::vec col = alpha.col(c);
-        col(col<arma::median(col)).fill(0.0);
+        col( col < arma::median(col) ).fill(0.0);
         alpha.col(c) = col;
     }
+
+    if(verbose_>1)std::cerr<<"normalize alpha"<<std::endl;
+    alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
+    alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
+    alpha.each_col() /= alpha_rowsum;
 
     if(!alpha.is_finite())
     {
@@ -500,12 +519,15 @@ void JRCSPrimitive::step_1(int i)
     //update RT
     if(verbose_>1)std::cerr<<"#1 calculate weighted plate centers"<<std::endl;
     arma::frowvec alpha_colsum = arma::conv_to<arma::frowvec>::from(arma::sum( alpha ));
+    assert(plate_t_ptrlst_[i].size()==alpha.n_cols);
     for(int c = 0 ; c < alpha.n_cols ; ++c )
     {
-        for( int p = 0 ; p < plate_t_ptrlst_[i].size() ; ++ p )
-        {
-            plate_t_ptrlst_[i][p]->get_weighted_centroid(vv_,alpha.col(c));
-        }
+        plate_t_ptrlst_[i][c]->get_weighted_centroid(vv_,alpha.col(c));
+//        if(i==0&&0==c%5)
+//        {
+//            std::cerr<<"c:"<<plate_t_ptrlst_[i][c]->centroid_.t()<<std::endl;
+//            std::cerr<<"wc:"<<plate_t_ptrlst_[i][c]->weighted_centroid_.t()<<std::endl;
+//        }
     }
 
     if(verbose_>1)std::cerr<<"#2 calculating RT for each object"<<std::endl;
@@ -615,7 +637,6 @@ void JRCSPrimitive::step_1(int i)
         t = dR*t + dt;
     }
     if(verbose_>1)std::cerr<<"#3 done RT for each object"<<std::endl;
-
     arma::mat alpha_v2(alpha.n_rows,alpha.n_cols);
     for(int c=0;c<alpha_v2.n_cols;++c)
     {
