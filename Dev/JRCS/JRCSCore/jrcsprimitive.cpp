@@ -36,6 +36,16 @@ Plate::Plate(
     trans_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
 }
 
+double Plate::area(void)
+{
+    double r = 1.0;
+    for(int i=0;i<size_.n_rows;++i)
+    {
+        if(size_(i)!=0)r*=size_(i);
+    }
+    return r;
+}
+
 void Plate::print(void)
 {
     std::cerr<<"Plate:"<<std::endl;
@@ -245,11 +255,10 @@ void Plate::accumulate(
                 get_local_translate(t);
                 t0 = t;
                 t(dim) *= trans_r_(k);
-//                std::cerr<<"t in accumulate"<<t<<std::endl;
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 %= alpha;
-                param_(i,j,k) = arma::accu(dist2);
+                param_(i,j,k) = arma::accu(dist2)+tmp_plate->area();
             }
         }
         QCoreApplication::processEvents();
@@ -523,11 +532,6 @@ void JRCSPrimitive::step_1(int i)
     for(int c = 0 ; c < alpha.n_cols ; ++c )
     {
         plate_t_ptrlst_[i][c]->get_weighted_centroid(vv_,alpha.col(c));
-//        if(i==0&&0==c%5)
-//        {
-//            std::cerr<<"c:"<<plate_t_ptrlst_[i][c]->centroid_.t()<<std::endl;
-//            std::cerr<<"wc:"<<plate_t_ptrlst_[i][c]->weighted_centroid_.t()<<std::endl;
-//        }
     }
 
     if(verbose_>1)std::cerr<<"#2 calculating RT for each object"<<std::endl;
@@ -631,7 +635,6 @@ void JRCSPrimitive::step_1(int i)
         {
             plate_t_ptrlst_[i][p]->transform(dR,dt,*plate_t_ptrlst_[i][p]);
         }
-
         //updating R T
         R = dR*R;
         t = dR*t + dt;
@@ -643,7 +646,6 @@ void JRCSPrimitive::step_1(int i)
         alpha_v2.col(c) = plate_t_ptrlst_[i][c]->get_dist2(vv_);
     }
     vvar_.row(i) = arma::sum(alpha_v2%alpha);
-
     if(verbose_>1)std::cerr<<"#4 done var for each object"<<std::endl;
     for(int c=0;c<alpha.n_cols;++c)
     {
