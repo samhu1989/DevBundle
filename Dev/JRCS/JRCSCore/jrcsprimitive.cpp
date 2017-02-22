@@ -257,8 +257,8 @@ void Plate::accumulate(
                 t(dim) *= trans_r_(k);
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
-                dist2 %= alpha;
-                param_(i,j,k) = arma::accu(dist2)+tmp_plate->area();
+                dist2 = arma::trunc_exp(-dist2)%alpha;
+                param_(i,j,k) = arma::accu(dist2) / ( 1.0 + tmp_plate->area() );
             }
         }
         QCoreApplication::processEvents();
@@ -278,7 +278,7 @@ void Plate::accumulate(const Plate& p)
 void Plate::fit(void)
 {
     arma::uword i,j,k;
-    param_.min(i,j,k);
+    param_.max(i,j,k);
     //find the minimum
 //    std::cerr<<"the minimum:"<<i<<","<<j<<","<<k<<std::endl;
     //update this with the minimum

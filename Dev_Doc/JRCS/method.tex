@@ -30,13 +30,13 @@ $v_{mi}$ is the i-th point of the m-th point cloud.\\
 $Z$ is a latent variable set defined as:\\
 $$Z=\{z_{ij}|j=1...M,i=1...N_j\}$$
 among which if $z_{ij}=k(k=1...\sum{K_n})$ assign the observation of $\phi_{mn}(v_{mi})$ to the k-th component of Gaussian mixture model.Such formulation can be seen as an extention of joint registration formulation in \cite{Evangelidis2014}, upon which we add several gaussian mixture model together to express a group of objects. By solving this new problem we simutaneously solve  the object co-segmentation of given observation.
-\subsection{Bilateral Formulation}
-When considering features, we can develop it into a bilateral GMM formulation.
-\begin{equation}
-P(v_{mi},f_{mi})=\sum^{K_n}_{k=1}p_kN(v_{mi}|\phi_{mn}(xv_k),\sigma v_k)N(f_{mi}|xf_k,\sigma v_f))
-\end{equation}
-we measure the feature difference by a gaussian with diagnal $\Sigma$, to make this measurement valid we rotate and scale the feature space with PCA.
-\subsection{Hough Based Formulation}
+%%\subsection{Bilateral Formulation}
+%%When considering features, we can develop it into a bilateral GMM formulation.
+%%\begin{equation}
+%%P(v_{mi},f_{mi})=\sum^{K_n}_{k=1}p_kN(v_{mi}|\phi_{mn}(xv_k),\sigma v_k)N(f_{mi}|xf_k,\sigma v_f))
+%%\end{equation}
+%%we measure the feature difference by a gaussian with diagnal $\Sigma$, to make this measurement valid we rotate and scale the feature space with PCA.
+\subsection{Primitive Based Formulation}
 In order to constrain the shape of objects and allow optimization of the shape, we assume that the surface of any indoor object is composed of five axist aligned rectangle plates.
 \begin{equation}
 \label{equ:hough}

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  26 DEC 2016 18:50
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  22 FEB 2017 14:43
 entering extended mode
 **JRCS.tex
 (JRCS.tex
@@ -515,24 +515,12 @@ Requested font "phvb7t" at 9.19998pt
 
 LaTeX Warning: Reference `fig:syn-data' on page 1 undefined on input line 4.
 
-
-Underfull \vbox (badness 1629) has occurred while \output is active []
-
- [1
+[1
 
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 21--31
 
- []
-
-
-Overfull \hbox (1.639pt too wide) detected at line 37
-\OML/cmm/m/it/9 P\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 v[]; f[]\OT1/cmr/m/n/9 ) = [] 
-\OML/cmm/m/it/9 p[]N\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 v[]\OMS/cmsy/m/n/9 j\OML/cm
-m/m/it/9 ^^^[]\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 xv[]\OT1/cmr/m/n/9 )\OML/cmm/m/it
-/9 ; ^^[v[]\OT1/cmr/m/n/9 )\OML/cmm/m/it/9 N\OT1/cmr/m/n/9 (\OML/cmm/m/it/9 f[]
-\OMS/cmsy/m/n/9 j\OML/cmm/m/it/9 xf[]; ^^[v[]\OT1/cmr/m/n/9 ))
  []
 
 [2]) (imp.tex
@@ -566,10 +554,10 @@ LaTeX Warning: There were undefined references.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 190.
  ) 
 Here is how much of TeX's memory you used:
- 10730 strings out of 428790
- 150421 string characters out of 3164816
- 237933 words of memory out of 3000000
- 13931 multiletter control sequences out of 15000+200000
+ 10731 strings out of 428790
+ 150434 string characters out of 3164816
+ 237993 words of memory out of 3000000
+ 13932 multiletter control sequences out of 15000+200000
  17665 words of font info for 47 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
  43i,15n,66p,1734b,442s stack positions out of 5000i,500n,10000p,200000b,50000s

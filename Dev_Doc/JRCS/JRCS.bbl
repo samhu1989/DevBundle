@@ -102,6 +102,14 @@
 \newblock In {\em IEEE International Conference on Shape Modeling and
   Applications 2006 (SMI'06)}, 13--13.
 
+\bibitem[\protect\citename{Li et~al\mbox{.} }2011]{GlobFit2011}
+{\sc Li, Y., Wu, X., Chrysathou, Y., Sharf, A., Cohen-Or, D., and Mitra, N.~J.}
+\newblock 2011.
+\newblock Globfit: Consistently fitting primitives by discovering global
+  relations.
+\newblock {\em ACM Transactions on Graphics (Proceedings of SIGGRAPH 2011)
+  30\/}, Article No. 52.
+
 \bibitem[\protect\citename{Liu et~al\mbox{.} }2015]{Liu2015Model}
 {\sc Liu, Z., Zhang, Y., Wu, W., Liu, K., and Sun, Z.}
 \newblock 2015.
