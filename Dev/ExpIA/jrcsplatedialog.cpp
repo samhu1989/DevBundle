@@ -163,7 +163,7 @@ void JRCSPlateDialog::start_fit()
     if(!timer_->isActive());
     {
         time_ = 0.0;
-        arma::fvec t = {0,0.2,0};
+        arma::fvec t = {0,1.0,0};
         arma::fvec s = {0.5,0,1.5};
         plate->translate(t,*plate);
         plate->scale(s,*plate);
@@ -199,7 +199,7 @@ void JRCSPlateDialog::fit()
     if(time_>=500*dt_){
         timer_->disconnect(this,SLOT(transform()));
     }else{
-//        timer_->start();
+        timer_->start(800);
     }
 }
 

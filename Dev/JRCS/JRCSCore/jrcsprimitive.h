@@ -44,7 +44,7 @@ struct  JRCSCORESHARED_EXPORT Plate{
             Plate& result
             );
     arma::vec get_dist2(const arma::fmat& v);
-    arma::vec dist(const arma::fmat& v,arma::uword dim);
+    arma::vec dist(const arma::fmat&,const arma::fvec&,arma::uword dim);
     void get_weighted_centroid(const arma::fmat& v, const arma::vec &alpha);
     void accumulate(
             const arma::fmat& v,
@@ -61,7 +61,7 @@ struct  JRCSCORESHARED_EXPORT Plate{
     arma::fvec t_;
     arma::fmat corners_;
     arma::fvec centroid_;
-    arma::fvec origin_;
+//    arma::fvec origin_;
     arma::fvec weighted_centroid_;
     arma::fvec obj_pos_;
     std::shared_ptr<arma::fmat> xv_;

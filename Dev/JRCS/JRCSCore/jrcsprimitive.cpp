@@ -26,7 +26,7 @@ Plate::Plate(
 //    std::cerr<<*xv_<<std::endl;
     centroid_ = arma::mean(*xv_,1);
 //    std::cerr<<centroid_<<std::endl;
-    origin_ = centroid_;
+//    origin_ = centroid_;
     corners_ = xv_->each_col() - centroid_;
     t_ = arma::fvec(3,arma::fill::zeros);
     size_ = arma::max(arma::abs(corners_),1);
@@ -60,9 +60,7 @@ void Plate::get_local_translate(
         arma::fvec& t
         )
 {
-    t = centroid_ - t_;
-    t = R_.i()*t;
-    t -= origin_;
+    t = centroid_ - obj_pos_;
 }
 
 void Plate::local_translate(
@@ -70,19 +68,8 @@ void Plate::local_translate(
         Plate& result
         )
 {
-//    std::cerr<<"local_translate:  "<<std::endl;
-//    std::cerr<<t<<std::endl;
-    result.origin_ = origin_;
     *result.xv_ = *xv_;
-    //transform back to local coord
-    result.xv_->each_col() -= t_;
-    *result.xv_ = R_.i()*(*result.xv_);
-    //tranlate locally
     result.xv_->each_col() += t;
-    //tranlate back
-    *result.xv_ = R_*(*result.xv_);
-    result.xv_->each_col() += t_;
-    result.t_ = R_*t + t_;
     //update centroid
     result.centroid_ = arma::mean(*result.xv_,1);
     result.corners_ = result.xv_->each_col() - result.centroid_;
@@ -105,7 +92,7 @@ void Plate::translate(
         Plate& result
         )
 {
-    result.origin_ = origin_;
+//    result.origin_ = origin_;
     result.t_ = t_ + t;
     *result.xv_ = *xv_;
     result.xv_->each_col() += t;
@@ -119,7 +106,7 @@ void Plate::translate(
         *result.xn_ = *xn_;
         result.size_ = size_;
         result.weighted_centroid_ = weighted_centroid_;
-        result.obj_pos_ = obj_pos_;
+        result.obj_pos_ = obj_pos_ + t;
     }else{
 //        std::cerr<<"translate in place"<<std::endl;
     }
@@ -131,7 +118,7 @@ void Plate::transform(
         Plate& result
         )
 {
-    result.origin_ = origin_;
+//    result.origin_ = origin_;
     result.R_ = R*R_;
     result.t_ = R*t_ + t;
     *result.xv_ = R*(*xv_);
@@ -145,7 +132,7 @@ void Plate::transform(
         *result.xc_ = *xc_;
         result.size_ = size_;
         result.weighted_centroid_ = weighted_centroid_;
-        result.obj_pos_ = obj_pos_;
+        result.obj_pos_ = R*obj_pos_ + t;
     }else{
 //        std::cerr<<"transform in place"<<std::endl;
     }
@@ -158,7 +145,7 @@ void Plate::scale(
 {
 //    std::cerr<<"scaling:"<<std::endl;
 //    std::cerr<<s<<std::endl;
-    result.origin_ = origin_;
+//    result.origin_ = origin_;
     result.size_ = size_ % s;
     result.corners_ = R_.i()*corners_;
     result.corners_.each_col() %= s;
@@ -186,17 +173,21 @@ arma::vec Plate::get_dist2(
 {
     arma::fmat tv = v.each_col() - t_;
     arma::fmat invR = R_.i();
+    arma::fvec o = centroid_;
+    o -= t_;
     assert(invR.is_finite());
-    tv = R_.i()*tv;
-    return dist(tv,0)+dist(tv,1)+dist(tv,2);
+    tv = invR*tv;
+    o = invR*o;
+    return dist(tv,o,0)+dist(tv,o,1)+dist(tv,o,2);
 }
 
-arma::vec Plate::dist(const arma::fmat& v, arma::uword dim)
+arma::vec Plate::dist(const arma::fmat& v, const arma::fvec &origin, arma::uword dim)
 {
+
     arma::vec result(v.n_cols,arma::fill::zeros);
     arma::frowvec vdim = v.row(dim);
-    arma::uvec idx_dim = arma::find( arma::abs( vdim - origin_(dim) ) > size_(dim));
-    result(idx_dim) = arma::square( arma::abs( arma::conv_to<arma::vec>::from(vdim.cols(idx_dim)) - origin_(dim) ) - size_(dim) );
+    arma::uvec idx_dim = arma::find( arma::abs( vdim - origin(dim) ) > size_(dim));
+    result(idx_dim) = arma::square( arma::abs( arma::conv_to<arma::vec>::from( vdim.cols(idx_dim)) - origin(dim) ) - size_(dim) );
     return result;
 }
 
@@ -254,12 +245,13 @@ void Plate::accumulate(
                 arma::fvec t0(3,arma::fill::ones);
                 get_local_translate(t);
                 t0 = t;
-                t(dim) *= trans_r_(k);
-                std::cerr<<"local t:"<<(t-t0).t()<<std::endl;
+                t *= trans_r_(k);
+//                std::cerr<<"local t:"<<(t-t0).t()<<std::endl;
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 = arma::trunc_exp(-dist2)%alpha;
-                param_(i,j,k) = arma::accu(dist2) / ( 1.0 + tmp_plate->area() );
+                param_(i,j,k) = arma::accu(dist2) / ( 1.0 + 0.01*tmp_plate->area() );
+//                param_(i,j,k) = arma::accu(dist2);
             }
         }
         QCoreApplication::processEvents();
@@ -308,7 +300,7 @@ void Plate::fit(void)
     arma::fvec t0(3,arma::fill::ones);
     get_local_translate(t);
     t0 = t;
-    t(dim) *= trans_r_(k);
+    t *= trans_r_(k);
 //    std::cerr<<"local trans:"<<(t-t0).t()<<std::endl;
     local_translate( (t - t0) , *this );
     param_.clear();
@@ -466,6 +458,12 @@ void JRCSPrimitive::prepare_primitive()
         }
     }
     reset_prob_primitive();
+    for(int i=0;i<plate_ptrlst_.size();++i)
+    {
+        arma::fvec t;
+        plate_ptrlst_[i]->get_local_translate(t);
+        std::cerr<<"init local t:"<<t.t()<<std::endl;
+    }
 }
 
 void JRCSPrimitive::finish_primitive()
