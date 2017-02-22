@@ -255,6 +255,7 @@ void Plate::accumulate(
                 get_local_translate(t);
                 t0 = t;
                 t(dim) *= trans_r_(k);
+                std::cerr<<"local t:"<<(t-t0).t()<<std::endl;
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 = arma::trunc_exp(-dist2)%alpha;
@@ -308,6 +309,7 @@ void Plate::fit(void)
     get_local_translate(t);
     t0 = t;
     t(dim) *= trans_r_(k);
+//    std::cerr<<"local trans:"<<(t-t0).t()<<std::endl;
     local_translate( (t - t0) , *this );
     param_.clear();
 }
@@ -423,7 +425,7 @@ void JRCSPrimitive::compute(void)
     {
         update_color_label();
         if(verbose_)std::cerr<<"step 1"<<std::endl;
-        #pragma omp parallel for
+//        #pragma omp parallel for
         for( int i=0 ; i < vvs_ptrlst_.size() ; ++i )
         {
             step_1(i);
@@ -431,7 +433,7 @@ void JRCSPrimitive::compute(void)
         if(verbose_)std::cerr<<"step 2"<<std::endl;
         step_2();
         finish_primitive();
-//        QThread::currentThread()->sleep(60);
+        QThread::currentThread()->sleep(60);
     }
 //    JRCSBilateral::compute();
 }
