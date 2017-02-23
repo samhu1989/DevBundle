@@ -417,7 +417,7 @@ void JRCSPrimitive::compute(void)
     {
         update_color_label();
         if(verbose_)std::cerr<<"step 1"<<std::endl;
-//        #pragma omp parallel for
+        #pragma omp parallel for
         for( int i=0 ; i < vvs_ptrlst_.size() ; ++i )
         {
             step_1(i);
@@ -425,7 +425,7 @@ void JRCSPrimitive::compute(void)
         if(verbose_)std::cerr<<"step 2"<<std::endl;
         step_2();
         finish_primitive();
-        QThread::currentThread()->sleep(60);
+//        QThread::currentThread()->sleep(60);
     }
 //    JRCSBilateral::compute();
 }
@@ -458,12 +458,12 @@ void JRCSPrimitive::prepare_primitive()
         }
     }
     reset_prob_primitive();
-    for(int i=0;i<plate_ptrlst_.size();++i)
-    {
-        arma::fvec t;
-        plate_ptrlst_[i]->get_local_translate(t);
-        std::cerr<<"init local t:"<<t.t()<<std::endl;
-    }
+//    for(int i=0;i<plate_ptrlst_.size();++i)
+//    {
+//        arma::fvec t;
+//        plate_ptrlst_[i]->get_local_translate(t);
+//        std::cerr<<"init local t:"<<t.t()<<std::endl;
+//    }
 }
 
 void JRCSPrimitive::finish_primitive()
