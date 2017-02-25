@@ -9,8 +9,8 @@ Plate::Plate():corners_(3,4,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma
     xn_.reset(new arma::fmat(3,4));
     xc_.reset(new arma::Mat<uint8_t>(3,4));
     t_ = obj_pos_;
-    scale_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
-    trans_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
+    scale_r_ = arma::linspace<arma::fvec>(0.1,1.2,15);
+    trans_r_ = arma::linspace<arma::fvec>(0.1,1.2,15);
 }
 
 Plate::Plate(
@@ -32,8 +32,8 @@ Plate::Plate(
     size_ = arma::max(arma::abs(corners_),1);
 //    std::cerr<<"size_:"<<size_<<std::endl;
     obj_pos_ = pos;
-    scale_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
-    trans_r_ = arma::linspace<arma::fvec>(0.2,1.2,10);
+    scale_r_ = arma::linspace<arma::fvec>(0.1,1.2,15);
+    trans_r_ = arma::linspace<arma::fvec>(0.1,1.2,15);
 }
 
 double Plate::area(void)
@@ -201,8 +201,7 @@ void Plate::get_weighted_centroid(
     weighted_centroid_ = arma::conv_to<arma::fmat>::from(tmp);
 }
 
-void Plate::accumulate(
-        const arma::fmat& v,
+void Plate::accumulate(const arma::fmat& v,
         const arma::fmat& n,
         const arma::Mat<uint8_t>& c,
         const arma::vec alpha
@@ -249,7 +248,7 @@ void Plate::accumulate(
 //                std::cerr<<"local t:"<<(t-t0).t()<<std::endl;
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
-                dist2 = arma::trunc_exp(-dist2)%alpha;
+                dist2 = arma::trunc_exp( -dist2 ) % alpha ;
                 param_(i,j,k) = arma::accu(dist2) / ( 1.0 + 0.01*tmp_plate->area() );
 //                param_(i,j,k) = arma::accu(dist2);
             }
@@ -258,14 +257,26 @@ void Plate::accumulate(
     }
 }
 
-void Plate::accumulate(const Plate& p)
+void Plate::start_accumulate(const int r, const int c, const int s, const int num)
 {
-    if(param_.empty())
-    {
-        param_ = p.param_;
-    }else{
-        param_ += p.param_;
-    }
+    param_ = arma::fcube(r,c,s,arma::fill::zeros);
+    param_vec_.reset(new arma::fvec(param_.memptr(),param_.size(),false,true));
+    param_mat_.reset(new arma::fmat(param_.size(),num));
+}
+
+void Plate::accumulate(const Plate& p,const int i)
+{
+    param_mat_->col(i) = arma::fvec((float*)p.param_.memptr(),p.param_.size(),false,true);
+}
+
+void Plate::median()
+{
+    (*param_vec_) = arma::median(*param_mat_,1);
+}
+
+void Plate::mean()
+{
+    (*param_vec_) = arma::mean(*param_mat_,1);
 }
 
 void Plate::fit(void)
@@ -657,13 +668,19 @@ void JRCSPrimitive::step_1(int i)
 void JRCSPrimitive::step_2(void)
 {
     if(verbose_>1)std::cerr<<"Updating Latent Model"<<std::endl;
+
     #pragma omp parallel for
     for( int i=0 ; i < plate_ptrlst_.size() ; ++i )
     {
+        const int r = plate_t_ptrlst_[0][i]->param_.n_rows;
+        const int c = plate_t_ptrlst_[0][i]->param_.n_cols;
+        const int s = plate_t_ptrlst_[0][i]->param_.n_slices;
+        plate_ptrlst_[i]->start_accumulate(r,c,s,plate_t_ptrlst_.size());
         for(int j=0;j<plate_t_ptrlst_.size();++j)
         {
-            plate_ptrlst_[i]->accumulate(*plate_t_ptrlst_[j][i]);
+            plate_ptrlst_[i]->accumulate(*plate_t_ptrlst_[j][i],j);
         }
+        plate_ptrlst_[i]->median();
         plate_ptrlst_[i]->fit();
     }
 

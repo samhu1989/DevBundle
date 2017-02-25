@@ -52,7 +52,10 @@ struct  JRCSCORESHARED_EXPORT Plate{
             const arma::Mat<uint8_t>& c,
             const arma::vec alpha
             );
-    void accumulate(const Plate&);
+    void start_accumulate(const int r,const int c,const int s,const int num);
+    void accumulate(const Plate&,const int i);
+    void median();
+    void mean();
     void fit(void);
     void print(void);
     double area(void);
@@ -73,6 +76,8 @@ struct  JRCSCORESHARED_EXPORT Plate{
     arma::fvec  scale_r_;
     arma::fvec  trans_r_;
     arma::fcube param_;
+    std::shared_ptr<arma::fmat> param_mat_;
+    std::shared_ptr<arma::fvec> param_vec_;
 //    TYPE type_;
 };
 
