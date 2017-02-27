@@ -249,7 +249,7 @@ void Plate::accumulate(const arma::fmat& v,
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 = arma::trunc_exp( -dist2 ) % alpha ;
-                param_(i,j,k) = arma::accu(dist2) / ( 1.0 + 0.01*tmp_plate->area() );
+                param_(i,j,k) = arma::accu(dist2) / ( 1 + 0.01*tmp_plate->area() );
 //                param_(i,j,k) = arma::accu(dist2);
             }
         }
