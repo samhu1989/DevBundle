@@ -30,9 +30,7 @@ void CPlate::local_translate(
         Plate::local_translate(t,result);
         break;
     case V:
-        //to do:
-        //change the local_translate so that the object bottom always at height of obj pos
-        Plate::local_translate(t,result);
+        local_translate_v(t,result);
         break;
     }
 }
@@ -47,11 +45,19 @@ void CPlate::scale(
         Plate::scale(s,result);
         break;
     case V:
-        //to do:
-        //change the scale so that the object bottom always at height of obj pos
-        Plate::scale(s,result);
+        scale_v(s,result);
         break;
     }
+}
+
+void CPlate::local_translate_v(const arma::fvec &t, Plate &result)
+{
+    ;
+}
+
+void CPlate::scale_v(const arma::fvec& s, Plate& result)
+{
+    ;
 }
 
 JRCSCP::JRCSCP():JRCSPrimitive()

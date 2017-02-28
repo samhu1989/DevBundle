@@ -25,6 +25,9 @@ struct JRCSCORESHARED_EXPORT CPlate:public Plate
         const arma::fvec &s,
         Plate &result
     );
+protected:
+    void local_translate_v(const arma::fvec &t, Plate &result);
+    void scale_v(const arma::fvec& s, Plate& result);
 private:
     T type_;
 };
