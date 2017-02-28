@@ -22,6 +22,7 @@
 #include "annotator.h"
 #include "gdcthread.h"
 #include "jrcsprimitive.h"
+#include "jrcscp.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -633,6 +634,29 @@ void MainWindow::start_editing()
                     objects_
                     );
         std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSPrimitive());
+        w->set_method(method);
+        if(!w->configure(config_)){
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        s->show();
+        w->set_show_mode("Flat Colored Vertices");
+        w->start();
+    }
+    if(edit==ui->actionJRCS_Opt_CP)
+    {
+        JRCSView* w = new JRCSView(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSCP());
         w->set_method(method);
         if(!w->configure(config_)){
             QString msg = "Missing Some Inputs or configure\n";

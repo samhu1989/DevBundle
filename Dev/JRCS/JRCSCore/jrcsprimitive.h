@@ -23,42 +23,42 @@ struct  JRCSCORESHARED_EXPORT Plate{
         const arma::Mat<uint8_t>& c,
         const arma::fvec &pos
           );
-    void translate(
+    virtual void translate(
             const arma::fvec& t,
             Plate& result
             );
-    void get_local_translate(
+    virtual void get_local_translate(
             arma::fvec& t
             );
-    void local_translate(
+    virtual void local_translate(
             const arma::fvec& t,
             Plate& result
             );
-    void transform(
+    virtual void transform(
             const arma::fmat& R,
             const arma::fvec& t,
             Plate& result
             );
-    void scale(
+    virtual void scale(
             const arma::fvec& s,
             Plate& result
             );
-    arma::vec get_dist2(const arma::fmat& v);
-    arma::vec dist(const arma::fmat&,const arma::fvec&,arma::uword dim);
-    void get_weighted_centroid(const arma::fmat& v, const arma::vec &alpha);
-    void accumulate(
+    virtual arma::vec get_dist2(const arma::fmat& v);
+    virtual arma::vec dist(const arma::fmat&,const arma::fvec&,arma::uword dim);
+    virtual void get_weighted_centroid(const arma::fmat& v, const arma::vec &alpha);
+    virtual void accumulate(
             const arma::fmat& v,
             const arma::fmat& n,
             const arma::Mat<uint8_t>& c,
             const arma::vec alpha
             );
-    void start_accumulate(const int r,const int c,const int s,const int num);
-    void accumulate(const Plate&,const int i);
-    void median();
-    void mean();
-    void fit(void);
-    void print(void);
-    double area(void);
+    virtual void start_accumulate(const int r,const int c,const int s,const int num);
+    virtual void accumulate(const Plate&,const int i);
+    virtual void median();
+    virtual void mean();
+    virtual void fit(void);
+    virtual void print(void);
+    virtual double area(void);
     arma::fvec size_;
     arma::fmat R_;
     arma::fvec t_;
@@ -113,7 +113,7 @@ protected:
     //updating var and p
     void step_2(void);
     virtual bool isEnd_primitive(void);
-private:
+protected:
     Plate::PtrLst plate_ptrlst_;
     std::vector<Plate::PtrLst> plate_t_ptrlst_;
     int plate_num_for_obj_;
