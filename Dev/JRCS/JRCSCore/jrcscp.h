@@ -5,7 +5,15 @@
  */
 #include "jrcsprimitive.h"
 namespace JRCS {
-class JRCSCORESHARED_EXPORT JRCSCP :public JRCSPrimitive
+class JRCSCORESHARED_EXPORT CP:public Plate
+{
+public:
+    typedef enum{
+        H, // horizontal
+        V  // vertical
+    }T;
+};
+class JRCSCORESHARED_EXPORT JRCSCP:public JRCSPrimitive
 {
 public:
     JRCSCP();
