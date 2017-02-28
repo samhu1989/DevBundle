@@ -16,7 +16,15 @@ struct JRCSCORESHARED_EXPORT CPlate:public Plate
         const arma::fmat& n,
         const arma::Mat<uint8_t>& c,
         const arma::fvec &pos
-          );
+    );
+    virtual void local_translate(
+        const arma::fvec& t,
+        Plate& result
+    );
+    virtual void scale(
+        const arma::fvec &s,
+        Plate &result
+    );
 private:
     T type_;
 };
