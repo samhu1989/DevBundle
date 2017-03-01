@@ -52,12 +52,54 @@ void CPlate::scale(
 
 void CPlate::local_translate_v(const arma::fvec &t, Plate &result)
 {
-    ;
+    arma::fvec dt = t;
+    dt(2) = 0;
+    *result.xv_ = *xv_;
+    result.xv_->each_col() += dt;
+    //update centroid
+    result.centroid_ = arma::mean(*result.xv_,1);
+    result.corners_ = result.xv_->each_col() - result.centroid_;
+    if(this!=&result)
+    {
+        result.R_ = R_;
+        *result.xc_ = *xc_;
+        *result.xn_ = *xn_;
+        result.size_ = size_;
+        result.corners_ = corners_;
+        result.weighted_centroid_ = weighted_centroid_;
+        result.obj_pos_ = obj_pos_;
+    }else{
+//        std::cerr<<"translate in place"<<std::endl;
+    }
 }
 
 void CPlate::scale_v(const arma::fvec& s, Plate& result)
 {
-    ;
+    result.size_ = size_ % s;
+    result.corners_ = R_.i()*corners_;
+    result.corners_.each_col() %= s;
+    result.corners_ = R_*result.corners_;
+    *result.xv_ = result.corners_;
+    result.xv_ -> each_col() += centroid_;
+    //move the scaled plate so that it starts from floor
+    //that is min(xv_->row(2)) == 0
+    float z = arma::min(result.xv_->row(2));
+    arma::fvec dt(3,arma::fill::zeros);
+    dt(2) = obj_pos_(2) - z;
+    result.xv_ -> each_col() += dt;
+    //updating centroid
+    result.centroid_ = arma::mean(*result.xv_,1);
+    if(this!=&result)
+    {
+        result.t_ = t_;
+        result.R_ = R_;
+        *result.xc_ = *xc_;
+        *result.xn_ = *xn_;
+        result.weighted_centroid_ = weighted_centroid_;
+        result.obj_pos_ = obj_pos_;
+    }else{
+//        std::cerr<<"scale in place"<<std::endl;
+    }
 }
 
 JRCSCP::JRCSCP():JRCSPrimitive()
