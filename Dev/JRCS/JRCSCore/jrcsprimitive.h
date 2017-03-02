@@ -46,6 +46,7 @@ struct  JRCSCORESHARED_EXPORT Plate{
     virtual arma::vec get_dist2(const arma::fmat& v);
     virtual arma::vec dist(const arma::fmat&,const arma::fvec&,arma::uword dim);
     virtual void get_weighted_centroid(const arma::fmat& v, const arma::vec &alpha);
+    virtual void get_weighted_color(const arma::fmat& v,const arma::Mat<uint8_t>& c );
     virtual void accumulate(
             const arma::fmat& v,
             const arma::fmat& n,
@@ -56,6 +57,7 @@ struct  JRCSCORESHARED_EXPORT Plate{
     virtual void accumulate(const Plate&,const int i);
     virtual void median();
     virtual void mean();
+    virtual void norm_mean();
     virtual void fit(void);
     virtual void print(void);
     virtual double area(void);
@@ -108,10 +110,18 @@ protected:
     //calculate alpha
     //update r t
     //voting
-    void step_1(int i);
+    virtual void step_1(int i);
+    virtual void updateRTforObj(
+            const int start,
+            const int end,
+            arma::frowvec& colsum,
+            arma::fmat& R,
+            arma::fvec& t,
+            Plate::PtrLst plate_ptrlst
+            );
     //extracting new planes
     //updating var and p
-    void step_2(void);
+    virtual void step_2(void);
     virtual bool isEnd_primitive(void);
 protected:
     Plate::PtrLst plate_ptrlst_;

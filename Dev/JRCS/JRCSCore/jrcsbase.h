@@ -173,6 +173,7 @@ protected:
     arma::Mat<uint8_t> xtc_;
 
     //pre-defined class label for each centroid
+    std::vector<arma::uword> obj_range_;//start and end index for objects in centroid model
     arma::uvec  obj_label_;
     arma::fvec  obj_prob_;
     arma::fmat  obj_pos_;

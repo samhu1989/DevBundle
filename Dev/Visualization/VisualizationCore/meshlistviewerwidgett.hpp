@@ -513,8 +513,6 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
           }
           glColor3f(1.0, 1.0, 1.0);
       }
-
-
       else if( _draw_mode == "Points" ) // -----------------------------------------
       {
           glEnableClientState(GL_VERTEX_ARRAY);
@@ -536,8 +534,6 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
           glDisableClientState(GL_VERTEX_ARRAY);
           glDisableClientState(GL_COLOR_ARRAY);
       }
-
-
 }
 
 //-----------------------------------------------------------------------------
@@ -726,6 +722,12 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
         if(iter==mesh_list_.end())iter=mesh_list_.begin();
     }
     setDefaultMaterial();
+  }
+
+  M& mesh_ = (*(mesh_list_.begin() + current_mesh_start_))->mesh_;
+  if( _draw_mode!="Points" && mesh_.n_faces()*5 < mesh_.n_vertices() )
+  {
+      draw_scene("Points");
   }
 
   if (show_vnormals_)

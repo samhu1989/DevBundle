@@ -44,6 +44,14 @@ public:
             );//randomly initialize the X
 protected:
     virtual void prepare_primitive();
+    virtual void updateRTforObj(
+            const int start,
+            const int end,
+            arma::frowvec& colsum,
+            arma::fmat& R,
+            arma::fvec& t,
+            Plate::PtrLst plate_ptrlst
+            );
 private:
     using JRCSPrimitive::plate_ptrlst_;
     using JRCSPrimitive::plate_t_ptrlst_;

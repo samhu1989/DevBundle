@@ -212,4 +212,16 @@ void JRCSCP::prepare_primitive()
     reset_prob_primitive();
 }
 
+void JRCSCP::updateRTforObj(
+        const int start,
+        const int end,
+        arma::frowvec &colsum,
+        arma::fmat &R,
+        arma::fvec &t,
+        Plate::PtrLst plate_ptrlst
+        )
+{
+    ;
+}
+
 }

@@ -9,8 +9,8 @@ Plate::Plate():corners_(3,4,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma
     xn_.reset(new arma::fmat(3,4));
     xc_.reset(new arma::Mat<uint8_t>(3,4));
     t_ = obj_pos_;
-    scale_r_ = arma::linspace<arma::fvec>(0.1,1.2,15);
-    trans_r_ = arma::linspace<arma::fvec>(0.1,1.2,15);
+    scale_r_ = arma::linspace<arma::fvec>(0.1,1.2,10);
+    trans_r_ = arma::linspace<arma::fvec>(0.1,1.2,10);
 }
 
 Plate::Plate(
@@ -32,8 +32,8 @@ Plate::Plate(
     size_ = arma::max(arma::abs(corners_),1);
 //    std::cerr<<"size_:"<<size_<<std::endl;
     obj_pos_ = pos;
-    scale_r_ = arma::linspace<arma::fvec>(0.1,1.2,15);
-    trans_r_ = arma::linspace<arma::fvec>(0.1,1.2,15);
+    scale_r_ = arma::linspace<arma::fvec>(0.1,1.2,10);
+    trans_r_ = arma::linspace<arma::fvec>(0.1,1.2,10);
 }
 
 double Plate::area(void)
@@ -70,6 +70,7 @@ void Plate::local_translate(
 {
     *result.xv_ = *xv_;
     result.xv_->each_col() += t;
+    result.t_ = t_ + t;
     //update centroid
     result.centroid_ = arma::mean(*result.xv_,1);
     result.corners_ = result.xv_->each_col() - result.centroid_;
@@ -201,6 +202,20 @@ void Plate::get_weighted_centroid(
     weighted_centroid_ = arma::conv_to<arma::fmat>::from(tmp);
 }
 
+void Plate::get_weighted_color(const arma::fmat& v,const arma::Mat<uint8_t>& c)
+{
+    arma::fmat w(v.n_cols,xv_->n_cols);
+    for( int i = 0 ; i < w.n_cols; ++i )
+    {
+        w.col(i) = arma::trunc_exp(-1.0*arma::sum(arma::square( v.each_col() - xv_->col(i) ))).t();
+    }
+    w += std::numeric_limits<float>::epsilon();
+    arma::frowvec sum = arma::sum(w);
+    w.each_row() /= sum;
+    arma::fmat fc = arma::conv_to<arma::fmat>::from(c)*w;
+    *xc_ = arma::conv_to<arma::Mat<uint8_t>>::from(fc);
+}
+
 void Plate::accumulate(const arma::fmat& v,
         const arma::fmat& n,
         const arma::Mat<uint8_t>& c,
@@ -249,7 +264,9 @@ void Plate::accumulate(const arma::fmat& v,
                 tmp_plate->local_translate((t-t0),*tmp_plate);
                 arma::vec dist2 = tmp_plate->get_dist2(v);
                 dist2 = arma::trunc_exp( -dist2 ) % alpha ;
-                param_(i,j,k) = arma::accu(dist2) / ( 1 + 0.01*tmp_plate->area() );
+                if(tmp_plate->area()<0.001)
+                    param_(i,j,k) = 0.0;
+                else param_(i,j,k) = arma::accu(dist2) / ( 1 + 0.01*tmp_plate->area() );
 //                param_(i,j,k) = arma::accu(dist2);
             }
         }
@@ -279,10 +296,21 @@ void Plate::mean()
     (*param_vec_) = arma::mean(*param_mat_,1);
 }
 
+void Plate::norm_mean()
+{
+    (*param_vec_) = arma::mean(*param_mat_,1);
+    (*param_vec_) /= ( arma::stddev(*param_mat_,0,1) + std::numeric_limits<float>::epsilon() );
+}
+
 void Plate::fit(void)
 {
+    median();
     arma::uword i,j,k;
-    param_.max(i,j,k);
+    float fitscore = param_.max(i,j,k);
+    if(fitscore<=std::numeric_limits<float>::epsilon())
+    {
+        std::cerr<<"maximum fit score below zero:"<<fitscore<<std::endl;
+    }
     //find the minimum
 //    std::cerr<<"the minimum:"<<i<<","<<j<<","<<k<<std::endl;
     //update this with the minimum
@@ -373,7 +401,7 @@ void JRCSPrimitive::initx(
         arma::Mat<uint8_t> objc(pxc,3,obj_size,false,true);
 
         arma::fvec pos = obj_pos_.col(obj_idx);
-        reset_obj_vn(0.05,pos,objv,objn);
+        reset_obj_vn(1.0,pos,objv,objn);
         reset_obj_c(objc);
 
         for(int j=0 ; j < plate_num_for_obj_; ++j)
@@ -543,112 +571,22 @@ void JRCSPrimitive::step_1(int i)
     for(int c = 0 ; c < alpha.n_cols ; ++c )
     {
         plate_t_ptrlst_[i][c]->get_weighted_centroid(vv_,alpha.col(c));
+        plate_t_ptrlst_[i][c]->get_weighted_color(vv_,vc_);
     }
 
     if(verbose_>1)std::cerr<<"#2 calculating RT for each object"<<std::endl;
     for(int o = 0 ; o < obj_num_ ; ++o )
     {
-        arma::fmat A;
-        arma::fmat U,V;
-        arma::fvec s;
-        arma::fmat dR;
-        arma::fvec dt;
         arma::fmat R(rt[o].R,3,3,false,true);
         arma::fvec t(rt[o].t,3,false,true);
-        arma::fmat _v(3,plate_num_for_obj_);
-        arma::fmat objv(3,plate_num_for_obj_);
-        int vi = 0;
-        for(int p=obj_range_[2*o];p<=obj_range_[2*o+1];++p)
-        {
-            _v.col(vi) = plate_t_ptrlst_[i][p]->weighted_centroid_;
-            objv.col(vi) = plate_t_ptrlst_[i][p]->centroid_;
-            ++vi;
-        }
-        arma::fmat cv = _v.each_col() - arma::mean(_v,1);
-        if(!_v.is_finite())
-        {
-            std::cerr<<iter_count_<<":"<<o<<":!v.is_finite()"<<std::endl;
-        }
-
-        arma::frowvec square_lambdav = arma::conv_to<arma::frowvec>::from(xv_invvar_.cols(obj_range_[2*o],obj_range_[2*o+1]));
-        square_lambdav %= alpha_colsum.cols(obj_range_[2*o],obj_range_[2*o+1]);
-        square_lambdav += std::numeric_limits<float>::epsilon(); // for numeric stability
-        if(!square_lambdav.is_finite())
-        {
-            std::cerr<<"!square_lambda.is_finite()"<<std::endl;
-        }
-
-        arma::frowvec pv(square_lambdav.n_cols,arma::fill::ones);
-        arma::frowvec square_norm_lambdav = square_lambdav / arma::accu(square_lambdav);
-        if(!square_norm_lambdav.is_finite())
-        {
-            std::cerr<<"!square_norm_lambda.is_finite()"<<std::endl;
-        }
-        pv -= square_norm_lambdav;
-        arma::fmat tmpv = objv.each_col() - arma::mean(objv,1) ;
-        tmpv.each_row() %= pv % square_lambdav;
-
-        A = cv*tmpv.t();
-
-        switch(rttype_)
-        {
-        case Gamma:
-        {
-            arma::fmat B = A.submat(0,0,1,1);
-            dR = arma::fmat(3,3,arma::fill::eye);
-            if(arma::svd(U,s,V,B,"std"))
-            {
-                arma::fmat C(2,2,arma::fill::eye);
-                C(1,1) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
-                arma::fmat dR2D = U*C*(V.t());
-                dR.submat(0,0,1,1) = dR2D;
-                if(!dR.is_finite())
-                {
-                    std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
-                    dR.fill(arma::fill::eye);
-                }
-                arma::fmat tmp = _v - dR*objv;
-                tmp.each_row() %= square_norm_lambdav;
-                dt = arma::sum(tmp,1);
-                if(!dt.is_finite())
-                {
-                    std::cerr<<iter_count_<<":!dt.is_finite()"<<std::endl;
-                    dt.fill(arma::fill::zeros);
-                }
-            }
-        }
-            break;
-        default:
-        {
-            if(arma::svd(U,s,V,A,"std"))
-            {
-                arma::fmat C(3,3,arma::fill::eye);
-                C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
-                dR = U*C*(V.t());
-                if(!dR.is_finite())
-                {
-                    std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
-                    dR.fill(arma::fill::eye);
-                }
-                arma::fmat tmp = _v - dR*objv;
-                tmp.each_row() %= square_norm_lambdav;
-                dt = arma::sum(tmp,1);
-                if(!dt.is_finite())
-                {
-                    std::cerr<<iter_count_<<":!dt.is_finite()"<<std::endl;
-                    dt.fill(arma::fill::zeros);
-                }
-            }
-        }
-        }
-        //transforming transformed object
-        for(int p=obj_range_[2*o];p<=obj_range_[2*o+1];++p)
-        {
-            plate_t_ptrlst_[i][p]->transform(dR,dt,*plate_t_ptrlst_[i][p]);
-        }
-        //updating R T
-        R = dR*R;
-        t = dR*t + dt;
+        updateRTforObj(
+                obj_range_[2*o],
+                obj_range_[2*o+1],
+                alpha_colsum,
+                R,
+                t,
+                plate_t_ptrlst_[i]
+                );
     }
     if(verbose_>1)std::cerr<<"#3 done RT for each object"<<std::endl;
     arma::mat alpha_v2(alpha.n_rows,alpha.n_cols);
@@ -663,6 +601,117 @@ void JRCSPrimitive::step_1(int i)
         plate_t_ptrlst_[i][c]->accumulate(vv_,vn_,vc_,alpha.col(c));
     }
     if(verbose_>1)std::cerr<<"#5 done accumulation"<<std::endl;
+}
+
+void JRCSPrimitive::updateRTforObj(
+        const int start,
+        const int end,
+        arma::frowvec& colsum,
+        arma::fmat& R,
+        arma::fvec& t,
+        Plate::PtrLst plate_ptrlst
+        )
+{
+    arma::fmat A;
+    arma::fmat U,V;
+    arma::fvec s;
+    arma::fmat dR;
+    arma::fvec dt;
+
+    arma::fmat _v(3,plate_num_for_obj_);
+    arma::fmat objv(3,plate_num_for_obj_);
+    int vi = 0;
+    for(int p=start;p<=end;++p)
+    {
+        _v.col(vi) = plate_ptrlst[p]->weighted_centroid_;
+        objv.col(vi) = plate_ptrlst[p]->centroid_;
+        ++vi;
+    }
+    arma::fmat cv = _v.each_col() - arma::mean(_v,1);
+    if(!_v.is_finite())
+    {
+        std::cerr<<iter_count_<<":"<<start<<"->"<<end<<":!v.is_finite()"<<std::endl;
+    }
+
+    arma::frowvec square_lambdav = arma::conv_to<arma::frowvec>::from(xv_invvar_.cols(start,end));
+    square_lambdav %= colsum.cols(start,end);
+    square_lambdav += std::numeric_limits<float>::epsilon(); // for numeric stability
+    if(!square_lambdav.is_finite())
+    {
+        std::cerr<<"!square_lambda.is_finite()"<<std::endl;
+    }
+
+    arma::frowvec pv(square_lambdav.n_cols,arma::fill::ones);
+    arma::frowvec square_norm_lambdav = square_lambdav / arma::accu(square_lambdav);
+    if(!square_norm_lambdav.is_finite())
+    {
+        std::cerr<<"!square_norm_lambda.is_finite()"<<std::endl;
+    }
+    pv -= square_norm_lambdav;
+    arma::fmat tmpv = objv.each_col() - arma::mean(objv,1) ;
+    tmpv.each_row() %= pv % square_lambdav;
+
+    A = cv*tmpv.t();
+
+    switch(rttype_)
+    {
+    case Gamma:
+    {
+        arma::fmat B = A.submat(0,0,1,1);
+        dR = arma::fmat(3,3,arma::fill::eye);
+        if(arma::svd(U,s,V,B,"std"))
+        {
+            arma::fmat C(2,2,arma::fill::eye);
+            C(1,1) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+            arma::fmat dR2D = U*C*(V.t());
+            dR.submat(0,0,1,1) = dR2D;
+            if(!dR.is_finite())
+            {
+                std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
+                dR.fill(arma::fill::eye);
+            }
+            arma::fmat tmp = _v - dR*objv;
+            tmp.each_row() %= square_norm_lambdav;
+            dt = arma::sum(tmp,1);
+            if(!dt.is_finite())
+            {
+                std::cerr<<iter_count_<<":!dt.is_finite()"<<std::endl;
+                dt.fill(arma::fill::zeros);
+            }
+        }
+    }
+        break;
+    default:
+    {
+        if(arma::svd(U,s,V,A,"std"))
+        {
+            arma::fmat C(3,3,arma::fill::eye);
+            C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+            dR = U*C*(V.t());
+            if(!dR.is_finite())
+            {
+                std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
+                dR.fill(arma::fill::eye);
+            }
+            arma::fmat tmp = _v - dR*objv;
+            tmp.each_row() %= square_norm_lambdav;
+            dt = arma::sum(tmp,1);
+            if(!dt.is_finite())
+            {
+                std::cerr<<iter_count_<<":!dt.is_finite()"<<std::endl;
+                dt.fill(arma::fill::zeros);
+            }
+        }
+    }
+    }
+    //transforming transformed object
+    for(int p=start;p<=end;++p)
+    {
+        plate_ptrlst[p]->transform(dR,dt,*plate_ptrlst[p]);
+    }
+    //updating R T
+    R = dR*R;
+    t = dR*t + dt;
 }
 
 void JRCSPrimitive::step_2(void)
@@ -680,7 +729,6 @@ void JRCSPrimitive::step_2(void)
         {
             plate_ptrlst_[i]->accumulate(*plate_t_ptrlst_[j][i],j);
         }
-        plate_ptrlst_[i]->median();
         plate_ptrlst_[i]->fit();
     }
 

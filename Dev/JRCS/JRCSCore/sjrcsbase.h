@@ -177,7 +177,7 @@ protected:
 
     //pre-defined object info
     using JRCSBase::obj_num_;
-    std::vector<arma::uword> obj_range_;//start and end index for objects in centroid model
+    using JRCSBase::obj_range_;
     using JRCSBase::obj_pos_;
 
     //minimization object
