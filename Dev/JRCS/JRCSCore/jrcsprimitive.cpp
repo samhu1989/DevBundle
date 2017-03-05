@@ -356,7 +356,7 @@ void JRCSPrimitive::initx(
         const CMatPtr& xc
         )
 {
-    if(verbose_)std::cerr<<"SJRCSBase start init x"<<std::endl;
+    if(verbose_)std::cerr<<"JRCSPrimitive start init x"<<std::endl;
 
     xv_ptr_ = xv;
     xn_ptr_ = xn;

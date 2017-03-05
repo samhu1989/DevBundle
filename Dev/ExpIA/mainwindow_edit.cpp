@@ -22,7 +22,7 @@
 #include "annotator.h"
 #include "gdcthread.h"
 #include "jrcsprimitive.h"
-#include "jrcscp.h"
+#include "jrcscube.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -649,14 +649,14 @@ void MainWindow::start_editing()
         w->set_show_mode("Flat Colored Vertices");
         w->start();
     }
-    if(edit==ui->actionJRCS_Opt_CP)
+    if(edit==ui->actionJRCS_Opt_Cube)
     {
         JRCSView* w = new JRCSView(
                     inputs_,
                     labels_,
                     objects_
                     );
-        std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSCP());
+        std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSCube());
         w->set_method(method);
         if(!w->configure(config_)){
             QString msg = "Missing Some Inputs or configure\n";
