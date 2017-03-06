@@ -28,29 +28,40 @@ public:
             );
     virtual arma::vec get_dist2(const arma::fmat& v);
     virtual arma::vec dist(const arma::fmat&,const arma::fvec&,arma::uword dim);
-    virtual void get_weighted_centroid(const arma::fmat& v, const arma::vec &alpha);
+    virtual void get_weighted_corners(const arma::fmat& v, const arma::vec &alpha);
     virtual void get_weighted_color(const arma::fmat& v,const arma::Mat<uint8_t>& c );
-
+    virtual void accumulate(
+            const arma::fmat& v,
+            const arma::fmat& n,
+            const arma::Mat<uint8_t>& c,
+            const arma::vec alpha
+            );
+    virtual void start_accumulate(const int r,const int c,const int s,const int num);
+    virtual void accumulate(const Cube&,const int i);
+    virtual void fit(void);
+    arma::fmat corners_;
+    arma::fvec weighted_corners_;
+protected:
+    //use v to update plate centroids
+    void updateV2Centroids(void);
+    void updateV2Corners(void);
+    void updateCorners2V(void);
+private:
     arma::fvec size_;
     arma::fmat R_;
     arma::fvec t_;
-    arma::fmat corners_;
-    arma::fvec centroid_;
-//    arma::fvec origin_;
-    arma::fvec weighted_centroid_;
+    arma::fmat plate_centroids_;
     arma::fvec obj_pos_;
     std::shared_ptr<arma::fmat> xv_;
     std::shared_ptr<arma::fmat> xn_;
     std::shared_ptr<arma::Mat<uint8_t>> xc_;
-    //scale dim0
-    //scale dim1
-    //dt    dim2
     arma::fvec  scale_r_;
-    arma::fvec  trans_r_;
-    arma::fcube param_;
     std::shared_ptr<arma::fmat> param_mat_;
     std::shared_ptr<arma::fvec> param_vec_;
-
+public:
+    arma::fcube param_;
+    const static uint32_t point_num_for_plate_ = 4;
+    const static uint32_t plate_num_for_cube_ = 5;
     const static uint32_t point_num_for_cube_ = 20;
 };
 class JRCSCORESHARED_EXPORT JRCSCube:public JRCSBilateral

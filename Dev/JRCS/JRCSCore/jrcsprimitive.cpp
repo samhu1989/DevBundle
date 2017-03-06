@@ -93,11 +93,9 @@ void Plate::translate(
         Plate& result
         )
 {
-//    result.origin_ = origin_;
     result.t_ = t_ + t;
     *result.xv_ = *xv_;
     result.xv_->each_col() += t;
-    //update centroid
     result.centroid_ = arma::mean(*result.xv_,1);
     result.corners_ = result.xv_->each_col() - result.centroid_;
     if(this!=&result)
@@ -109,7 +107,6 @@ void Plate::translate(
         result.weighted_centroid_ = weighted_centroid_;
         result.obj_pos_ = obj_pos_ + t;
     }else{
-//        std::cerr<<"translate in place"<<std::endl;
     }
 }
 
@@ -119,13 +116,11 @@ void Plate::transform(
         Plate& result
         )
 {
-//    result.origin_ = origin_;
     result.R_ = R*R_;
     result.t_ = R*t_ + t;
     *result.xv_ = R*(*xv_);
     result.xv_->each_col() += t;
     *result.xn_ = R*(*xn_);
-    //update centroid
     result.centroid_ = arma::mean(*result.xv_,1);
     result.corners_ = result.xv_->each_col() - result.centroid_;
     if(this!=&result)
@@ -135,7 +130,6 @@ void Plate::transform(
         result.weighted_centroid_ = weighted_centroid_;
         result.obj_pos_ = R*obj_pos_ + t;
     }else{
-//        std::cerr<<"transform in place"<<std::endl;
     }
 }
 
