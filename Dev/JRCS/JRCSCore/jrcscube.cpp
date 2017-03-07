@@ -1,6 +1,8 @@
 #include "jrcscube.h"
 namespace JRCS{
 
+std::vector<arma::uvec> Cube::c4v_;
+
 Cube::Cube():plate_centroids_(3,plate_num_for_cube_,arma::fill::zeros),corners_(3,8,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma::fill::zeros)
 {
     xv_.reset(new arma::fmat(3,20));
@@ -41,14 +43,21 @@ void Cube::updateV2Centroids(void)
 
 void Cube::updateV2Corners(void)
 {
-    ;
+    uint32_t i = 0;
+    for(std::vector<arma::uvec>::iterator iter = c4v_.begin() ; iter != c4v_.end()  ; ++iter )
+    {
+        corners_.col(i) = arma::mean(xv_->cols(*iter),1);
+        ++i;
+    }
 }
 
 void Cube::updateCorners2V(void)
 {
-    for( int i = 0 ; i < xv_->n_cols ; ++i )
+    uint32_t i = 0;
+    for(std::vector<arma::uvec>::iterator iter = c4v_.begin() ; iter != c4v_.end()  ; ++iter )
     {
-        ;
+        xv_->cols(*iter) = corners_.col(i);
+        ++i;
     }
 }
 
@@ -119,16 +128,40 @@ void Cube::scale(
 
 arma::vec Cube::get_dist2(const arma::fmat& v)
 {
-    ;
+    arma::mat dists(v.n_cols,plate_centroids_.n_cols);
+    for(uint32_t i = 0 ; i < plate_centroids_.n_cols ; ++i )
+    {
+        dists.col(i) = get_dist2_for_plate(v,plate_centroids_.col(i));
+    }
+    return arma::min(dists);
+}
+
+arma::vec Cube::get_dist2_for_plate(
+        const arma::fmat& v,
+        const arma::fvec& c
+        )
+{
+    arma::fmat tv = v.each_col() - t_;
+    arma::fmat invR = R_.i();
+    arma::fvec o = c;
+    o -= t_;
+    assert(invR.is_finite());
+    tv = invR*tv;
+    o = invR*o;
+    return dist(tv,o,0)+dist(tv,o,1)+dist(tv,o,2);
 }
 
 arma::vec Cube::dist(
-        const arma::fmat&,
-        const arma::fvec&,
+        const arma::fmat& v,
+        const arma::fvec& origin,
         arma::uword dim
         )
 {
-    ;
+    arma::vec result(v.n_cols,arma::fill::zeros);
+    arma::frowvec vdim = v.row(dim);
+    arma::uvec idx_dim = arma::find( arma::abs( vdim - origin(dim) ) > size_(dim));
+    result(idx_dim) = arma::square( arma::abs( arma::conv_to<arma::vec>::from( vdim.cols(idx_dim)) - origin(dim) ) - size_(dim) );
+    return result;
 }
 
 void Cube::get_weighted_corners(
@@ -136,7 +169,14 @@ void Cube::get_weighted_corners(
         const arma::vec &alpha
         )
 {
-    ;
+    weighted_corners_ = corners_;
+    for( uint32_t i = 0 ; i < corners_.n_cols  ; ++i )
+    {
+        arma::fvec c = corners_.col(i);
+        arma::rowvec a = arma::trunc_exp( - arma::sum( arma::conv_to<arma::mat>::from( arma::square( v.each_col() - c ) ) ) );
+        a %= alpha;
+        weighted_corners_.col(i) = arma::conv_to<arma::fvec>::from( v*(a.t()) / arma::accu(a) );
+    }
 }
 
 void Cube::get_weighted_color(
@@ -144,7 +184,16 @@ void Cube::get_weighted_color(
         const arma::Mat<uint8_t>& c
         )
 {
-    ;
+    arma::fmat w(v.n_cols,xv_->n_cols);
+    for( int i = 0 ; i < w.n_cols; ++i )
+    {
+        w.col(i) = arma::trunc_exp(-1.0*arma::sum(arma::square( v.each_col() - xv_->col(i) ))).t();
+    }
+    w += std::numeric_limits<float>::epsilon();
+    arma::frowvec sum = arma::sum(w);
+    w.each_row() /= sum;
+    arma::fmat fc = arma::conv_to<arma::fmat>::from(c)*w;
+    *xc_ = arma::conv_to<arma::Mat<uint8_t>>::from(fc);
 }
 
 void Cube::accumulate(
@@ -154,27 +203,83 @@ void Cube::accumulate(
         const arma::vec alpha
         )
 {
-    ;
+    arma::fvec scale_size(3,arma::fill::zeros);
+    if(param_.empty())param_ = arma::fcube(scale_r_.size(),scale_r_.size(),scale_r_.size(),arma::fill::zeros);
+    else param_.fill(0.0);
+    for(int i = 0;i<scale_r_.size();++i)
+    {
+        for(int j=0;j<scale_r_.size();++j)
+        {
+            for(int k=0;k<scale_r_.size();++k)
+            {
+                arma::fmat tmpv((float*)xv_->memptr(),xv_->n_rows,xv_->n_cols,true,true);
+                arma::fmat tmpn((float*)xn_->memptr(),xn_->n_rows,xn_->n_cols,true,true);
+                arma::Mat<uint8_t> tmpc((uint8_t*)xc_->memptr(),xc_->n_rows,xc_->n_cols,true,true);
+                Cube::Ptr tmp_cube(new Cube(tmpv,tmpn,tmpc,obj_pos_));
+                scale_size(0) = scale_r_(i);
+                scale_size(1) = scale_r_(j);
+                scale_size(2) = scale_r_(k);
+                scale(scale_size,*tmp_cube);
+                arma::vec dist2 = tmp_cube->get_dist2(v);
+                dist2 = arma::trunc_exp( - dist2 ) % alpha ;
+                param_(i,j,k) = arma::accu( dist2 );
+            }
+        }
+        QCoreApplication::processEvents();
+    }
 }
 
 void Cube::start_accumulate(const int r,const int c,const int s,const int num)
 {
-    ;
+    param_ = arma::fcube(r,c,s,arma::fill::zeros);
+    param_vec_.reset(new arma::fvec(param_.memptr(),param_.size(),false,true));
+    param_mat_.reset(new arma::fmat(param_.size(),num));
 }
 
-void Cube::accumulate(const Cube&, const int i)
+void Cube::accumulate(const Cube& p, const int i)
 {
-    ;
+    param_mat_->col(i) = arma::fvec((float*)p.param_.memptr(),p.param_.size(),false,true);
+}
+
+void Cube::median(void)
+{
+    (*param_vec_) = arma::median(*param_mat_,1);
+}
+
+void Cube::mean(void)
+{
+    (*param_vec_) = arma::mean(*param_mat_,1);
 }
 
 void Cube::fit(void)
 {
-    ;
+    median();
+    arma::uword i,j,k;
+    float fitscore = param_.max(i,j,k);
+    if(fitscore<=std::numeric_limits<float>::epsilon())
+    {
+        std::cerr<<"maximum fit score below zero:"<<fitscore<<std::endl;
+    }
+    //find the minimum
+//    std::cerr<<"the minimum:"<<i<<","<<j<<","<<k<<std::endl;
+    //update this with the minimum
+    int dim = -1;
+    for(int m=0;m<3;++m)
+    {
+        if(0.0==size_(m))dim=m;
+    }
+    assert(dim>=0&&dim<=2);
+    arma::fvec scale_size(3,arma::fill::zeros);
+    scale_size(0) = scale_r_(i);
+    scale_size(1) = scale_r_(j);
+    scale_size(2) = scale_r_(k);
+    scale(scale_size,*this);
+    param_.clear();
 }
 
 JRCSCube::JRCSCube():JRCSBilateral()
 {
-
+    ;
 }
 
 void JRCSCube::initx(
@@ -258,10 +363,21 @@ void JRCSCube::reset_obj_vn(
         )
 {
     arma::fmat v = {
+        //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
         {-1, 1, 1,-1, 1,-1,-1, 1, 1, 1, 1, 1,-1,-1,-1,-1,-1,-1, 1, 1},
         { 1, 1, 1, 1,-1,-1,-1,-1, 1,-1,-1, 1,-1, 1, 1,-1, 1,-1,-1, 1},
         { 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1}
     };
+    //for Cube
+    Cube::c4v_.resize(8);
+    Cube::c4v_[0] = {0,14,16};
+    Cube::c4v_[1] = {1,8,19};
+    Cube::c4v_[2] = {2,11};
+    Cube::c4v_[3] = {3,14};
+    Cube::c4v_[4] = {5,12,17};
+    Cube::c4v_[5] = {4,9,18};
+    Cube::c4v_[6] = {7,10};
+    Cube::c4v_[7] = {6,15};
     ov = v;
     ov *= radius;
     ov.each_col() += pos;
@@ -488,7 +604,7 @@ void JRCSCube::updateRTforObj(
     arma::fmat _v(3,Cube::point_num_for_cube_);
     arma::fmat objv(3,Cube::point_num_for_cube_);
     int vi = 0;
-    for(int p=start;p<=end;++p)
+    for(int p = start;p <= end;++p)
     {
         _v.col(vi) = cube_ptrlst[p]->weighted_corners_;
         objv.col(vi) = cube_ptrlst[p]->corners_;

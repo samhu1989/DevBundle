@@ -27,6 +27,7 @@ public:
             Cube& result
             );
     virtual arma::vec get_dist2(const arma::fmat& v);
+    virtual arma::vec get_dist2_for_plate(const arma::fmat& v,const arma::fvec& c);
     virtual arma::vec dist(const arma::fmat&,const arma::fvec&,arma::uword dim);
     virtual void get_weighted_corners(const arma::fmat& v, const arma::vec &alpha);
     virtual void get_weighted_color(const arma::fmat& v,const arma::Mat<uint8_t>& c );
@@ -43,6 +44,8 @@ public:
     arma::fvec weighted_corners_;
 protected:
     //use v to update plate centroids
+    void median();
+    void mean();
     void updateV2Centroids(void);
     void updateV2Corners(void);
     void updateCorners2V(void);
@@ -63,6 +66,7 @@ public:
     const static uint32_t point_num_for_plate_ = 4;
     const static uint32_t plate_num_for_cube_ = 5;
     const static uint32_t point_num_for_cube_ = 20;
+    static std::vector<arma::uvec> c4v_;
 };
 class JRCSCORESHARED_EXPORT JRCSCube:public JRCSBilateral
 {
