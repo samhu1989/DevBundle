@@ -41,7 +41,7 @@ public:
     virtual void accumulate(const Cube&,const int i);
     virtual void fit(void);
     arma::fmat corners_;
-    arma::fvec weighted_corners_;
+    arma::fmat weighted_corners_;
 protected:
     //use v to update plate centroids
     void median();

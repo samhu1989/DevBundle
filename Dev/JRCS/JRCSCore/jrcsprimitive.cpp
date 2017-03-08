@@ -216,6 +216,7 @@ void Plate::accumulate(const arma::fmat& v,
         const arma::vec alpha
         )
 {
+    std::cerr<<"accu"<<std::endl;
     arma::fvec scale_size(3,arma::fill::zeros);
     if(param_.empty())param_ = arma::fcube(scale_r_.size(),scale_r_.size(),trans_r_.size(),arma::fill::zeros);
     else param_.fill(0.0);
@@ -264,8 +265,8 @@ void Plate::accumulate(const arma::fmat& v,
 //                param_(i,j,k) = arma::accu(dist2);
             }
         }
-        QCoreApplication::processEvents();
     }
+    std::cerr<<"accu"<<std::endl;
 }
 
 void Plate::start_accumulate(const int r, const int c, const int s, const int num)
