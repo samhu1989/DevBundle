@@ -380,7 +380,7 @@ void JRCSCube::reset_obj_vn(
     };
     //for Cube
     Cube::c4v_.resize(8);
-    Cube::c4v_[0] = {0,14,16};
+    Cube::c4v_[0] = {0,13,16};
     Cube::c4v_[1] = {1,8,19};
     Cube::c4v_[2] = {2,11};
     Cube::c4v_[3] = {3,14};
