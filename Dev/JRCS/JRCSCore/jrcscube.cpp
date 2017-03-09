@@ -237,6 +237,7 @@ void Cube::accumulate(
 
 void Cube::start_accumulate(const int r,const int c,const int s,const int num)
 {
+    std::cerr<<"Cube::start_accumulate:"<<std::endl;
     param_ = arma::fcube(r,c,s,arma::fill::zeros);
     param_vec_.reset(new arma::fvec(param_.memptr(),param_.size(),false,true));
     param_mat_.reset(new arma::fmat(param_.size(),num));
@@ -244,6 +245,7 @@ void Cube::start_accumulate(const int r,const int c,const int s,const int num)
 
 void Cube::accumulate(const Cube& p, const int i)
 {
+    std::cerr<<"Cube::accumulate:"<<std::endl;
     param_mat_->col(i) = arma::fvec((float*)p.param_.memptr(),p.param_.size(),false,true);
 }
 
@@ -259,6 +261,7 @@ void Cube::mean(void)
 
 void Cube::fit(void)
 {
+    std::cerr<<"Cube::fit():"<<std::endl;
     median();
     arma::uword i,j,k;
     float fitscore = param_.max(i,j,k);
@@ -269,12 +272,12 @@ void Cube::fit(void)
     //find the minimum
 //    std::cerr<<"the minimum:"<<i<<","<<j<<","<<k<<std::endl;
     //update this with the minimum
-    int dim = -1;
-    for(int m=0;m<3;++m)
-    {
-        if(0.0==size_(m))dim=m;
-    }
-    assert(dim>=0&&dim<=2);
+//    int dim = -1;
+//    for(int m=0;m<3;++m)
+//    {
+//        if(0.0==size_(m))dim=m;
+//    }
+//    assert(dim>=0&&dim<=2);
     arma::fvec scale_size(3,arma::fill::zeros);
     scale_size(0) = scale_r_(i);
     scale_size(1) = scale_r_(j);
@@ -693,7 +696,7 @@ void JRCSCube::step_2(void)
 {
     if(verbose_>1)std::cerr<<"Updating Latent Model"<<std::endl;
 
-    #pragma omp parallel for
+//    #pragma omp parallel for
     for( int i=0 ; i < cube_ptrlst_.size() ; ++i )
     {
         const int r = cube_t_ptrlst_[0][i]->param_.n_rows;
