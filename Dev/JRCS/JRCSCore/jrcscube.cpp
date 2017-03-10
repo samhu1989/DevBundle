@@ -327,7 +327,7 @@ void Cube::mean(void)
 
 void Cube::fit(void)
 {
-    mean();
+    median();
     arma::uword i=0,j=0,k=0;
     float fitscore = param_.max(i,j,k);
     std::cerr<<"fit score="<<fitscore<<"@("<<i<<","<<j<<","<<k<<")"<<std::endl;
@@ -583,6 +583,9 @@ void JRCSCube::step_1(int i)
         for(int j=obj_range_[2*o];j<=obj_range_[2*o+1];++j)
         {
             cube_ptrlst_[j]->transform(R,t,*cube_t_ptrlst_[i][j]);
+            Cube& tc = *cube_t_ptrlst_[i][j];
+            arma::vec v = tc.get_dist2(*wvs_ptrlst_[i]);
+            ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols,arma::sqrt(v));
         }
     }
     if(verbose_>1)std::cerr<<"calculate alpha"<<std::endl;
