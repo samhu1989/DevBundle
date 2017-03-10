@@ -203,6 +203,7 @@
     <addaction name="actionInside_Bounding_Box"/>
     <addaction name="actionAGD_test"/>
     <addaction name="actionJRCS_Plate"/>
+    <addaction name="actionJRCS_Cube"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -613,6 +614,11 @@
   <action name="actionJRCS_Opt_Cube">
    <property name="text">
     <string>Cube</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Cube">
+   <property name="text">
+    <string>JRCS_Cube</string>
    </property>
   </action>
  </widget>

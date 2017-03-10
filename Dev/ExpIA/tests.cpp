@@ -94,8 +94,16 @@ void agd_test()
 void jrcs_plate_test()
 {
     JRCSPlateDialog dialog;
-
+    dialog.init_for_plate();
     dialog.exec();
 }
+
+void jrcs_cube_test()
+{
+    JRCSPlateDialog dialog;
+    dialog.init_for_cube();
+    dialog.exec();
+}
+
 }
 #endif // TESTS
