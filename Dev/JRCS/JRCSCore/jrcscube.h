@@ -61,7 +61,7 @@ private:
     std::shared_ptr<arma::fmat> xv_;
     std::shared_ptr<arma::fmat> xn_;
     std::shared_ptr<arma::Mat<uint8_t>> xc_;
-    arma::fvec  scale_r_;
+
     std::shared_ptr<arma::fmat> param_mat_;
     std::shared_ptr<arma::fvec> param_vec_;
 public:
@@ -70,6 +70,7 @@ public:
     const static uint32_t plate_num_for_cube_ = 5;
     const static uint32_t point_num_for_cube_ = 20;
     static std::vector<arma::uvec> c4v_;
+    static arma::fvec  scale_r_;
 };
 class JRCSCORESHARED_EXPORT JRCSCube:public JRCSBilateral
 {

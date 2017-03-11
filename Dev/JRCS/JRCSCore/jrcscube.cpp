@@ -3,6 +3,7 @@
 namespace JRCS{
 
 std::vector<arma::uvec> Cube::c4v_;
+arma::fvec Cube::scale_r_;
 
 Cube::Cube():plate_centroids_(3,plate_num_for_cube_,arma::fill::zeros),corners_(3,8,arma::fill::zeros),R_(3,3,arma::fill::eye),t_(3,arma::fill::zeros)
 {
@@ -11,7 +12,7 @@ Cube::Cube():plate_centroids_(3,plate_num_for_cube_,arma::fill::zeros),corners_(
     xn_.reset(new arma::fmat(3,20));
     xc_.reset(new arma::Mat<uint8_t>(3,20));
     t_ = obj_pos_;
-    scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,11) ;
+    if(scale_r_.empty())scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,11) ;
 }
 
 Cube::Cube(
@@ -33,7 +34,8 @@ Cube::Cube(
     t_ = arma::fvec(3,arma::fill::zeros);
     updateCorners2Size();
     obj_pos_ = pos;
-    scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,11);
+
+    if(scale_r_.empty())scale_r_ = arma::linspace<arma::fvec>(0.5,1.5,11) ;
 }
 
 void Cube::updateCorners2Size(void)
@@ -138,6 +140,7 @@ void Cube::translate(
         *result.xc_ = *xc_;
         *result.xn_ = *xn_;
         result.size_ = size_;
+        result.plate_zero_dim_ = plate_zero_dim_;
         result.weighted_corners_ = weighted_corners_;
         result.obj_pos_ = obj_pos_ + t;
     }
@@ -162,6 +165,7 @@ void Cube::transform(
     {
         *result.xc_ = *xc_;
         result.size_ = size_;
+        result.plate_zero_dim_ = plate_zero_dim_;
         result.weighted_corners_ = weighted_corners_;
         result.obj_pos_ = R*obj_pos_ + t;
     }
@@ -186,6 +190,7 @@ void Cube::scale(
         result.R_ = R_;
         *result.xc_ = *xc_;
         *result.xn_ = *xn_;
+        result.plate_zero_dim_ = plate_zero_dim_;
         result.weighted_corners_ = weighted_corners_;
         result.obj_pos_ = obj_pos_;
     }
@@ -327,7 +332,7 @@ void Cube::mean(void)
 
 void Cube::fit(void)
 {
-    median();
+    mean();
     arma::uword i=0,j=0,k=0;
     float fitscore = param_.max(i,j,k);
     std::cerr<<"fit score="<<fitscore<<"@("<<i<<","<<j<<","<<k<<")"<<std::endl;
@@ -585,7 +590,7 @@ void JRCSCube::step_1(int i)
             cube_ptrlst_[j]->transform(R,t,*cube_t_ptrlst_[i][j]);
             Cube& tc = *cube_t_ptrlst_[i][j];
             arma::vec v = tc.get_dist2(*wvs_ptrlst_[i]);
-            ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols,arma::sqrt(v));
+            ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols, arma::sqrt(v) );
         }
     }
     if(verbose_>1)std::cerr<<"calculate alpha"<<std::endl;
@@ -658,7 +663,11 @@ void JRCSCube::step_1(int i)
     for(int c=0;c<alpha.n_cols;++c)
     {
         cube_t_ptrlst_[i][c]->accumulate(vv_,vn_,vc_,alpha.col(c));
+        Cube& tc = *cube_t_ptrlst_[i][c];
+        arma::vec v = tc.get_dist2(*wvs_ptrlst_[i]);
+        ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols, arma::sqrt(v) );
     }
+
     if(verbose_>1)std::cerr<<"#5 done accumulation"<<std::endl;
 }
 
@@ -756,6 +765,7 @@ void JRCSCube::updateRTforObj(
     //updating R T
     R = dR*R;
     t = dR*t + dt;
+
     if(verbose_)std::cerr<<"done updating RT"<<std::endl;
 }
 
