@@ -571,6 +571,7 @@ void JRCSCube::prepare_cube()
 void JRCSCube::finish_cube()
 {
     ++iter_count_;
+    update_objective();
 }
 
 void JRCSCube::step_1(int i)
@@ -589,8 +590,8 @@ void JRCSCube::step_1(int i)
         {
             cube_ptrlst_[j]->transform(R,t,*cube_t_ptrlst_[i][j]);
             Cube& tc = *cube_t_ptrlst_[i][j];
-            arma::vec v = tc.get_dist2(*wvs_ptrlst_[i]);
-            ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols, arma::sqrt(v) );
+//            arma::vec v = tc.get_dist2(*wvs_ptrlst_[i]);
+//            ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols, arma::sqrt(v) );
         }
     }
     if(verbose_>1)std::cerr<<"calculate alpha"<<std::endl;
@@ -810,6 +811,26 @@ bool JRCSCube::isEnd_cube(void)
 {
     if(iter_count_>=max_init_iter_)return true;
     else return false;
+}
+
+void JRCSCube::update_objective()
+{
+    obj_ = 0.0;
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[idx];
+        arma::fmat& vv_ = *vvs_ptrlst_[idx];
+        arma::mat alpha_2(alpha.n_rows,alpha.n_cols);
+        #pragma omp parallel for
+        for(int c=0;c<alpha_2.n_cols;++c)
+        {
+            alpha_2.col(c) = cube_t_ptrlst_[idx][c]->get_dist2(vv_);
+            alpha_2.col(c) %= arma::conv_to<arma::vec>::from(x_invvar_);
+            alpha_2.col(c) -= 1.5*arma::conv_to<arma::vec>::from(arma::trunc_log(x_invvar_));
+            alpha_2.col(c) -= 2.0*arma::conv_to<arma::vec>::from(arma::trunc_log(x_p_));
+        }
+        obj_ += arma::accu(alpha%alpha_2);
+    }
 }
 
 }

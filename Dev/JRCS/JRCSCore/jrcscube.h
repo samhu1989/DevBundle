@@ -96,6 +96,7 @@ protected:
     virtual void reset_prob_cube();
     virtual void prepare_cube();
     virtual void finish_cube();
+    void update_objective();
     //calculate alpha
     //update r t
     //voting
@@ -115,6 +116,8 @@ protected:
 protected:
     Cube::PtrLst cube_ptrlst_;
     std::vector<Cube::PtrLst> cube_t_ptrlst_;
+private:
+    double _obj;
 };
 }
 #endif // JRCSCUBE_H
