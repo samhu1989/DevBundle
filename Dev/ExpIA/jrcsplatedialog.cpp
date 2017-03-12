@@ -295,11 +295,11 @@ void JRCSPlateDialog::transform_cube()
     arma::fvec t = helix(time_);
     R = dR_*R;
     arma::fvec scale = {std::pow(0.5,0.002),std::pow(2.0,0.002),std::pow(1.5,0.002)};
-//    cube->scale(scale,*cube);
+    cube->scale(scale,*cube);
     cube->transform(R,t,*cube2);
-    sample_points_for_cube(cube2);
-//    value = cube2->get_dist2(xv);
-//    ColorArray::colorfromValue((ColorArray::RGB888*)xc.memptr(),xc.n_cols,arma::sqrt(value));
+//    sample_points_for_cube(cube2);
+    value = cube2->get_dist2(xv);
+    ColorArray::colorfromValue((ColorArray::RGB888*)xc.memptr(),xc.n_cols,arma::sqrt(value));
     time_ += dt_;
     geo_view_->updateGL();
     if(time_>=500*dt_){

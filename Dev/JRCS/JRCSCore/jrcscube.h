@@ -40,8 +40,10 @@ public:
     virtual void start_accumulate(const int r,const int c,const int s,const int num);
     virtual void accumulate(const Cube&,const int i);
     virtual void fit(void);
+    virtual arma::fvec bottom_pos();
     arma::fmat corners_;
     arma::fmat weighted_corners_;
+    arma::fvec obj_pos_;
 protected:
     //use v to update plate centroids
     void median();
@@ -57,7 +59,7 @@ private:
     arma::fvec t_;
     arma::fmat plate_centroids_;
     arma::uvec plate_zero_dim_;
-    arma::fvec obj_pos_;
+
     std::shared_ptr<arma::fmat> xv_;
     std::shared_ptr<arma::fmat> xn_;
     std::shared_ptr<arma::Mat<uint8_t>> xc_;
@@ -97,6 +99,7 @@ protected:
     virtual void prepare_cube();
     virtual void finish_cube();
     void update_objective();
+    void output_debug();
     //calculate alpha
     //update r t
     //voting
@@ -116,8 +119,6 @@ protected:
 protected:
     Cube::PtrLst cube_ptrlst_;
     std::vector<Cube::PtrLst> cube_t_ptrlst_;
-private:
-    double _obj;
 };
 }
 #endif // JRCSCUBE_H

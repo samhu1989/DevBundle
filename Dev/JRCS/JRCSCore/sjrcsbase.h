@@ -180,8 +180,6 @@ protected:
     using JRCSBase::obj_range_;
     using JRCSBase::obj_pos_;
 
-    //minimization object
-    double obj_;
     //configuration
     Config::Ptr config_;
     //verbose level

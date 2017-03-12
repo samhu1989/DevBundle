@@ -107,7 +107,7 @@ protected:
     using JRCSBase::obj_pos_;
 
     //minimization object
-    using SJRCSBase::obj_;
+    using JRCSBase::obj_vec_;
     double obj_f;
     double obj_v;
     //configuration

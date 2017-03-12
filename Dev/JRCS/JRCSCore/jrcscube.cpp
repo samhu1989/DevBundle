@@ -1,5 +1,6 @@
 #include "jrcscube.h"
 #include <QThread>
+#include "iocore.h"
 namespace JRCS{
 
 std::vector<arma::uvec> Cube::c4v_;
@@ -124,6 +125,14 @@ void Cube::updateCorners2V(void)
     }
 }
 
+arma::fvec Cube::bottom_pos()
+{
+    arma::fvec result(3,arma::fill::zeros);
+    result.rows(0,1) = arma::mean(corners_.rows(0,1),1);
+    result.row(2) = arma::min(corners_.row(2),1);
+    return result;
+}
+
 void Cube::translate(
         const arma::fvec& t,
         Cube& result
@@ -178,8 +187,10 @@ void Cube::scale(
 {
     result.size_ = size_ % s;
     result.corners_ = R_.i()*corners_;
+    result.corners_.each_col() -= obj_pos_;
     result.corners_.each_col() %= s;
     result.corners_ = R_*result.corners_;
+    result.corners_.each_col() += obj_pos_;
 
     result.updateCorners2V();
     result.updateV2Centroids();
@@ -487,6 +498,15 @@ void JRCSCube::compute(void)
         step_2();
         finish_cube();
     }
+    output_debug();
+}
+
+void JRCSCube::output_debug()
+{
+    arma::vec objv = arma::conv_to<arma::vec>::from(obj_vec_);
+    std::stringstream name;
+    name<<"obj_"<<obj_num_<<".mat";
+    MATIO::save_to_matlab(objv,debug_path_+name.str(),"Y");
 }
 
 void JRCSCube::reset_alpha_cube()
@@ -664,9 +684,6 @@ void JRCSCube::step_1(int i)
     for(int c=0;c<alpha.n_cols;++c)
     {
         cube_t_ptrlst_[i][c]->accumulate(vv_,vn_,vc_,alpha.col(c));
-        Cube& tc = *cube_t_ptrlst_[i][c];
-        arma::vec v = tc.get_dist2(*wvs_ptrlst_[i]);
-        ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols, arma::sqrt(v) );
     }
 
     if(verbose_>1)std::cerr<<"#5 done accumulation"<<std::endl;
@@ -815,7 +832,12 @@ bool JRCSCube::isEnd_cube(void)
 
 void JRCSCube::update_objective()
 {
-    obj_ = 0.0;
+    if(verbose_)
+    {
+        std::cerr<<"updating objective"<<std::endl;
+        if(!obj_vec_.empty())std::cerr<<"obj("<<obj_vec_.size()-1<<")="<<obj_vec_.back()<<std::endl;
+    }
+    obj_vec_.push_back(0.0);
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
         arma::mat& alpha = *alpha_ptrlst_[idx];
@@ -825,12 +847,14 @@ void JRCSCube::update_objective()
         for(int c=0;c<alpha_2.n_cols;++c)
         {
             alpha_2.col(c) = cube_t_ptrlst_[idx][c]->get_dist2(vv_);
-            alpha_2.col(c) %= arma::conv_to<arma::vec>::from(x_invvar_);
-            alpha_2.col(c) -= 1.5*arma::conv_to<arma::vec>::from(arma::trunc_log(x_invvar_));
-            alpha_2.col(c) -= 2.0*arma::conv_to<arma::vec>::from(arma::trunc_log(x_p_));
+            alpha_2.col(c) *= xv_invvar_(c);
+            alpha_2.col(c) -= 1.5*arma::trunc_log(xv_invvar_(c));
+            alpha_2.col(c) -= 2.0*arma::trunc_log(x_p_(c));
         }
-        obj_ += arma::accu(alpha%alpha_2);
+        obj_vec_.back() += arma::accu(alpha%alpha_2);
     }
+    obj_vec_.back() *= -0.5;
+    if(verbose_)std::cerr<<"done updating objective"<<std::endl;
 }
 
 }

@@ -19,6 +19,7 @@ bool JRCSBase::configure(Config::Ptr config)
     if(config_->has("JRCS_max_iter"))
     {
         set_max_iter(config_->getInt("JRCS_max_iter"));
+        obj_vec_.reserve(config_->getInt("JRCS_max_iter"));
     }else return false;
 
     if(config_->has("JRCS_max_init"))

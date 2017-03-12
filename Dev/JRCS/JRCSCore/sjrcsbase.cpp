@@ -385,7 +385,7 @@ void SJRCSBase::finish_steps(void)
     update_color_label();
     if(verbose_>1)std::cerr<<"color label updated"<<std::endl;
     calc_obj();
-    std::cout<<"obj("<<iter_count_<<"):"<<-0.5*obj_<<std::endl;
+    std::cout<<"obj("<<iter_count_<<"):"<<-0.5*obj_vec_.back()<<std::endl;
     ++ iter_count_;
     QCoreApplication::processEvents();
 }
@@ -828,7 +828,7 @@ void SJRCSBase::update_color_label()
 
 void SJRCSBase::calc_obj(void)
 {
-    obj_ = 0.0;
+    obj_vec_.push_back(0.0);
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
         arma::mat& alpha = *alpha_ptrlst_[idx];
@@ -844,8 +844,9 @@ void SJRCSBase::calc_obj(void)
             alpha_2.row(r) -= 1.5*arma::conv_to<arma::frowvec>::from(arma::trunc_log(x_invvar_));
             alpha_2.row(r) -= 2.0*arma::conv_to<arma::frowvec>::from(arma::trunc_log(x_p_));
         }
-        obj_ += arma::accu(alpha%alpha_2);
+        obj_vec_.back()+=arma::accu(alpha%alpha_2);
     }
+    obj_vec_.back()*=-0.5;
 }
 
 bool SJRCSBase::input_extra(

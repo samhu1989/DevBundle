@@ -209,6 +209,7 @@ protected:
 
     std::shared_ptr<JRCSInitBase> init_;
     Config::Ptr config_;
+    std::vector<double> obj_vec_;
 };
 }
 #endif // JRCSCORE_H

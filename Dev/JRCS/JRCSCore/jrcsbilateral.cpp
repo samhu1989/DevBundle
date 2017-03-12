@@ -397,7 +397,6 @@ void JRCSBilateral::reset_prob()
 
 void JRCSBilateral::calc_obj()
 {
-    obj_ = 0.0;
     obj_v = 0.0;
     obj_f = 0.0;
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
@@ -432,7 +431,7 @@ void JRCSBilateral::calc_obj()
     }
     std::cout<<"obj_v:"<<obj_v<<std::endl;
     std::cout<<"obj_f:"<<obj_f<<std::endl;
-    obj_ = obj_f + obj_v ;
+    obj_vec_.push_back(obj_f + obj_v) ;
 }
 
 void JRCSBilateral::calc_weighted(
