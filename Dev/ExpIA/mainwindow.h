@@ -7,6 +7,7 @@
 #include "voxelgraph.h"
 #include <QTimer>
 #include "tests.h"
+#include <QDir>
 using namespace OpenMesh;
 namespace Ui {
 class MainWindow;
@@ -58,10 +59,12 @@ public slots:
 
     void save_Pix_Order_Functor(QString dirName=QString());
     void save_Vox_Order_Functor(QString dirName=QString());
+
 protected slots:
     void configure();
 
     void open_inputs();
+    void open_inputs(QDir& dir);
     void open_inputs(QStringList&);
     void save_aligned();
     bool open_mesh(DefaultMesh&,const std::string&);
@@ -79,6 +82,7 @@ protected slots:
     void start_editing();
     void update_object();
     void finish_editing();
+    void finish_editing_ui();
 
     void remove_zero_label();
 
@@ -88,6 +92,11 @@ protected slots:
     void showFeature();
     void showIndex();
     void showSpectralFunc();
+
+    void goOver();
+
+protected:
+    QAction* getActionByText(const QString& txt);
 
 protected slots:
     void LAPACKE_dggsvd_test(void){TEST::LAPACKE_dggsvd_test();}
@@ -108,6 +117,7 @@ private:
     IO::Options io_opt_;
     Config::Ptr config_;
     QThread* edit_thread_;
+    QWidget* edit_widget_;
     QTimer gl_timer;
 };
 

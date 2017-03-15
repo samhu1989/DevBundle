@@ -4,16 +4,21 @@
 #include <string>
 #include <memory>
 #include <QMap>
+#include <QTextStream>
 #include <vector>
 class COMMONSHARED_EXPORT Config
 {
 public:
     typedef std::shared_ptr<Config> Ptr;
+    Config();
     Config(const std::string&);
     ~Config();
 
     void reload(const std::string&);
     void reload();
+    void reload(QTextStream&);
+    void updateBy(Config::Ptr);
+
     void add(const std::string&,const std::string&);
 
     bool has(const std::string&);

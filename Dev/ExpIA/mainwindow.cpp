@@ -22,7 +22,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    edit_thread_(NULL),config_(new Config("./Default.config"))
+    edit_thread_(NULL),edit_widget_(NULL),config_(new Config("./Default.config"))
 {
     ui->setupUi(this);
 
@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionJRCS_Opt_Bilateral,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_Primitive,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_Cube,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionGo_Over,SIGNAL(triggered(bool)),this,SLOT(goOver()));
 
     connect(ui->actionGDCoord,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
@@ -144,6 +145,21 @@ void MainWindow::open_inputs()
     if (!fileNames.isEmpty())
     {
         open_inputs(fileNames);
+        view_inputs();
+    }
+}
+
+void MainWindow::open_inputs(QDir& dir)
+{
+    QStringList fileNames = dir.entryList();
+    QStringList filepath;
+    foreach(QString name,fileNames)
+    {
+        filepath << dir.absoluteFilePath(name);
+    }
+    if (!filepath.isEmpty())
+    {
+        open_inputs(filepath);
         view_inputs();
     }
 }
@@ -1361,6 +1377,87 @@ void MainWindow::showIndex()
         m.custom_color_.fromIndex();
     }
     ui->actionCustom_Color->setChecked(true);
+}
+
+void MainWindow::goOver()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Go Over"),
+        tr("./"),
+        tr("GoOver (*.goover);;"
+        "All Files (*)"));
+    if(fileName.isEmpty())return;
+    QFile inFile(fileName);
+    inFile.open(inFile.ReadOnly);
+    QTextStream stream(&inFile);
+    QTextStream configtxt;
+    Config::Ptr config;
+    config.reset(new Config());
+    uint32_t num = 0;
+    stream >> num;
+    QString txt;
+    stream >> txt;
+    QAction* act = getActionByText(txt);
+    if(!act){
+        std::cerr<<"Can't find the action in this go over"<<std::endl;
+        return;
+    }
+    for( uint32_t i = 0 ; i < num ;  )
+    {
+        QString line = stream.readLine();
+        QTextStream line_stream(&line);
+        if(line==tr("=start="))
+        {
+            config.reset(new Config());
+            config->add("Close_On_Finish","1");
+        }else if(line==tr("=end=")){
+            config->reload(configtxt);
+            config_->updateBy(config);
+            std::cerr<<"Starting Case "<<i+1<<"/"<<num<<std::endl;
+            act->trigger();
+            QApplication::processEvents();
+            while( edit_thread_ || edit_widget_ )
+            {
+                QApplication::processEvents();
+            }
+            ui->mdiArea->closeAllSubWindows();
+            mesh_views_.clear();
+            inputs_.clear();
+            labels_.clear();
+            ++i;
+        }else{
+            QString str0;
+            line_stream >> str0;
+            if(str0.startsWith("#"))
+            {
+                continue;
+            }
+            QString str1 = line.remove(0,str0.size());
+            str1 = str1.simplified();
+            config_->add(str0.toStdString(),str1.toStdString());
+        }
+    }
+}
+
+QAction* MainWindow::getActionByText(const QString& txt)
+{
+    QList<QAction*> list;
+    list = ui->menuEdit->actions();
+    foreach(QAction* act,list)
+    {
+        if(act->text()==txt)return act;
+    }
+    list = ui->menuJRCS->actions();
+    foreach(QAction* act,list)
+    {
+        if(act->text()==txt)return act;
+    }
+    list = ui->menuOptimization->actions();
+    foreach(QAction* act,list)
+    {
+        if(act->text()==txt)return act;
+    }
+    return nullptr;
 }
 
 MainWindow::~MainWindow()

@@ -6,6 +6,7 @@
 #include "jrcscube.h"
 #include "MeshPairViewerWidget.h"
 #include <QTimer>
+#include "cube.h"
 namespace Ui {
 class JRCSPlateDialog;
 }
@@ -15,6 +16,7 @@ class JRCSPlateDialog : public QDialog
     Q_OBJECT
 
 public:
+    typedef Common::Cube Cube;
     explicit JRCSPlateDialog(QWidget *parent = 0);
     ~JRCSPlateDialog();
     void init_for_plate();
@@ -24,7 +26,7 @@ protected:
     void init_cube();
     void init_points_for_plate();
     void init_points_for_cube();
-    void sample_points_for_cube(JRCS::Cube *cube);
+    void sample_points_for_cube(Cube::Ptr cube);
 protected slots:
     void start_transform_plate();
     void transform_plate();
@@ -36,8 +38,8 @@ protected slots:
 private:
     Ui::JRCSPlateDialog *ui;
     JRCS::Plate* plate;
-    JRCS::Cube* cube;
-    JRCS::Cube* cube2;
+    Cube::Ptr cube;
+    Cube::Ptr cube2;
     MeshPairViewerWidget* geo_view_;
     arma::fmat dR_;
     arma::fmat translate_;

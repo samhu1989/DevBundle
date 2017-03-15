@@ -931,6 +931,35 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       this->QGLViewerWidget::keyPressEvent( _event );
   }
 }
+
+template <typename M>
+void
+MeshPairViewerWidgetT<M>::add_box(void)
+{
+
+}
+
+template <typename M>
+void
+MeshPairViewerWidgetT<M>::del_box(void)
+{
+    ;
+}
+
+template <typename M>
+bool
+MeshPairViewerWidgetT<M>::mod_box(void)
+{
+    ;
+}
+
+template <typename M>
+void
+MeshPairViewerWidgetT<M>::next_box(void)
+{
+    ;
+}
+
 #undef TEXMODE
 #endif
 //=============================================================================

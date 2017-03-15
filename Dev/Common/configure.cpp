@@ -1,8 +1,14 @@
 #include "configure.h"
 #include <QString>
-#include <QTextStream>
+
 #include <QFile>
 #include <iostream>
+
+Config::Config()
+{
+    ;
+}
+
 Config::Config(const std::string& path)
 {
     reload(path);
@@ -13,6 +19,17 @@ void Config::reload()
     QFile inFile(QString::fromStdString(_SourcePath));
     inFile.open(inFile.ReadOnly);
     QTextStream stream(&inFile);
+    reload(stream);
+}
+
+void Config::reload(const std::string& path)
+{
+    _SourcePath = path;
+    reload();
+}
+
+void Config::reload(QTextStream& stream)
+{
     while(!stream.atEnd())
     {
         QString line = stream.readLine();
@@ -29,10 +46,17 @@ void Config::reload()
     }
 }
 
-void Config::reload(const std::string& path)
+void Config::updateBy(Config::Ptr config)
 {
-    _SourcePath = path;
-    reload();
+    QMap<std::string,std::string>::iterator iter;
+    for(iter=config->_Config.begin();iter!=config->_Config.end();++iter)
+    {
+        if( _Config.contains( iter.key() ) )
+        {
+            _Config.remove(iter.key());
+        }
+        _Config[iter.key()] = config->_Config[iter.key()];
+    }
 }
 
 void Config::add(const std::string& key,const std::string& value)

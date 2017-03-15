@@ -576,6 +576,27 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
                     << fps << std::endl;
       }
       _event->accept();
+    case Key_B:
+      if (_event->modifiers() & ShiftModifier)
+      {
+          add_box();
+          updateGL();
+          _event->accept();
+      }else if( _event->modifiers() & ControlModifier )
+      {
+          del_box();
+          updateGL();
+          _event->accept();
+      }else if( _event->modifiers() & AltModifier )
+      {
+          mod_box();
+          updateGL();
+          _event->accept();
+      }else{
+          next_box();
+          updateGL();
+          _event->accept();
+      }
     break;
     case Key_Q:
     case Key_Escape:

@@ -11,7 +11,7 @@
 #include "MeshType.h"
 #include "QGLViewerWidget.h"
 #include "MeshColor.h"
-
+#include "cube.h"
 template <typename M>
 class MeshPairViewerWidgetT : public QGLViewerWidget
 {
@@ -139,7 +139,6 @@ protected:
 
 
 protected: // Strip support
-
   void compute_strips(OpenMesh::StripifierT<M>& strips)
   {
     if (f_strips_)
@@ -148,6 +147,16 @@ protected: // Strip support
       strips.stripify();
     }
   }
+
+protected:
+  typedef Common::Cube Cube;
+  virtual void add_box(void);
+  virtual void del_box(void);
+  virtual bool mod_box(void);
+  virtual void next_box(void);
+
+private:
+  Cube::PtrLst cube_lst_;
 
 protected: // inherited
 
@@ -170,6 +179,7 @@ protected:
   bool                   show_fnormals_;
   float                  normal_scale_;
   OpenMesh::FPropHandleT< typename Mesh::Point > fp_normal_base_;
+
 };
 
 //=============================================================================

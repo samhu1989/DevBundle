@@ -33,9 +33,21 @@ void MainWindow::start_editing()
     }
     if( inputs_.empty() || labels_.empty() )
     {
-        QString msg = "No Inputs for Editing\n";
-        QMessageBox::critical(this, windowTitle(), msg);
-        return;
+        if(config_->has("Input"))
+        {
+            QString path = QString::fromStdString(config_->getString("Input"));
+            QString namefilter;
+            if(config_->has("Input_suffix"))
+            {
+                namefilter = tr("*")+QString::fromStdString(config_->getString("Input_suffix"));
+            }else namefilter = tr("*.ply");
+            QDir dir(path,namefilter,QDir::DirsLast,QDir::Files|QDir::NoSymLinks);
+            open_inputs(dir);
+        }else{
+            QString msg = "No Inputs for Editing\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
     }
     QAction* edit = qobject_cast<QAction*>(sender());
     if(edit==ui->actionSupervoxel)
@@ -623,8 +635,11 @@ void MainWindow::start_editing()
         w->setAttribute(Qt::WA_DeleteOnClose,true);
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(finish_editing_ui()));
         s->show();
+        w->setObjectName(tr("JRCS Bilateral"));
         w->start();
+        edit_widget_ = w;
     }
     if(edit==ui->actionJRCS_Opt_Primitive)
     {
@@ -645,9 +660,12 @@ void MainWindow::start_editing()
         w->setAttribute(Qt::WA_DeleteOnClose,true);
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(finish_editing_ui()));
         s->show();
         w->set_show_mode("Flat Colored Vertices");
+        w->setObjectName(tr("JRCS Primitive"));
         w->start();
+        edit_widget_ = w;
     }
     if(edit==ui->actionJRCS_Opt_Cube)
     {
@@ -668,9 +686,12 @@ void MainWindow::start_editing()
         w->setAttribute(Qt::WA_DeleteOnClose,true);
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(finish_editing_ui()));
         s->show();
         w->set_show_mode("Flat Colored Vertices");
+        w->setObjectName(tr("JRCS Cube"));
         w->start();
+        edit_widget_ = w;
     }
     if(edit==ui->actionJRCS_Old)
     {
@@ -689,8 +710,11 @@ void MainWindow::start_editing()
         w->setAttribute(Qt::WA_DeleteOnClose,true);
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(finish_editing_ui()));
         s->show();
+        w->setObjectName(tr("JRCS Old"));
         w->start();
+        edit_widget_ = w;
     }
     if(edit==ui->actionIterate)
     {
@@ -791,4 +815,14 @@ void MainWindow::finish_editing()
         edit_thread_ = NULL;
     }
     QMessageBox::information( this, windowTitle(), msg);
+}
+
+void MainWindow::finish_editing_ui()
+{
+    QString msg = edit_widget_->objectName() + " is Finished";
+    if(edit_widget_)
+    {
+        edit_widget_ = NULL;
+    }
+    ui->statusBar->showMessage(msg);
 }

@@ -75,6 +75,11 @@ bool JRCSBase::configure(Config::Ptr config)
     {
         if(config_->getString("JRCS_rt_type")=="Gamma")set_rt_type(JRCS::JRCSBase::Gamma);
     }else set_rt_type(JRCS::JRCSBase::All);
+
+    if(config_->has("JRCS_init_obj_scale"))
+    {
+        init_obj_scale_ = config_->getFloat("JRCS_init_obj_scale");
+    }else init_obj_scale_ = 1.0;
     return true;
 }
 

@@ -61,6 +61,7 @@ private:
     ModelList& objects_;
     QTimer t_;
     QTime time;
+    bool close_on_finish_;
 };
 
 #endif // JRCSVIEW_H

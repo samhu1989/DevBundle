@@ -156,6 +156,7 @@
      </widget>
      <addaction name="menuInitialization"/>
      <addaction name="menuOptimization"/>
+     <addaction name="actionGo_Over"/>
     </widget>
     <addaction name="actionUndo"/>
     <addaction name="separator"/>
@@ -619,6 +620,11 @@
   <action name="actionJRCS_Cube">
    <property name="text">
     <string>JRCS_Cube</string>
+   </property>
+  </action>
+  <action name="actionGo_Over">
+   <property name="text">
+    <string>Go Over</string>
    </property>
   </action>
  </widget>

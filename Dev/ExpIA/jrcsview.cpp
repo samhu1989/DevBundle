@@ -8,6 +8,7 @@ JRCSView::JRCSView(
         ModelList& objects,
         QWidget *parent
         ):
+    close_on_finish_(false),
     inputs_(inputs),
     labels_(labels),
     objects_(objects),
@@ -27,6 +28,13 @@ JRCSView::JRCSView(
 bool JRCSView::configure(Config::Ptr config)
 {
     std::cerr<<"JRCSView::configure"<<std::endl;
+    if(config->has("Close_On_Finish"))
+    {
+        if(config->getInt("Close_On_Finish"))
+        {
+            close_on_finish_ = true;
+        }
+    }
     return init(config);
 }
 
@@ -47,6 +55,7 @@ bool JRCSView::init(Config::Ptr config)
     move_worker_to_thread(jrcs_worker_);
     return true;
 }
+
 
 void JRCSView::input( JRCSThread* jrcs_worker_ )
 {
@@ -214,6 +223,10 @@ void JRCSView::finished()
     ui->spinBox->show();
     move(pos().x()+1,pos().y());
     align(ui->spinBox->value());
+    if(close_on_finish_)
+    {
+        emit closeInMdi(this);
+    }
 }
 
 void JRCSView::passMessage(QString msg,int t)
@@ -248,6 +261,20 @@ void JRCSView::align(int i)
 
 JRCSView::~JRCSView()
 {
+    if(jrcs_thread_)
+    {
+        if(jrcs_thread_->isRunning())
+        {
+            jrcs_thread_->terminate();
+            jrcs_thread_->exit(-1);
+            jrcs_thread_->quit();
+        }
+        jrcs_thread_->deleteLater();
+    }
+    if(jrcs_worker_)
+    {
+        delete jrcs_worker_;
+    }
     geo_view_->close();
     ui->gridLayout->removeWidget(geo_view_);
     geo_view_->deleteLater();

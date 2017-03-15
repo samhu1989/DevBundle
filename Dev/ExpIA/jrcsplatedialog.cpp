@@ -52,19 +52,19 @@ void JRCSPlateDialog::init_cube()
     DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
 
     for(int k=0 ; k < 2 ; ++k)
-    for(int i=0 ; i < 5 ; ++i)
-    {
-        std::vector<DefaultMesh::VertexHandle>  face_vhandles_a,face_vhandles_b;
-        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-        face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-        face_vhandles_b.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-        face_vhandles_b.push_back(face_vhandles_a[0]);
-        face_vhandles_b.push_back(face_vhandles_a[2]);
+        for(int i=0 ; i < 5 ; ++i)
+        {
+            std::vector<DefaultMesh::VertexHandle>  face_vhandles_a,face_vhandles_b;
+            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+            face_vhandles_b.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
+            face_vhandles_b.push_back(face_vhandles_a[0]);
+            face_vhandles_b.push_back(face_vhandles_a[2]);
 
-        mesh.add_face(face_vhandles_a);
-        mesh.add_face(face_vhandles_b);
-    }
+            mesh.add_face(face_vhandles_a);
+            mesh.add_face(face_vhandles_b);
+        }
 
     mesh.request_face_normals();
     mesh.request_face_colors();
@@ -95,14 +95,14 @@ void JRCSPlateDialog::init_cube()
 
     arma::fvec pos = {0,0,0};
 
-    cube = new JRCS::Cube(xv,xn,xc,pos);
+    cube.reset(new Cube(xv,xn,xc,pos));
 
 
     arma::fmat xv2((float*)mesh.points()+3*mesh.n_vertices()/2,3,mesh.n_vertices()/2,false,true);
     arma::fmat xn2((float*)mesh.vertex_normals()+3*mesh.n_vertices()/2,3,mesh.n_vertices()/2,false,true);
     arma::Mat<uint8_t> xc2((uint8_t*)mesh.vertex_colors()+3*mesh.n_vertices()/2,3,mesh.n_vertices()/2,false,true);
 
-    cube2 = new JRCS::Cube(xv2,xn2,xc2,pos);
+    cube2.reset(new Cube(xv2,xn2,xc2,pos));
 }
 
 void JRCSPlateDialog::init_plate()
@@ -198,7 +198,7 @@ void JRCSPlateDialog::init_points_for_cube()
     sample_points_for_cube(cube);
 }
 
-void JRCSPlateDialog::sample_points_for_cube( JRCS::Cube* cube)
+void JRCSPlateDialog::sample_points_for_cube(Cube::Ptr cube)
 {
     DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
     int i =0;
@@ -361,6 +361,5 @@ JRCSPlateDialog::~JRCSPlateDialog()
     if(timer_)delete timer_;
     if(geo_view_)geo_view_->deleteLater();
     if(plate)delete plate;
-    if(cube)delete cube;
     delete ui;
 }

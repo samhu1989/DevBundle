@@ -288,11 +288,10 @@ void ColorArray::colorfromValue(uint32_t* ptr,arma::uword size,const arma::vec& 
     }
 }
 
-void ColorArray::colorfromValue(RGB888*   ptr,arma::uword size,const arma::vec& value)
+void ColorArray::colorfromValue(RGB888* ptr,arma::uword size,const arma::vec& value)
 {
     double max = value.max();
     double min = value.min();
-//    std::cerr<<"c2"<<std::endl;
     #pragma omp parallel for
     for(int i = 0 ; i < size ; ++i )
     {
@@ -304,10 +303,9 @@ void ColorArray::colorfromValue(RGB888*   ptr,arma::uword size,const arma::vec& 
     }
 }
 
-void ColorArray::colorfromValue(RGB888*   ptr,arma::uword size,const arma::fvec& value)
+void ColorArray::colorfromValue(RGB888* ptr,arma::uword size,const arma::fvec& value)
 {
     float max = value.max();
-    std::cerr<<"c3"<<std::endl;
     #pragma omp parallel for
     for(int i = 0 ; i < size ; ++i )
     {

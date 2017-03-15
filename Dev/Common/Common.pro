@@ -16,7 +16,8 @@ LIBS += -lgomp -lpthread
 SOURCES += common.cpp \
     MeshColor.cpp \
     configure.cpp \
-    mbb.cpp
+    mbb.cpp \
+    cube.cpp
 
 HEADERS += common.h\
         common_global.h \
@@ -30,7 +31,8 @@ HEADERS += common.h\
     voxelgraph.h \
     voxelgraph.hpp \
     extractmesh.hpp \
-    fn_eigs_sym_custom.hpp
+    fn_eigs_sym_custom.hpp \
+    cube.h
 
 unix {
     target.path = /usr/lib

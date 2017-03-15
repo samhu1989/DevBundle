@@ -173,6 +173,11 @@ protected:
   virtual void wheelEvent( QWheelEvent* );
   virtual void keyPressEvent( QKeyEvent* );
 
+  virtual void add_box(void){}
+  virtual void del_box(void){}
+  virtual bool mod_box(void){}
+  virtual void next_box(void){}
+
 protected:
   void draw_coordinate();
   virtual void processSelections();
