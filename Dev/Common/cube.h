@@ -2,7 +2,11 @@
 #define CUBE_H
 #include "common_global.h"
 #include "MeshType.h"
+#include <ext/hash_map>
+#include <functional>
+#include <QRgb>
 namespace Common {
+
 class COMMONSHARED_EXPORT Cube{
 public:
     typedef std::shared_ptr<Cube> Ptr;
@@ -14,8 +18,11 @@ public:
         const arma::Mat<uint8_t>& c,
         const arma::fvec& pos
     );
+    static Cube::Ptr newCube(void);
     static Cube::Ptr newCube(DefaultMesh&);
     static Cube::PtrLst newCubes(DefaultMesh& m, uint32_t N);
+    static void colorByLabel(uint32_t* c,arma::uword size,arma::uvec& label);
+    void colorByLabel(uint32_t label);
     virtual void translate(
             const arma::fvec& t,
             Cube& result
@@ -26,6 +33,10 @@ public:
             Cube& result
             );
     virtual void scale(
+            const arma::fvec& s,
+            Cube& result
+            );
+    virtual void scaleTo(
             const arma::fvec& s,
             Cube& result
             );
@@ -82,7 +93,18 @@ public:
     static std::vector<arma::uvec> c4v_;
     static arma::fvec  scale_r_;
 private:
-    MeshBundle<DefaultMesh>::Ptr mesh_;
+    struct color_equal_to : public std::binary_function<uint32_t,uint32_t,bool>
+    {
+            bool operator()(const uint32_t& __x, const uint32_t& __y) const{
+                float dr = ( qRed(__x) - qRed(__y) );
+                float dg = ( qGreen(__x) - qGreen(__y) );
+                float db = ( qBlue(__x) - qBlue(__y) );
+                return std::sqrt( dr*dr + dg*dg + db*db ) < 30;
+            }
+    };
+    static uint32_t colorFromLabel(uint32_t label);
+    static __gnu_cxx::hash_map<uint32_t,uint32_t,std::hash<uint32_t>,color_equal_to> color_label_;
+    static __gnu_cxx::hash_map<uint32_t,uint32_t> label_color_;
 };
 
 }

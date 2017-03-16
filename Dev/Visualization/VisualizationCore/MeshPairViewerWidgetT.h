@@ -34,7 +34,9 @@ public:
       custom_color_(false),
       first_(new MeshBundle<Mesh>()),
       second_(new MeshBundle<Mesh>()),
-      normal_scale_(0.05)
+      normal_scale_(0.05),
+      cube_flag_(false),
+      cube_dim_(0)
   {
     QAction* a = add_draw_mode("Points");
     add_draw_mode("Hidden-Line");
@@ -154,13 +156,21 @@ protected:
   virtual void del_box(void);
   virtual bool mod_box(void);
   virtual void next_box(void);
+  virtual void set_box_dim(uint32_t dim){cube_dim_=dim;}
+  virtual void transform_box(int key);
+  virtual void scale_box(float s);
 
 private:
+  uint32_t cube_dim_;
+  std::vector<uint32_t> cube_index_;
+  std::vector<uint32_t>::iterator cube_iter_;
   Cube::PtrLst cube_lst_;
+  bool cube_flag_;
 
 protected: // inherited
 
   virtual void keyPressEvent( QKeyEvent* _event);
+  virtual void wheelEvent(QWheelEvent* _event);
   virtual void processSelections();
   std::vector<arma::uword> first_selected_;
 protected:

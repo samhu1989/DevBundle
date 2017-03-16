@@ -589,7 +589,12 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
           _event->accept();
       }else if( _event->modifiers() & AltModifier )
       {
-          mod_box();
+          if(mod_box())
+          {
+              std::cerr<<"box enabled"<<std::endl;
+          }else{
+              std::cerr<<"box disabled"<<std::endl;
+          }
           updateGL();
           _event->accept();
       }else{
@@ -888,15 +893,6 @@ QGLViewerWidget::slotDrawMode(QAction* _mode)
 {
   if( !_mode->isChecked() ) _mode->setChecked(true);//use as normal function
   draw_mode_ = _mode->data().toUInt();//use as slot
-//  std::cout<<"Draw Modes:"<<std::endl;
-//  for(std::vector<std::string>::iterator iter = draw_mode_names_.begin();iter!=draw_mode_names_.end();++iter)
-//  {
-//      std::cout<<*iter<<std::endl;
-//  }
-//  foreach(QAction* act,draw_modes_group_->actions())
-//  {
-//      std::cout<<act->data().toUInt()<<":"<<act->text().toStdString()<<std::endl;
-//  }
   updateGL();
 }
 

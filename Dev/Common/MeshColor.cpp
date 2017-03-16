@@ -320,9 +320,9 @@ void ColorArray::colorfromValue(RGB888* ptr,arma::uword size,const arma::fvec& v
 uint32_t COMMONSHARED_EXPORT ColorArray::rand_color(void)
 {
     std::uniform_real_distribution<qreal> ua(0.0,1.0);
-    std::uniform_real_distribution<qreal> ub(0.4,1.0);
+    std::uniform_real_distribution<qreal> ub(0.4,0.6);
     QColor c;
-    c.setHsvF( ua(e), ua(e), ub(e) );
+    c.setHslF( ua(e), ua(e), ub(e) );
     return c.rgba();
 }
 

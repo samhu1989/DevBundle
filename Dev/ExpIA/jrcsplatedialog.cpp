@@ -50,59 +50,9 @@ void JRCSPlateDialog::init_for_cube()
 void JRCSPlateDialog::init_cube()
 {
     DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
-
-    for(int k=0 ; k < 2 ; ++k)
-        for(int i=0 ; i < 5 ; ++i)
-        {
-            std::vector<DefaultMesh::VertexHandle>  face_vhandles_a,face_vhandles_b;
-            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-            face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-            face_vhandles_b.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
-            face_vhandles_b.push_back(face_vhandles_a[0]);
-            face_vhandles_b.push_back(face_vhandles_a[2]);
-
-            mesh.add_face(face_vhandles_a);
-            mesh.add_face(face_vhandles_b);
-        }
-
-    mesh.request_face_normals();
-    mesh.request_face_colors();
-    mesh.request_vertex_normals();
-    mesh.request_vertex_colors();
-
-    arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices()/2,false,true);
-    arma::fmat xn((float*)mesh.vertex_normals(),3,mesh.n_vertices()/2,false,true);
-    arma::Mat<uint8_t> xc((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices()/2,false,true);
-
-    xv = {
-        //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
-        {-1, 1, 1,-1, 1,-1,-1, 1, 1, 1, 1, 1,-1,-1,-1,-1,-1,-1, 1, 1},
-        { 1, 1, 1, 1,-1,-1,-1,-1, 1,-1,-1, 1,-1, 1, 1,-1, 1,-1,-1, 1},
-        { 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1}
-    };
-
-    xv *= 0.5;
-
-    xn = {
-        { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,-1,-1,-1,-1, 0, 0, 0, 0},
-        { 1, 1, 1, 1,-1,-1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1}
-    };
-
-    arma::Col<uint8_t> xctmp = {137,157,192};
-    xc.each_col() = xctmp;
-
-    arma::fvec pos = {0,0,0};
-
-    cube.reset(new Cube(xv,xn,xc,pos));
-
-
-    arma::fmat xv2((float*)mesh.points()+3*mesh.n_vertices()/2,3,mesh.n_vertices()/2,false,true);
-    arma::fmat xn2((float*)mesh.vertex_normals()+3*mesh.n_vertices()/2,3,mesh.n_vertices()/2,false,true);
-    arma::Mat<uint8_t> xc2((uint8_t*)mesh.vertex_colors()+3*mesh.n_vertices()/2,3,mesh.n_vertices()/2,false,true);
-
-    cube2.reset(new Cube(xv2,xn2,xc2,pos));
+    Cube::PtrLst lst = Cube::newCubes(mesh,2);
+    cube = lst[0];
+    cube2 = lst[1];
 }
 
 void JRCSPlateDialog::init_plate()

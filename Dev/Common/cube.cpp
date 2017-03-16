@@ -1,15 +1,56 @@
 #include "cube.h"
+#include <QColor>
 namespace Common {
 std::vector<arma::uvec> Cube::c4v_;
 arma::fvec Cube::scale_r_;
 const uint32_t Cube::point_num_for_plate_ = 4;
 const uint32_t Cube::plate_num_for_cube_ = 5;
 const uint32_t Cube::point_num_for_cube_ = 20;
+__gnu_cxx::hash_map<uint32_t,uint32_t,std::hash<uint32_t>,Cube::color_equal_to> Cube::color_label_;
+__gnu_cxx::hash_map<uint32_t,uint32_t> Cube::label_color_;
+
+uint32_t Cube::colorFromLabel(uint32_t label)
+{
+    if(label==0)return QColor("white").rgba();
+    uint32_t c;
+    if( Cube::label_color_.end() == Cube::label_color_.find(label) )
+    {
+        c = ColorArray::rand_color();
+        while( Cube::color_label_.end() != Cube::color_label_.find(c) )//if color is duplicated rand another one
+        {
+            c = ColorArray::rand_color();
+        }
+        Cube::label_color_[label] = c;
+        Cube::color_label_[c] = label;
+    }else{
+        c = Cube::label_color_[label];
+    }
+    return c;
+}
+
+void Cube::colorByLabel(uint32_t label)
+{
+    QColor color(colorFromLabel(label));
+    arma::Col<uint8_t> x = {color.red(),color.green(),color.blue()};
+    xc_->each_col() = x;
+}
+
+void Cube::colorByLabel(uint32_t* c,arma::uword size,arma::uvec& label)
+{
+    if( label.size() < size ){
+        std::cerr<<"label.size() < size"<<std::endl;
+        return;
+    }
+    for(arma::uvec::iterator iter=label.begin() ; iter != label.end() ; ++iter )
+    {
+        *c = colorFromLabel(*iter);
+        ++c;
+    }
+}
 
 Cube::PtrLst Cube::newCubes(DefaultMesh& m, uint32_t N)
 {
     Cube::PtrLst r(N);
-
     uint32_t mN = 20;
 
     for(int n=0 ; n < N ; ++n)
@@ -39,15 +80,11 @@ Cube::PtrLst Cube::newCubes(DefaultMesh& m, uint32_t N)
     uint8_t* pc = (uint8_t*)m.vertex_colors();
 
     arma::fvec pos = {0,0,0};
-    for(int n=0;n<N;++n)
+    for(int n = 0  ;n < N ; ++n )
     {
-        pp += 3*mN;
-        pn += 3*mN;
-        pc += 3*mN;
-
-        arma::fmat xv(pp,3,20,false,true);
-        arma::fmat xn(pn,3,20,false,true);
-        arma::Mat<uint8_t> xc(pc,3,20,false,true);
+        arma::fmat xv(pp,3,mN,false,true);
+        arma::fmat xn(pn,3,mN,false,true);
+        arma::Mat<uint8_t> xc(pc,3,mN,false,true);
 
         xv = {
             //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
@@ -66,10 +103,36 @@ Cube::PtrLst Cube::newCubes(DefaultMesh& m, uint32_t N)
 
         arma::Col<uint8_t> xctmp = {137,157,192};
         xc.each_col() = xctmp;
-        r[n].reset(new Cube(xv,xn,xc,pos));
-    }
+        r[n].reset( new Cube(xv,xn,xc,pos) );
 
+        pp += 3*mN;
+        pn += 3*mN;
+        pc += 3*mN;
+    }
     return r;
+}
+
+Cube::Ptr Cube::newCube(void)
+{
+    arma::fmat xv(3,20);
+    arma::fmat xn(3,20);
+    arma::Mat<uint8_t> xc(3,20);
+    xv = {
+        //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
+        {-1, 1, 1,-1, 1,-1,-1, 1, 1, 1, 1, 1,-1,-1,-1,-1,-1,-1, 1, 1},
+        { 1, 1, 1, 1,-1,-1,-1,-1, 1,-1,-1, 1,-1, 1, 1,-1, 1,-1,-1, 1},
+        { 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1}
+    };
+    xv *= 0.5;
+    xn = {
+        { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,-1,-1,-1,-1, 0, 0, 0, 0},
+        { 1, 1, 1, 1,-1,-1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1}
+    };
+    arma::Col<uint8_t> xctmp = {137,157,192};
+    xc.each_col() = xctmp;
+    arma::fvec pos = {0,0,0};
+    return Cube::Ptr(new Cube(xv,xn,xc,pos));
 }
 
 Cube::Ptr Cube::newCube(DefaultMesh& mesh)
@@ -344,6 +407,15 @@ void Cube::scaleTo(
 {
     arma::fvec s = news / size_;
     scale(s,*this);
+}
+
+void Cube::scaleTo(
+        const arma::fvec& news,
+        Cube& result
+        )
+{
+    arma::fvec s = news / size_;
+    scale(s,result);
 }
 
 void Cube::scale(

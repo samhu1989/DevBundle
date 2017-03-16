@@ -332,7 +332,6 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
 
   else if (_draw_mode == "Solid Flat") // -------------------------------------
   {
-    std::cerr<<"solid flat"<<std::endl;
     glBegin(GL_TRIANGLES);
     for (; fIt!=fEnd; ++fIt)
     {
@@ -712,14 +711,14 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
       if(0<first_->graph_.voxel_neighbors.n_cols)draw_openmesh( *first_, "VoxelGraph" );
   }
   else if( _draw_mode == "Plate")
-    {
-        glEnable(GL_LIGHTING);
-        glShadeModel(GL_FLAT);
-        if(0<first_->mesh_.n_vertices())draw_openmesh( *first_ , "Flat Colored Vertices" );
+  {
+      glDisable(GL_LIGHTING);
+      if(0<first_->mesh_.n_vertices())draw_openmesh( *first_ , "Points" );
 
-        glDisable(GL_LIGHTING);
-        if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, "Points" );
-    }
+      glEnable(GL_LIGHTING);
+      glShadeModel(GL_FLAT);
+      if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, "Flat Colored Vertices" );
+  }
 
   else if (_draw_mode == "Solid Flat")
   {
@@ -861,7 +860,7 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
 {
   switch( _event->key() )
   {
-    case Key_D:
+    case Key_C:
       if ( first_->mesh_.has_vertex_colors() &&
            second_->mesh_.has_vertex_colors() &&
            (current_draw_mode()=="Points")
@@ -912,6 +911,31 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       this->QGLViewerWidget::keyPressEvent( _event );
       break;
 
+    // for box opertation:
+    case Key_1:
+      if(cube_flag_)set_box_dim(0);
+      break;
+
+    case Key_2:
+      if(cube_flag_)set_box_dim(1);
+      break;
+
+    case Key_3:
+      if(cube_flag_)set_box_dim(2);
+      break;
+
+    case Key_A:
+    case Key_D:
+    case Key_W:
+    case Key_S:
+    case Key_Q:
+    case Key_E:
+    case Key_Up:
+    case Key_Down:
+      transform_box(_event->key());
+      break;
+
+
     case Key_T:
       switch( tex_mode_ )
       {
@@ -933,31 +957,141 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
 }
 
 template <typename M>
+void MeshPairViewerWidgetT<M>::wheelEvent(QWheelEvent* _event)
+{
+    if( _event->modifiers() & ControlModifier )
+    {
+        if(cube_flag_)
+        {
+            float d = -(float)_event->delta() / 120.0 * 0.05;
+            scale_box(d);
+        }
+        _event->accept();
+    }else
+    this->QGLViewerWidget::wheelEvent(_event);
+}
+
+template <typename M>
+void MeshPairViewerWidgetT<M>::scale_box(float s)
+{
+    if(cube_iter_==cube_index_.end())return;
+    Cube& cube = *cube_lst_[*cube_iter_];
+    arma::fvec scale = cube.size();
+    scale( cube_dim_ ) += s;
+    cube.scaleTo(scale);
+}
+
+template <typename M>
+void MeshPairViewerWidgetT<M>::transform_box(int key)
+{
+    if(cube_iter_==cube_index_.end())return;
+    Cube& cube = *cube_lst_[*cube_iter_];
+    arma::fvec t;
+    switch(key)
+    {
+    case Key_A:
+        t = {0.05,0,0};
+        cube.translate(t,cube);
+        break;
+    case Key_D:
+        t = {-0.05,0,0};
+        cube.translate(t,cube);
+        break;
+    case Key_W:
+        t = {0,0.05,0};
+        cube.translate(t,cube);
+        break;
+    case Key_S:
+        t = {0,-0.05,0};
+        cube.translate(t,cube);
+        break;
+    case Key_Up:
+        t = {0,0,0.05};
+        cube.translate(t,cube);
+        break;
+    case Key_Down:
+        t = {0,0,-0.05};
+        cube.translate(t,cube);
+        break;
+    }
+}
+
+template <typename M>
 void
 MeshPairViewerWidgetT<M>::add_box(void)
 {
-
+    if(!cube_flag_)return;
+    if(cube_index_.size()>=15)return;
+    if(!cube_index_.empty()){
+        Cube& cubeold = *cube_lst_[*cube_iter_];
+        cubeold.colorByLabel(*cube_iter_+1);
+    }
+    cube_index_.push_back(cube_index_.back()+1);
+    cube_iter_ = cube_index_.end() - 1;
+    Cube& cubenew = *cube_lst_[*cube_iter_];
+    arma::fvec t0(3,arma::fill::zeros);
+    Cube::newCube()->translate(t0,cubenew);
+    cubenew.colorByLabel(0);
 }
 
 template <typename M>
 void
 MeshPairViewerWidgetT<M>::del_box(void)
 {
-    ;
+    if(!cube_flag_)return;
+    arma::fvec s0(3,arma::fill::zeros);
+    uint32_t tmp = *cube_iter_;
+    *cube_iter_ = cube_index_.back();
+    cube_index_.back() = tmp;
+    cube_index_.pop_back();
+    Cube& cube = *cube_lst_[tmp];
+    cube.scaleTo(s0);
 }
 
 template <typename M>
 bool
 MeshPairViewerWidgetT<M>::mod_box(void)
 {
-    ;
+    arma::fvec s(3,arma::fill::zeros);
+    if( !cube_flag_ ){
+        cube_lst_ = Cube::newCubes(second_->mesh_,15);
+        cube_index_.reserve(15);
+        cube_index_.push_back(0);
+        cube_iter_ = cube_index_.begin();
+        for(Cube::PtrLst::iterator iter=cube_lst_.begin()+1;iter!=cube_lst_.end();++iter)
+        {
+            Cube& cube = **iter;
+            cube.scaleTo(s);
+        }
+        cube_flag_ = true;
+    }
+    else if(cube_flag_){
+        cube_lst_.clear();
+        cube_index_.clear();
+        second_->mesh_.clear();
+        cube_flag_ = false;
+    }
+    return cube_flag_;
 }
 
 template <typename M>
 void
 MeshPairViewerWidgetT<M>::next_box(void)
 {
-    ;
+    if(!cube_flag_)return;
+    if( cube_iter_ != cube_index_.end() )
+    {
+        Cube& cubeold = *cube_lst_[*cube_iter_];
+        cubeold.colorByLabel( *cube_iter_ + 1 );
+        ++cube_iter_;
+    }else{
+        cube_iter_ = cube_index_.begin();
+    }
+    if( cube_iter_ != cube_index_.end() )
+    {
+        Cube& cubenew = *cube_lst_[*cube_iter_];
+        cubenew.colorByLabel(0);
+    }
 }
 
 #undef TEXMODE
