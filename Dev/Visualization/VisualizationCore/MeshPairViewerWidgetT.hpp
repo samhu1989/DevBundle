@@ -986,22 +986,24 @@ void MeshPairViewerWidgetT<M>::transform_box(int key)
 {
     if(cube_iter_==cube_index_.end())return;
     Cube& cube = *cube_lst_[*cube_iter_];
+    float dtheta;
     arma::fvec t;
+    arma::fmat R;
     switch(key)
     {
-    case Key_A:
+    case Key_W:
         t = {0.05,0,0};
         cube.translate(t,cube);
         break;
-    case Key_D:
+    case Key_S:
         t = {-0.05,0,0};
         cube.translate(t,cube);
         break;
-    case Key_W:
+    case Key_A:
         t = {0,0.05,0};
         cube.translate(t,cube);
         break;
-    case Key_S:
+    case Key_D:
         t = {0,-0.05,0};
         cube.translate(t,cube);
         break;
@@ -1013,6 +1015,18 @@ void MeshPairViewerWidgetT<M>::transform_box(int key)
         t = {0,0,-0.05};
         cube.translate(t,cube);
         break;
+    case Key_Q:
+        t = {0,0,0};
+        dtheta =  - M_PI / 180.0 * 5.0;
+        R = {{std::cos(dtheta),std::sin(dtheta),0},{-std::sin(dtheta),std::cos(dtheta),0},{0,0,1}};
+        cube.rotate(R,cube);
+        break;
+    case Key_E:
+        t = {0,0,0};
+        dtheta = M_PI / 180.0 * 5.0;
+        R = {{std::cos(dtheta),std::sin(dtheta),0},{-std::sin(dtheta),std::cos(dtheta),0},{0,0,1}};
+        cube.rotate(R,cube);
+        break;
     }
 }
 
@@ -1021,7 +1035,7 @@ void
 MeshPairViewerWidgetT<M>::add_box(void)
 {
     if(!cube_flag_)return;
-    if(cube_index_.size()>=15)return;
+    if(cube_index_.size()>=20)return;
     if(!cube_index_.empty()){
         Cube& cubeold = *cube_lst_[*cube_iter_];
         cubeold.colorByLabel(*cube_iter_+1);
@@ -1054,7 +1068,7 @@ MeshPairViewerWidgetT<M>::mod_box(void)
 {
     arma::fvec s(3,arma::fill::zeros);
     if( !cube_flag_ ){
-        cube_lst_ = Cube::newCubes(second_->mesh_,15);
+        cube_lst_ = Cube::newCubes(second_->mesh_,20);
         cube_index_.reserve(15);
         cube_index_.push_back(0);
         cube_iter_ = cube_index_.begin();

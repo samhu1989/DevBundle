@@ -23,6 +23,7 @@
 #include "gdcthread.h"
 #include "jrcsprimitive.h"
 #include "jrcscube.h"
+#include "jrcsbox.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -690,6 +691,34 @@ void MainWindow::start_editing()
         s->show();
         w->set_show_mode("Flat Colored Vertices");
         w->setObjectName(tr("JRCS Cube"));
+        w->start();
+        edit_widget_ = w;
+    }
+    if(edit==ui->actionJRCS_Opt_Box)
+    {
+        JRCSView* w = new JRCSView(
+                    inputs_,
+                    labels_,
+                    objects_
+                    );
+        std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSBox());
+        w->set_method(method);
+        std::vector<JRCS::JRCSBox::Cube::PtrLst> constraint_lsts_;
+        JRCS::JRCSBox::set_boxes(constraint_lsts_);
+        if(!w->configure(config_)){
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(finish_editing_ui()));
+        s->show();
+        w->set_show_mode("Flat Colored Vertices");
+        w->setObjectName(tr("JRCS Box"));
         w->start();
         edit_widget_ = w;
     }

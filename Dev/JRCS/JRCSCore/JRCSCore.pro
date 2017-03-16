@@ -25,7 +25,8 @@ SOURCES += \
     sjrcsbase.cpp \
     jrcsbilateral.cpp \
     jrcsprimitive.cpp \
-    jrcscube.cpp
+    jrcscube.cpp \
+    jrcsbox.cpp
 
 HEADERS +=\
         jrcscore_global.h \
@@ -37,7 +38,8 @@ HEADERS +=\
     sjrcsbase.h \
     jrcsbilateral.h \
     jrcsprimitive.h \
-    jrcscube.h
+    jrcscube.h \
+    jrcsbox.h
 
 unix {
     target.path = /usr/lib

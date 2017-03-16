@@ -32,6 +32,10 @@ public:
             const arma::fvec& t,
             Cube& result
             );
+    virtual void rotate(
+            const arma::fmat& R,
+            Cube& result
+            );
     virtual void scale(
             const arma::fvec& s,
             Cube& result

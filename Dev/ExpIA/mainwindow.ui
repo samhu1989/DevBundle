@@ -153,6 +153,7 @@
       <addaction name="actionJRCS_Opt_Bilateral"/>
       <addaction name="actionJRCS_Opt_Primitive"/>
       <addaction name="actionJRCS_Opt_Cube"/>
+      <addaction name="actionJRCS_Opt_Box"/>
      </widget>
      <addaction name="menuInitialization"/>
      <addaction name="menuOptimization"/>
@@ -625,6 +626,11 @@
   <action name="actionGo_Over">
    <property name="text">
     <string>Go Over</string>
+   </property>
+  </action>
+  <action name="actionJRCS_Opt_Box">
+   <property name="text">
+    <string>Box</string>
    </property>
   </action>
  </widget>

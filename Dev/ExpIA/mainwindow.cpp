@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionJRCS_Opt_Bilateral,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_Primitive,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionJRCS_Opt_Cube,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionJRCS_Opt_Box,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionGo_Over,SIGNAL(triggered(bool)),this,SLOT(goOver()));
 
     connect(ui->actionGDCoord,SIGNAL(triggered(bool)),this,SLOT(start_editing()));

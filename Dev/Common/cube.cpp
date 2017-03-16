@@ -328,6 +328,7 @@ void Cube::translate(
     result.t_ = t_ + t;
     *result.xv_ = *xv_;
     result.xv_->each_col() += t;
+    result.obj_pos_ = obj_pos_ + t;
     result.updateV2Centroids();
     result.updateV2Corners();
     if(this!=&result)
@@ -338,8 +339,17 @@ void Cube::translate(
         result.size_ = size_;
         result.plate_zero_dim_ = plate_zero_dim_;
         result.weighted_corners_ = weighted_corners_;
-        result.obj_pos_ = obj_pos_ + t;
     }
+}
+
+void Cube::rotate(
+        const arma::fmat& R,
+        Cube& result
+        )
+{
+    arma::fvec t = t_;
+    translate(-t,result);
+    transform(R,t,result);
 }
 
 void Cube::transform(
@@ -353,6 +363,7 @@ void Cube::transform(
     *result.xv_ = R*(*xv_);
     result.xv_->each_col() += t;
     *result.xn_ = R*(*xn_);
+    result.obj_pos_ = R*obj_pos_ + t;
 
     result.updateV2Centroids();
     result.updateV2Corners();
@@ -363,7 +374,6 @@ void Cube::transform(
         result.size_ = size_;
         result.plate_zero_dim_ = plate_zero_dim_;
         result.weighted_corners_ = weighted_corners_;
-        result.obj_pos_ = R*obj_pos_ + t;
     }
 }
 
