@@ -478,14 +478,40 @@ arma::uvec Cube::outside(const arma::fmat& v)
     idx.reserve(v.n_cols);
     arma::fvec center = arma::mean(corners_,1);
     center = R_.i()*( center - t_ );
-
-
+    arma::fmat vv = v.each_col() - t_;
+    vv = R_.i()*vv;
+    arma::fmat d = arma::abs(vv.each_col() - center);
+    for( int i=0 ; i < d.n_cols ; ++i )
+    {
+        arma::fvec dv = d.col(i);
+        if( dv(0) > size_(0) ){
+            idx.push_back(i);
+        }else if( dv(1) > size_(1) ){
+            idx.push_back(i);
+        }else if( dv(2) > size_(2) ){
+            idx.push_back(i);
+        }
+    }
     return arma::uvec(idx);
 }
 
 arma::uvec Cube::inside(const arma::fmat& v)
 {
-    ;
+    std::vector<arma::uword> idx;
+    idx.reserve(v.n_cols);
+    arma::fvec center = arma::mean(corners_,1);
+    center = R_.i()*( center - t_ );
+    arma::fmat vv = v.each_col() - t_;
+    vv = R_.i()*vv;
+    arma::fmat d = arma::abs(vv.each_col() - center);
+    for( int i=0 ; i < d.n_cols ; ++i )
+    {
+        arma::fvec dv = d.col(i);
+        if( dv(0) < size_(0) && dv(1) < size_(1) && dv(2) < size_(2) ){
+            idx.push_back(i);
+        }
+    }
+    return arma::uvec(idx);
 }
 
 arma::vec Cube::get_dist2_for_plate(
