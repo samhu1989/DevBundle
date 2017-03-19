@@ -246,9 +246,9 @@ void JRCSCube::step_1(int i)
         for(int j=obj_range_[2*o];j<=obj_range_[2*o+1];++j)
         {
             cube_ptrlst_[j]->transform(R,t,*cube_t_ptrlst_[i][j]);
-            Cube& tc = *cube_t_ptrlst_[i][j];
-            arma::vec v = tc.get_dist2(*wvs_ptrlst_[i]);
-            ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols, arma::sqrt(v) );
+//            Cube& tc = *cube_t_ptrlst_[i][j];
+//            arma::vec v = tc.get_dist2(*wvs_ptrlst_[i]);
+//            ColorArray::colorfromValue((ColorArray::RGB888*)wcs_ptrlst_[i]->memptr(),wcs_ptrlst_[i]->n_cols, arma::sqrt(v) );
         }
     }
     if(verbose_>1)std::cerr<<"calculate alpha"<<std::endl;
@@ -413,7 +413,7 @@ void JRCSCube::updateRTforObj(
     }
     }
     cube_ptrlst[start]->transform(dR,dt,*cube_ptrlst[start]);
-    cube_ptrlst[start]->updateScale();
+//    cube_ptrlst[start]->updateScale();
 
     //updating R T
     R = dR*R;
@@ -427,15 +427,29 @@ void JRCSCube::step_2(void)
     if(verbose_>1)std::cerr<<"Updating Latent Model"<<std::endl;
 
 //    #pragma omp parallel for
+//    for( int i=0 ; i < cube_ptrlst_.size() ; ++i )
+//    {
+//        arma::fvec s(3,arma::fill::zeros);
+//        for(int j=0;j<cube_t_ptrlst_.size();++j)
+//        {
+//            s += cube_t_ptrlst_[j][i]->size();
+//        }
+//        s /= float(cube_t_ptrlst_.size());
+//        cube_ptrlst_[i]->scaleTo(s);
+//    }
+
+    #pragma omp parallel for
     for( int i=0 ; i < cube_ptrlst_.size() ; ++i )
     {
-        arma::fvec s(3,arma::fill::zeros);
+        const int r = cube_t_ptrlst_[0][i]->param_.n_rows;
+        const int c = cube_t_ptrlst_[0][i]->param_.n_cols;
+        const int s = cube_t_ptrlst_[0][i]->param_.n_slices;
+        cube_ptrlst_[i]->start_accumulate(r,c,s,cube_t_ptrlst_.size());
         for(int j=0;j<cube_t_ptrlst_.size();++j)
         {
-            s += cube_t_ptrlst_[j][i]->size();
+            cube_ptrlst_[i]->accumulate(*cube_t_ptrlst_[j][i],j);
         }
-        s /= float(cube_t_ptrlst_.size());
-        cube_ptrlst_[i]->scaleTo(s);
+        cube_ptrlst_[i]->fit();
     }
 
     if(verbose_>1)std::cerr<<"Updating variance of Latent Model"<<std::endl;

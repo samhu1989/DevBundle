@@ -24,6 +24,7 @@
 #include "jrcsprimitive.h"
 #include "jrcscube.h"
 #include "jrcsbox.h"
+#include "MeshPairViewerWidget.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -696,6 +697,15 @@ void MainWindow::start_editing()
     }
     if(edit==ui->actionJRCS_Opt_Box)
     {
+        std::vector<JRCS::JRCSBox::Cube::PtrLst> constraint_lsts_;
+        std::vector<WidgetPtr>::iterator iter;
+        for(iter=mesh_views_.begin();iter!=mesh_views_.end();++iter)
+        {
+            MeshPairViewerWidget* widget = qobject_cast<MeshPairViewerWidget*>(*iter);
+            if(!widget)return;
+            constraint_lsts_.push_back(widget->boxes());
+        }
+        JRCS::JRCSBox::set_boxes(constraint_lsts_);
         JRCSView* w = new JRCSView(
                     inputs_,
                     labels_,
@@ -703,8 +713,6 @@ void MainWindow::start_editing()
                     );
         std::shared_ptr<JRCS::JRCSBase> method(new JRCS::JRCSBox());
         w->set_method(method);
-        std::vector<JRCS::JRCSBox::Cube::PtrLst> constraint_lsts_;
-        JRCS::JRCSBox::set_boxes(constraint_lsts_);
         if(!w->configure(config_)){
             QString msg = "Missing Some Inputs or configure\n";
             QMessageBox::critical(this, windowTitle(), msg);
@@ -717,7 +725,7 @@ void MainWindow::start_editing()
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
         connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(finish_editing_ui()));
         s->show();
-        w->set_show_mode("Flat Colored Vertices");
+        w->set_show_mode("Points");
         w->setObjectName(tr("JRCS Box"));
         w->start();
         edit_widget_ = w;

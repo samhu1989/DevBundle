@@ -50,6 +50,10 @@ public:
     virtual arma::vec get_dist2(const arma::fmat& v);
     virtual arma::vec get_dist2_for_plate(const arma::fmat& v,const arma::fvec& c, arma::uword zero_dim);
     virtual arma::vec dist(const arma::fmat&, const arma::fvec&, arma::uword zero_dim, arma::uword dim);
+    virtual arma::vec get_dist2_box(const arma::fmat& v);
+    arma::uvec outside(const arma::fmat& v);
+    arma::uvec inside(const arma::fmat& v);
+
     virtual void get_weighted_corners(const arma::fmat& v, const arma::vec &alpha);
     virtual void get_weighted_color(const arma::fmat& v,const arma::Mat<uint8_t>& c );
     virtual void accumulate(

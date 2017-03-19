@@ -11,24 +11,22 @@ public:
     JRCSBox();
     virtual ~JRCSBox(){}
     virtual std::string name()const{return "JRCSBox";}
-    static void set_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
     virtual void initx(
             const MatPtr& xv,
             const MatPtr& xn,
             const CMatPtr& xc
-            );//initialize the X
-protected:
-    virtual void compute(void);
-    virtual void reset_obj_vn(
-            float radius,
-            arma::fvec& pos,
-            arma::fmat& ov,
-            arma::fmat& on
             );
+    virtual void reset_objw(const std::vector<float>&);
+    static void set_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
 protected:
-    void update_objective();
+    void init_from_boxes();
+    arma::fvec obj_prob_from_boxes(const Cube::PtrLst&, const MatPtr &vv);
+    virtual void update_color_label();
 private:
     static std::vector<Cube::PtrLst> cube_ptrlsts_;
+    std::vector<std::shared_ptr<arma::gmm_diag>> obj_color_mode_;
+
+
 };
 }
 #endif // JRCSBOX_H

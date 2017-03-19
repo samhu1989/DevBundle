@@ -8,12 +8,14 @@ namespace JRCS{
 
 bool JRCSBase::configure(Config::Ptr config)
 {
+    std::cerr<<"configuring"<<std::endl;
     config_ = config;
     if(config_->has("JRCS_obj_w"))
     {
         std::vector<float> objw;
         config_->getFloatVec("JRCS_obj_w",objw);
         reset_objw(objw);
+        if(0==obj_num_)return false;
     }else return false;
 
     if(config_->has("JRCS_max_iter"))

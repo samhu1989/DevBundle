@@ -972,6 +972,18 @@ void MeshPairViewerWidgetT<M>::wheelEvent(QWheelEvent* _event)
 }
 
 template <typename M>
+Common::Cube::PtrLst MeshPairViewerWidgetT<M>::boxes(void)
+{
+    Common::Cube::PtrLst r;
+    r.reserve(cube_index_.size());
+    for(std::vector<uint32_t>::iterator iter=cube_index_.begin();iter!=cube_index_.end();++iter)
+    {
+        r.push_back(cube_lst_[*iter]);
+    }
+    return r;
+}
+
+template <typename M>
 void MeshPairViewerWidgetT<M>::scale_box(float s)
 {
     if(cube_iter_==cube_index_.end())return;

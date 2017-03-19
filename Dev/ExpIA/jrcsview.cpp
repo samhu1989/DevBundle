@@ -47,10 +47,14 @@ bool JRCSView::init(Config::Ptr config)
     connect(&t_,SIGNAL(timeout()),jrcs_worker_,SLOT(get_iter_info()));
     if(!jrcs_worker_->configure(config))
     {
+        std::cerr<<"Failed to Init "<<jrcs_worker_->get_method_name()<<std::endl;
         return false;
     }
     input(jrcs_worker_);
-    if(!allocate_x(jrcs_worker_))return false;
+    if(!allocate_x(jrcs_worker_)){
+        std::cerr<<"Failed to allocate_x for "<<jrcs_worker_->get_method_name()<<std::endl;
+        return false;
+    }
     std::cerr<<"---"<<std::endl;
     move_worker_to_thread(jrcs_worker_);
     return true;

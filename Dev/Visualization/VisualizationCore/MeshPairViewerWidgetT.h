@@ -150,8 +150,11 @@ protected: // Strip support
     }
   }
 
-protected:
+public:
   typedef Common::Cube Cube;
+  Cube::PtrLst boxes();
+
+protected:
   virtual void add_box(void);
   virtual void del_box(void);
   virtual bool mod_box(void);

@@ -23,6 +23,7 @@ protected:
             arma::fmat& ov,
             arma::fmat& on
             );
+
 protected:
     virtual void reset_alpha_cube();
     virtual void reset_prob_cube();

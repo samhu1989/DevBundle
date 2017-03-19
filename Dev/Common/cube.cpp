@@ -465,6 +465,29 @@ arma::vec Cube::get_dist2(const arma::fmat& v)
     return arma::min(dists,1);
 }
 
+arma::vec Cube::get_dist2_box(const arma::fmat& v)
+{
+    arma::vec dist(v.n_cols,arma::fill::zeros);
+    arma::uvec out_idx = outside(v);
+    dist(out_idx) = get_dist2(v.cols(out_idx));
+}
+
+arma::uvec Cube::outside(const arma::fmat& v)
+{
+    std::vector<arma::uword> idx;
+    idx.reserve(v.n_cols);
+    arma::fvec center = arma::mean(corners_,1);
+    center = R_.i()*( center - t_ );
+
+
+    return arma::uvec(idx);
+}
+
+arma::uvec Cube::inside(const arma::fmat& v)
+{
+    ;
+}
+
 arma::vec Cube::get_dist2_for_plate(
         const arma::fmat& v,
         const arma::fvec& c,
@@ -614,4 +637,7 @@ void Cube::fit(void)
     }
     param_.clear();
 }
+
+
+
 }
