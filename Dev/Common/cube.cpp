@@ -470,6 +470,7 @@ arma::vec Cube::get_dist2_box(const arma::fmat& v)
     arma::vec dist(v.n_cols,arma::fill::zeros);
     arma::uvec out_idx = outside(v);
     dist(out_idx) = get_dist2(v.cols(out_idx));
+    return dist;
 }
 
 arma::uvec Cube::outside(const arma::fmat& v)

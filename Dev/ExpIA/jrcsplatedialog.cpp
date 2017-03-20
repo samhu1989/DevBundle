@@ -49,7 +49,7 @@ void JRCSPlateDialog::init_for_cube()
 
 void JRCSPlateDialog::init_cube()
 {
-    DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
+    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
     Cube::PtrLst lst = Cube::newCubes(mesh,2);
     cube = lst[0];
     cube2 = lst[1];
@@ -57,7 +57,7 @@ void JRCSPlateDialog::init_cube()
 
 void JRCSPlateDialog::init_plate()
 {
-    DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
+    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
 
     std::vector<DefaultMesh::VertexHandle>  face_vhandles_a,face_vhandles_b;
     face_vhandles_a.push_back(mesh.add_vertex(DefaultMesh::Point(0,0,0)));
@@ -103,7 +103,7 @@ void JRCSPlateDialog::init_plate()
 
 void JRCSPlateDialog::init_points_for_plate()
 {
-    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
+    DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
     int i = 0;
     while( i < pN_ )
     {
@@ -136,7 +136,7 @@ void JRCSPlateDialog::init_points_for_plate()
 
 void JRCSPlateDialog::init_points_for_cube()
 {
-    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
+    DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
     int i = 0;
     while( i < pN_ )
     {
@@ -150,7 +150,7 @@ void JRCSPlateDialog::init_points_for_cube()
 
 void JRCSPlateDialog::sample_points_for_cube(Cube::Ptr cube)
 {
-    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
+    DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
     int i =0;
     arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
     arma::fmat xn((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
@@ -161,7 +161,7 @@ void JRCSPlateDialog::sample_points_for_cube(Cube::Ptr cube)
         arma::fmat tmp(3,1000,arma::fill::randu);
         tmp -= 0.5;
         tmp *= 4.0;
-        arma::vec dist = cube->get_dist2(tmp);
+        arma::vec dist = cube->get_dist2_box(tmp);
         arma::uword idx = 0;
         value(i) = dist.min(idx);
         xv.col(i) = tmp.col(idx);
@@ -209,7 +209,7 @@ void JRCSPlateDialog::start_transform_cube()
 void JRCSPlateDialog::transform_plate()
 {
     timer_->stop();
-    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
+    DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
     arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
     arma::Mat<uint8_t> xc((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
     arma::vec value(mesh.n_vertices());
@@ -237,7 +237,7 @@ void JRCSPlateDialog::transform_plate()
 void JRCSPlateDialog::transform_cube()
 {
     timer_->stop();
-    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
+    DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
     arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
     arma::Mat<uint8_t> xc((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
     arma::vec value(mesh.n_vertices());
@@ -248,7 +248,7 @@ void JRCSPlateDialog::transform_cube()
     cube->scale(scale,*cube);
     cube->transform(R,t,*cube2);
 //    sample_points_for_cube(cube2);
-    value = cube2->get_dist2(xv);
+    value = cube2->get_dist2_box(xv);
     ColorArray::colorfromValue((ColorArray::RGB888*)xc.memptr(),xc.n_cols,arma::sqrt(value));
     time_ += dt_;
     geo_view_->updateGL();
@@ -279,7 +279,7 @@ void JRCSPlateDialog::fit_plate()
 {
     timer_->stop();
     std::cerr<<"fitting voked"<<std::endl;
-    DefaultMesh& mesh = geo_view_->second_ptr()->mesh_;
+    DefaultMesh& mesh = geo_view_->first_ptr()->mesh_;
     arma::fmat xv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
     arma::fmat xn((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
     arma::Mat<uint8_t> xc((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
