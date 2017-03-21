@@ -29,10 +29,10 @@ void JRCSBox::initx(
 
     int k = xv_ptr_->n_cols;
     if(verbose_>0)std::cerr<<"k:"<<k<<std::endl;
-
+    if(verbose_>0)std::cerr<<"obj_num:"<<obj_num_<<std::endl;
     init_from_boxes();
 
-    if(verbose_>0)std::cerr<<obj_prob_<<std::endl;
+    if(verbose_>0)std::cerr<<"obj_prob:"<<obj_prob_.t()<<std::endl;
 
     int r_k = k;
     float* pxv = (float*)xtv_.memptr();
@@ -48,24 +48,23 @@ void JRCSBox::initx(
         std::cerr<<"obj_pos_:"<<std::endl;
         std::cerr<<obj_pos_<<std::endl;
     }
-    obj_label_ = arma::uvec(xv_ptr_->n_cols,arma::fill::zeros);
-    arma::uword* pxl = (arma::uword*)obj_label_.memptr();
+    obj_range_.resize(2*N);
+    arma::uword* pxr = (arma::uword*)obj_range_.data();
+    arma::uword* pxr_s = pxr;
+    *pxr = 0;
     for(int obj_idx = 0 ; obj_idx < obj_prob_.size() ; ++ obj_idx )
     {
         int obj_size = int(float(k)*float(obj_prob_(obj_idx)));
         obj_size = std::max(9,obj_size);
         obj_size = std::min(r_k,obj_size);
         if( obj_idx == ( obj_prob_.size() - 1 ) ) obj_size = r_k;
-        objv_ptrlst_.emplace_back(new arma::fmat(pxv,3,obj_size,false,true));
-        objn_ptrlst_.emplace_back(new arma::fmat(pxn,3,obj_size,false,true));
-        objc_ptrlst_.emplace_back(new arma::Mat<uint8_t>(pxc,3,obj_size,false,true));
-        arma::uvec lbl(pxl,obj_size,false,true);
-        lbl.fill(arma::uword(obj_idx+1));
+        if( pxr > pxr_s )*pxr = (*(pxr - 1))+1;
+        *(pxr+1) = *pxr + obj_size - 1;
         pxv += 3*obj_size;
         pxn += 3*obj_size;
         pxc += 3*obj_size;
-        pxl += obj_size;
         r_k -= obj_size;
+        pxr += 2;
         arma::fvec pos = obj_pos_.col(obj_idx);
         reset_obj_vn(0.5,pos,(*objv_ptrlst_.back()),(*objn_ptrlst_.back()));
         reset_obj_c((*objc_ptrlst_.back()));
@@ -136,10 +135,15 @@ void JRCSBox::init_from_boxes()
 
 arma::fvec JRCSBox::obj_prob_from_boxes(const Cube::PtrLst& cube,const MatPtr& vv)
 {
+    arma::fvec prob(cube.size(),arma::fill::zeros);
+    uint32_t idx = 0;
     for( Cube::PtrLst::const_iterator iter = cube.cbegin() ; iter!=cube.cend() ; ++iter )
     {
-        ;
+        Cube& cube = **iter;
+        prob(idx) = arma::accu( arma::trunc_exp(-cube.get_dist2_box(*vv)) );
+        ++idx;
     }
+    return prob / arma::accu(prob);
 }
 
 }
