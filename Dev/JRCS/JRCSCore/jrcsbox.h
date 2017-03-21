@@ -22,6 +22,7 @@ protected:
     void init_from_boxes();
     arma::fvec obj_prob_from_boxes(const Cube::PtrLst&, const MatPtr &vv);
     virtual void update_color_label();
+    virtual void reset_alpha();
 private:
     static std::vector<Cube::PtrLst> cube_ptrlsts_;
     std::vector<std::shared_ptr<arma::gmm_diag>> obj_color_mode_;

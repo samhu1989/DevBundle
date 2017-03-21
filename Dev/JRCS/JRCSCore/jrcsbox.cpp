@@ -60,6 +60,9 @@ void JRCSBox::initx(
         if( obj_idx == ( obj_prob_.size() - 1 ) ) obj_size = r_k;
         if( pxr > pxr_s )*pxr = (*(pxr - 1))+1;
         *(pxr+1) = *pxr + obj_size - 1;
+        objv_ptrlst_.emplace_back(new arma::fmat(pxv,3,obj_size,false,true));
+        objn_ptrlst_.emplace_back(new arma::fmat(pxn,3,obj_size,false,true));
+        objc_ptrlst_.emplace_back(new arma::Mat<uint8_t>(pxc,3,obj_size,false,true));
         pxv += 3*obj_size;
         pxn += 3*obj_size;
         pxc += 3*obj_size;
@@ -88,7 +91,7 @@ void JRCSBox::reset_objw(const std::vector<float>&)
 
 void JRCSBox::update_color_label()
 {
-    if(verbose_>0)std::cerr<<"updating color label"<<std::endl;
+    if(verbose_>0)std::cerr<<"JRCSBox::updating color label"<<std::endl;
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
         arma::mat& alpha = *alpha_ptrlst_[idx];
@@ -112,6 +115,21 @@ void JRCSBox::update_color_label()
         }
         Cube::colorByLabel((uint32_t*)vl.memptr(),vl.size(),label);
     }
+}
+
+void JRCSBox::reset_alpha()
+{
+    if(verbose_)std::cerr<<"JRCSBox::reset_alpha():allocating alpha"<<std::endl;
+    arma::fmat& xv_ = *xv_ptr_;
+    int idx=0;
+    while( idx < vvs_ptrlst_.size() )
+    {
+        if(idx>=alpha_ptrlst_.size())alpha_ptrlst_.emplace_back(new arma::mat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
+        else if((alpha_ptrlst_[idx]->n_rows!=vvs_ptrlst_[idx]->n_cols)||(alpha_ptrlst_[idx]->n_cols!=xv_.n_cols))
+        alpha_ptrlst_[idx].reset(new arma::mat(vvs_ptrlst_[idx]->n_cols,xv_.n_cols));
+        ++idx;
+    }
+    if(verbose_)std::cerr<<"JRCSBox::reset_alpha():done allocating alpha"<<std::endl;
 }
 
 void JRCSBox::init_from_boxes()

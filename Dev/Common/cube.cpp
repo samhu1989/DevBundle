@@ -31,7 +31,7 @@ uint32_t Cube::colorFromLabel(uint32_t label)
 void Cube::colorByLabel(uint32_t label)
 {
     QColor color(colorFromLabel(label));
-    arma::Col<uint8_t> x = {color.red(),color.green(),color.blue()};
+    arma::Col<uint8_t> x = {color.blue(),color.green(),color.red()};
     xc_->each_col() = x;
 }
 

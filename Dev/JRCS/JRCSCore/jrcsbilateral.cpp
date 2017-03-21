@@ -12,7 +12,7 @@ JRCSBilateral::JRCSBilateral():SJRCSBase()
 //Update var pk
 void JRCSBilateral::compute(void)
 {
-    if(verbose_)std::cerr<<"preparing"<<std::endl;
+
     prepare_compute();
     while(!isEnd())
     {
@@ -30,6 +30,7 @@ void JRCSBilateral::compute(void)
 
 void JRCSBilateral::prepare_compute(void)
 {
+    if(verbose_)std::cerr<<"JRCSBilateral::preparing"<<std::endl;
     iter_count_ = 0;
     reset_alpha();
     xtv_ptrlst_.resize(vvs_ptrlst_.size());
