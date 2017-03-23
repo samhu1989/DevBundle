@@ -54,8 +54,9 @@ protected:
     void init_obj_prob(const Cube::PtrLst&,const MatPtr&,DMatPtr&);
 private:
     static std::vector<Cube::PtrLst> cube_ptrlsts_;
-    std::vector<GMMPtrLst> color_gmm_lsts_;
-    DMatPtrLst obj_prob_lsts_;
+    GMMPtrLst color_gmm_lsts_;
+    DMatPtrLst color_prob_lsts_;
+    DMatPtrLst inbox_prob_lsts_;
 };
 }
 #endif // JRCSBOX_H

@@ -137,27 +137,23 @@ void JRCSBox::init_from_boxes()
     std::vector<Cube::PtrLst>::iterator iter;
     MatPtrLst::iterator vviter = vvs_ptrlst_.begin();
     CMatPtrLst::iterator vciter = vcs_ptrlst_.begin();
-    color_gmm_lsts_.resize(vvs_ptrlst_.size());
-    std::vector<GMMPtrLst>::iterator gmmiter = color_gmm_lsts_.begin();
-    obj_prob_lsts_.resize(vvs_ptrlst_.size());
-    DMatPtrLst::iterator piter = obj_prob_lsts_.begin();
+    inbox_prob_lsts_.resize(vvs_ptrlst_.size());
+    DMatPtrLst::iterator piter = inbox_prob_lsts_.begin();
     obj_prob_.clear();
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
     {
         if( iter->size()==obj_num_ && obj_prob_.empty() )
         {
             obj_prob_ = obj_prob_from_boxes(*iter,*vviter);
-            init_color_gmm(*iter,*vviter,*vciter,*gmmiter);
+            init_color_gmm(*iter,*vviter,*vciter,color_gmm_lsts_);
             init_obj_prob(*iter,*vviter,*piter);
         }
         ++vviter;
         if(vviter==vvs_ptrlst_.end())break;
         ++vciter;
         if(vciter==vcs_ptrlst_.end())break;
-        ++gmmiter;
-        if(gmmiter==color_gmm_lsts_.end())break;
         ++piter;
-        if(piter==obj_prob_lsts_.end())break;
+        if(piter==inbox_prob_lsts_.end())break;
     }
 }
 
@@ -181,6 +177,7 @@ void JRCSBox::init_color_gmm(
         GMMPtrLst& gmms
         )
 {
+    gmms.resize(cubes.size());
     GMMPtrLst::iterator gmmiter = gmms.begin();
     for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
     {
@@ -265,15 +262,31 @@ void JRCSBox::step_a(int i)
     for(int r = 0 ; r < alpha.n_rows ; ++r )
     {
         arma::mat tmpv = arma::conv_to<arma::mat>::from( xtv_.each_col() - vv_.col(r) );
-        arma::rowvec alpha_v = arma::sum(arma::square(tmpv))%(-0.5*xv_invvar_);
-        alpha_v %= arma::pow(xv_invvar_,1.5);
-        alpha.row(r) = alpha_v;
+        alpha.row(r) = arma::sum(arma::square(tmpv))%(-0.5*xv_invvar_);
+        alpha.row(r) = arma::trunc_exp(alpha.row(r));
+        alpha.row(r) %= arma::pow(xv_invvar_,1.5);
     }
 
-    //applying term of color gmm
+    //applying terms of color gmm to alpha
+    arma::mat& c_alpha  = *color_prob_lsts_[i];
+    int o = 0;
+    for(int c = 0 ; c < alpha.n_cols ; ++c )
+    {
+        alpha.col(c) %= c_alpha.col(o);
+        if( c == obj_range_[2*o+1] )++o;//reach end of this object
+    }
 
-
-    //applying term of points in box constraint
+    //applying terms of points in box constraint to alpha
+    if(inbox_prob_lsts_[i])
+    {
+        arma::mat& b_alpha  = *inbox_prob_lsts_[i];
+        o = 0;
+        for(int c = 0 ; c < alpha.n_cols ; ++c )
+        {
+            alpha.col(c) %= b_alpha.col(o);
+            if( c == obj_range_[2*o+1] )++o;//reach end of this object
+        }
+    }
 
     if(verbose_>1)std::cerr<<"normalize alpha"<<std::endl;
     alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
