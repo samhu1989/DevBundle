@@ -137,31 +137,69 @@ void JRCSBox::init_from_boxes()
     std::vector<Cube::PtrLst>::iterator iter;
     MatPtrLst::iterator vviter = vvs_ptrlst_.begin();
     CMatPtrLst::iterator vciter = vcs_ptrlst_.begin();
+    color_gmm_lsts_.resize(vvs_ptrlst_.size());
+    std::vector<GMMPtrLst>::iterator gmmiter = color_gmm_lsts_.begin();
+    obj_prob_lsts_.resize(vvs_ptrlst_.size());
+    std::vector<DMatPtrLst>::iterator piter = obj_prob_lsts_.begin();
     obj_prob_.clear();
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
     {
         if( iter->size()==obj_num_ && obj_prob_.empty() )
         {
             obj_prob_ = obj_prob_from_boxes(*iter,*vviter);
+            init_color_gmm(*iter,*vviter,*vciter,*gmmiter);
+            init_obj_prob(*iter,*vviter,*piter);
         }
         ++vviter;
         if(vviter==vvs_ptrlst_.end())break;
         ++vciter;
         if(vciter==vcs_ptrlst_.end())break;
+        ++gmmiter;
+        if(gmmiter==color_gmm_lsts_.end())break;
+        ++piter;
+        if(piter==obj_prob_lsts_.end())break;
     }
 }
 
-arma::fvec JRCSBox::obj_prob_from_boxes(const Cube::PtrLst& cube,const MatPtr& vv)
+arma::fvec JRCSBox::obj_prob_from_boxes(const Cube::PtrLst& cubes,const MatPtr& vv)
 {
-    arma::fvec prob(cube.size(),arma::fill::zeros);
+    arma::fvec prob(cubes.size(),arma::fill::zeros);
     uint32_t idx = 0;
-    for( Cube::PtrLst::const_iterator iter = cube.cbegin() ; iter!=cube.cend() ; ++iter )
+    for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
     {
         Cube& cube = **iter;
         prob(idx) = arma::accu( arma::trunc_exp(-cube.get_dist2_box(*vv)) );
         ++idx;
     }
     return prob / arma::accu(prob);
+}
+
+void JRCSBox::init_color_gmm(
+        const Cube::PtrLst& cubes,
+        const MatPtr& vv,
+        const CMatPtr& vc,
+        GMMPtrLst& gmms
+        )
+{
+    GMMPtrLst::iterator gmmiter = gmms.begin();
+    for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
+    {
+        Cube& cube = **iter;
+        arma::uvec inside = cube.inside(*vv);
+        arma::mat data = arma::conv_to<arma::mat>::from( vc->cols(inside) );
+        (*gmmiter)->learn(data,5,arma::maha_dist,arma::random_subset,0,10,1e-9,true);
+        ++gmmiter;
+        if( gmmiter == gmms.end() )break;
+    }
+}
+
+void JRCSBox::init_obj_prob(
+        const Cube::PtrLst& cubes,
+        const MatPtr& vv,
+        DMatPtrLst& prob
+        )
+{
+    ;
 }
 
 }
