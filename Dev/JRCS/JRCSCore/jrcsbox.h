@@ -24,16 +24,38 @@ public:
     virtual void reset_objw(const std::vector<float>&);
     static void set_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
 protected:
+    virtual void prepare_compute();
+    virtual void step_a(int i);
+    virtual void calc_weighted(
+            const arma::fmat&vv,
+            const arma::fmat&vn,
+            arma::Mat<uint8_t>&vc,
+            const arma::mat& alpha,
+            arma::fmat&wv,
+            arma::fmat&wn,
+            arma::Mat<uint8_t>&wc
+            );
+    virtual void updateRTforObj(
+            const int start,
+            const int end,
+            arma::fmat& _v,
+            arma::fmat& _n,
+            arma::frowvec &colsum,
+            arma::fmat& R,
+            arma::fvec& t
+            );
+
+protected:
     virtual void update_color_label();
     virtual void reset_alpha();
     void init_from_boxes();
-    arma::fvec obj_prob_from_boxes(const Cube::PtrLst&, const MatPtr &vv);
-    void init_color_gmm(const Cube::PtrLst&, const MatPtr&, const CMatPtr&, GMMPtrLst&);
-    void init_obj_prob(const Cube::PtrLst&,const MatPtr&,DMatPtrLst&);
+    arma::fvec obj_prob_from_boxes(const Cube::PtrLst&,const MatPtr &vv);
+    void init_color_gmm(const Cube::PtrLst&,const MatPtr&,const CMatPtr&,GMMPtrLst&);
+    void init_obj_prob(const Cube::PtrLst&,const MatPtr&,DMatPtr&);
 private:
     static std::vector<Cube::PtrLst> cube_ptrlsts_;
     std::vector<GMMPtrLst> color_gmm_lsts_;
-    std::vector<DMatPtrLst> obj_prob_lsts_;
+    DMatPtrLst obj_prob_lsts_;
 };
 }
 #endif // JRCSBOX_H

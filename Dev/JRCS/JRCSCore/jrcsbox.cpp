@@ -140,7 +140,7 @@ void JRCSBox::init_from_boxes()
     color_gmm_lsts_.resize(vvs_ptrlst_.size());
     std::vector<GMMPtrLst>::iterator gmmiter = color_gmm_lsts_.begin();
     obj_prob_lsts_.resize(vvs_ptrlst_.size());
-    std::vector<DMatPtrLst>::iterator piter = obj_prob_lsts_.begin();
+    DMatPtrLst::iterator piter = obj_prob_lsts_.begin();
     obj_prob_.clear();
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
     {
@@ -196,10 +196,297 @@ void JRCSBox::init_color_gmm(
 void JRCSBox::init_obj_prob(
         const Cube::PtrLst& cubes,
         const MatPtr& vv,
-        DMatPtrLst& prob
+        DMatPtr& prob
         )
 {
-    ;
+    prob.reset(new arma::mat(vv->n_cols,cubes.size(),arma::fill::zeros));
+    int idx = 0;
+    for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
+    {
+        Cube& cube = **iter;
+        prob->col(idx) = arma::trunc_exp( - cube.get_dist2_box(*vv) );
+        ++idx;
+    }
+}
+
+void JRCSBox::prepare_compute(void)
+{
+    if(verbose_)std::cerr<<"JRCSBox::prepare_compute"<<std::endl;
+    iter_count_ = 0;
+    reset_alpha();
+    xtv_ptrlst_.resize(vvs_ptrlst_.size());
+    xtn_ptrlst_.resize(vns_ptrlst_.size());
+    #pragma omp for
+    for( int i = 0 ; i < vvs_ptrlst_.size() ; ++i )
+    {
+        xtv_ptrlst_[i].reset(new arma::fmat(xv_ptr_->n_rows,xv_ptr_->n_cols,arma::fill::zeros));
+        xtn_ptrlst_[i].reset(new arma::fmat(xn_ptr_->n_rows,xn_ptr_->n_cols,arma::fill::zeros));
+    }
+    reset_prob();
+    if(!xf_invvar_.is_finite())
+    {
+        std::cerr<<"invalid xf_invvar_"<<std::endl;
+    }
+    if(!xf_ptr_->is_finite())
+    {
+        std::cerr<<"invalid xf_ptr_ in prepare"<<std::endl;
+    }
+    if(verbose_)std::cerr<<"JRCSBox::prepare_compute[END]"<<std::endl;
+}
+
+void JRCSBox::step_a(int i)
+{
+    //latent model
+    arma::fmat& xv_ = *xv_ptr_;
+    arma::fmat& xn_ = *xn_ptr_;
+
+    //input
+    arma::fmat& vv_ = *vvs_ptrlst_[i];
+    arma::fmat& vn_ = *vns_ptrlst_[i];
+    if(verbose_>1)std::cerr<<"transform latent model"<<std::endl;
+    arma::fmat& xtv_ = *xtv_ptrlst_[i];
+    arma::fmat& xtn_ = *xtn_ptrlst_[i];
+    Ts& rt = rt_lst_[i];
+    for(int o = 0 ; o < obj_num_ ; ++o )
+    {
+        arma::fmat R(rt[o].R,3,3,false,true);
+        arma::fvec t(rt[o].t,3,false,true);
+        arma::uword offset = 3*obj_range_[2*o];
+        arma::uword size = obj_range_[2*o+1] - obj_range_[2*o] + 1;
+        arma::fmat objv(((float*)xtv_.memptr())+offset,3,size,false,true);
+        arma::fmat objn(((float*)xtn_.memptr())+offset,3,size,false,true);
+        objv = R*xv_.cols(obj_range_[2*o],obj_range_[2*o+1]);
+        objv.each_col() += t;
+        objn = R*xn_.cols(obj_range_[2*o],obj_range_[2*o+1]);
+    }
+    if(verbose_>1)std::cerr<<"calculate alpha"<<std::endl;
+
+    arma::mat&  alpha = *alpha_ptrlst_[i];
+    for(int r = 0 ; r < alpha.n_rows ; ++r )
+    {
+        arma::mat tmpv = arma::conv_to<arma::mat>::from( xtv_.each_col() - vv_.col(r) );
+        arma::rowvec alpha_v = arma::sum(arma::square(tmpv))%(-0.5*xv_invvar_);
+        alpha_v %= arma::pow(xv_invvar_,1.5);
+        alpha.row(r) = alpha_v;
+    }
+
+    if(verbose_>1)std::cerr<<"normalize alpha"<<std::endl;
+    alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
+    arma::vec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
+    alpha.each_col() /= alpha_rowsum;
+
+    if(!alpha.is_finite())
+    {
+        std::cerr<<iter_count_<<":invalid alpha in step_a("<<i<<")"<<std::endl;
+    }
+
+    //update RT
+    if(verbose_>1)std::cerr<<"#1 calculate weighted point cloud"<<std::endl;
+    arma::Mat<uint8_t>& vc = *vcs_ptrlst_[i];
+    arma::fmat& wv = *wvs_ptrlst_[i];
+    arma::fmat& wn = *wns_ptrlst_[i];
+    arma::Mat<uint8_t>& wc = *wcs_ptrlst_[i];
+    arma::frowvec alpha_colsum = arma::conv_to<arma::frowvec>::from( arma::sum( alpha ) );
+    calc_weighted(vv_,vn_,vc,alpha,wv,wn,wc);
+
+    if(verbose_>1)std::cerr<<"#2 calculating RT for each object"<<std::endl;
+    for(int o = 0 ; o < obj_num_ ; ++o )
+    {
+
+        arma::fmat R(rt[o].R,3,3,false,true);
+        arma::fvec t(rt[o].t,3,false,true);
+        int start = obj_range_[2*o];
+        int end = obj_range_[2*o+1];
+        arma::fmat v = wv.cols(start,end);
+        arma::fmat n = wn.cols(start,end);
+        updateRTforObj(start,end,v,n,alpha_colsum,R,t);
+    }
+    if(verbose_>1)std::cerr<<"#3 done RT for each object"<<std::endl;
+
+    arma::fmat alpha_v2(alpha.n_rows,alpha.n_cols);
+    for(int r=0;r<alpha_v2.n_rows;++r)
+    {
+        alpha_v2.row(r) = arma::sum(arma::square(xtv_.each_col() - vv_.col(r)));
+    }
+    vvar_.row(i) = arma::sum(alpha_v2%alpha);
+}
+
+void JRCSBox::calc_weighted(
+        const arma::fmat&vv,
+        const arma::fmat&vn,
+        arma::Mat<uint8_t>&vc,
+        const arma::mat& alpha,
+        arma::fmat&wv,
+        arma::fmat&wn,
+        arma::Mat<uint8_t>&wc
+        )
+{
+    if(verbose_>1)std::cerr<<"JRCSBilateral::calc_weighted"<<std::endl;
+    arma::fmat fwc = arma::conv_to<arma::fmat>::from(wc);
+    arma::rowvec alpha_median = arma::median( alpha );
+
+    arma::mat trunc_alpha = alpha;
+    for(int c=0;c<alpha.n_cols;++c)
+    {
+        arma::vec col = trunc_alpha.col(c);
+        col( col < alpha_median(c) ).fill(0.0);
+        trunc_alpha.col(c) = col;
+    }
+
+    trunc_alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
+
+    arma::rowvec trunc_alpha_colsum = arma::sum( trunc_alpha );
+    wv = vv*arma::conv_to<arma::fmat>::from(trunc_alpha);
+
+    //normal is weighted differently
+    for(int c=0;c<wn.n_cols;++c)
+    {
+        arma::mat wvn = arma::conv_to<arma::mat>::from(vn);
+        wvn.each_row() %= trunc_alpha.col(c).t();
+        arma::vec eigval;
+        arma::mat eigvec;
+        arma::mat X = wvn*wvn.t();
+        arma::eig_sym(eigval,eigvec,X,"std");
+        if( eigvec.n_cols <3 )
+        {
+            std::cerr<<"eigvec.n_cols:"<<eigvec.n_cols<<std::endl;
+            std::cerr<<"X:"<<X<<std::endl;
+        }
+        wn.col(c) = arma::conv_to<arma::fvec>::from(eigvec.col(2));
+    }
+
+    fwc = arma::conv_to<arma::fmat>::from(vc)*arma::conv_to<arma::fmat>::from(trunc_alpha);
+    if(!wv.is_finite())
+    {
+        std::cerr<<iter_count_<<":a:!wv.is_finite()"<<std::endl;
+    }
+
+    for(int c=0;c<alpha.n_cols;++c)
+    {
+        if( 0 != trunc_alpha_colsum(c) )
+        {
+            wv.col(c) /= trunc_alpha_colsum(c);
+            fwc.col(c) /= trunc_alpha_colsum(c);
+        }
+    }
+
+    if(!wv.is_finite())
+    {
+        std::cerr<<iter_count_<<":b:!wv.is_finite()"<<std::endl;
+    }
+
+//    wn = arma::normalise( wn );
+    assert(wv.is_finite());
+    assert(wn.is_finite());
+    wc = arma::conv_to<arma::Mat<uint8_t>>::from(fwc);
+    if(verbose_>1)std::cerr<<"JRCSBilateral::calc_weighted finished"<<std::endl;
+}
+
+void JRCSBox::updateRTforObj(
+        const int start,
+        const int end,
+        arma::fmat& _v,
+        arma::fmat& _n,
+        arma::frowvec& alpha_colsum,
+        arma::fmat& R,
+        arma::fvec& t
+        )
+{
+    arma::fmat A;
+    arma::fmat U,V;
+    arma::fvec s;
+    arma::fmat dR;
+    arma::fvec dt;
+
+    arma::uword offset = 3*start;
+    arma::uword size = end - start + 1;
+    arma::fmat objv(((float*)xtv_.memptr())+offset,3,size,false,true);
+    arma::fmat objn(((float*)xtn_.memptr())+offset,3,size,false,true);
+    arma::fmat cv = _v.each_col() - arma::mean(_v,1);
+    if(!_v.is_finite())
+    {
+        std::cerr<<"JRCSBox::updateRTforObj:!v.is_finite()"<<std::endl;
+    }
+
+    arma::frowvec square_lambdav = arma::conv_to<arma::frowvec>::from(xv_invvar_.cols(start,end));
+    square_lambdav %= alpha_colsum.cols(start,end);
+    square_lambdav += std::numeric_limits<float>::epsilon(); // for numeric stability
+    if(!square_lambdav.is_finite())
+    {
+        std::cerr<<"!square_lambda.is_finite()"<<std::endl;
+    }
+    arma::frowvec pv(square_lambdav.n_cols,arma::fill::ones);
+    arma::frowvec square_norm_lambdav = arma::conv_to<arma::frowvec>::from( square_lambdav / arma::accu(square_lambdav) );
+    if(!square_norm_lambdav.is_finite())
+    {
+        std::cerr<<"!square_norm_lambda.is_finite()"<<std::endl;
+    }
+    pv -= square_norm_lambdav;
+    arma::fmat tmpv = objv.each_col() - arma::mean(objv,1) ;
+    tmpv.each_row() %= pv % square_lambdav;
+
+    A = cv*tmpv.t();
+
+    switch(rttype_)
+    {
+    case Gamma:
+    {
+        arma::fmat B = A.submat(0,0,1,1);
+        dR = arma::fmat(3,3,arma::fill::eye);
+        if(arma::svd(U,s,V,B,"std"))
+        {
+            arma::fmat C(2,2,arma::fill::eye);
+            C(1,1) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+            arma::fmat dR2D = U*C*(V.t());
+            dR.submat(0,0,1,1) = dR2D;
+            if(!dR.is_finite())
+            {
+                std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
+                dR.fill(arma::fill::eye);
+            }
+            arma::fmat tmp = _v - dR*objv;
+            tmp.each_row() %= square_norm_lambdav;
+            dt = arma::sum(tmp,1);
+            if(!dt.is_finite())
+            {
+                std::cerr<<iter_count_<<":!dt.is_finite()"<<std::endl;
+                dt.fill(arma::fill::zeros);
+            }
+        }
+    }
+        break;
+    default:
+    {
+        if(arma::svd(U,s,V,A,"std"))
+        {
+            arma::fmat C(3,3,arma::fill::eye);
+            C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+            dR = U*C*(V.t());
+            if(!dR.is_finite())
+            {
+                std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
+                dR.fill(arma::fill::eye);
+            }
+            arma::fmat tmp = _v - dR*objv;
+            tmp.each_row() %= square_norm_lambdav;
+            dt = arma::sum(tmp,1);
+            if(!dt.is_finite())
+            {
+                std::cerr<<iter_count_<<":!dt.is_finite()"<<std::endl;
+                dt.fill(arma::fill::zeros);
+            }
+        }
+    }
+    }
+    //transforming transformed object
+    objv = dR*objv;
+    objv.each_col() += dt;
+
+    objn = dR*objn;
+
+    //updating R T
+    R = dR*R;
+    t = dR*t + dt;
 }
 
 }
