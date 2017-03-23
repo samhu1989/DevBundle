@@ -52,6 +52,7 @@ protected:
     arma::fvec obj_prob_from_boxes(const Cube::PtrLst&,const MatPtr &vv);
     void init_color_gmm(const Cube::PtrLst&,const MatPtr&,const CMatPtr&,GMMPtrLst&);
     void init_obj_prob(const Cube::PtrLst&,const MatPtr&,DMatPtr&);
+    void init_color_prob(const CMatPtr&,DMatPtr&);
 private:
     static std::vector<Cube::PtrLst> cube_ptrlsts_;
     GMMPtrLst color_gmm_lsts_;

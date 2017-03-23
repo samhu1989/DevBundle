@@ -134,20 +134,28 @@ void JRCSBox::reset_alpha()
 
 void JRCSBox::init_from_boxes()
 {
+    if(verbose_)std::cerr<<"JRCSBox::init_from_boxes()"<<std::endl;
     std::vector<Cube::PtrLst>::iterator iter;
     MatPtrLst::iterator vviter = vvs_ptrlst_.begin();
     CMatPtrLst::iterator vciter = vcs_ptrlst_.begin();
     inbox_prob_lsts_.resize(vvs_ptrlst_.size());
     DMatPtrLst::iterator piter = inbox_prob_lsts_.begin();
     obj_prob_.clear();
+    if(verbose_)std::cerr<<"init inbox prob"<<std::endl;
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
     {
+        std::cerr<<"-1-"<<std::endl;
         if( iter->size()==obj_num_ && obj_prob_.empty() )
         {
+            std::cerr<<"-2-"<<std::endl;
             obj_prob_ = obj_prob_from_boxes(*iter,*vviter);
+            std::cerr<<"-3-"<<std::endl;
             init_color_gmm(*iter,*vviter,*vciter,color_gmm_lsts_);
+            std::cerr<<"-4-"<<std::endl;
             init_obj_prob(*iter,*vviter,*piter);
+            std::cerr<<"-5-"<<std::endl;
         }
+        std::cerr<<"-6-"<<std::endl;
         ++vviter;
         if(vviter==vvs_ptrlst_.end())break;
         ++vciter;
@@ -155,6 +163,16 @@ void JRCSBox::init_from_boxes()
         ++piter;
         if(piter==inbox_prob_lsts_.end())break;
     }
+    if(verbose_)std::cerr<<"init color prob"<<std::endl;
+    color_prob_lsts_.resize(vvs_ptrlst_.size());
+    vciter = vcs_ptrlst_.begin();
+    for(piter = color_prob_lsts_.begin();piter!=color_prob_lsts_.end();++piter)
+    {
+        init_color_prob(*vciter,*piter);
+        ++vciter;
+        if(vciter==vcs_ptrlst_.end())break;
+    }
+    if(verbose_)std::cerr<<"JRCSBox::init_from_boxes()[END]"<<std::endl;
 }
 
 arma::fvec JRCSBox::obj_prob_from_boxes(const Cube::PtrLst& cubes,const MatPtr& vv)
@@ -168,6 +186,19 @@ arma::fvec JRCSBox::obj_prob_from_boxes(const Cube::PtrLst& cubes,const MatPtr& 
         ++idx;
     }
     return prob / arma::accu(prob);
+}
+
+void JRCSBox::init_color_prob(const CMatPtr& c,DMatPtr& prob)
+{
+    prob.reset(new arma::mat(c->n_cols,color_gmm_lsts_.size()));
+    arma::mat data = arma::conv_to<arma::mat>::from(*c);
+    #pragma omp parallel for
+    for(int i=0;i<prob->n_cols;++i)
+    {
+        arma::rowvec p = arma::trunc_exp(color_gmm_lsts_[i]->log_p(data));
+        prob->col(i) = p.t();
+    }
+    prob->each_col() /= arma::sum(*prob,1);
 }
 
 void JRCSBox::init_color_gmm(
@@ -184,7 +215,9 @@ void JRCSBox::init_color_gmm(
         Cube& cube = **iter;
         arma::uvec inside = cube.inside(*vv);
         arma::mat data = arma::conv_to<arma::mat>::from( vc->cols(inside) );
-        (*gmmiter)->learn(data,5,arma::maha_dist,arma::random_subset,0,10,1e-9,true);
+        gmmiter->reset(new arma::gmm_diag());
+        if(verbose_)(*gmmiter)->learn(data,5,arma::maha_dist,arma::random_subset,0,20,1e-9,true);
+        else (*gmmiter)->learn(data,5,arma::maha_dist,arma::random_subset,0,20,1e-9,false);
         ++gmmiter;
         if( gmmiter == gmms.end() )break;
     }

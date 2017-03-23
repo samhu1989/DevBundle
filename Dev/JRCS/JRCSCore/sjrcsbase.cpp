@@ -620,7 +620,7 @@ void SJRCSBase::calc_weighted(const arma::fmat&vv,
 
 int SJRCSBase::evaluate_k()
 {
-    std::cerr<<"evaluating_k"<<std::endl;
+    std::cerr<<"SJRCSBase::evaluate_k()"<<std::endl;
     if(vvs_ptrlst_.empty())
     {
         throw std::logic_error("need input v before evaluate_k");
@@ -634,8 +634,8 @@ int SJRCSBase::evaluate_k()
         ++idx;
     }
     arma::uword k = arma::median(k_lst);
-    k = double(k)*0.5 + 7 ; //based on median size but at least 7;
-    std::cerr<<"k:"<<k<<std::endl;
+    k = k/2 + 7 ; //based on median size but at least 7;
+    std::cerr<<"SJRCSBase::evaluate_k():k="<<int(k)<<std::endl;
     if(k<0)
     {
         std::cerr<<"k_lst:"<<k_lst.t()<<std::endl;
