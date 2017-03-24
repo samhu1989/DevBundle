@@ -1,4 +1,5 @@
 #include "jrcsbox.h"
+#include <QThread>
 namespace JRCS{
 
 std::vector<JRCSBox::Cube::PtrLst> JRCSBox::cube_ptrlsts_;
@@ -100,8 +101,7 @@ void JRCSBox::update_color_label()
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
-            arma::uvec oidx = arma::find(obj_label_==(o+1));
-            arma::mat sub_alpha = alpha.cols(oidx);
+            arma::mat sub_alpha = alpha.cols(obj_range_[2*o],obj_range_[2*o+1]);
             obj_p.col(o) = arma::sum(sub_alpha,1);
         }
         arma::uvec label(alpha.n_rows);
@@ -144,18 +144,12 @@ void JRCSBox::init_from_boxes()
     if(verbose_)std::cerr<<"init inbox prob"<<std::endl;
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
     {
-        std::cerr<<"-1-"<<std::endl;
         if( iter->size()==obj_num_ && obj_prob_.empty() )
         {
-            std::cerr<<"-2-"<<std::endl;
             obj_prob_ = obj_prob_from_boxes(*iter,*vviter);
-            std::cerr<<"-3-"<<std::endl;
             init_color_gmm(*iter,*vviter,*vciter,color_gmm_lsts_);
-            std::cerr<<"-4-"<<std::endl;
             init_obj_prob(*iter,*vviter,*piter);
-            std::cerr<<"-5-"<<std::endl;
         }
-        std::cerr<<"-6-"<<std::endl;
         ++vviter;
         if(vviter==vvs_ptrlst_.end())break;
         ++vciter;
@@ -261,7 +255,13 @@ void JRCSBox::prepare_compute(void)
     {
         std::cerr<<"invalid xf_ptr_ in prepare"<<std::endl;
     }
-    if(verbose_)std::cerr<<"JRCSBox::prepare_compute[END]"<<std::endl;
+    if(verbose_){
+        std::cerr<<"JRCSBox::prepare_compute[END]"<<std::endl;
+        debug_inbox_prob();
+        QThread::currentThread()->sleep(20);
+        debug_color_prob();
+        QThread::currentThread()->sleep(20);
+    }
 }
 
 void JRCSBox::step_a(int i)
@@ -300,14 +300,14 @@ void JRCSBox::step_a(int i)
         alpha.row(r) %= arma::pow(xv_invvar_,1.5);
     }
 
-    //applying terms of color gmm to alpha
-    arma::mat& c_alpha  = *color_prob_lsts_[i];
+//    //applying terms of color gmm to alpha
+//    arma::mat& c_alpha  = *color_prob_lsts_[i];
     int o = 0;
-    for(int c = 0 ; c < alpha.n_cols ; ++c )
-    {
-        alpha.col(c) %= c_alpha.col(o);
-        if( c == obj_range_[2*o+1] )++o;//reach end of this object
-    }
+//    for(int c = 0 ; c < alpha.n_cols ; ++c )
+//    {
+//        alpha.col(c) %= c_alpha.col(o);
+//        if( c == obj_range_[2*o+1] )++o;//reach end of this object
+//    }
 
     //applying terms of points in box constraint to alpha
     if(inbox_prob_lsts_[i])
@@ -360,6 +360,123 @@ void JRCSBox::step_a(int i)
         alpha_v2.row(r) = arma::sum(arma::square(xtv_.each_col() - vv_.col(r)));
     }
     vvar_.row(i) = arma::sum(alpha_v2%alpha);
+}
+
+void JRCSBox::step_b(void)
+{
+    xv_ptr_->fill(0.0);
+    xn_ptr_->fill(0.0);
+    arma::fmat xc(xc_ptr_->n_rows,xc_ptr_->n_cols,arma::fill::zeros);
+    for(int i=0;i<wvs_ptrlst_.size();++i)
+    {
+        float rate0 = float(i) / float(i+1.0);
+        float rate1 = 1.0 - rate0;
+        if( i >= rt_lst_.size() )
+        {
+            std::cerr<<"i >= rt_lst_.size()"<<std::endl;
+        }
+        Ts& rt = rt_lst_[i];
+        arma::fmat& wv = *wvs_ptrlst_[i];
+        arma::fmat& wf = *wfs_ptrlst_[i];
+        arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[i]);
+        #pragma omp parallel for
+        for(int o = 0 ; o < obj_num_ ; ++o )
+        {
+            arma::fmat R(rt[o].R,3,3,false,true);
+            arma::fvec t(rt[o].t,3,false,true);
+            arma::fmat invR = R.i();
+            if(!invR.is_finite())
+            {
+                std::cerr<<iter_count_<<":"<<o<<":!invR.is_finite()"<<std::endl;
+            }
+            if(!t.is_finite())
+            {
+                std::cerr<<iter_count_<<":"<<o<<":!t.is_finite()"<<std::endl;
+            }
+            arma::uword s = obj_range_[2*o];
+            arma::uword e = obj_range_[2*o+1];
+            arma::fmat tv = wv.cols(s,e);
+            if(!tv.is_finite())
+            {
+                std::cerr<<iter_count_<<":"<<o<<":!tv.is_finite()"<<std::endl;
+            }
+            tv.each_col() -= t;
+            xv_ptr_->cols(s,e) =  rate0*xv_ptr_->cols(s,e)+rate1*(invR*tv);
+            xc.cols(s,e) = rate0*xc.cols(s,e)+rate1*wc.cols(s,e);
+        }
+    }
+
+    //the method of updating normal is different from others
+    int o = 0;
+    for( int i=0 ; i < xn_ptr_->n_cols ; ++i )
+    {
+        if( i > obj_range_[2*o+1] ) ++o;
+        arma::mat X(3,wns_ptrlst_.size());
+        #pragma omp parallel for
+        for( int f = 0 ; f < wns_ptrlst_.size() ; ++ f )
+        {
+            Ts& rt = rt_lst_[f];
+            arma::fmat R(rt[o].R,3,3,false,true);
+            arma::fmat invR = R.i();
+            X.col(f) = arma::conv_to<arma::vec>::from( invR*wns_ptrlst_[f]->col(i) );
+        }
+        arma::mat eigvec;
+        arma::vec eigval;
+        arma::eig_sym(eigval,eigvec,(X*X.t()),"std");
+        xn_ptr_->col(i) = arma::conv_to<arma::fvec>::from(eigvec.col(2));
+    }
+
+    if(!xv_ptr_->is_finite())
+    {
+        std::cerr<<iter_count_<<":!xv_ptr_->is_finite()"<<std::endl;
+    }
+
+    if(!xn_ptr_->is_finite())
+    {
+        std::cerr<<iter_count_<<":!xn_ptr_->is_finite()"<<std::endl;
+    }
+
+    if(!xc.is_finite())
+    {
+        std::cerr<<"!xc.is_finite()"<<std::endl;
+    }
+
+    if(verbose_>1)std::cerr<<"Fix the x center position"<<std::endl;
+    #pragma omp parallel for
+    for(int o = 0 ; o < obj_num_ ; ++o )
+    {
+        arma::uword s = obj_range_[2*o];
+        arma::uword e = obj_range_[2*o+1];
+        arma::fmat newxv = xv_ptr_->cols(s,e);
+        arma::fvec dt =  obj_pos_.col(o) - arma::mean(newxv,1);
+        for( int i = 0 ; i < wns_ptrlst_.size() ; ++ i )
+        {
+            Ts& rt = rt_lst_[i];
+            arma::fvec t(rt[o].t,3,false,true);
+            t += dt;
+        }
+        xv_ptr_->cols(s,e) = newxv.each_col() + dt;
+    }
+    *xn_ptr_ = arma::normalise(*xn_ptr_);
+    *xc_ptr_ = arma::conv_to<arma::Mat<uint8_t>>::from( xc );
+
+    if(verbose_>1)std::cerr<<"Updating variance of centroids"<<std::endl;
+    arma::rowvec alpha_sum;
+    for(int i=0;i<alpha_ptrlst_.size();++i)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[i];
+        if(alpha_sum.empty())alpha_sum = arma::sum(alpha);
+        else alpha_sum += arma::sum(alpha);
+    }
+
+    if(verbose_>1)std::cerr<<"Restore reciprocal fractions of variation"<<std::endl;
+    xv_invvar_ = ( ( 3.0*alpha_sum ) / ( arma::sum(vvar_) + beta_ ) );
+
+    if(verbose_>1)std::cerr<<"Updating weight of centroids"<<std::endl;
+    float mu = arma::accu(alpha_sum);
+    mu *= ( 1.0 + beta_ );
+    x_p_ = alpha_sum;
+    if( mu != 0)x_p_ /= mu;
 }
 
 void JRCSBox::calc_weighted(
@@ -538,6 +655,52 @@ void JRCSBox::updateRTforObj(
     //updating R T
     R = dR*R;
     t = dR*t + dt;
+}
+
+void JRCSBox::debug_inbox_prob()
+{
+    if(verbose_>0)std::cerr<<"JRCSBox::debug_inbox_prob()"<<std::endl;
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[idx];
+        arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
+        if(inbox_prob_lsts_[idx])
+        {
+            arma::mat& obj_p = *inbox_prob_lsts_[idx];
+            arma::uvec label(alpha.n_rows);
+            #pragma omp parallel for
+            for(int r = 0 ; r < obj_p.n_rows ; ++r )
+            {
+                arma::uword l;
+                arma::rowvec point_prob = obj_p.row(r);
+                point_prob.max(l);
+                label(r) = l+1;
+            }
+            Cube::colorByLabel((uint32_t*)vl.memptr(),vl.size(),label);
+        }
+    }
+}
+
+void JRCSBox::debug_color_prob()
+{
+    if(verbose_>0)std::cerr<<"JRCSBox::debug_color_prob()"<<std::endl;
+
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[idx];
+        arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
+        arma::mat& obj_p  = *color_prob_lsts_[idx];
+        arma::uvec label(alpha.n_rows);
+        #pragma omp parallel for
+        for(int r = 0 ; r < obj_p.n_rows ; ++r )
+        {
+            arma::uword l;
+            arma::rowvec point_prob = obj_p.row(r);
+            point_prob.max(l);
+            label(r) = l+1;
+        }
+        Cube::colorByLabel((uint32_t*)vl.memptr(),vl.size(),label);
+    }
 }
 
 }

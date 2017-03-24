@@ -26,6 +26,7 @@ public:
 protected:
     virtual void prepare_compute();
     virtual void step_a(int i);
+    virtual void step_b(void);
     virtual void calc_weighted(
             const arma::fmat&vv,
             const arma::fmat&vn,
@@ -58,6 +59,8 @@ private:
     GMMPtrLst color_gmm_lsts_;
     DMatPtrLst color_prob_lsts_;
     DMatPtrLst inbox_prob_lsts_;
+    void debug_inbox_prob();
+    void debug_color_prob();
 };
 }
 #endif // JRCSBOX_H
