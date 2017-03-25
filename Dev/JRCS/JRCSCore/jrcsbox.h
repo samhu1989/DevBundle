@@ -23,6 +23,7 @@ public:
             );
     virtual void reset_objw(const std::vector<float>&);
     static void set_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
+//    virtual void compute(void);
 protected:
     virtual void prepare_compute();
     virtual void step_a(int i);
@@ -37,11 +38,13 @@ protected:
             arma::Mat<uint8_t>&wc
             );
     virtual void updateRTforObj(
-            const int start,
-            const int end,
-            arma::fmat& _v,
-            arma::fmat& _n,
-            arma::frowvec &colsum,
+            const arma::uword start,
+            const arma::uword end,
+            arma::fmat& vv,
+            arma::fmat& vn,
+            arma::fmat& objv,
+            arma::fmat& objn,
+            arma::frowvec& alpha_colsum,
             arma::fmat& R,
             arma::fvec& t
             );

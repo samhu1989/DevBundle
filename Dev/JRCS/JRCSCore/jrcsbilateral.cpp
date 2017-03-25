@@ -215,8 +215,6 @@ void JRCSBilateral::step_a(int i)
         }
         }
 
-//        std::cerr<<"od:"<<o<<std::endl;
-
         //transforming transformed object
         objv = dR*objv;
         objv.each_col() += dt;
