@@ -144,10 +144,13 @@ void JRCSBox::init_from_boxes()
     if(verbose_)std::cerr<<"init inbox prob"<<std::endl;
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
     {
-        if( iter->size()==obj_num_ && obj_prob_.empty() )
+        if( iter->size()==obj_num_ )
         {
-            obj_prob_ = obj_prob_from_boxes(*iter,*vviter);
-            init_color_gmm(*iter,*vviter,*vciter,color_gmm_lsts_);
+            if(obj_prob_.empty())
+            {
+                obj_prob_ = obj_prob_from_boxes(*iter,*vviter);
+                init_color_gmm(*iter,*vviter,*vciter,color_gmm_lsts_);
+            }
             init_obj_prob(*iter,*vviter,*piter);
         }
         ++vviter;
@@ -210,8 +213,8 @@ void JRCSBox::init_color_gmm(
         arma::uvec inside = cube.inside(*vv);
         arma::mat data = arma::conv_to<arma::mat>::from( vc->cols(inside) );
         gmmiter->reset(new arma::gmm_diag());
-        if(verbose_)(*gmmiter)->learn(data,5,arma::maha_dist,arma::random_subset,0,20,1e-9,true);
-        else (*gmmiter)->learn(data,5,arma::maha_dist,arma::random_subset,0,20,1e-9,false);
+        if(verbose_)(*gmmiter)->learn(data,5,arma::maha_dist,arma::random_spread,0,30,1e-10,true);
+        else (*gmmiter)->learn(data,5,arma::maha_dist,arma::random_spread,0,30,1e-10,false);
         ++gmmiter;
         if( gmmiter == gmms.end() )break;
     }
@@ -258,9 +261,9 @@ void JRCSBox::prepare_compute(void)
     if(verbose_){
         std::cerr<<"JRCSBox::prepare_compute[END]"<<std::endl;
         debug_inbox_prob();
-        QThread::currentThread()->sleep(20);
+        QThread::currentThread()->sleep(5);
         debug_color_prob();
-        QThread::currentThread()->sleep(20);
+        QThread::currentThread()->sleep(5);
         std::cerr<<"JRCSBox::beta_:"<<beta_<<std::endl;
     }
 }
@@ -304,20 +307,23 @@ void JRCSBox::step_a(int i)
         alpha.row(r) = alpha_v;
     }
 
-    //    //applying terms of color gmm to alpha
-    //    arma::mat& c_alpha  = *color_prob_lsts_[i];
-    int o = 0;
-    //    for(int c = 0 ; c < alpha.n_cols ; ++c )
-    //    {
-    //        alpha.col(c) %= c_alpha.col(o);
-    //        if( c == obj_range_[2*o+1] )++o;//reach end of this object
-    //    }
+        //applying terms of color gmm to alpha
+    if(iter_count_ < max_init_iter_)
+    {
+        arma::mat& c_alpha  = *color_prob_lsts_[i];
+        int o = 0;
+        for(int c = 0 ; c < alpha.n_cols ; ++c )
+        {
+            alpha.col(c) %= c_alpha.col(o);
+            if( c == obj_range_[2*o+1] )++o;//reach end of this object
+        }
+    }
 
     //applying terms of points in box constraint to alpha
     if(inbox_prob_lsts_[i])
     {
         arma::mat& b_alpha  = *inbox_prob_lsts_[i];
-        o = 0;
+        int o = 0;
         for(int c = 0 ; c < alpha.n_cols ; ++c )
         {
             alpha.col(c) %= b_alpha.col(o);
