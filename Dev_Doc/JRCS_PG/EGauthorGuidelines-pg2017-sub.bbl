@@ -1,0 +1,152 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{\uppercase{EKBHP14}}
+
+\bibitem[CLW{\etalchar{*}}14]{Chen:2014:ASM:2661229.2661239}
+\textsc{Chen K., Lai Y.-K., Wu Y.-X., Martin R., Hu S.-M.}:
+\newblock Automatic semantic modeling of indoor scenes from low-quality rgb-d
+  data using contextual information.
+\newblock \emph{ACM Trans. Graph. 33}, 6 (Nov. 2014), 208:1--208:12.
+\newblock URL: \url{http://doi.acm.org/10.1145/2661229.2661239}, \href
+  {http://dx.doi.org/10.1145/2661229.2661239}
+  {\path{doi:10.1145/2661229.2661239}}.
+
+\bibitem[CR00]{TPS_RPM}
+\textsc{Chui H., Rangarajan A.}:
+\newblock A new algorithm for non-rigid point matching.
+\newblock In \emph{Computer Vision and Pattern Recognition, 2000. Proceedings.
+  IEEE Conference on} (2000), vol.~2, pp.~44--51 vol.2.
+\newblock \href {http://dx.doi.org/10.1109/CVPR.2000.854733}
+  {\path{doi:10.1109/CVPR.2000.854733}}.
+
+\bibitem[DSS12]{SceneFromExample}
+\textsc{Dema M.~A., Sari-Sarraf H.}:
+\newblock 3d scene generation by learning from examples.
+\newblock In \emph{Multimedia (ISM), 2012 IEEE International Symposium on} (Dec
+  2012), pp.~58--64.
+\newblock \href {http://dx.doi.org/10.1109/ISM.2012.19}
+  {\path{doi:10.1109/ISM.2012.19}}.
+
+\bibitem[EKBHP14]{Evangelidis2014}
+\textsc{Evangelidis G.~D., Kounades-Bastian D., Horaud R., Psarakis E.~Z.}:
+\newblock \emph{A Generative Model for the Joint Registration of Multiple Point
+  Sets}.
+\newblock Springer International Publishing, Cham, 2014, pp.~109--122.
+\newblock URL: \url{http://dx.doi.org/10.1007/978-3-319-10584-0_8}, \href
+  {http://dx.doi.org/10.1007/978-3-319-10584-0_8}
+  {\path{doi:10.1007/978-3-319-10584-0_8}}.
+
+\bibitem[FRS{\etalchar{*}}12]{Fisher:2012:ESO:2366145.2366154}
+\textsc{Fisher M., Ritchie D., Savva M., Funkhouser T., Hanrahan P.}:
+\newblock Example-based synthesis of 3d object arrangements.
+\newblock \emph{ACM Trans. Graph. 31}, 6 (Nov. 2012), 135:1--135:11.
+\newblock URL: \url{http://doi.acm.org/10.1145/2366145.2366154}, \href
+  {http://dx.doi.org/10.1145/2366145.2366154}
+  {\path{doi:10.1145/2366145.2366154}}.
+
+\bibitem[FSL{\etalchar{*}}15]{Fisher:ActivityCentricSceneSynthesis}
+\textsc{Fisher M., Savva M., Li Y., Hanrahan P., Nie{\ss}ner M.}:
+\newblock Activity-centric scene synthesis for functional 3d scene modeling.
+\newblock \emph{ACM Trans. Graph. 34}, 6 (Oct. 2015), 179:1--179:13.
+\newblock URL: \url{http://doi.acm.org/10.1145/2816795.2818057}, \href
+  {http://dx.doi.org/10.1145/2816795.2818057}
+  {\path{doi:10.1145/2816795.2818057}}.
+
+\bibitem[IKH{\etalchar{*}}11]{KinectFusion}
+\textsc{Izadi S., Kim D., Hilliges O., Molyneaux D., Newcombe R., Kohli P.,
+  Shotton J., Hodges S., Freeman D., Davison A., Fitzgibbon A.}:
+\newblock Kinectfusion: Real-time 3d reconstruction and interaction using a
+  moving depth camera.
+\newblock In \emph{Proceedings of the 24th Annual ACM Symposium on User
+  Interface Software and Technology} (New York, NY, USA, 2011), UIST '11, ACM,
+  pp.~559--568.
+\newblock URL: \url{http://doi.acm.org/10.1145/2047196.2047270}, \href
+  {http://dx.doi.org/10.1145/2047196.2047270}
+  {\path{doi:10.1145/2047196.2047270}}.
+
+\bibitem[JGSC15]{3DReasoningfromBlockstoStability}
+\textsc{Jia Z., Gallagher A.~C., Saxena A., Chen T.}:
+\newblock 3d reasoning from blocks to stability.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine Intelligence
+  37}, 5 (May 2015), 905--918.
+\newblock \href {http://dx.doi.org/10.1109/TPAMI.2014.2359435}
+  {\path{doi:10.1109/TPAMI.2014.2359435}}.
+
+\bibitem[JV11]{GMM_PAMI}
+\textsc{Jian B., Vemuri B.~C.}:
+\newblock Robust point set registration using gaussian mixture models.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine Intelligence
+  33}, 8 (Aug 2011), 1633--1645.
+\newblock \href {http://dx.doi.org/10.1109/TPAMI.2010.223}
+  {\path{doi:10.1109/TPAMI.2010.223}}.
+
+\bibitem[LWC{\etalchar{*}}11]{GlobFit2011}
+\textsc{Li Y., Wu X., Chrysathou Y., Sharf A., Cohen-Or D., Mitra N.~J.}:
+\newblock Globfit: Consistently fitting primitives by discovering global
+  relations.
+\newblock \emph{ACM Transactions on Graphics (Proceedings of SIGGRAPH 2011) 30}
+  (2011), Article No. 52.
+
+\bibitem[LZW{\etalchar{*}}15]{Liu2015Model}
+\textsc{Liu Z., Zhang Y., Wu W., Liu K., Sun Z.}:
+\newblock Model-driven indoor scenes modeling from a single image.
+\newblock In \emph{Graphics Interface Conference} (2015).
+
+\bibitem[MDK{\etalchar{*}}16]{Maron:2016:ConvRelax}
+\textsc{Maron H., Dym N., Kezurer I., Kovalsky S., Lipman Y.}:
+\newblock Point registration via efficient convex relaxation.
+\newblock \emph{ACM Trans. Graph. 35}, 4 (July 2016), 73:1--73:12.
+\newblock URL: \url{http://doi.acm.org/10.1145/2897824.2925913}, \href
+  {http://dx.doi.org/10.1145/2897824.2925913}
+  {\path{doi:10.1145/2897824.2925913}}.
+
+\bibitem[MS10]{CPD}
+\textsc{Myronenko A., Song X.}:
+\newblock Point set registration: Coherent point drift.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine Intelligence
+  32}, 12 (Dec 2010), 2262--2275.
+\newblock \href {http://dx.doi.org/10.1109/TPAMI.2010.46}
+  {\path{doi:10.1109/TPAMI.2010.46}}.
+
+\bibitem[MSL{\etalchar{*}}11]{Merrell:2011:IFL:2010324.1964982}
+\textsc{Merrell P., Schkufza E., Li Z., Agrawala M., Koltun V.}:
+\newblock Interactive furniture layout using interior design guidelines.
+\newblock \emph{ACM Trans. Graph. 30}, 4 (July 2011), 87:1--87:10.
+\newblock URL: \url{http://doi.acm.org/10.1145/2010324.1964982}, \href
+  {http://dx.doi.org/10.1145/2010324.1964982}
+  {\path{doi:10.1145/2010324.1964982}}.
+
+\bibitem[NXS12]{SearchClassify}
+\textsc{Nan L., Xie K., Sharf A.}:
+\newblock A search-classify approach for cluttered indoor scene understanding.
+\newblock \emph{ACM Trans. Graph. 31}, 6 (Nov. 2012), 137:1--137:10.
+\newblock URL: \url{http://doi.acm.org/10.1145/2366145.2366156}, \href
+  {http://dx.doi.org/10.1145/2366145.2366156}
+  {\path{doi:10.1145/2366145.2366156}}.
+
+\bibitem[OBCS{\etalchar{*}}12]{Ovsjanikov:2012:FMF:2185520.2185526}
+\textsc{Ovsjanikov M., Ben-Chen M., Solomon J., Butscher A., Guibas L.}:
+\newblock Functional maps: A flexible representation of maps between shapes.
+\newblock \emph{ACM Trans. Graph. 31}, 4 (July 2012), 30:1--30:11.
+\newblock URL: \url{http://doi.acm.org/10.1145/2185520.2185526}, \href
+  {http://dx.doi.org/10.1145/2185520.2185526}
+  {\path{doi:10.1145/2185520.2185526}}.
+
+\bibitem[XCF{\etalchar{*}}13]{Xu:2013:SSC:2461912.2461968}
+\textsc{Xu K., Chen K., Fu H., Sun W.-L., Hu S.-M.}:
+\newblock Sketch2scene: Sketch-based co-retrieval and co-placement of 3d
+  models.
+\newblock \emph{ACM Trans. Graph. 32}, 4 (July 2013), 123:1--123:15.
+\newblock URL: \url{http://doi.acm.org/10.1145/2461912.2461968}, \href
+  {http://dx.doi.org/10.1145/2461912.2461968}
+  {\path{doi:10.1145/2461912.2461968}}.
+
+\bibitem[XHS{\etalchar{*}}15]{Xu:2015:ACS:2816795.2818075}
+\textsc{Xu K., Huang H., Shi Y., Li H., Long P., Caichen J., Sun W., Chen B.}:
+\newblock Autoscanning for coupled scene reconstruction and proactive object
+  analysis.
+\newblock \emph{ACM Trans. Graph. 34}, 6 (Oct. 2015), 177:1--177:14.
+\newblock URL: \url{http://doi.acm.org/10.1145/2816795.2818075}, \href
+  {http://dx.doi.org/10.1145/2816795.2818075}
+  {\path{doi:10.1145/2816795.2818075}}.
+
+\end{thebibliography}
