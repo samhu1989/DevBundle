@@ -15,7 +15,7 @@ Our goal is to maximize the probability of the expected compelete-data log-likel
 The object function can be written as:
 \begin{equation}
 \label{equ:obj0}
-\Theta=\argmax{\sum_ZP(Z|V,\Theta)\ln{P(V,Z;\Theta)}}
+\Theta=\arg\max{\sum_ZP(Z|V,\Theta)\ln{P(V,Z;\Theta)}}
 \end{equation}
 in which:
 $$\Theta=\{\{p_k,x_k,\Sigma_k\}_{k=1}^{\sum{K_n}},\{\phi_{mn}\}_{m=1,n=1}^{MN}\}$$
@@ -37,6 +37,6 @@ among which if $z_{ij}=k(k=1...\sum{K_n})$ assign the observation of $\phi_{mn}(
 %%\end{equation}
 %%we measure the feature difference by a gaussian with diagnal $\Sigma$, to make this measurement valid we rotate and scale the feature space with PCA.
 \subsection{Interaction Design for Annotation}
-In the previous formulation, there are parameters needed to be initialized. In this subsection we first introduce the interaction design for our application, showing that it is intuitive for users to annotate the point set this way. We then explain how the interaction can be easily used to initialize the parameters in the formulation. 
+Unfortunately, there are serveral disadvantages for our optimization method. In this subsection we first introduce our interaction design, showing that it is intuitive for users to annotate the point set this way. We then explain how our formulation and optimization can be turned into a practical annotation tool when equiped with our design of interaction.
 
 

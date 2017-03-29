@@ -1,12 +1,20 @@
 \section{Related Work}
 \label{sec:rw}
+In this section we explain how our work is related to the previous works.
 \subsection{Point Set Registration with GMM Representation}
+\label{subsec:gmmreg}
+There are a serious of works that uses gaussion mixture model as representation for point set to formulate the registration problem.
 \cite{TPS_RPM}\\
 \cite{CPD}\\
-\cite{GMM_PAMI}\\
-Our work is most related to \cite{Evangelidis2014}. We actually extend the formulation of \cite{Evangelidis2014} to simultaneously handle joint registration and co-segmentation.
-\subsection{Functional Mapping}
-The coupled joint registration and co-segmentation problem comes with a latent problem of point-to-point correspondence problem. A series of work based on the functional maps representation advocated in \cite{Ovsjanikov:2012:FMF:2185520.2185526} have be done. In one of the most recent work \cite{Maron:2016:ConvRelax}, a convex relaxation technique was used to better approximate the global minimal for both rigid and non-rigid registration problem. 
+\cite{GMM_PAMI} summarized the works for point set registration
+using gaussian mixture models and present a unified framework for the rigid and nonrigid point set registration problem.
+Comparing to these previous works, our work is most related to \cite{Evangelidis2014}. Our formulation can be seen as an extention of the formulation of \cite{Evangelidis2014} to simultaneously handle joint registration and co-segmentation.
+\subsection{Image segmentation and co-segmentation}
+\label{subsec:coseg}
+\cite{grabcut}
+Our work is most related to \cite{Taniai_2016_CVPR}.
 
-\subsection{Primitive Fitting} 
-\cite{GlobFit2011} 
+\subsection{Objectness Segmentation}
+\label{subsec:objectness}
+\cite{3DReasoningfromBlockstoStability}
+\cite{pixelobjectness}

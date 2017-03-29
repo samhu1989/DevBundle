@@ -79,25 +79,15 @@
 \newblock \href {http://dx.doi.org/10.1109/TPAMI.2010.223}
   {\path{doi:10.1109/TPAMI.2010.223}}.
 
-\bibitem[LWC{\etalchar{*}}11]{GlobFit2011}
-\textsc{Li Y., Wu X., Chrysathou Y., Sharf A., Cohen-Or D., Mitra N.~J.}:
-\newblock Globfit: Consistently fitting primitives by discovering global
-  relations.
-\newblock \emph{ACM Transactions on Graphics (Proceedings of SIGGRAPH 2011) 30}
-  (2011), Article No. 52.
+\bibitem[JXG17]{pixelobjectness}
+\textsc{Jain S., Xiong B., Grauman K.}:
+\newblock Pixel objectness.
+\newblock \emph{arXiv preprint arXiv:1701.05349} (2017).
 
 \bibitem[LZW{\etalchar{*}}15]{Liu2015Model}
 \textsc{Liu Z., Zhang Y., Wu W., Liu K., Sun Z.}:
 \newblock Model-driven indoor scenes modeling from a single image.
 \newblock In \emph{Graphics Interface Conference} (2015).
-
-\bibitem[MDK{\etalchar{*}}16]{Maron:2016:ConvRelax}
-\textsc{Maron H., Dym N., Kezurer I., Kovalsky S., Lipman Y.}:
-\newblock Point registration via efficient convex relaxation.
-\newblock \emph{ACM Trans. Graph. 35}, 4 (July 2016), 73:1--73:12.
-\newblock URL: \url{http://doi.acm.org/10.1145/2897824.2925913}, \href
-  {http://dx.doi.org/10.1145/2897824.2925913}
-  {\path{doi:10.1145/2897824.2925913}}.
 
 \bibitem[MS10]{CPD}
 \textsc{Myronenko A., Song X.}:
@@ -123,13 +113,18 @@
   {http://dx.doi.org/10.1145/2366145.2366156}
   {\path{doi:10.1145/2366145.2366156}}.
 
-\bibitem[OBCS{\etalchar{*}}12]{Ovsjanikov:2012:FMF:2185520.2185526}
-\textsc{Ovsjanikov M., Ben-Chen M., Solomon J., Butscher A., Guibas L.}:
-\newblock Functional maps: A flexible representation of maps between shapes.
-\newblock \emph{ACM Trans. Graph. 31}, 4 (July 2012), 30:1--30:11.
-\newblock URL: \url{http://doi.acm.org/10.1145/2185520.2185526}, \href
-  {http://dx.doi.org/10.1145/2185520.2185526}
-  {\path{doi:10.1145/2185520.2185526}}.
+\bibitem[RKB04]{grabcut}
+\textsc{Rother C., Kolmogorov V., Blake A.}:
+\newblock Grabcut -interactive foreground extraction using iterated graph cuts.
+\newblock URL: \url{https://www.microsoft.com/en-us/research/publication/
+  grabcut-interactive-foreground-extraction- using-iterated-graph-cuts/}.
+
+\bibitem[TSS16]{Taniai_2016_CVPR}
+\textsc{Taniai T., Sinha S.~N., Sato Y.}:
+\newblock Joint recovery of dense correspondence and cosegmentation in two
+  images.
+\newblock In \emph{The IEEE Conference on Computer Vision and Pattern
+  Recognition (CVPR)} (June 2016).
 
 \bibitem[XCF{\etalchar{*}}13]{Xu:2013:SSC:2461912.2461968}
 \textsc{Xu K., Chen K., Fu H., Sun W.-L., Hu S.-M.}:
