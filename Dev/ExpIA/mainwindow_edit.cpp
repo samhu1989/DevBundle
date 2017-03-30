@@ -495,6 +495,18 @@ void MainWindow::start_editing()
         th->setObjectName(tr("JRCS_Init_Bernoulli"));
         edit_thread_ = th;
     }
+    if(edit==ui->actionMore_Box)
+    {
+        std::vector<JRCS::JRCSBox::Cube::PtrLst> constraint_lsts_;
+        std::vector<WidgetPtr>::iterator iter;
+        for(iter=mesh_views_.begin();iter!=mesh_views_.end();++iter)
+        {
+            MeshPairViewerWidget* widget = qobject_cast<MeshPairViewerWidget*>(*iter);
+            if(!widget)return;
+            constraint_lsts_.push_back(widget->boxes());
+        }
+        JRCS::JRCSBox::add_boxes(constraint_lsts_);
+    }
     if(edit==ui->actionJRCS_Init)
     {
         JRCSInitThread* worker = new JRCSInitThread(inputs_,labels_);

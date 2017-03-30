@@ -141,6 +141,7 @@
       </widget>
       <addaction name="menuSI_HKS"/>
       <addaction name="actionJRCS_Init_Bernoulli"/>
+      <addaction name="actionMore_Box"/>
      </widget>
      <widget class="QMenu" name="menuOptimization">
       <property name="title">
@@ -631,6 +632,11 @@
   <action name="actionJRCS_Opt_Box">
    <property name="text">
     <string>Box</string>
+   </property>
+  </action>
+  <action name="actionMore_Box">
+   <property name="text">
+    <string>More Box</string>
    </property>
   </action>
  </widget>

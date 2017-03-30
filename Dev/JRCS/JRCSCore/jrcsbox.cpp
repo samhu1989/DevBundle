@@ -2,10 +2,17 @@
 #include <QThread>
 namespace JRCS{
 
+bool JRCSBox::update_cube_;
 std::vector<JRCSBox::Cube::PtrLst> JRCSBox::cube_ptrlsts_;
 
 void JRCSBox::set_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts)
 {
+    cube_ptrlsts_ = cube_ptrlsts;
+}
+
+void JRCSBox::add_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts)
+{
+    update_cube_ = true;
     cube_ptrlsts_ = cube_ptrlsts;
 }
 
@@ -77,6 +84,29 @@ void JRCSBox::initx(
     *xn_ptr_ = xtn_;
     *xc_ptr_ = xtc_;
     if(verbose_)std::cerr<<"Done initx_"<<std::endl;
+}
+
+void JRCSBox::update_from_cube(void)
+{
+    std::vector<Cube::PtrLst>::iterator iter;
+    MatPtrLst::iterator vviter = vvs_ptrlst_.begin();
+    DMatPtrLst::iterator piter = inbox_prob_lsts_.begin();
+    for(iter=cube_ptrlsts_.begin();iter != cube_ptrlsts_.end();++iter)
+    {
+        if( iter->size() > 0 )
+        {
+            if(!(*piter))
+            {
+                if(verbose_)std::cerr<<"updating inbox prob"<<std::endl;
+                init_obj_prob(*iter,*vviter,*piter);
+            }
+        }
+        ++vviter;
+        if(vviter==vvs_ptrlst_.end())break;
+        ++piter;
+        if(piter==inbox_prob_lsts_.end())break;
+    }
+    update_cube_ = false;
 }
 
 void JRCSBox::reset_objw(const std::vector<float>&)
@@ -481,6 +511,12 @@ void JRCSBox::step_b(void)
     mu *= ( 1.0 + beta_ );
     x_p_ = alpha_sum;
     if( mu != 0)x_p_ /= mu;
+}
+
+void JRCSBox::finish_steps()
+{
+    if(update_cube_)update_from_cube();
+    JRCSBilateral::finish_steps();
 }
 
 void JRCSBox::calc_weighted(

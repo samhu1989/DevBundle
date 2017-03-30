@@ -23,11 +23,13 @@ public:
             );
     virtual void reset_objw(const std::vector<float>&);
     static void set_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
+    static void add_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
 //    virtual void compute(void);
 protected:
     virtual void prepare_compute();
     virtual void step_a(int i);
     virtual void step_b(void);
+    virtual void finish_steps();
     virtual void calc_weighted(
             const arma::fmat&vv,
             const arma::fmat&vn,
@@ -50,6 +52,7 @@ protected:
             );
 
 protected:
+    void update_from_cube(void);
     virtual void update_color_label();
     virtual void reset_alpha();
     void init_from_boxes();
@@ -59,6 +62,7 @@ protected:
     void init_color_prob(const CMatPtr&,DMatPtr&);
 private:
     static std::vector<Cube::PtrLst> cube_ptrlsts_;
+    static bool update_cube_;
     GMMPtrLst color_gmm_lsts_;
     DMatPtrLst color_prob_lsts_;
     DMatPtrLst inbox_prob_lsts_;

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  29 MAR 2017 21:54
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2016.4.2)  30 MAR 2017 21:55
 entering extended mode
 **EGauthorGuidelines-pg2017-sub.tex
 (EGauthorGuidelines-pg2017-sub.tex
@@ -526,12 +526,12 @@ Underfull \hbox (badness 1377) in paragraph at lines 65--65
 e
  []
 
-
+[3]
 Underfull \hbox (badness 1867) in paragraph at lines 107--107
 []\T1/ptm/m/sc/8 Merrell P., Schkufza E., Li Z., Agrawala M.,
  []
 
-[3]
+
 Underfull \hbox (badness 10000) in paragraph at lines 121--121
 []\T1/ptm/m/sc/8 Rother C., Kol-mogorov V., Blake
  []
@@ -582,10 +582,10 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 86.
 Here is how much of TeX's memory you used:
  9559 strings out of 428790
  130489 string characters out of 3164816
- 214698 words of memory out of 3000000
+ 213698 words of memory out of 3000000
  12778 multiletter control sequences out of 15000+200000
  36894 words of font info for 56 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
- 32i,13n,27p,1373b,417s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,13n,27p,1373b,419s stack positions out of 5000i,500n,10000p,200000b,50000s
 
 Output written on EGauthorGuidelines-pg2017-sub.pdf (4 pages).
