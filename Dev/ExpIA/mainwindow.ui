@@ -225,6 +225,7 @@
      <addaction name="menuVox_Based"/>
     </widget>
     <addaction name="menuFeature"/>
+    <addaction name="actionScene_Maker"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -637,6 +638,11 @@
   <action name="actionMore_Box">
    <property name="text">
     <string>More Box</string>
+   </property>
+  </action>
+  <action name="actionScene_Maker">
+   <property name="text">
+    <string>Scene Maker</string>
    </property>
   </action>
  </widget>

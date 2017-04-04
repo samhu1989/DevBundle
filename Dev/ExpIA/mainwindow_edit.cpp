@@ -25,6 +25,7 @@
 #include "jrcscube.h"
 #include "jrcsbox.h"
 #include "MeshPairViewerWidget.h"
+#include "scenemaker.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -817,6 +818,25 @@ void MainWindow::start_editing()
         connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
         th->setObjectName(tr("GDCoord"));
         edit_thread_ = th;
+    }
+
+    if(edit==ui->actionScene_Maker)
+    {
+        SceneMaker* w = new SceneMaker();
+        if(!w->configure(config_)){
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            w->deleteLater();
+            return;
+        }
+        connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        w->setAttribute(Qt::WA_DeleteOnClose,true);
+        QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
+        connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));
+        connect(w,SIGNAL(destroyed(QObject*)),this,SLOT(finish_editing_ui()));
+        s->show();
+        w->setObjectName(tr("Scene Maker"));
+        edit_widget_ = w;
     }
 
     if(edit_thread_){

@@ -49,7 +49,8 @@ SOURCES += main.cpp\
     spectrum.cpp \
     annotator.cpp \
     gdcthread.cpp \
-    jrcsplatedialog.cpp
+    jrcsplatedialog.cpp \
+    scenemaker.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -82,7 +83,8 @@ HEADERS  += mainwindow.h \
     spectrum.h \
     annotator.h \
     gdcthread.h \
-    jrcsplatedialog.h
+    jrcsplatedialog.h \
+    scenemaker.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \
@@ -95,7 +97,8 @@ FORMS    += mainwindow.ui \
     jrcsview.ui \
     spectrum.ui \
     annotator.ui \
-    jrcsplatedialog.ui
+    jrcsplatedialog.ui \
+    scenemaker.ui
 
 RC_FILE += ../Common/rc.rc
 

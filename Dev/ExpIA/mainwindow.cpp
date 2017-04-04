@@ -87,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionGo_Over,SIGNAL(triggered(bool)),this,SLOT(goOver()));
 
     connect(ui->actionGDCoord,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionScene_Maker,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
