@@ -833,6 +833,7 @@ void MainWindow::make_scene()
         SceneMaker* w = new SceneMaker(
                     mesh_views_,
                     inputs_,
+                    labels_,
                     NULL
                     );
         if(!w->configure(config_)){
@@ -842,6 +843,7 @@ void MainWindow::make_scene()
             return;
         }
         connect(w,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        connect(w,SIGNAL(view_input(WidgetPtr)),this,SLOT(view_input(WidgetPtr)));
         w->setAttribute(Qt::WA_DeleteOnClose,true);
         QMdiSubWindow* s = ui->mdiArea->addSubWindow(w);
         connect(w,SIGNAL(closeInMdi(QWidget*)),this,SLOT(closeInMdi(QWidget*)));

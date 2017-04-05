@@ -310,6 +310,16 @@ void MainWindow::view_inputs()
     gl_timer.start(100);
 }
 
+void MainWindow::view_input(QWidget* widget)
+{
+    gl_timer.stop();
+    connect(ui->actionCustom_Color,SIGNAL(toggled(bool)),widget,SLOT(use_custom_color(bool)));
+    connect(&gl_timer,SIGNAL(timeout()),widget,SLOT(updateGL()));
+    mesh_views_.push_back(WidgetPtr(widget));
+    showInMdi((QWidget*)widget,Qt::Widget|Qt::WindowMinMaxButtonsHint);
+    gl_timer.start(100);
+}
+
 void MainWindow::save_labels(QString dirName)
 {
     if(dirName.isEmpty())

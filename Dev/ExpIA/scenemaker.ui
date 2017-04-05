@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>255</width>
+    <height>226</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -16,7 +16,15 @@
   <property name="windowTitle">
    <string>Make Scene</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2"/>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QToolButton" name="toolButton">
+     <property name="text">
+      <string>Confirm Current</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

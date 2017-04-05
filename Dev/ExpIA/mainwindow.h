@@ -60,6 +60,7 @@ public slots:
     void save_Pix_Order_Functor(QString dirName=QString());
     void save_Vox_Order_Functor(QString dirName=QString());
 
+    void view_input(WidgetPtr widget);
 protected slots:
     void configure();
 
@@ -69,6 +70,7 @@ protected slots:
     void save_aligned();
     bool open_mesh(DefaultMesh&,const std::string&);
     void view_inputs();
+
     void removeView();
 
     void save_scenes();
@@ -78,7 +80,6 @@ protected slots:
     void save_scene_model(const std::string&);
 
     void keyPressEvent(QKeyEvent* event){emit keyPressSignal(event);}
-
 
     void make_scene();
     void start_editing();
