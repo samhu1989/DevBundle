@@ -79,6 +79,8 @@ protected slots:
 
     void keyPressEvent(QKeyEvent* event){emit keyPressSignal(event);}
 
+
+    void make_scene();
     void start_editing();
     void update_object();
     void finish_editing();

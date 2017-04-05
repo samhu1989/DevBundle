@@ -1,9 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author/>
- <comment/>
- <exportmacro/>
  <class>SceneMaker</class>
- <widget name="SceneMaker" class="QWidget">
+ <widget class="QWidget" name="SceneMaker">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -12,10 +10,14 @@
     <height>300</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
   </property>
+  <property name="windowTitle">
+   <string>Make Scene</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2"/>
  </widget>
- <pixmapfunction/>
+ <resources/>
  <connections/>
 </ui>

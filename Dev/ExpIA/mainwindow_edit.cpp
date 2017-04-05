@@ -819,10 +819,22 @@ void MainWindow::start_editing()
         th->setObjectName(tr("GDCoord"));
         edit_thread_ = th;
     }
+    if(edit_thread_){
+        connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
+        edit_thread_->start(QThread::HighestPriority);
+    }
+}
 
+void MainWindow::make_scene()
+{
+    QAction* edit = qobject_cast<QAction*>(sender());
     if(edit==ui->actionScene_Maker)
     {
-        SceneMaker* w = new SceneMaker();
+        SceneMaker* w = new SceneMaker(
+                    mesh_views_,
+                    inputs_,
+                    NULL
+                    );
         if(!w->configure(config_)){
             QString msg = "Missing Some Inputs or configure\n";
             QMessageBox::critical(this, windowTitle(), msg);
@@ -837,11 +849,6 @@ void MainWindow::start_editing()
         s->show();
         w->setObjectName(tr("Scene Maker"));
         edit_widget_ = w;
-    }
-
-    if(edit_thread_){
-        connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
-        edit_thread_->start(QThread::HighestPriority);
     }
 }
 
