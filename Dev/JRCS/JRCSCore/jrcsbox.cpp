@@ -542,14 +542,18 @@ void JRCSBox::calc_weighted(
     }
 
     trunc_alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
-
     arma::rowvec trunc_alpha_colsum = arma::sum( trunc_alpha );
     wv = vv*arma::conv_to<arma::fmat>::from(trunc_alpha);
-
+    assert(wv.is_finite());
     //normal is weighted differently
     for(int c=0;c<wn.n_cols;++c)
     {
         arma::mat wvn = arma::conv_to<arma::mat>::from(vn);
+        if(!wvn.is_finite())
+        {
+            arma::uvec idx = find_nonfinite( wvn );
+            std::cerr<<idx.size()<<" infinite number of wvn"<<std::endl;
+        }
         wvn.each_row() %= trunc_alpha.col(c).t();
         arma::vec eigval;
         arma::mat eigvec;
@@ -562,6 +566,7 @@ void JRCSBox::calc_weighted(
         }
         wn.col(c) = arma::conv_to<arma::fvec>::from(eigvec.col(2));
     }
+    assert(wn.is_finite());
 
     fwc = arma::conv_to<arma::fmat>::from(vc)*arma::conv_to<arma::fmat>::from(trunc_alpha);
     if(!wv.is_finite())
@@ -583,9 +588,6 @@ void JRCSBox::calc_weighted(
         std::cerr<<iter_count_<<":b:!wv.is_finite()"<<std::endl;
     }
 
-//    wn = arma::normalise( wn );
-    assert(wv.is_finite());
-    assert(wn.is_finite());
     wc = arma::conv_to<arma::Mat<uint8_t>>::from(fwc);
     if(verbose_>1)std::cerr<<"JRCSBilateral::calc_weighted finished"<<std::endl;
 }

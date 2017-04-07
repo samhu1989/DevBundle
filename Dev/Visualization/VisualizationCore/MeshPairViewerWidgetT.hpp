@@ -858,6 +858,7 @@ template <typename M>
 void
 MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
 {
+
   switch( _event->key() )
   {
     case Key_C:

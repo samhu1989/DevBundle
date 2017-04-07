@@ -69,7 +69,7 @@ MeshListViewerWidgetT<M>::open_mesh(const char* _filename,Mesh& mesh_,Stripifier
     if ( opt_.check( IO::Options::VertexColor ) && !open_arma )
     {
       std::cout << "File provides vertex colors\n";
-      add_draw_mode("Colored Vertices");
+      if(!findAction("Colored Vertices"))add_draw_mode("Colored Vertices");
     }
     else if(!open_arma)
       mesh_.release_vertex_colors();
@@ -479,8 +479,6 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
           glDisableClientState(GL_NORMAL_ARRAY);
           glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
-
-
       else if (_draw_mode == "Show Strips" && strips_.is_valid() ) // -------------
       {
           typename Stripifier::StripsIterator strip_it = strips_.begin();
@@ -517,7 +515,6 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
       {
           glEnableClientState(GL_VERTEX_ARRAY);
           glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
-
           if ( use_color_)
           {
               if( mesh_.has_vertex_colors() && !custom_color_)
@@ -564,6 +561,7 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 
   if ( mesh_list_.empty() )
     return;
+  M& mesh_ = (*(mesh_list_.begin() + current_mesh_start_))->mesh_;
 
 //#if defined(OM_USE_OSG) && OM_USE_OSG
 //  else if ( _draw_mode == "OpenSG Indices")
@@ -575,20 +573,7 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 //  }
 //  else
 //#endif
-  if ( _draw_mode == "Points" )
-  {
-    glDisable(GL_LIGHTING);
-    typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
-    int cnt = 0;
-    for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
-    {
-        if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
-        ++cnt;
-        ++iter;
-        if(iter==mesh_list_.end())iter=mesh_list_.begin();
-    }
-  }
-  else if (_draw_mode == "Wireframe")
+ if (_draw_mode == "Wireframe")
   {
     glDisable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -722,13 +707,25 @@ MeshListViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
         if(iter==mesh_list_.end())iter=mesh_list_.begin();
     }
     setDefaultMaterial();
-  }
+  }else if (  _draw_mode == "Points"  )
+ {
+     glDisable(GL_LIGHTING);
+     typename std::vector<typename MeshBundle<Mesh>::Ptr>::iterator iter;
+     int cnt = 0;
+     for( iter = ( mesh_list_.begin() + current_mesh_start_ ); cnt < current_visible_num_ ;  )
+     {
+         if((*iter)->mesh_.n_vertices())draw_openmesh( **iter , _draw_mode );
+         ++cnt;
+         ++iter;
+         if(iter==mesh_list_.end())iter=mesh_list_.begin();
+     }
+ }
 
-  M& mesh_ = (*(mesh_list_.begin() + current_mesh_start_))->mesh_;
-  if( _draw_mode!="Points" && mesh_.n_faces()*5 < mesh_.n_vertices() )
-  {
-      draw_scene("Points");
-  }
+ if( _draw_mode != "Points" &&  mesh_.n_faces()*5 < mesh_.n_vertices())
+ {
+     draw_scene("Points");
+ }
+
 
   if (show_vnormals_)
   {
@@ -827,8 +824,8 @@ MeshListViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
 {
   switch( _event->key() )
   {
-    case Key_D:
-      if ( current_draw_mode()=="Points"
+    case Key_C:
+      if ( current_draw_mode()=="Points" && ( _event->modifiers() & AltModifier )
            )
       {
         use_color_ = !use_color_;
@@ -923,11 +920,115 @@ MeshListViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
       current_selected_.pop_back();
       updateGL();
       break;
+
+  case Key_1:
+    set_scale_dim(0);
+    break;
+
+  case Key_2:
+    set_scale_dim(1);
+    break;
+
+  case Key_3:
+    set_scale_dim(2);
+    break;
+
+  case Key_A:
+  case Key_D:
+  case Key_W:
+  case Key_S:
+  case Key_Q:
+  case Key_E:
+  case Key_R:
+  case Key_F:
+    transform_current(_event->key());
+    updateGL();
+    break;
     default:
       this->QGLViewerWidget::keyPressEvent( _event );
   }
 }
 #undef TEXMODE
+
+template <typename M>
+void MeshListViewerWidgetT<M>::transform_current(int key)
+{
+    float dtheta;
+    arma::fvec t(3,arma::fill::zeros);
+    arma::fmat R(3,3,arma::fill::eye);
+    M& mesh = mesh_list_[current_mesh_start_]->mesh_;
+    arma::fmat vv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
+    arma::fmat vn((float*)mesh.vertex_normals(),3,mesh.n_vertices(),false,true);
+    switch(key)
+    {
+    case Key_W:
+        t = {0.05,0,0};
+        vv.each_col() += t;
+        break;
+    case Key_S:
+        t = {-0.05,0,0};
+        vv.each_col() += t;
+        break;
+    case Key_A:
+        t = {0,0.05,0};
+        vv.each_col() += t;
+        break;
+    case Key_D:
+        t = {0,-0.05,0};
+        vv.each_col() += t;
+        break;
+    case Key_R:
+        t = {0,0,0.05};
+        vv.each_col() += t;
+        break;
+    case Key_F:
+        t = {0,0,-0.05};
+        vv.each_col() += t;
+        break;
+    case Key_Q:
+        t = arma::mean(vv,1);
+        dtheta =  - M_PI / 180.0 * 5.0;
+        R = {{std::cos(dtheta),std::sin(dtheta),0},{-std::sin(dtheta),std::cos(dtheta),0},{0,0,1}};
+        vv.each_col() -= t;
+        vv = R*vv;
+        vv.each_col() += t;
+        vn = R*vn;
+        break;
+    case Key_E:
+        t = arma::mean(vv,1);
+        dtheta = M_PI / 180.0 * 5.0;
+        R = {{std::cos(dtheta),std::sin(dtheta),0},{-std::sin(dtheta),std::cos(dtheta),0},{0,0,1}};
+        vv.each_col() -= t;
+        vv = R*vv;
+        vv.each_col() += t;
+        vn = R*vn;
+        break;
+    }
+}
+
+template <typename M>
+void MeshListViewerWidgetT<M>::scale_current(float s)
+{
+    M& mesh = mesh_list_[current_mesh_start_]->mesh_;
+    arma::fmat vv((float*)mesh.points(),3,mesh.n_vertices(),false,true);
+    arma::fvec t = arma::mean(vv,1);
+    vv.each_col() -= t;
+    vv.row(scale_dim_) *= (1.0+s);
+    vv.each_col() += t;
+}
+
+template <typename M>
+void MeshListViewerWidgetT<M>::wheelEvent(QWheelEvent* _event)
+{
+    if( _event->modifiers() & ControlModifier )
+    {
+        float d = -(float)_event->delta() / 120.0 * 0.05;
+        scale_current(d);
+        _event->accept();
+        updateGL();
+    }else
+    this->QGLViewerWidget::wheelEvent(_event);
+}
 
 template <typename M>
 bool MeshListViewerWidgetT<M>::open_texture( const char *_filename )

@@ -133,6 +133,12 @@ protected:
     }
   }
 
+protected:
+  int scale_dim_;
+  void set_scale_dim(uint32_t dim){scale_dim_=dim;}
+  void transform_current(int key);
+  void scale_current(float s);
+
 protected: // Strip support
 
   void compute_strips(OpenMesh::StripifierT<M>& strips)
@@ -147,6 +153,7 @@ protected: // Strip support
 protected: // inherited
 
   virtual void keyPressEvent( QKeyEvent* _event);
+  virtual void wheelEvent(QWheelEvent* _event);
   virtual void processSelections();
   std::vector<arma::uword> current_selected_;
 

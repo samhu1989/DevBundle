@@ -77,7 +77,8 @@ void SceneMaker::save_to_input(DefaultMesh& mesh)
         {
 
             mesh.set_color( *vviter , bundle.mesh_.color(*viter) );
-            mesh.set_normal(*vviter , bundle.mesh_.normal(*viter));
+            OpenMesh::Vec3f n = bundle.mesh_.normal(*viter);
+            mesh.set_normal(*vviter , n.normalize() );
             ++vviter;
         }
     }
