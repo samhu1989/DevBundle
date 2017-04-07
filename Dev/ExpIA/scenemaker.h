@@ -26,6 +26,7 @@ signals:
 public slots:
     void save_to_inputs();
     void save_to_input(DefaultMesh&);
+    void save_to_label(arma::uvec&);
 private:
     Ui::SceneMaker *ui;
     MeshListViewerWidget* lst_view_;

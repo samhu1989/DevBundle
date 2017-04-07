@@ -43,6 +43,8 @@ void SceneMaker::save_to_inputs()
     save_to_input(inputs_.back()->mesh_);
     inputs_.back()->name_ = name.toStdString();
     labels_.emplace_back(inputs_.back()->mesh_.n_vertices(),arma::fill::zeros);
+    save_to_label(labels_.back());
+    inputs_.back()->custom_color_.fromlabel(labels_.back());
     MeshBundle<DefaultMesh>::Ptr& bundle_ptr = inputs_.back();
     MeshPairViewerWidget* widget = new MeshPairViewerWidget(this);
     widget->setMinimumSize(300,200);
@@ -81,6 +83,21 @@ void SceneMaker::save_to_input(DefaultMesh& mesh)
             mesh.set_normal(*vviter , n.normalize() );
             ++vviter;
         }
+    }
+}
+
+void SceneMaker::save_to_label(arma::uvec& lbl)
+{
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter = lst_view_->list().begin();
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator list_end = lst_view_->list().end();
+    arma::uword start = 0;
+    arma::uword oidx = 1;
+    for(;iter!=list_end;++iter)
+    {
+        MeshBundle<DefaultMesh>& bundle = **iter;
+        lbl.rows(start,start+bundle.mesh_.n_vertices()-1).fill(oidx);
+        ++oidx;
+        start += bundle.mesh_.n_vertices();
     }
 }
 
