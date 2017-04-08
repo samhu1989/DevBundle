@@ -107,7 +107,7 @@ private:
                 float dr = ( qRed(__x) - qRed(__y) );
                 float dg = ( qGreen(__x) - qGreen(__y) );
                 float db = ( qBlue(__x) - qBlue(__y) );
-                return std::sqrt( dr*dr + dg*dg + db*db ) < 30;
+                return std::sqrt( dr*dr + dg*dg + db*db ) < 50;
             }
     };
     static uint32_t colorFromLabel(uint32_t label);

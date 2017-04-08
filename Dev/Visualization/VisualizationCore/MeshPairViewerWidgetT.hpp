@@ -864,7 +864,7 @@ MeshPairViewerWidgetT<M>::keyPressEvent( QKeyEvent* _event)
     case Key_C:
       if ( first_->mesh_.has_vertex_colors() &&
            second_->mesh_.has_vertex_colors() &&
-           (current_draw_mode()=="Points")
+           (current_draw_mode()=="Points") && ( _event->modifiers() & AltModifier )
            )
       {
         use_color_ = !use_color_;
