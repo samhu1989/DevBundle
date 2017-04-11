@@ -269,7 +269,7 @@ void
 QGLViewerWidget::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(0.7, 0.7, 0.7, 0.0);
+  glClearColor(blight,blight,blight,0.0);
   glMatrixMode( GL_PROJECTION );
   glLoadMatrixd( projection_matrix_ );
   glMatrixMode( GL_MODELVIEW );
@@ -608,10 +608,12 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
     case Key_Plus:
       blight += 0.05;
       if(blight>=1.0)blight=1.0;
+      updateGL();
       break;
     case Key_Minus:
       blight -= 0.05;
-      if(blight<=0)blight=0.0;
+      if(blight<=0.0)blight=0.0;
+      updateGL();
       break;
     case Key_Q:
     case Key_Escape:
