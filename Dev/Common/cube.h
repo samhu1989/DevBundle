@@ -71,6 +71,7 @@ public:
     arma::fmat corners_;
     arma::fmat weighted_corners_;
     arma::fvec obj_pos_;
+    arma::uword label_;
 protected:
     //use v to update plate centroids
     void median();

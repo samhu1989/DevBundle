@@ -174,6 +174,7 @@ protected:
   virtual void keyPressEvent( QKeyEvent* );
 
   virtual void add_box(void){}
+  virtual void add_sub_box(void){}
   virtual void del_box(void){}
   virtual bool mod_box(void){}
   virtual void next_box(void){}

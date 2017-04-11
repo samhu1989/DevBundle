@@ -579,17 +579,22 @@ void QGLViewerWidget::keyPressEvent( QKeyEvent* _event)
       }
       _event->accept();
     case Key_B:
-      if (_event->modifiers() & ShiftModifier)
+      if(_event->modifiers() == ( ControlModifier | ShiftModifier ) )
+      {
+          add_sub_box();
+          updateGL();
+          _event->accept();
+      }else if (_event->modifiers() == ShiftModifier )
       {
           add_box();
           updateGL();
           _event->accept();
-      }else if( _event->modifiers() & ControlModifier )
+      }else if( _event->modifiers() == ControlModifier )
       {
           del_box();
           updateGL();
           _event->accept();
-      }else if( _event->modifiers() & AltModifier )
+      }else  if( _event->modifiers() == AltModifier )
       {
           if(mod_box())
           {

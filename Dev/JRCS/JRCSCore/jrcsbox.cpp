@@ -116,7 +116,18 @@ void JRCSBox::reset_objw(const std::vector<float>&)
     std::vector<Cube::PtrLst>::iterator iter;
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
     {
-        if( obj_num_ < iter->size() ) obj_num_ = iter->size();
+        int max_label = 0;
+        for(Cube::PtrLst::iterator cube_iter=iter->begin();cube_iter!=iter->end();++cube_iter)
+        {
+            if(max_label>(*cube_iter)->label_)
+            {
+                max_label = (*cube_iter)->label_;
+            }
+        }
+        if( obj_num_ < max_label )
+        {
+            obj_num_ = max_label;
+        }
     }
 }
 
@@ -209,7 +220,7 @@ arma::fvec JRCSBox::obj_prob_from_boxes(const Cube::PtrLst& cubes,const MatPtr& 
     for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
     {
         Cube& cube = **iter;
-        prob(idx) = arma::accu( arma::trunc_exp(-cube.get_dist2_box(*vv)) );
+        prob(cube.label_-1) += arma::accu( arma::trunc_exp(-cube.get_dist2_box(*vv)) );
         ++idx;
     }
     return prob / arma::accu(prob);
@@ -256,12 +267,12 @@ void JRCSBox::init_obj_prob(
         DMatPtr& prob
         )
 {
-    prob.reset(new arma::mat(vv->n_cols,cubes.size(),arma::fill::zeros));
+    prob.reset(new arma::mat(vv->n_cols,obj_num_,arma::fill::zeros));
     int idx = 0;
     for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
     {
         Cube& cube = **iter;
-        prob->col(idx) = arma::trunc_exp( - cube.get_dist2_box(*vv) );
+        prob->col(cube.label_-1) += arma::trunc_exp( - cube.get_dist2_box(*vv) );
         ++idx;
     }
 }

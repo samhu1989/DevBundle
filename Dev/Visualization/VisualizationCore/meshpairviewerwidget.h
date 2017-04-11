@@ -23,7 +23,7 @@ public:
     /// default constructor
     MeshPairViewerWidget(QWidget* parent=0) : MeshPairViewerWidgetT<DefaultMesh>(parent)
     {
-        ;
+        cube_max_num_ = 30;
     }
     virtual ~MeshPairViewerWidget(){}
     OpenMesh::IO::Options& options() { return _options; }

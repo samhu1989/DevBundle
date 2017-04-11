@@ -155,6 +155,7 @@ public:
   Cube::PtrLst boxes();
 
 protected:
+  virtual void add_sub_box(void);
   virtual void add_box(void);
   virtual void del_box(void);
   virtual bool mod_box(void);
@@ -163,7 +164,8 @@ protected:
   virtual void transform_box(int key);
   virtual void scale_box(float s);
 
-private:
+protected:
+  uint32_t cube_max_num_;
   uint32_t cube_dim_;
   std::vector<uint32_t> cube_index_;
   std::vector<uint32_t>::iterator cube_iter_;

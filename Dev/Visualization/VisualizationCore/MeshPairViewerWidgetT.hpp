@@ -1044,18 +1044,42 @@ void MeshPairViewerWidgetT<M>::transform_box(int key)
 }
 
 template <typename M>
-void
-MeshPairViewerWidgetT<M>::add_box(void)
+void MeshPairViewerWidgetT<M>::add_sub_box(void)
 {
     if(!cube_flag_)return;
-    if(cube_index_.size()>=20)return;
+    if(cube_index_.size()>=cube_max_num_)return;
+    arma::uword oldlabel = 0;
     if(!cube_index_.empty()){
         Cube& cubeold = *cube_lst_[*cube_iter_];
-        cubeold.colorByLabel(*cube_iter_+1);
+        cubeold.colorByLabel(cubeold.label_);
+        oldlabel = cubeold.label_;
     }
     cube_index_.push_back(cube_index_.back()+1);
     cube_iter_ = cube_index_.end() - 1;
     Cube& cubenew = *cube_lst_[*cube_iter_];
+    if(oldlabel!=0)cubenew.label_ = oldlabel;
+    else cubenew.label_ = 1;
+    arma::fvec t0(3,arma::fill::zeros);
+    Cube::newCube()->translate(t0,cubenew);
+    cubenew.colorByLabel(0);
+}
+
+template <typename M>
+void
+MeshPairViewerWidgetT<M>::add_box(void)
+{
+    if(!cube_flag_)return;
+    if(cube_index_.size()>=cube_max_num_)return;
+    arma::uword oldlabel = 0;
+    if(!cube_index_.empty()){
+        Cube& cubeold = *cube_lst_[*cube_iter_];
+        cubeold.colorByLabel(cubeold.label_);
+        oldlabel = cubeold.label_;
+    }
+    cube_index_.push_back(cube_index_.back()+1);
+    cube_iter_ = cube_index_.end() - 1;
+    Cube& cubenew = *cube_lst_[*cube_iter_];
+    cubenew.label_ = oldlabel + 1;
     arma::fvec t0(3,arma::fill::zeros);
     Cube::newCube()->translate(t0,cubenew);
     cubenew.colorByLabel(0);
@@ -1082,14 +1106,19 @@ MeshPairViewerWidgetT<M>::mod_box(void)
     arma::fvec s(3,arma::fill::zeros);
     if( !cube_flag_ ){
         cube_lst_ = Cube::newCubes(second_->mesh_,20);
-        cube_index_.reserve(15);
+        cube_index_.reserve(cube_max_num_);
         cube_index_.push_back(0);
         cube_iter_ = cube_index_.begin();
-        for(Cube::PtrLst::iterator iter=cube_lst_.begin()+1;iter!=cube_lst_.end();++iter)
+        for(Cube::PtrLst::iterator iter=cube_lst_.begin();iter!=cube_lst_.end();++iter)
         {
             Cube& cube = **iter;
             cube.scaleTo(s);
         }
+        Cube& cubenew = *cube_lst_[*cube_iter_];
+        arma::fvec t0(3,arma::fill::zeros);
+        Cube::newCube()->translate(t0,cubenew);
+        cubenew.label_ = 1;
+        cubenew.colorByLabel(0);
         cube_flag_ = true;
     }
     else if(cube_flag_){
@@ -1109,7 +1138,7 @@ MeshPairViewerWidgetT<M>::next_box(void)
     if( cube_iter_ != cube_index_.end() )
     {
         Cube& cubeold = *cube_lst_[*cube_iter_];
-        cubeold.colorByLabel( *cube_iter_ + 1 );
+        cubeold.colorByLabel( cubeold.label_ );
         ++cube_iter_;
     }else{
         cube_iter_ = cube_index_.begin();
