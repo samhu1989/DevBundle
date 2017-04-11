@@ -230,6 +230,7 @@ private:
   float coord_[18];
   GLushort coord_index_[6];
   uint8_t coord_color_[18];
+  float blight;
 };
 
 
