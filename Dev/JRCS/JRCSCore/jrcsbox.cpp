@@ -253,18 +253,21 @@ void JRCSBox::init_color_gmm(
         GMMPtrLst& gmms
         )
 {
-    gmms.resize(cubes.size());
-    GMMPtrLst::iterator gmmiter = gmms.begin();
+    gmms.resize(obj_num_);
     for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
     {
         Cube& cube = **iter;
         arma::uvec inside = cube.inside(*vv);
         arma::mat data = arma::conv_to<arma::mat>::from( vc->cols(inside) );
-        gmmiter->reset(new arma::gmm_diag());
-        if(verbose_)(*gmmiter)->learn(data,5,arma::maha_dist,arma::random_spread,0,30,1e-10,true);
-        else (*gmmiter)->learn(data,5,arma::maha_dist,arma::random_spread,0,30,1e-10,false);
-        ++gmmiter;
-        if( gmmiter == gmms.end() )break;
+        if(!gmms[cube.label_-1])
+        {
+            gmms[cube.label_-1].reset(new arma::gmm_diag());
+            if(verbose_)gmms[cube.label_-1]->learn(data,5,arma::maha_dist,arma::random_spread,0,30,1e-10,true);
+            else gmms[cube.label_-1]->learn(data,5,arma::maha_dist,arma::random_spread,0,30,1e-10,false);
+        }else{
+            if(verbose_)gmms[cube.label_-1]->learn(data,5,arma::maha_dist,arma::keep_existing,0,30,1e-10,true);
+            else gmms[cube.label_-1]->learn(data,5,arma::maha_dist,arma::keep_existing,0,30,1e-10,false);
+        }
     }
 }
 
@@ -279,7 +282,12 @@ void JRCSBox::init_obj_prob(
     for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
     {
         Cube& cube = **iter;
-        prob->col(cube.label_-1) += arma::trunc_exp( - cube.get_dist2_box(*vv) );
+        arma::vec p = arma::trunc_exp( - cube.get_dist2_box(*vv) );
+        #pragma omp parallel for
+        for(int i=0;i<p.size();++i)
+        {
+            (*prob)(i,cube.label_-1) = std::max(p(i),(*prob)(i,cube.label_-1));
+        }
         ++idx;
     }
 }
