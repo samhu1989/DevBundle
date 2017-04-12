@@ -111,7 +111,7 @@ void JRCSBox::update_from_cube(void)
 
 void JRCSBox::reset_objw(const std::vector<float>&)
 {
-    std::cerr<<"JRCSBox::reset_objw"<<std::endl;
+    if(verbose_)std::cerr<<"JRCSBox::reset_objw"<<std::endl;
     obj_num_ = 0;
     std::vector<Cube::PtrLst>::iterator iter;
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
@@ -119,7 +119,7 @@ void JRCSBox::reset_objw(const std::vector<float>&)
         int max_label = 0;
         for(Cube::PtrLst::iterator cube_iter=iter->begin();cube_iter!=iter->end();++cube_iter)
         {
-            if(max_label>(*cube_iter)->label_)
+            if(max_label<(*cube_iter)->label_)
             {
                 max_label = (*cube_iter)->label_;
             }
@@ -129,6 +129,7 @@ void JRCSBox::reset_objw(const std::vector<float>&)
             obj_num_ = max_label;
         }
     }
+    if(verbose_)std::cerr<<"JRCSBox::reset_objw:obj_num_="<<obj_num_<<std::endl;
 }
 
 void JRCSBox::update_color_label()
@@ -185,12 +186,15 @@ void JRCSBox::init_from_boxes()
     if(verbose_)std::cerr<<"init inbox prob"<<std::endl;
     for(iter=cube_ptrlsts_.begin();iter!=cube_ptrlsts_.end();++iter)
     {
-        if( iter->size()==obj_num_ )
+        if( iter->size() > 0 )
         {
             if(obj_prob_.empty())
             {
                 obj_prob_ = obj_prob_from_boxes(*iter,*vviter);
-                init_color_gmm(*iter,*vviter,*vciter,color_gmm_lsts_);
+                if(obj_prob_.size()==obj_num_)
+                {
+                    init_color_gmm(*iter,*vviter,*vciter,color_gmm_lsts_);
+                }else obj_prob_.clear();
             }
             init_obj_prob(*iter,*vviter,*piter);
         }
@@ -215,14 +219,17 @@ void JRCSBox::init_from_boxes()
 
 arma::fvec JRCSBox::obj_prob_from_boxes(const Cube::PtrLst& cubes,const MatPtr& vv)
 {
-    arma::fvec prob(cubes.size(),arma::fill::zeros);
+    std::vector<float> prob_vec;
+    prob_vec.reserve(cubes.size());
     uint32_t idx = 0;
     for( Cube::PtrLst::const_iterator iter = cubes.cbegin() ; iter!=cubes.cend() ; ++iter )
     {
         Cube& cube = **iter;
-        prob(cube.label_-1) += arma::accu( arma::trunc_exp(-cube.get_dist2_box(*vv)) );
+        if( prob_vec.size() < cube.label_ )prob_vec.push_back(arma::accu( arma::trunc_exp(-cube.get_dist2_box(*vv)) ));
+        else prob_vec[cube.label_-1] += arma::accu( arma::trunc_exp(-cube.get_dist2_box(*vv)) );
         ++idx;
     }
+    arma::fvec prob(prob_vec);
     return prob / arma::accu(prob);
 }
 
@@ -348,7 +355,7 @@ void JRCSBox::step_a(int i)
         alpha.row(r) = alpha_v;
     }
 
-        //applying terms of color gmm to alpha
+     //applying terms of init alpha
     if(iter_count_ < max_init_iter_)
     {
         arma::mat& c_alpha  = *color_prob_lsts_[i];
