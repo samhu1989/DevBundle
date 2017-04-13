@@ -21,6 +21,7 @@ public:
             const MatPtr& xn,
             const CMatPtr& xc
             );
+    virtual void reset_rt();
     virtual void reset_objw(const std::vector<float>&);
     static void set_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
     static void add_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
@@ -60,14 +61,24 @@ protected:
     void init_color_gmm(const Cube::PtrLst&,const MatPtr&,const CMatPtr&,GMMPtrLst&);
     void init_obj_prob(const Cube::PtrLst&,const MatPtr&,DMatPtr&);
     void init_color_prob(const CMatPtr&,DMatPtr&);
+    void init_obj_x(
+            int obj_idx,
+            arma::fmat& objv,
+            arma::fmat& objn,
+            arma::Mat<uint8_t>& objc,
+            const arma::fvec& pos
+            );
 private:
     static std::vector<Cube::PtrLst> cube_ptrlsts_;
     static bool update_cube_;
+    arma::uword cube_init_frame_;
+    std::vector<std::vector<arma::uword>> obj_cube_index;
     GMMPtrLst color_gmm_lsts_;
     DMatPtrLst color_prob_lsts_;
     DMatPtrLst inbox_prob_lsts_;
     void debug_inbox_prob();
     void debug_color_prob();
+    void debug_alpha(int i);
 };
 }
 #endif // JRCSBOX_H

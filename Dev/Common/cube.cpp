@@ -320,6 +320,14 @@ arma::fvec Cube::bottom_pos()
     return result;
 }
 
+arma::fvec Cube::center_pos()
+{
+    arma::fvec result(3,arma::fill::zeros);
+    result.rows(0,1) = arma::mean(corners_.rows(0,1),1);
+    result.row(2) = ( arma::max(corners_.row(2),1) +  arma::min(corners_.row(2),1) )/ 2.0;
+    return result;
+}
+
 void Cube::translate(
         const arma::fvec& t,
         Cube& result

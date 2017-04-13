@@ -22,6 +22,7 @@ public:
     static Cube::Ptr newCube(DefaultMesh&);
     static Cube::PtrLst newCubes(DefaultMesh& m, uint32_t N);
     static void colorByLabel(uint32_t* c,arma::uword size,arma::uvec& label);
+    static uint32_t colorFromLabel(uint32_t label);
     void colorByLabel(uint32_t label);
     virtual void translate(
             const arma::fvec& t,
@@ -66,6 +67,7 @@ public:
     virtual void accumulate(const Cube&,const int i);
     virtual void fit(void);
     virtual arma::fvec bottom_pos();
+    virtual arma::fvec center_pos();
     virtual void updateScale();
     inline const arma::fvec& size()const{return size_;}
     arma::fmat corners_;
@@ -111,7 +113,6 @@ private:
                 return std::sqrt( dr*dr + dg*dg + db*db ) < 50;
             }
     };
-    static uint32_t colorFromLabel(uint32_t label);
     static __gnu_cxx::hash_map<uint32_t,uint32_t,std::hash<uint32_t>,color_equal_to> color_label_;
     static __gnu_cxx::hash_map<uint32_t,uint32_t> label_color_;
 };

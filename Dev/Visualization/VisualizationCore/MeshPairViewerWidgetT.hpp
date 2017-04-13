@@ -964,7 +964,7 @@ void MeshPairViewerWidgetT<M>::wheelEvent(QWheelEvent* _event)
     {
         if(cube_flag_)
         {
-            float d = -(float)_event->delta() / 120.0 * 0.05;
+            float d = -(float)_event->delta() / 120.0 * 0.02;
             scale_box(d);
         }
         _event->accept();
