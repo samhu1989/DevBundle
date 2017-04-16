@@ -450,11 +450,17 @@ void JRCSBilateral::calc_weighted(
     arma::rowvec alpha_median = arma::median( alpha );
 
     arma::mat trunc_alpha = alpha;
+    int o = 0;
     for(int c=0;c<alpha.n_cols;++c)
     {
+        int k = alpha.n_rows*obj_prob_(o)*2.5;
+        k = k < alpha.n_rows ? alpha.n_rows-k : alpha.n_rows-1;
+        k = std::max(3,k);
         arma::vec col = trunc_alpha.col(c);
-        col( col < alpha_median(c) ).fill(0.0);
+        arma::uvec ignore_index = arma::sort_index(col);
+        col( ignore_index.rows(0,k) ).fill(0.0);
         trunc_alpha.col(c) = col;
+        if(c==obj_range_[2*o+1])++o;
     }
 
     trunc_alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability

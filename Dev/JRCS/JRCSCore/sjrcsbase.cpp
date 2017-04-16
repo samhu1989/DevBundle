@@ -828,6 +828,7 @@ void SJRCSBase::update_color_label()
 
 void SJRCSBase::calc_obj(void)
 {
+    if(verbose_>1)std::cerr<<"SJRCSBase::calc_obj()"<<std::endl;
     obj_vec_.push_back(0.0);
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {

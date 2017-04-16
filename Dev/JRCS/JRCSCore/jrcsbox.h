@@ -29,28 +29,7 @@ public:
 protected:
     virtual void prepare_compute();
     virtual void step_a(int i);
-    virtual void step_b(void);
     virtual void finish_steps();
-    virtual void calc_weighted(
-            const arma::fmat&vv,
-            const arma::fmat&vn,
-            arma::Mat<uint8_t>&vc,
-            const arma::mat& alpha,
-            arma::fmat&wv,
-            arma::fmat&wn,
-            arma::Mat<uint8_t>&wc
-            );
-    virtual void updateRTforObj(
-            const arma::uword start,
-            const arma::uword end,
-            arma::fmat& vv,
-            arma::fmat& vn,
-            arma::fmat& objv,
-            arma::fmat& objn,
-            arma::frowvec& alpha_colsum,
-            arma::fmat& R,
-            arma::fvec& t
-            );
 
 protected:
     void update_from_cube(void);
