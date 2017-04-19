@@ -18,6 +18,7 @@
 #include "iocore.h"
 #include "spectrum.h"
 #include <QTime>
+#include "cube.h"
 #include <QDate>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -106,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionFeature_View,SIGNAL(triggered(bool)),this,SLOT(showFeature()));
     connect(ui->actionIndex_By_Color,SIGNAL(triggered(bool)),this,SLOT(showIndex()));
     connect(ui->actionSpectral_Function,SIGNAL(triggered(bool)),this,SLOT(showSpectralFunc()));
+    connect(ui->actionColor_By_Cube,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_cube()));
 
     connect(ui->actionLAPACKE_dggsvd,SIGNAL(triggered(bool)),this,SLOT(LAPACKE_dggsvd_test()));
     connect(ui->actionInside_Bounding_Box,SIGNAL(triggered(bool)),this,SLOT(Inside_BBox_test()));
@@ -404,6 +406,25 @@ void MainWindow::load_labels()
         }
         *iter = label;
         (*miter)->custom_color_.fromlabel(*iter);
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
+}
+
+void MainWindow::custom_color_from_cube()
+{
+    if(labels_.size()!=inputs_.size())
+    {
+        return;
+    }
+    std::vector<arma::uvec>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    miter = inputs_.begin();
+    Common::Cube::reset_color_set();
+    for(iter=labels_.begin();iter!=labels_.end();++iter)
+    {
+        MeshBundle<DefaultMesh>& m = **miter;
+        Common::Cube::colorByLabel((uint32_t*)m.custom_color_.vertex_colors(),m.custom_color_.size(),*iter);
         if(miter==inputs_.end())break;
         ++miter;
     }

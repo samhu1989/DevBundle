@@ -14,7 +14,10 @@
 \fi}
 \global\let\hyper@last\relax 
 \gdef\HyperFirstAtBeginDocument#1{#1}
-\providecommand*\HyPL@Entry[1]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  (a)(b)(c)(d) are input point sets and user have initialized layout for (b) by interactively placing boxes in it. (m) shows the centroids of latent model. (e)(f)(g)(h) are segmentation result based on the instant parameters of latent model. (i)(j)(k)(l) are final segmentation result. (n) shows the final centroids of latent model. (o) verifys the accuracy of final transformation result by aligning input sets to each object.}}{1}{figure.1}}
+\newlabel{fig:teaser}{{1}{1}{(a)(b)(c)(d) are input point sets and user have initialized layout for (b) by interactively placing boxes in it. (m) shows the centroids of latent model. (e)(f)(g)(h) are segmentation result based on the instant parameters of latent model. (i)(j)(k)(l) are final segmentation result. (n) shows the final centroids of latent model. (o) verifys the accuracy of final transformation result by aligning input sets to each object}{figure.1}{}}
 \citation{SearchClassify}
 \citation{SceneFromExample}
 \citation{Fisher:2012:ESO:2366145.2366154}
@@ -28,24 +31,6 @@
 \citation{3DReasoningfromBlockstoStability}
 \citation{Xu:2015:ACS:2816795.2818075}
 \citation{Xu:2015:ACS:2816795.2818075}
-\HyPL@Entry{0<</S/D>>}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces New EG Logo}}{1}{figure.1}}
-\newlabel{fig:teaser}{{1}{1}{New EG Logo}{figure.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
-\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
-\@writefile{brf}{\backcite{SearchClassify}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{SceneFromExample}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Fisher:2012:ESO:2366145.2366154}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Chen:2014:ASM:2661229.2661239}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Fisher:ActivityCentricSceneSynthesis}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Merrell:2011:IFL:2010324.1964982}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Xu:2013:SSC:2461912.2461968}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Liu2015Model}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Chen:2014:ASM:2661229.2661239}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{KinectFusion}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{3DReasoningfromBlockstoStability}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Xu:2015:ACS:2816795.2818075}{{1}{1}{section.1}}}
-\@writefile{brf}{\backcite{Xu:2015:ACS:2816795.2818075}{{1}{1}{section.1}}}
 \citation{CPD}
 \citation{CPD}
 \citation{GMM_PAMI}
@@ -56,8 +41,21 @@
 \citation{grabcut}
 \citation{grabcut}
 \citation{Taniai_2016_CVPR}
-\citation{3DReasoningfromBlockstoStability}
-\citation{pixelobjectness}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}}
+\newlabel{sec:intro}{{1}{2}{Introduction}{section.1}{}}
+\@writefile{brf}{\backcite{SearchClassify}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{SceneFromExample}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Fisher:2012:ESO:2366145.2366154}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Chen:2014:ASM:2661229.2661239}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Fisher:ActivityCentricSceneSynthesis}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Merrell:2011:IFL:2010324.1964982}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Xu:2013:SSC:2461912.2461968}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Liu2015Model}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Chen:2014:ASM:2661229.2661239}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{KinectFusion}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{3DReasoningfromBlockstoStability}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Xu:2015:ACS:2816795.2818075}{{2}{1}{section.1}}}
+\@writefile{brf}{\backcite{Xu:2015:ACS:2816795.2818075}{{2}{1}{section.1}}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}}
 \newlabel{sec:rw}{{2}{2}{Related Work}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Point Set Registration with GMM Representation}{2}{subsection.2.1}}
@@ -73,22 +71,29 @@
 \@writefile{brf}{\backcite{grabcut}{{2}{2.2}{subsection.2.2}}}
 \@writefile{brf}{\backcite{grabcut}{{2}{2.2}{subsection.2.2}}}
 \@writefile{brf}{\backcite{grabcut}{{2}{2.2}{subsection.2.2}}}
-\@writefile{brf}{\backcite{Taniai_2016_CVPR}{{2}{2.2}{subsection.2.2}}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Objectness Segmentation}{2}{subsection.2.3}}
-\newlabel{subsec:objectness}{{2.3}{2}{Objectness Segmentation}{subsection.2.3}{}}
-\@writefile{brf}{\backcite{3DReasoningfromBlockstoStability}{{2}{2.3}{subsection.2.3}}}
-\@writefile{brf}{\backcite{pixelobjectness}{{2}{2.3}{subsection.2.3}}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Method Overview}{2}{section.3}}
-\newlabel{sec:method}{{3}{2}{Method Overview}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem Statement}{2}{subsection.3.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Formulation}{2}{subsection.3.2}}
-\newlabel{equ:model}{{1}{2}{Formulation}{equation.3.1}{}}
-\newlabel{equ:obj0}{{2}{2}{Formulation}{equation.3.2}{}}
+\citation{Xu:2015:ACS:2816795.2818075}
+\citation{unsupervisededge}
 \citation{Evangelidis2014}
+\citation{Evangelidis2014}
+\@writefile{brf}{\backcite{Taniai_2016_CVPR}{{3}{2.2}{subsection.2.2}}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Segmentation from Motion}{3}{subsection.2.3}}
+\@writefile{brf}{\backcite{Xu:2015:ACS:2816795.2818075}{{3}{2.3}{subsection.2.3}}}
+\@writefile{brf}{\backcite{unsupervisededge}{{3}{2.3}{subsection.2.3}}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Method Overview}{3}{section.3}}
+\newlabel{sec:method}{{3}{3}{Method Overview}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem Statement}{3}{subsection.3.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Basic Formulation}{3}{subsection.3.2}}
+\newlabel{equ:model}{{1}{3}{Basic Formulation}{equation.3.1}{}}
+\newlabel{equ:obj0}{{2}{3}{Basic Formulation}{equation.3.2}{}}
+\@writefile{brf}{\backcite{Evangelidis2014}{{3}{3.2}{equation.3.2}}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Bilateral Formulation}{3}{subsection.3.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Interaction Design}{3}{subsection.3.4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  From the first to the nineth, the nine images show the procedure of interaction: the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represent one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}}{3}{figure.2}}
+\newlabel{fig:interact}{{2}{3}{From the first to the nineth, the nine images show the procedure of interaction: the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represent one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}{figure.2}{}}
+\@writefile{brf}{\backcite{Evangelidis2014}{{3}{3.4}{equation.3.4}}}
 \bibstyle{eg-alpha-doi}
 \bibdata{JRCS}
 \bibcite{Chen:2014:ASM:2661229.2661239}{CLW{$^{*}$}14}
-\bibcite{TPS_RPM}{CR00}
 \bibcite{SceneFromExample}{DSS12}
 \bibcite{Evangelidis2014}{EKBHP14}
 \bibcite{Fisher:2012:ESO:2366145.2366154}{FRS{$^{*}$}12}
@@ -96,23 +101,25 @@
 \bibcite{KinectFusion}{IKH{$^{*}$}11}
 \bibcite{3DReasoningfromBlockstoStability}{JGSC15}
 \bibcite{GMM_PAMI}{JV11}
-\@writefile{brf}{\backcite{Evangelidis2014}{{3}{3.2}{equation.3.2}}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Interaction Design for Annotation}{3}{subsection.3.3}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Algorithms and Implementation Details}{3}{section.4}}
-\newlabel{sec:imp}{{4}{3}{Algorithms and Implementation Details}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Expectation Conditional Maximization}{3}{subsection.4.1}}
-\newlabel{equ:obj1}{{3}{3}{Expectation Conditional Maximization}{equation.4.3}{}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Joint Registration and Co-segmentation (JRCS)}}{3}{algorithm.1}}
-\newlabel{alg:jrcs}{{1}{3}{Expectation Conditional Maximization}{algorithm.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Initialization Techniques}{3}{subsection.4.2}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Experiment and Discussion}{3}{section.5}}
-\@writefile{toc}{\contentsline {section}{References}{3}{section.5}}
-\bibcite{pixelobjectness}{JXG17}
+\bibcite{unsupervisededge}{LPR{$^{*}$}16}
 \bibcite{Liu2015Model}{LZW{$^{*}$}15}
 \bibcite{CPD}{MS10}
 \bibcite{Merrell:2011:IFL:2010324.1964982}{MSL{$^{*}$}11}
 \bibcite{SearchClassify}{NXS12}
 \bibcite{grabcut}{RKB04}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Algorithms and Implementation Details}{4}{section.4}}
+\newlabel{sec:imp}{{4}{4}{Algorithms and Implementation Details}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Expectation Conditional Maximization}{4}{subsection.4.1}}
+\newlabel{equ:obj1}{{5}{4}{Expectation Conditional Maximization}{equation.4.5}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Joint Registration and Co-segmentation (JRCS)}}{4}{algorithm.1}}
+\newlabel{alg:jrcs}{{1}{4}{Expectation Conditional Maximization}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Initialization Techniques}{4}{subsection.4.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiment and Discussion}{4}{section.5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Evaluation for Segmentation}{4}{subsection.5.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Evaluation for Registration}{4}{subsection.5.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Stress Tests on Noisy Data}{4}{subsection.5.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}User Study for Interaction}{4}{subsection.5.4}}
+\@writefile{toc}{\contentsline {section}{References}{4}{subsection.5.4}}
 \bibcite{Taniai_2016_CVPR}{TSS16}
 \bibcite{Xu:2013:SSC:2461912.2461968}{XCF{$^{*}$}13}
 \bibcite{Xu:2015:ACS:2816795.2818075}{XHS{$^{*}$}15}

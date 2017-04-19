@@ -513,6 +513,7 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
       }
       else if( _draw_mode == "Points" ) // -----------------------------------------
       {
+          glEnable( GL_POINT_SMOOTH );
           glEnableClientState(GL_VERTEX_ARRAY);
           glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
           if ( use_color_)
@@ -530,6 +531,7 @@ MeshListViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
           glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
           glDisableClientState(GL_VERTEX_ARRAY);
           glDisableClientState(GL_COLOR_ARRAY);
+          glDisable( GL_POINT_SMOOTH );
       }
 }
 

@@ -98,6 +98,8 @@ protected slots:
 
     void goOver();
 
+    void custom_color_from_cube();
+
 protected:
     QAction* getActionByText(const QString& txt);
 

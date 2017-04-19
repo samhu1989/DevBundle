@@ -3,8 +3,8 @@
 % D.Fellner, v2.01, Oct 06, 2016
 
 
-\title[Point Set Joint Annotation for Indoor Scenes]%
-      {Point Set Joint Annotation for Indoor Scenes}
+\title[Interactive Point Set Joint Registration and Co-segmentation for Indoor Scenes]%
+      {Interactive Point Set Joint Registration and Co-segmentation for Indoor Scenes}
 
 % for anonymous conference submission please enter your SUBMISSION ID
 % instead of the author's name (and leave the affiliation blank) !!
@@ -31,29 +31,20 @@
 \begin{document}
 
 \teaser{
- \includegraphics[width=\linewidth]{eg_new}
+ \includegraphics[width=\linewidth]{images/teaser/teaser}
  \centering
-  \caption{New EG Logo}
+  \caption{
+  	(a)(b)(c)(d) are input point sets and user have initialized layout for (b) by interactively placing boxes in it. (m) shows the centroids of latent model. (e)(f)(g)(h) are segmentation result based on the instant parameters of latent model. (i)(j)(k)(l) are final segmentation result. (n) shows the final centroids of latent model. (o) verifys the accuracy of final transformation result by aligning input sets to each object.}
 \label{fig:teaser}
 }
 
 \maketitle
 
 \begin{abstract}
-   The ABSTRACT is to be in fully-justified italicized text, 
-   between two horizontal lines,
-   in one-column format, 
-   below the author and affiliation information. 
-   Use the word ``Abstract'' as the title, in 9-point Times, boldface type, 
-   left-aligned to the text, initially capitalized. 
-   The abstract is to be in 9-point, single-spaced type.
-   The abstract may be up to 3 inches (7.62 cm) long. \\
-   Leave one blank line after the abstract, 
-   then add the subject categories according to the ACM Classification Index 
-   (see http://www.acm.org/about/class/1998).
-
+This paper presents a method of joint registration and co-segmentation for point sets of indoor scenes. We view the joint registration and co-segmentation as two problems heavily entangled with each other. To model such entangled problems, we treat the input point sets as samples from a latent generated model and bring up with a novel formulation based on Gaussian mixture model. By maximizing the posterior probability of the samples, we gradually recover the latent object model and object level segmentation and align the objects to the latent model(solve the registration). Alone with the formulation, we design a procedure of interaction that can help users to intuitively initialize the optimization. Our evaluation shows that our novel method is helpful and effective to do the joint registration and co-segmentation on point sets of indoor scenes.    
 \begin{classification} % according to http:http://www.acm.org/about/class/1998
-\CCScat{Computer Graphics}{I.3.3}{Picture/Image Generation}{Line and curve generation}
+\CCScat{COMPUTER GRAPHICS}{I.3.8}{Applications}
+\CCScat{IMAGE PROCESSING AND COMPUTER VISION}{I.4.8}{Scene Analysis}{Range data}
 \end{classification}
 
 \end{abstract}

@@ -79,6 +79,7 @@ public:
     void* vertex_colors(void);
     void fromlabel(const arma::uvec&);
     void fromIndex(void);
+    inline long size()const{return v_colors.size_;}
 protected:
     ColorArray::RGBArray v_colors;
 private:

@@ -6,7 +6,6 @@
 #include <functional>
 #include <QRgb>
 namespace Common {
-
 class COMMONSHARED_EXPORT Cube{
 public:
     typedef std::shared_ptr<Cube> Ptr;
@@ -21,8 +20,9 @@ public:
     static Cube::Ptr newCube(void);
     static Cube::Ptr newCube(DefaultMesh&);
     static Cube::PtrLst newCubes(DefaultMesh& m, uint32_t N);
-    static void colorByLabel(uint32_t* c,arma::uword size,arma::uvec& label);
+    static void colorByLabel(uint32_t* c, arma::uword size, const arma::uvec &label);
     static uint32_t colorFromLabel(uint32_t label);
+    static void reset_color_set();
     void colorByLabel(uint32_t label);
     virtual void translate(
             const arma::fvec& t,

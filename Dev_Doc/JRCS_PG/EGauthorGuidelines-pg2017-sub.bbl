@@ -10,14 +10,6 @@
   {http://dx.doi.org/10.1145/2661229.2661239}
   {\path{doi:10.1145/2661229.2661239}}.
 
-\bibitem[CR00]{TPS_RPM}
-\textsc{Chui H., Rangarajan A.}:
-\newblock A new algorithm for non-rigid point matching.
-\newblock In \emph{Computer Vision and Pattern Recognition, 2000. Proceedings.
-  IEEE Conference on} (2000), vol.~2, pp.~44--51 vol.2.
-\newblock \href {http://dx.doi.org/10.1109/CVPR.2000.854733}
-  {\path{doi:10.1109/CVPR.2000.854733}}.
-
 \bibitem[DSS12]{SceneFromExample}
 \textsc{Dema M.~A., Sari-Sarraf H.}:
 \newblock 3d scene generation by learning from examples.
@@ -79,10 +71,15 @@
 \newblock \href {http://dx.doi.org/10.1109/TPAMI.2010.223}
   {\path{doi:10.1109/TPAMI.2010.223}}.
 
-\bibitem[JXG17]{pixelobjectness}
-\textsc{Jain S., Xiong B., Grauman K.}:
-\newblock Pixel objectness.
-\newblock \emph{arXiv preprint arXiv:1701.05349} (2017).
+\bibitem[LPR{\etalchar{*}}16]{unsupervisededge}
+\textsc{Li Y., Paluri M., Rehg J.~M., Dollar P., undefined, undefined,
+  undefined, undefined}:
+\newblock Unsupervised learning of edges.
+\newblock \emph{2016 IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR) 00} (2016), 1619--1627.
+\newblock \href
+  {http://dx.doi.org/doi.ieeecomputersociety.org/10.1109/CVPR.2016.179}
+  {\path{doi:doi.ieeecomputersociety.org/10.1109/CVPR.2016.179}}.
 
 \bibitem[LZW{\etalchar{*}}15]{Liu2015Model}
 \textsc{Liu Z., Zhang Y., Wu W., Liu K., Sun Z.}:
@@ -115,9 +112,13 @@
 
 \bibitem[RKB04]{grabcut}
 \textsc{Rother C., Kolmogorov V., Blake A.}:
-\newblock Grabcut -interactive foreground extraction using iterated graph cuts.
-\newblock URL: \url{https://www.microsoft.com/en-us/research/publication/
-  grabcut-interactive-foreground-extraction- using-iterated-graph-cuts/}.
+\newblock "grabcut": Interactive foreground extraction using iterated graph
+  cuts.
+\newblock In \emph{ACM SIGGRAPH 2004 Papers} (New York, NY, USA, 2004),
+  SIGGRAPH '04, ACM, pp.~309--314.
+\newblock URL: \url{http://doi.acm.org/10.1145/1186562.1015720}, \href
+  {http://dx.doi.org/10.1145/1186562.1015720}
+  {\path{doi:10.1145/1186562.1015720}}.
 
 \bibitem[TSS16]{Taniai_2016_CVPR}
 \textsc{Taniai T., Sinha S.~N., Sato Y.}:

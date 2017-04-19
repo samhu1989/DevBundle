@@ -9,6 +9,12 @@ const uint32_t Cube::point_num_for_cube_ = 20;
 __gnu_cxx::hash_map<uint32_t,uint32_t,std::hash<uint32_t>,Cube::color_equal_to> Cube::color_label_;
 __gnu_cxx::hash_map<uint32_t,uint32_t> Cube::label_color_;
 
+void Cube::reset_color_set()
+{
+    color_label_.clear();
+    label_color_.clear();
+}
+
 uint32_t Cube::colorFromLabel(uint32_t label)
 {
     if(label==0)return QColor("white").rgba();
@@ -35,13 +41,13 @@ void Cube::colorByLabel(uint32_t label)
     xc_->each_col() = x;
 }
 
-void Cube::colorByLabel(uint32_t* c,arma::uword size,arma::uvec& label)
+void Cube::colorByLabel(uint32_t* c,arma::uword size,const arma::uvec& label)
 {
     if( label.size() < size ){
         std::cerr<<"label.size() < size"<<std::endl;
         return;
     }
-    for(arma::uvec::iterator iter=label.begin() ; iter != label.end() ; ++iter )
+    for(arma::uvec::const_iterator iter=label.cbegin() ; iter != label.cend() ; ++iter )
     {
         *c = colorFromLabel(*iter);
         ++c;
