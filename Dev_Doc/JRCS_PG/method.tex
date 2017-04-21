@@ -110,6 +110,18 @@ These two paremeters are difficult to be initialized without semantic prior, but
 K_n=\frac{V_n}{\sum V_n}K_{all}
 \end{equation}
 in which the $V_n$ represent the total volume of the boxes in the n-th color and the $K_{all}$ is initialized as $K_{all}=0.5*median(I_m)$ and $\{I_m\}$ are point numbers of $M$ input point set. This is an emperical choice borrowed from \cite{Evangelidis2014}.\\
-The expectation maximizaton framework is easily converge to a local optimal. To cope with this problem we further use this interaction as a soft constraint to guide the optimization. Such constraint is done by 
+The expectation maximizaton framework is easily converge to a local optimal. To cope with this problem we further use this interaction as a soft constraint to guide the optimization. Such constraint is done by simply altering the posterior probability $\alpha_{mik}$ as\\
+\begin{equation}
+\alpha_{mik}^*=\frac{\alpha_{mik}\beta_{mik}}{\sum_{i,k}\alpha_{mik}\beta_{mik}}
+\end{equation}
+where the $\beta_{mik}$ is the prior probability according to the boxes. It is defined as:\\
+\begin{equation}
+\beta_{mik}=\left\{
+\begin{array}{rcl}
+1&      & v_{mi} \in B_n\\
+\exp(-\frac{\min_{v_{mj}}|| v_{mi} - v_{mj} ||_2^2  )}{C})&      &v_{mi} \notin B_n~and~v_{mj} \in B_n\\
+\end{array} \right.
+\end{equation}
+where the $B_n$ is a point set that is enclosed by the boxes used to represent the layout of n-th object. The k-th Gaussian model is predefined to be one of the Gaussians used to represent n-th object. $\min_{v_{mj}}|| v_{mi} - v_{mj} ||_2^2$ is actually the squared euclidean distance from point $v_{mi}$ to the point set $B_n$, as we define the distance from a point to a point set as the minimum distance from the point to any point inside the point set. 
 
 
