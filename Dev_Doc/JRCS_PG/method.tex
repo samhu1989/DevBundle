@@ -65,32 +65,58 @@ where $\Lambda_{mn}$ is $K_n \times K_n$ diagonal matrix with elements $\lambda_
 \begin{equation}
 w_{mk}=\frac{\sum_{i=1}^{I_m}\alpha_{mik}v_{mi}}{\sum_{i=1}^{I_m}\alpha_{mik}}
 \end{equation}
-This problem have a similar solution of in \cite{Evangelidis2014}. The only difference is that we are estimating the transformation from latent models to the input point sets, since there are multiple group of $x_k$ corresponding to multiple objects in our latent model. The optimal can be given by:\\
+This problem have a similar solution of in \cite{Evangelidis2014}. The only difference is that we are estimating the transformation from latent models to the input point sets instead of the transformation from input point sets to latent models, since there are multiple group of $x_k$ corresponding to multiple objects in our latent model. The optimal can be given by:\\
 \begin{equation}
+\label{equ:updateR}
 R_{mn}^*=U_{mn}C_{mn}V_{mn}^T
 \end{equation}
 \begin{equation}
+\label{equ:updatet}
 t_{mn}^*=\frac{1}{tr(\Lambda_{mn}^2)}(W_{mn}-R_{mn}X_n)\Lambda_{mn}^2\mathbf{e}
 \end{equation}
 where $[U_{mn},S,V_{mn}]=svd( W_{mn}\Lambda_{mn}P_{mn}\Lambda_{mn}X_{mn}^T )$ and $P_{mn}=I-\frac{\Lambda_{mn}\mathbf{e}(\Lambda_{mn}\mathbf{e})^T}{(\Lambda_{mn}\mathbf{e})^T\Lambda_{mn}\mathbf{e}}$,$I$ is identity matrix. $C_{mn}=diag(1,1,|U_{mn}||V_{mn}|)$.\\
 \textbf{M-step-b}: this step we update the parameters related to the Gaussian mixture model. 
 \begin{equation}
+\label{equ:updatexk}
 x_k^*=\frac{\sum_{m=1}^M\sum_{i=1}^{I_m}\alpha_{mik}(R_{mn}^{-1}v_{mi}-t_{mn})}{\sum_{m=1}^M\sum_{i=1}^{I_m}\alpha_{mik}}
 \end{equation}
 where $x_k$ is one of the Gaussian centroids that is predefined to represent n-th object. 
 \begin{equation}
+\label{equ:updatesigma}
 \sigma_k^{*2}=\frac{\sum_{m=1}^M\sum_{i=1}^{I_m}\alpha_{mik}||(v_{mi}-t_{mn}-R_{mn}^*x_k^*)||_2^2}{3\sum_{m=1}^M\sum_{i=1}^{I_m}\alpha_{mik}}
 \end{equation}
 \begin{equation}
+\label{equ:updatepk}
 p_k^*=\frac{\sum_{m,i}\alpha_{mik}}{M}
 \end{equation}
 \subsection{Bilateral Formulation}
-When considering features, we can add bilateral terms into the generative model.
+When considering point-wise features, we can add bilateral terms into the generative model.
 \begin{equation}
-P(v_{mi},f_{mi})=\sum^{K_n}_{k=1}p_kN(v_{mi}|\phi_{mn}(xv_k),\sigma v_k)N(f_{mi}|xf_k,\sigma v_f)
+P(v_{mi},f_{mi})=\sum^{K_n}_{k=1}p_kN(v_{mi}|\phi_{mn}(xv_k),\sigma v_k)N(f_{mi}|xf_k,\sigma f_k)
 \end{equation}
-we measure the feature difference by a gaussian with diagnal $\Sigma$.
+where $f_{mi}$ is the feature vector for point $v_{mi}$ and $xf_k$ is the feature vector for k-th point in latent model. As shown in the formulation, there is no transformation applyed onto $xf_k$, which means that this formulation is only suitable to the features that is rotation and translation invariant. For example, the point color vector $[red_{mi},green_{mi},blue_{mi}]$ is a suitable feature for this formulation.In this formulation $N(v_{mi}|\phi_{mn}(xv_k),\sigma v_k)$ is the spatial term and $N(f_{mi}|xf_k,\sigma f_k)$ is the feature term.
+For the bilateral formulation, iteration steps will be as follows:\\
+\textbf{E-step}:in this step the calculation of posterior probability need to consider both the spatial term and the feature term.
+\begin{equation}
+\label{equ:bestep}
+\alpha_{mik}=\frac{p_kP_v(v_{mi},\phi_{mn}(xv_k),\sigma v_k)P_f(f_{mi},xf_k,\sigma f_k)}{\sum_s^{K_{all}}p_sP_v(v_{mi},\phi_{mn}(xv_s),\sigma v_s)P_f(f_{mi},xf_k,\sigma f_s)}
+\end{equation}
+where $P_v(x,y,\sigma)=\sigma^{-3}exp(-\frac{1}{2\sigma^2}||x-y||^2)$ and $P_f(x,y,\sigma)=\sigma^{-D(x)}exp(-\frac{1}{2\sigma^2}||x-y||^2)$ and $D(x)$ means the dimension of the vector $x$.\\
+\textbf{M-step-a:}for bilateral formulation, this step is the same with the basic formulation and the update can be done as (\ref{equ:updateR}) and (\ref{equ:updatet}).
+\textbf{M-step-b}:for bilateral formulation, this step need not only update model centroids and variance for spatial term as (\ref{equ:updatexk}) and (\ref{equ:updatesigma}).
+but also update the centroids and variance for feature term as in (\ref{equ:updatefk}) and (\ref{equ:updatefsigma})\\
+\begin{equation}
+\label{equ:updatefk}
+xf_k^*=\frac{\sum_{m=1}^M\sum_{i=1}^{I_m}\alpha_{mik}f_{mi}}{\sum_{m=1}^M\sum_{i=1}^{I_m}\alpha_{mik}}
+\end{equation}
+\begin{equation}
+\label{equ:updatefsigma}
+\sigma f_k^{*2}=\frac{\sum_{m=1}^M\sum_{i=1}^{I_m}\alpha_{mik}||(f_{mi}-xf_k^*)||_2^2}{D(f)\sum_{m=1}^M\sum_{i=1}^{I_m}\alpha_{mik}}
+\end{equation}
+where $D(f)$ is the dimenssion of feature vectors.\\
+The update of $p_k$ for bialateral formulation is the same as the basic formulation in (\ref{equ:updatepk}).
 \subsection{Interaction Design}
+\label{sec:imp:interact}
 Unfortunately, there are serveral parameters that can not be easily initialized in our formulation . In this subsection we first introduce our design of interaction, which is intuitive for users to input the semantic prior this way. We then explain how we can easily initlialize those parameters for our optimization based on the manual input.\\
 As demonstrated in Figure~\ref{fig:interact}, we let user choose one of the point sets and placing and editing boxes in it to indicate the layout for this point set. From this, we can easily initialize the total number of objects $N$ and determine $\{K_n\}$ which is the numbers of Gaussian mixture models used to represent each object.
 \begin{figure}[htb]
@@ -107,21 +133,28 @@ As demonstrated in Figure~\ref{fig:interact}, we let user choose one of the poin
 \end{figure}
 These two paremeters are difficult to be initialized without semantic prior, but with the input of the users we can naturally initialize the $N$ as the number of different color label and the ${K_n}$ as 
 \begin{equation}
+\label{equ:K_n}
 K_n=\frac{V_n}{\sum V_n}K_{all}
 \end{equation}
-in which the $V_n$ represent the total volume of the boxes in the n-th color and the $K_{all}$ is initialized as $K_{all}=0.5*median(I_m)$ and $\{I_m\}$ are point numbers of $M$ input point set. This is an emperical choice borrowed from \cite{Evangelidis2014}.\\
-The expectation maximizaton framework is easily converge to a local optimal. To cope with this problem we further use this interaction as a soft constraint to guide the optimization. Such constraint is done by simply altering the posterior probability $\alpha_{mik}$ as\\
+in which the $V_n$ represent the total volume of the boxes in the n-th color and the $K_{all}$ is initialized as $K_{all}=\frac{median(I_m)}{2}$ and $\{I_m\}$ are point numbers of $M$ input point set. This is an emperical choice borrowed from \cite{Evangelidis2014}.\\
+The expectation maximizaton framework is easily converge to a local optimal. To cope with this problem we further use this layout (boxes) from interaction as a soft constraint to guide the optimization. Such constraint is enforced by simply altering the posterior probability $\alpha_{mik}$ as\\
 \begin{equation}
+\label{equ:alteralpha}
 \alpha_{mik}^*=\frac{\alpha_{mik}\beta_{mik}}{\sum_{i,k}\alpha_{mik}\beta_{mik}}
 \end{equation}
 where the $\beta_{mik}$ is the prior probability according to the boxes. It is defined as:\\
 \begin{equation}
 \beta_{mik}=\left\{
 \begin{array}{rcl}
-1&      & v_{mi} \in B_n\\
-\exp(-\frac{\min_{v_{mj}}|| v_{mi} - v_{mj} ||_2^2  )}{C})&      &v_{mi} \notin B_n~and~v_{mj} \in B_n\\
+1& &v_{mi} \in B_n\\
+\exp(-\frac{\min_{v_{mj}}|| v_{mi} - v_{mj} ||_2^2  )}{L})& &v_{mi} \notin B_n~and~v_{mj} \in B_n\\
 \end{array} \right.
 \end{equation}
-where the $B_n$ is a point set that is enclosed by the boxes used to represent the layout of n-th object. The k-th Gaussian model is predefined to be one of the Gaussians used to represent n-th object. $\min_{v_{mj}}|| v_{mi} - v_{mj} ||_2^2$ is actually the squared euclidean distance from point $v_{mi}$ to the point set $B_n$, as we define the distance from a point to a point set as the minimum distance from the point to any point inside the point set. 
-
+where the $B_n$ is a point set that is enclosed by the boxes used to represent the layout of n-th object. The k-th Gaussian model is predefined to be one of the Gaussians used to represent n-th object. $\min_{v_{mj}}|| v_{mi} - v_{mj} ||_2^2$ is actually the squared euclidean distance from point $v_{mi}$ to the point set $B_n$, as we define the distance from a point to a point set as the minimum distance from the point to any point inside the point set. $L$ here is a constant number with $L=2r^2$, and $r$ is the meadian of the radius of input point sets. The radius of a input point set is half of length of diagnonal line of its axis aligned bounding box.   
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/localoptimal/localoptimal}
+	\caption{\label{fig:localoptimal}This figure shows an example result when converges to a local optimal. (a) is the result of segmentation of this local optimal. (b) is the final centroids of latent model. It shows that from top to down the 2nd and 3rd object model both include part of the table and part of the chair.}
+\end{figure}
+This alteration on posterior probability is only done with the probability related to the m-th point set that have the mannual input layout (the boxes) in it. This alteration can help prevent the optimization from converging to a local optimal as in Figure~\ref{fig:localoptimal}. The result from the Figure~\ref{fig:localoptimal} have the same input and initialization with the result from Figure~\ref{fig:teaser}, but it doesn't use the posterior alteration as a soft constraint.
 

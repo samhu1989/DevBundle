@@ -67,6 +67,8 @@
     <addaction name="actionLoad_Clusters"/>
     <addaction name="actionSave_Object_Model"/>
     <addaction name="actionLoad_Objects"/>
+    <addaction name="actionSave_Cube_Color"/>
+    <addaction name="actionLoad_Cube_Color"/>
     <addaction name="separator"/>
     <addaction name="actionSave_Scenes"/>
     <addaction name="separator"/>
@@ -649,6 +651,19 @@
   <action name="actionColor_By_Cube">
    <property name="text">
     <string>Color By Cube</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+C</string>
+   </property>
+  </action>
+  <action name="actionSave_Cube_Color">
+   <property name="text">
+    <string>Save Cube Color</string>
+   </property>
+  </action>
+  <action name="actionLoad_Cube_Color">
+   <property name="text">
+    <string>Load Cube Color</string>
    </property>
   </action>
  </widget>

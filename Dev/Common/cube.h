@@ -23,6 +23,8 @@ public:
     static void colorByLabel(uint32_t* c, arma::uword size, const arma::uvec &label);
     static uint32_t colorFromLabel(uint32_t label);
     static void reset_color_set();
+    static uint32_t color_size(){return color_label_.size();}
+    static void set_color(const arma::uvec&);
     void colorByLabel(uint32_t label);
     virtual void translate(
             const arma::fvec& t,

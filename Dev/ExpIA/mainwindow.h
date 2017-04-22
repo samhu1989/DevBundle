@@ -60,6 +60,9 @@ public slots:
     void save_Pix_Order_Functor(QString dirName=QString());
     void save_Vox_Order_Functor(QString dirName=QString());
 
+    void save_cube_color(QString path=QString());
+    void load_cube_color(QString path=QString());
+
     void view_input(WidgetPtr widget);
 protected slots:
     void configure();

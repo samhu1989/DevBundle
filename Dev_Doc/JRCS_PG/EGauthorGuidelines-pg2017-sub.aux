@@ -92,15 +92,32 @@
 \citation{Evangelidis2014}
 \citation{Evangelidis2014}
 \@writefile{brf}{\backcite{Evangelidis2014}{{4}{3.2}{equation.3.8}}}
+\newlabel{equ:updateR}{{9}{4}{Basic Formulation}{equation.3.9}{}}
+\newlabel{equ:updatet}{{10}{4}{Basic Formulation}{equation.3.10}{}}
+\newlabel{equ:updatexk}{{11}{4}{Basic Formulation}{equation.3.11}{}}
+\newlabel{equ:updatesigma}{{12}{4}{Basic Formulation}{equation.3.12}{}}
+\newlabel{equ:updatepk}{{13}{4}{Basic Formulation}{equation.3.13}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Bilateral Formulation}{4}{subsection.3.3}}
+\newlabel{equ:bestep}{{15}{4}{Bilateral Formulation}{equation.3.15}{}}
+\newlabel{equ:updatefk}{{16}{4}{Bilateral Formulation}{equation.3.16}{}}
+\newlabel{equ:updatefsigma}{{17}{4}{Bilateral Formulation}{equation.3.17}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Interaction Design}{4}{subsection.3.4}}
+\newlabel{sec:imp:interact}{{3.4}{4}{Interaction Design}{subsection.3.4}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  From the first to the nineth, the nine images show the procedure of interaction: the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represent one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}}{4}{figure.2}}
 \newlabel{fig:interact}{{2}{4}{From the first to the nineth, the nine images show the procedure of interaction: the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represent one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}{figure.2}{}}
-\@writefile{brf}{\backcite{Evangelidis2014}{{4}{3.4}{equation.3.15}}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Algorithms and Implementation Details}{4}{section.4}}
-\newlabel{sec:imp}{{4}{4}{Algorithms and Implementation Details}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Expectation Conditional Maximization}{4}{subsection.4.1}}
-\newlabel{equ:obj1}{{18}{4}{Expectation Conditional Maximization}{equation.4.18}{}}
+\newlabel{equ:K_n}{{18}{4}{Interaction Design}{equation.3.18}{}}
+\@writefile{brf}{\backcite{Evangelidis2014}{{4}{3.4}{equation.3.18}}}
+\newlabel{equ:alteralpha}{{19}{5}{Interaction Design}{equation.3.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces This figure shows an example result when converges to a local optimal. (a) is the result of segmentation of this local optimal. (b) is the final centroids of latent model. It shows that from top to down the 2nd and 3rd object model both include part of the table and part of the chair.}}{5}{figure.3}}
+\newlabel{fig:localoptimal}{{3}{5}{This figure shows an example result when converges to a local optimal. (a) is the result of segmentation of this local optimal. (b) is the final centroids of latent model. It shows that from top to down the 2nd and 3rd object model both include part of the table and part of the chair}{figure.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Algorithms and Implementation Details}{5}{section.4}}
+\newlabel{sec:imp}{{4}{5}{Algorithms and Implementation Details}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Algorithm}{5}{subsection.4.1}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Joint Registration and Co-segmentation (JRCS)}}{5}{algorithm.1}}
+\newlabel{alg:jrcs}{{1}{5}{Algorithm}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Implementation Details}{5}{subsection.4.2}}
+\newlabel{equ:initt}{{21}{5}{Implementation Details}{equation.4.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Hot Intervention Machinism}{5}{subsection.4.3}}
 \bibstyle{eg-alpha-doi}
 \bibdata{JRCS}
 \bibcite{Chen:2014:ASM:2661229.2661239}{CLW{$^{*}$}14}
@@ -119,13 +136,12 @@
 \bibcite{grabcut}{RKB04}
 \bibcite{Taniai_2016_CVPR}{TSS16}
 \bibcite{Xu:2013:SSC:2461912.2461968}{XCF{$^{*}$}13}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Joint Registration and Co-segmentation (JRCS)}}{5}{algorithm.1}}
-\newlabel{alg:jrcs}{{1}{5}{Expectation Conditional Maximization}{algorithm.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Initialization Techniques}{5}{subsection.4.2}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Experiment and Discussion}{5}{section.5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Evaluation for Segmentation}{5}{subsection.5.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Evaluation for Registration}{5}{subsection.5.2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Stress Tests on Noisy Data}{5}{subsection.5.3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}User Study for Interaction}{5}{subsection.5.4}}
-\@writefile{toc}{\contentsline {section}{References}{5}{subsection.5.4}}
 \bibcite{Xu:2015:ACS:2816795.2818075}{XHS{$^{*}$}15}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces This figure shows the hot intervention machinism. (a) is the input point sets with mannually placed layout in 2rd point set. (b) shows that from the region highlighted by blue rectangle the user can see the instant result of segmentation and from the region highlighted by the red rectangle the user can see the space of latent model(the shape of the centroids of the Gaussian models). (c) shows that the user picks another input point set and add more boxes targeting the incorrect segmentation to further guide the optimization.}}{6}{figure.4}}
+\newlabel{fig:hi}{{4}{6}{This figure shows the hot intervention machinism. (a) is the input point sets with mannually placed layout in 2rd point set. (b) shows that from the region highlighted by blue rectangle the user can see the instant result of segmentation and from the region highlighted by the red rectangle the user can see the space of latent model(the shape of the centroids of the Gaussian models). (c) shows that the user picks another input point set and add more boxes targeting the incorrect segmentation to further guide the optimization}{figure.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiment and Discussion}{6}{section.5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Evaluation for Segmentation}{6}{subsection.5.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Evaluation for Registration}{6}{subsection.5.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Stress Tests on Noisy Data}{6}{subsection.5.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Limitations and Future Work}{6}{subsection.5.4}}
+\@writefile{toc}{\contentsline {section}{References}{6}{subsection.5.4}}

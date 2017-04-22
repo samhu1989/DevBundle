@@ -15,6 +15,15 @@ void Cube::reset_color_set()
     label_color_.clear();
 }
 
+void Cube::set_color(const arma::uvec& color)
+{
+    for(uint32_t i=0;i<color.size();++i)
+    {
+        Cube::label_color_[i+1] = uint32_t(color(i));
+        Cube::color_label_[uint32_t(color(i))] = i+1;
+    }
+}
+
 uint32_t Cube::colorFromLabel(uint32_t label)
 {
     if(label==0)return QColor("white").rgba();

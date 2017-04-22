@@ -99,7 +99,7 @@ void JRCSBilateral::step_a(int i)
         alpha_v = arma::trunc_exp(alpha_v);
         alpha_v %= arma::pow(xv_invvar_,1.5);
 
-        alpha.row(r) = alpha_v % alpha_f ;
+        alpha.row(r) = alpha_v + alpha_f ;
     }
 
     if(verbose_>1)std::cerr<<"normalize alpha"<<std::endl;

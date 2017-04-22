@@ -1,41 +1,43 @@
 \section{Algorithms and Implementation Details}
 \label{sec:imp}
-\subsection{Expectation Conditional Maximization}
-Assuming the observed point clouds $\{V_m\}$ are independent and identically distributed, we can then write the (\ref{equ:obj0}) as: 
-\begin{equation}
-\label{equ:obj1}
-\varepsilon(\Theta|V,Z) =\sum_{m,i,k}\alpha_{mik}(\log p_k +\log P(\phi_{nm}(v_{mi})|z_{ji}=k;\Theta))
-\end{equation}
-In which the $\alpha_{mik}=P(z_{mi}=k|v_{mi};\Theta)$,
+In this section, we summarize the entire algorithm and explain the implemented details.\\ 
+\subsection{Algorithm}
+Based on our formulation in section \ref{sec:method}, our algorithm can be summarized as in Algorithm \ref{alg:jrcs}.
 \begin{algorithm}[htb]
 	\caption{Joint Registration and Co-segmentation (JRCS)}
 	\label{alg:jrcs}
 	\textbf{Input:}~~\\
-	$\{V_m\}$:Observed point clouds\\
-	$\{\alpha_{mik}^0\}$:Initial posterior probabilities~~\\
+	$\{V_m\}$:$M$ input 3D point sets\\
+	$\Theta^0$:Initial parameters~~\\
+	$\{\beta_{ik}\}_{m}$:layout based prior\\
 	\textbf{Output:}~~\\
-	$\Theta^q$:Final parameter set~~
+	$\Theta^q$:Final parameters~~
 	\begin{enumerate}
-		\item $q\leftarrow0$
 		\item \textbf{repeat}
-		\item CM-step-a: Use $\alpha^q_{mik}$, $x^{q-1}_k$ to estimate $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$
-		\item CM-step-b: Use $\alpha^q_{mik}$, $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$ to estimate the Gaussian centers $x_k^q$
-		\item CM-step-c: Use $\alpha^q_{mik}$, $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$ to estimate the covariances $\Sigma_k^q$
-		\item CM-step-d: Use $\alpha^q_{mik}$ to estimate the priors $p_k^q$
-		\item E-step: Use $\Theta^{q-1}$ to estimate posterior probabilities. $\alpha^q_{mik}=P(z_{mi}|v_{mi};\Theta^{q-1})$
+		\item $q\leftarrow0$
+		\item E-step: Use $\Theta^{q-1}$ to estimate $\alpha_{mik}^q$ according to (\ref{equ:estep}) ( (\ref{equ:bestep}) if use bilateral formulation)
+		\item alter $\alpha_{mik}^q$ with $\{\beta_{ik}\}_{m}$ according to (\ref{equ:alteralpha})
+		\item M-step-a: Use $\alpha^q_{mik}$, $x^{q-1}_k$ to estimate $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$ according to (\ref{equ:updateR})(\ref{equ:updatet})
+		\item M-step-b: Use $\alpha^q_{mik}$, $\{R_{mn}^q\}$ and $\{t_{mn}^q\}$ to other parameters for Gaussian models according to (\ref{equ:updatexk})(\ref{equ:updatesigma})(\ref{equ:updatepk})
 		\item $q \leftarrow q+1$
 		\item \textbf{until} Convergence
 		\item \textbf{return} $\Theta^q$
 	\end{enumerate}
 \end{algorithm}
-\subsection{Initialization Techniques}
-A key advantage motivates our formulation is that the soft correspondence can be initialized more flexiblely comparing to the typical initialization techniques such as landmark point pairs in registration.\\
-%\textbf{Initial Segment based on Planar Fitting}\\
-%\textbf{Block Based Feature Extraction and Clustering}\\
-The result of Clustering:
-$$P(B_{mj} \in C_n)$$
-\textbf{Soft Correspondence Initialization}\\
-Then the $\alpha$ is initialized as:
-$$\alpha_{ijk}=P(B_{mj} \in C_n)$$
-on the condition that:
-$$v_{ij} \in B_{mj} \wedge x_k \in O_n$$
+\subsection{Implementation Details}
+\textbf{Initialization of $\Theta$}:\\
+We first determine the total number of Gaussian model $K_{all}$ as we explained in subsection \ref{sec:imp:interact}. We set $p_k=\frac{1}{\sum K_n}$ which means each Gaussian model have the same weight at the beginning. We seperate the Gaussian models into $N$ groups to represent $N$ objects. Each group has $K_n$ Gaussian models based on (\ref{equ:K_n}). $\{x_k\}_n$ are Gaussian centroids of n-th group and they are initialized as a random positions uniformally distributed on the surface of a sphere. The radius of the sphere is chosen as the median of the radius of the input point sets $r$. The center of the n-th spheres is $c_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$. This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(m)(n) and in Figure~\ref{fig:localoptimal}(b).We choose vertical arrangement for latent model space merely for the convenience for the  We choose the sphere as the initial shape so that we can initialize all the $R_{mn}$ to identity matrix. For the $t_{mn}$ we initialize them as $t_{mn}=-c_n$ so that all the object model starting with position at origin point when they are transformed to the space of each input set. However, if the m-th input point set has the manually placed layout, we treat the associated $t_{mn}$ differently. For this case we have:
+\begin{equation}
+\label{equ:initt}
+t_{mn}=\frac{\sum_{v_{mi} \in B_n}v_{mi}}{N(B_n)}-c_n
+\end{equation}
+where $N(B_n)$ is the number of element in $B_n$ and $B_n$ is the point set that is enclosed by the mannual input layout (boxes). 
+\subsection{Hot Intervention Machinism}
+Our current implementation of optimization is quite slow (fail to converge in interative time) epecially when the point numbers inside each input point set are large and it is possible for our optimization to stuck in a local optimal, requiring the guide from the mannual input. As a compensation for these drawbacks. We implement a hot intervention machinism, allowing the mannaul input take effect even after the optimization has started. Theoretically, this is possible due to the i.i.d assumption. 
+This assumption makes it possible for the calculation of posterior probability being independent for each input point set. Even after the optimization is started, we can still allow the user to add more layouts for other point sets and the program can do the same alteration as (\ref{equ:alteralpha}) in the next iteration. The Figure~\ref{fig:hi} shows how the users can use the hot intervention machinism with our tool.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/hotintervention/hi}
+	\caption{\label{fig:hi}This figure shows the hot intervention machinism. (a) is the input point sets with mannually placed layout in 2rd point set. (b) shows that from the region highlighted by blue rectangle the user can see the instant result of segmentation and from the region highlighted by the red rectangle the user can see the space of latent model(the shape of the centroids of the Gaussian models). (c) shows that the user picks another input point set and add more boxes targeting the incorrect segmentation to further guide the optimization.}
+\end{figure}
+ 

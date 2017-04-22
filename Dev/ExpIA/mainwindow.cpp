@@ -54,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Voxel_Index_Picked,SIGNAL(triggered(bool)),this,SLOT(load_vox_index_picked()));
     connect(ui->actionSave_Pix_Order_Functor,SIGNAL(triggered(bool)),this,SLOT(save_Pix_Order_Functor()));
     connect(ui->actionSave_Vox_Order_Functor,SIGNAL(triggered(bool)),this,SLOT(save_Vox_Order_Functor()));
+    connect(ui->actionSave_Cube_Color,SIGNAL(triggered(bool)),this,SLOT(save_cube_color()));
+    connect(ui->actionLoad_Cube_Color,SIGNAL(triggered(bool)),this,SLOT(load_cube_color()));
 
     connect(ui->actionGlobal_Align,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionExtract_Background,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -359,6 +361,74 @@ void MainWindow::save_labels(QString dirName)
                 return;
             }
         }
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
+}
+
+void MainWindow::save_cube_color(QString fileName)
+{
+    if(fileName.isEmpty())
+    {
+        fileName = QFileDialog::getSaveFileName(this,
+                                                tr("Save Cube Color"),
+                                                tr("./"),
+                                                tr("cube color(*.arma)"));
+    }
+    if (fileName.isEmpty())return;
+    arma::uvec cube_color(Common::Cube::color_size());
+    for(int i=0;i<cube_color.size();++i)
+    {
+        cube_color(i) = Common::Cube::colorFromLabel(i+1);
+    }
+    if(config_->has("ascii"))
+    {
+        if(!cube_color.save(fileName.toStdString(),arma::raw_ascii))
+        {
+            QString msg = "Failed to Save "+fileName+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+    }else{
+        if(!cube_color.save(fileName.toStdString(),arma::arma_binary))
+        {
+            QString msg = "Failed to Save "+fileName+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+    }
+
+}
+
+void MainWindow::load_cube_color(QString fileName)
+{
+    if(fileName.isEmpty())
+    {
+        fileName = QFileDialog::getOpenFileName(this,
+                                                tr("Load Cube Color"),
+                                                tr("./"),
+                                                tr("cube color(*.arma)"));
+    }
+    if (fileName.isEmpty())return;
+    arma::uvec cube_color;
+    if(!cube_color.load(fileName.toStdString()))
+    {
+        QString msg = "Failed to Load "+fileName+"\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
+    }
+    Common::Cube::set_color(cube_color);
+    if(labels_.size()!=inputs_.size())
+    {
+        return;
+    }
+    std::vector<arma::uvec>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    miter = inputs_.begin();
+    for(iter=labels_.begin();iter!=labels_.end();++iter)
+    {
+        MeshBundle<DefaultMesh>& m = **miter;
+        Common::Cube::colorByLabel((uint32_t*)m.custom_color_.vertex_colors(),m.custom_color_.size(),*iter);
         if(miter==inputs_.end())break;
         ++miter;
     }
