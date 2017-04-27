@@ -22,6 +22,35 @@ JRCSBox::JRCSBox()
     ;
 }
 
+void JRCSBox::get_label(std::vector<arma::uvec>& lbl)
+{
+    if(verbose_)std::cerr<<"JRCSBase::get_label"<<std::endl;
+    if(lbl.size()!=vvs_ptrlst_.size()){
+        lbl.resize(vvs_ptrlst_.size());
+    }
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[idx];
+        arma::mat obj_p(alpha.n_rows,obj_num_);
+        arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
+        #pragma omp parallel for
+        for(int o = 0 ; o < obj_num_ ; ++o )
+        {
+            obj_p.col(o) = arma::sum(alpha.cols(obj_range_[2*o],obj_range_[2*o+1]),1);
+        }
+        arma::uvec label(alpha.n_rows);
+        #pragma omp parallel for
+        for(int r = 0 ; r < obj_p.n_rows ; ++r )
+        {
+            arma::uword l;
+            arma::rowvec point_prob = obj_p.row(r);
+            point_prob.max(l);
+            label(r) = l+1;
+        }
+        lbl[idx] = label;
+    }
+}
+
 void JRCSBox::initx(
         const MatPtr& xv,
         const MatPtr& xn,
@@ -236,7 +265,6 @@ void JRCSBox::update_color_label()
         arma::mat& alpha = *alpha_ptrlst_[idx];
         arma::mat obj_p(alpha.n_rows,obj_num_);
         arma::Col<uint32_t>& vl = *vls_ptrlst_[idx];
-//        arma::uvec& vll =*vll_ptrlst_[idx];
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {

@@ -1,6 +1,15 @@
 \newcommand{\etalchar}[1]{$^{#1}$}
 \begin{thebibliography}{\uppercase{EKBHP14}}
 
+\bibitem[CB07]{LOF}
+\textsc{Chen H., Bhanu B.}:
+\newblock 3d free-form object recognition in range images using local surface
+  patches.
+\newblock \emph{Pattern Recogn. Lett. 28}, 10 (July 2007), 1252--1262.
+\newblock URL: \url{http://dx.doi.org/10.1016/j.patrec.2007.02.009}, \href
+  {http://dx.doi.org/10.1016/j.patrec.2007.02.009}
+  {\path{doi:10.1016/j.patrec.2007.02.009}}.
+
 \bibitem[CLW{\etalchar{*}}14]{Chen:2014:ASM:2661229.2661239}
 \textsc{Chen K., Lai Y.-K., Wu Y.-X., Martin R., Hu S.-M.}:
 \newblock Automatic semantic modeling of indoor scenes from low-quality rgb-d
@@ -119,6 +128,15 @@
 \newblock URL: \url{http://doi.acm.org/10.1145/1186562.1015720}, \href
   {http://dx.doi.org/10.1145/1186562.1015720}
   {\path{doi:10.1145/1186562.1015720}}.
+
+\bibitem[TS10]{hough}
+\textsc{Tombari F., Stefano L.~D.}:
+\newblock Object recognition in 3d scenes with occlusions and clutter by hough
+  voting.
+\newblock In \emph{2010 Fourth Pacific-Rim Symposium on Image and Video
+  Technology} (Nov 2010), pp.~349--355.
+\newblock \href {http://dx.doi.org/10.1109/PSIVT.2010.65}
+  {\path{doi:10.1109/PSIVT.2010.65}}.
 
 \bibitem[TSS16]{Taniai_2016_CVPR}
 \textsc{Taniai T., Sinha S.~N., Sato Y.}:

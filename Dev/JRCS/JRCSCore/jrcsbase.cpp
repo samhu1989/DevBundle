@@ -781,6 +781,7 @@ void JRCSBase::update_color_label()
 
 void JRCSBase::get_label(std::vector<arma::uvec>&lbl)
 {
+    if(verbose_)std::cerr<<"JRCSBase::get_label"<<std::endl;
     if(lbl.size()!=vvs_ptrlst_.size()){
         lbl.resize(vvs_ptrlst_.size());
     }

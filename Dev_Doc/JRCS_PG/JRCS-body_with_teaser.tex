@@ -3,16 +3,16 @@
 % D.Fellner, v2.01, Oct 06, 2016
 
 
-\title[Interactive Point Set Joint Registration and Co-segmentation for Indoor Scenes]%
-      {Interactive Point Set Joint Registration and Co-segmentation for Indoor Scenes}
+\title[Interactive Point Set Joint Registration and Co-segmentation]%
+      {Interactive Point Set Joint Registration and Co-segmentation}
 
 % for anonymous conference submission please enter your SUBMISSION ID
 % instead of the author's name (and leave the affiliation blank) !!
 \author[Siyu Hu]
-{\parbox{\textwidth}{\centering Siyu Hu $^1$}
+{\parbox{\textwidth}{\centering ID: paper1049}
         \\
 % For Computer Graphics Forum: Please use the abbreviation of your first name.
-{\parbox{\textwidth}{\centering $^1$ USTC\\
+{\parbox{\textwidth}{\centering \\
 %         $^2$Graz University of Technology, Institute of Computer Graphics and Knowledge %Visualization, Austria
        } 
 }
@@ -31,15 +31,14 @@
 \begin{document}
 
 \teaser{
- \includegraphics[width=\linewidth]{images/teaser/teaser}
+ \includegraphics[width=\linewidth]{images/teaser/teaser2}
  \centering
   \caption{
-  	(a)(b)(c)(d) are input point sets and user have initialized layout for (b) by interactively placing boxes in it. (m) shows the centroids of latent model. (e)(f)(g)(h) are segmentation result based on the instant parameters of latent model. (i)(j)(k)(l) are final segmentation result. (n) shows the final centroids of latent model. (o) verifys the accuracy of final transformation by aligning input sets to each object.}
+  	(a) are input point sets and user have initialized layout for the $2^{nd}$ set by interactively placing boxes in it. (b) are result of co-segmentation. (c) are the results of joint registration}
 \label{fig:teaser}
 }
 
 \maketitle
-
 \begin{abstract}
 This paper presents a method of joint registration and co-segmentation for point sets of indoor scenes. We view the joint registration and co-segmentation as two problems heavily entangled with each other. To model such entangled problems, we treat the input point sets as samples from a latent generated model and bring up with a novel formulation based on Gaussian mixture model. By maximizing the posterior probability of the samples, we gradually recover the latent object model and object level segmentation and align the objects to the latent model(solve the registration). Alone with the formulation, we design a procedure of interaction that can help users to intuitively initialize the optimization. Our evaluation shows that our novel method is helpful and effective to do the joint registration and co-segmentation on point sets of indoor scenes.    
 \begin{classification} % according to http:http://www.acm.org/about/class/1998

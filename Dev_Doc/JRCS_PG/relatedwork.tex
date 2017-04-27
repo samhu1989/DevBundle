@@ -11,3 +11,6 @@ There are a serious of works that uses gaussion mixture model as representation 
 
 \subsection{Segmentation from Motion}
 The idea that motion can be strong hint for segmentation is used in many works.\cite{Xu:2015:ACS:2816795.2818075} employs a robot to do proactive push and track the motion to learn object segmentation. \cite{unsupervisededge} use the motion in video and use the motion edge as training data to learn an edge detector. These methods lean on the motion that is continuous in time and can be tracked. Our method can handle motion that is not continuous in time.
+
+\subsection{3D Object Recognition based on Correspondence Grouping}
+By allowing interactively input layout, the joint registration and co-segmentation problem degenerate into a series of 3D object recognition problem in point clouds. Our method should be seen as one of the correspondence grouping method. Comparing to the previous methods of \cite{hough} and \cite{LOF}, our method simutaneously solve the problem for multiple target models in multiple scenes.

@@ -91,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionGDCoord,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionScene_Maker,SIGNAL(triggered(bool)),this,SLOT(make_scene()));
+    connect(ui->actionEstimate_IOU,SIGNAL(triggered(bool)),this,SLOT(calculate_iou()));
 
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -1481,6 +1482,94 @@ void MainWindow::showIndex()
         m.custom_color_.fromIndex();
     }
     ui->actionCustom_Color->setChecked(true);
+}
+
+void MainWindow::calculate_iou(QString dir0,QString dir1)
+{
+    if(inputs_.empty())
+    {
+        QString msg = "Please Load Inputs First\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+    }
+    if(dir0.isEmpty())
+    {
+        dir0 = QFileDialog::getExistingDirectory(
+                this,
+                tr("Load Labels 0"),
+                tr("../Dev_Data/")
+                );
+    }
+    if(dir0.isEmpty())return;
+
+    if(dir1.isEmpty())
+    {
+        dir1 = QFileDialog::getExistingDirectory(
+                this,
+                tr("Load Labels 1"),
+                tr("../Dev_Data/")
+                );
+    }
+    if(dir1.isEmpty())return;
+
+    QDir dir;
+    QString filepath;
+    float iou = 0.0;
+    float min = std::numeric_limits<float>::max();
+    float max = std::numeric_limits<float>::lowest();
+    int mini,maxi;
+    for(int i=0;i<inputs_.size();++i)
+    {
+        dir.setPath(dir0);
+        arma::uvec lbl0,lbl1;
+        filepath = dir.absoluteFilePath(
+                    QString::fromStdString((inputs_[i])->name_+".label.arma")
+                    );
+        if(!lbl0.load(filepath.toStdString()))
+        {
+            QString msg = "Failed to Load "+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        if( lbl0.size() != (inputs_[i])->mesh_.n_vertices() )
+        {
+            QString msg = "Some size of this set of labels doesn't match the inputs\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        dir.setPath(dir1);
+        filepath = dir.absoluteFilePath(
+                    QString::fromStdString((inputs_[i])->name_+".label.arma")
+                    );
+        if(!lbl1.load(filepath.toStdString()))
+        {
+            QString msg = "Failed to Load "+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        if( lbl1.size() != (inputs_[i])->mesh_.n_vertices() )
+        {
+            QString msg = "Some size of this set of labels doesn't match the inputs\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        arma::uvec intersect = arma::find(lbl0==lbl1);
+        iou = float(intersect.size());
+        iou = iou / ( 2.0*float(lbl0.size()) - iou );
+        std::cout<<(inputs_[i])->name_<<":"<<iou<<std::endl;
+        if(min>iou)
+        {
+            mini = i;
+            min=iou;
+        }
+        if(max<iou)
+        {
+            maxi = i;
+            max=iou;
+        }
+    }
+    std::cout<<"min:"<<(inputs_[mini])->name_<<":"<<min<<std::endl;
+    std::cout<<"max:"<<(inputs_[maxi])->name_<<":"<<max<<std::endl;
+    std::cout.flush();
 }
 
 void MainWindow::goOver()

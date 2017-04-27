@@ -64,6 +64,7 @@ public slots:
     void load_cube_color(QString path=QString());
 
     void view_input(WidgetPtr widget);
+    void calculate_iou(QString dir0=QString(),QString dir1=QString());
 protected slots:
     void configure();
 

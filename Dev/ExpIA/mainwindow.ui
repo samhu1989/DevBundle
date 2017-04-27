@@ -229,6 +229,7 @@
     </widget>
     <addaction name="menuFeature"/>
     <addaction name="actionScene_Maker"/>
+    <addaction name="actionEstimate_IOU"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -664,6 +665,11 @@
   <action name="actionLoad_Cube_Color">
    <property name="text">
     <string>Load Cube Color</string>
+   </property>
+  </action>
+  <action name="actionEstimate_IOU">
+   <property name="text">
+    <string>Estimate IOU</string>
    </property>
   </action>
  </widget>
