@@ -3,7 +3,7 @@
 void DownSampleThread::run()
 {
     Filter::OctreeGrid<DefaultMesh> filter;
-    filter.set_seed_resolution(0.1);
+    filter.set_seed_resolution(0.01);
     filter.extract(m_);
 }
 
