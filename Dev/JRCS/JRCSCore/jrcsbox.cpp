@@ -500,6 +500,7 @@ void JRCSBox::step_a(int i)
 
     arma::mat&  alpha = *alpha_ptrlst_[i];
     double dim = double(f_dim_)/2.0f;
+    double w = double(iter_count_) / double(max_iter_);
     for(int r = 0 ; r < alpha.n_rows ; ++r )
     {
         arma::mat tmpf = arma::conv_to<arma::mat>::from( xf_.each_col() - vf_.col(r) );
@@ -514,7 +515,19 @@ void JRCSBox::step_a(int i)
         alpha_v = arma::trunc_exp(alpha_v);
         alpha_v %= arma::pow(xv_invvar_,1.5);
 
-        alpha.row(r) = alpha_v + alpha_f ;
+        alpha.row(r) = alpha_v;
+    }
+
+    //applying terms of init alpha
+    if(iter_count_ < max_init_iter_)
+    {
+        arma::mat& c_alpha  = *color_prob_lsts_[i];
+        int o = 0;
+        for(int c = 0 ; c < alpha.n_cols ; ++c )
+        {
+            alpha.col(c) %= c_alpha.col(o);
+            if( c == obj_range_[2*o+1] )++o;//reach end of this object
+        }
     }
 
     //applying terms of points in box constraint to alpha

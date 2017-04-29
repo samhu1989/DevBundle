@@ -133,7 +133,7 @@ protected:
     if(_m==GL_SPECULAR)
     {
         QColor color(c[0],c[1],c[2],1.0);
-        color = color.lighter();
+        color = color.lighter(105);
         OpenMesh::Vec4f m(color.redF(),color.greenF(),color.blueF(), 1.0f );
         glMaterialfv(_f, _m, &m[0]);
     }

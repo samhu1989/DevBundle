@@ -284,6 +284,7 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
                                   fEnd(mesh_.faces_end());
 
   typename Mesh::ConstFaceVertexIter fvIt;
+  typename Mesh::ConstVertexIter vIt(mesh_.vertices_begin()),vEnd(mesh_.vertices_end());
 
 #if defined(OM_USE_OSG) && OM_USE_OSG
   if (_draw_mode == "OpenSG Indices") // --------------------------------------
@@ -389,6 +390,7 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
 
   else if (_draw_mode == "Colored Vertices") // --------------------------------
   {
+    glEnable( GL_POINT_SMOOTH );
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
@@ -401,21 +403,20 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
       glColorPointer(3, GL_UNSIGNED_BYTE, 0,mesh_.vertex_colors());
     }
 
-    glBegin(GL_TRIANGLES);
-    for (; fIt!=fEnd; ++fIt)
+    glPointSize(point_size_);
+    glBegin(GL_POINTS);
+    for (  ; vIt!=vEnd; ++vIt)
     {
-      fvIt = mesh_.cfv_iter(*fIt);
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
-      ++fvIt;
-      glArrayElement(fvIt->idx());
+      glMaterial(mesh_,*vIt);
+      glMaterial(mesh_,*vIt,GL_FRONT_AND_BACK,GL_SPECULAR);
+      glArrayElement(vIt->idx());
     }
     glEnd();
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
+    glDisable( GL_POINT_SMOOTH );
   }
   else if (_draw_mode == "Flat Colored Vertices") // --------------------------------
   {
@@ -478,6 +479,7 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
 
   else if (_draw_mode == "Smooth Colored Faces") // ---------------------------
   {
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
@@ -573,6 +575,12 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
 
+    if(mesh_.has_vertex_normals())
+    {
+        glEnableClientState(GL_NORMAL_ARRAY);
+        glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
+    }
+
     if ( use_color_)
     {
         if( mesh_.has_vertex_colors() && !custom_color_)
@@ -586,6 +594,7 @@ MeshPairViewerWidgetT<M>::draw_openmesh(MeshBundle<Mesh>& b,const std::string& _
     }
     glPointSize(point_size_);
     glDrawArrays( GL_POINTS, 0, static_cast<GLsizei>(mesh_.n_vertices()) );
+    glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable( GL_POINT_SMOOTH );
@@ -714,9 +723,9 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
   }
   else if( _draw_mode == "Plate")
   {
-      glDisable(GL_LIGHTING);
-      if(0<first_->mesh_.n_vertices())draw_openmesh( *first_ , "Points" );
-
+      glEnable(GL_LIGHTING);
+      glShadeModel(GL_SMOOTH);
+      if(0<first_->mesh_.n_vertices())draw_openmesh( *first_ , "Colored Vertices" );
       glEnable(GL_LIGHTING);
       glShadeModel(GL_FLAT);
       if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, "Flat Colored Vertices" );
@@ -748,7 +757,7 @@ MeshPairViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
 
   else if (_draw_mode == "Colored Vertices" )
   {
-    glDisable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
     if(0<first_->mesh_.n_vertices())draw_openmesh( *first_, _draw_mode );
     if(0<second_->mesh_.n_vertices())draw_openmesh( *second_, _draw_mode );
@@ -1007,27 +1016,27 @@ void MeshPairViewerWidgetT<M>::transform_box(int key)
     switch(key)
     {
     case Key_W:
-        t = {0.05,0,0};
+        t = {0.01,0,0};
         cube.translate(t,cube);
         break;
     case Key_S:
-        t = {-0.05,0,0};
+        t = {-0.01,0,0};
         cube.translate(t,cube);
         break;
     case Key_A:
-        t = {0,0.05,0};
+        t = {0,0.01,0};
         cube.translate(t,cube);
         break;
     case Key_D:
-        t = {0,-0.05,0};
+        t = {0,-0.01,0};
         cube.translate(t,cube);
         break;
     case Key_Up:
-        t = {0,0,0.05};
+        t = {0,0,0.01};
         cube.translate(t,cube);
         break;
     case Key_Down:
-        t = {0,0,-0.05};
+        t = {0,0,-0.01};
         cube.translate(t,cube);
         break;
     case Key_Q:

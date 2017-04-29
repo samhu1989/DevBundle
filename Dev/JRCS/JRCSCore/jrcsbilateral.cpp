@@ -85,6 +85,7 @@ void JRCSBilateral::step_a(int i)
 
     arma::mat&  alpha = *alpha_ptrlst_[i];
     double dim = double(f_dim_)/2.0f;
+    double w = double(iter_count_) / double(max_iter_);
     for(int r = 0 ; r < alpha.n_rows ; ++r )
     {
         arma::mat tmpf = arma::conv_to<arma::mat>::from( xf_.each_col() - vf_.col(r) );
@@ -99,7 +100,7 @@ void JRCSBilateral::step_a(int i)
         alpha_v = arma::trunc_exp(alpha_v);
         alpha_v %= arma::pow(xv_invvar_,1.5);
 
-        alpha.row(r) = alpha_v + alpha_f ;
+        alpha.row(r) = alpha_v % ( (1-w)*alpha_f + w ) ;
     }
 
     if(verbose_>1)std::cerr<<"normalize alpha"<<std::endl;
@@ -383,7 +384,7 @@ void JRCSBilateral::reset_prob()
     xv_invvar_.fill(1.0/maxvar);
 
     xf_invvar_ = arma::rowvec(xv_ptr_->n_cols);
-    xf_invvar_.fill(2.0);
+    xf_invvar_.fill(1.0/(255.0*255.0));
 
     vvar_ = arma::mat(vvs_ptrlst_.size(),xv_ptr_->n_cols);
     fvar_ = arma::mat(vvs_ptrlst_.size(),xv_ptr_->n_cols);

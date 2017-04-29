@@ -964,27 +964,27 @@ void MeshListViewerWidgetT<M>::transform_current(int key)
     switch(key)
     {
     case Key_W:
-        t = {0.05,0,0};
+        t = {0.01,0,0};
         vv.each_col() += t;
         break;
     case Key_S:
-        t = {-0.05,0,0};
+        t = {-0.01,0,0};
         vv.each_col() += t;
         break;
     case Key_A:
-        t = {0,0.05,0};
+        t = {0,0.01,0};
         vv.each_col() += t;
         break;
     case Key_D:
-        t = {0,-0.05,0};
+        t = {0,-0.01,0};
         vv.each_col() += t;
         break;
     case Key_R:
-        t = {0,0,0.05};
+        t = {0,0,0.01};
         vv.each_col() += t;
         break;
     case Key_F:
-        t = {0,0,-0.05};
+        t = {0,0,-0.01};
         vv.each_col() += t;
         break;
     case Key_Q:
