@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  29 APR 2017 18:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  29 APR 2017 18:51
 entering extended mode
 **EGauthorGuidelines-pg2017-sub.tex
 (EGauthorGuidelines-pg2017-sub.tex
@@ -452,32 +452,32 @@ l.54
 
 
  <./images/teaser/teaser2.pdf>] (relatedwork.tex) [2] (method.tex
-Overfull \hbox (3.5236pt too wide) in paragraph at lines 8--28
+Overfull \hbox (3.5236pt too wide) in paragraph at lines 7--27
  [][] 
  []
 
 
-LaTeX Warning: Reference `tab:symbol' on page 3 undefined on input line 32.
+LaTeX Warning: Reference `tab:symbol' on page 3 undefined on input line 31.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 41--44
+Underfull \hbox (badness 10000) in paragraph at lines 40--43
 
  []
 
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 75.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 74.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 75.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 74.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 75.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 74.
 [3pdfTeX warning (ext4): destination with the same identifier (name{table.1}) h
 as been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.80 \begin{equation}
+l.79 \begin{equation}
                      ]
-Underfull \hbox (badness 1642) in paragraph at lines 118--123
+Underfull \hbox (badness 1642) in paragraph at lines 117--122
 \T1/ptm/m/n/9 where $\OML/ptmcm/m/it/9 P[]\OT1/ptmcm/m/n/9 (\OML/ptmcm/m/it/9 x
 ; y; \OT1/ptmcm/m/n/9 ) = \OML/ptmcm/m/it/9 []exp\OT1/ptmcm/m/n/9 (\OMS/cmsy/
 m/n/9  []jj\OML/ptmcm/m/it/9 x \OMS/cmsy/m/n/9   \OML/ptmcm/m/it/9 y\OMS/cmsy/m
@@ -489,49 +489,49 @@ m/n/9  []jj\OML/ptmcm/m/it/9 x \OMS/cmsy/m/n/9   \OML/ptmcm/m/it/9 y\OMS/cmsy/m
 File: images/interact01.png Graphic file (type png)
 
 <use images/interact01.png>
-Package pdftex.def Info: images/interact01.png used on input line 139.
+Package pdftex.def Info: images/interact01.png used on input line 138.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact02.png, id=138, 1349.04pt x 875.27pt>
 File: images/interact02.png Graphic file (type png)
 
 <use images/interact02.png>
-Package pdftex.def Info: images/interact02.png used on input line 140.
+Package pdftex.def Info: images/interact02.png used on input line 139.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact03.png, id=139, 1349.04pt x 875.27pt>
 File: images/interact03.png Graphic file (type png)
 
 <use images/interact03.png>
-Package pdftex.def Info: images/interact03.png used on input line 141.
+Package pdftex.def Info: images/interact03.png used on input line 140.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact04.png, id=140, 1349.04pt x 875.27pt>
 File: images/interact04.png Graphic file (type png)
 
 <use images/interact04.png>
-Package pdftex.def Info: images/interact04.png used on input line 142.
+Package pdftex.def Info: images/interact04.png used on input line 141.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact05.png, id=141, 1349.04pt x 875.27pt>
 File: images/interact05.png Graphic file (type png)
 
 <use images/interact05.png>
-Package pdftex.def Info: images/interact05.png used on input line 143.
+Package pdftex.def Info: images/interact05.png used on input line 142.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact06.png, id=142, 1349.04pt x 875.27pt>
 File: images/interact06.png Graphic file (type png)
 
 <use images/interact06.png>
-Package pdftex.def Info: images/interact06.png used on input line 144.
+Package pdftex.def Info: images/interact06.png used on input line 143.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
  [4pdfTeX warning (ext4): destination with the same identifier (name{figure.2})
  has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.156 \begin{equation}
+l.155 \begin{equation}
                        <./images/interact01.png> <./images/interact02.png> <./i
 mages/interact03.png> <./images/interact04.png> <./images/interact05.png> <./im
 ages/interact06.png>]
@@ -540,7 +540,7 @@ File: images/localoptimal/localoptimal.pdf Graphic file (type pdf)
 
 <use images/localoptimal/localoptimal.pdf>
 Package pdftex.def Info: images/localoptimal/localoptimal.pdf used on input lin
-e 171.
+e 170.
 (pdftex.def)             Requested size: 240.0pt x 105.1857pt.
 ) (imp.tex
 Underfull \hbox (badness 10000) in paragraph at lines 3--4
@@ -576,7 +576,7 @@ Package pdftex.def Info: images/seg/seg.pdf used on input line 5.
 File: images/realdata/realdata.pdf Graphic file (type pdf)
 
 <use images/realdata/realdata.pdf>
-Package pdftex.def Info: images/realdata/realdata.pdf used on input line 16.
+Package pdftex.def Info: images/realdata/realdata.pdf used on input line 22.
 (pdftex.def)             Requested size: 504.0pt x 147.80635pt.
 ) (EGauthorGuidelines-pg2017-sub.bbl
 (EGauthorGuidelines-pg2017-sub.brf)
@@ -590,13 +590,13 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.29 
+l.12 
      pdfTeX warning (ext4): destination with the same identifier (name{figure.5
 }) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.29 
+l.12 
       <./images/hotintervention/hi.pdf> <./images/seg/seg.pdf
 
 pdfTeX warning: pdflatex.exe (file ./images/seg/seg.pdf): PDF inclusion: multip
@@ -668,15 +668,17 @@ Underfull \hbox (badness 3343) in paragraph at lines 156--156
 []\T1/ptm/m/sc/8 Xu K., Chen K., Fu H., Sun W.-L., Hu S.-M.\T1/ptm/m/n/8 :
  []
 
-)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 76.
- [7pdfTeX warning (ext4): destination with the same identifier (name{figure.6})
- has been already used, duplicate ignored
+[7pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) 
+has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.76 \end{document}
-                    <./images/realdata/realdata.pdf>]
+l.156 
+       <./images/realdata/realdata.pdf>])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 76.
+ [8
+
+]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 76.
 
 (EGauthorGuidelines-pg2017-sub.aux)
@@ -692,13 +694,13 @@ LaTeX Warning: There were undefined references.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 76.
  ) ) 
 Here is how much of TeX's memory you used:
- 6948 strings out of 493698
- 99847 string characters out of 3144415
+ 6949 strings out of 493698
+ 99853 string characters out of 3144415
  201505 words of memory out of 3000000
  10026 multiletter control sequences out of 15000+200000
  58899 words of font info for 95 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 32i,14n,25p,1460b,417s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,14n,25p,1460b,421s stack positions out of 5000i,500n,10000p,200000b,50000s
 {D:/Program Files/MiKTeX 2.9/fonts/enc/dvips/fontname/8r.enc}<D:/Program Fi
 les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><D:/Program Files/MiKT
 eX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><D:/Program Files/MiKTeX 2.9/f
@@ -711,9 +713,9 @@ rogram Files/MiKTeX 2.9/fonts/type1/urw/symbol/usyr.pfb><D:/Program Files/MiKTe
 X 2.9/fonts/type1/urw/times/utmb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1
 /urw/times/utmr8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8
 a.pfb>
-Output written on EGauthorGuidelines-pg2017-sub.pdf (7 pages, 5201744 bytes).
+Output written on EGauthorGuidelines-pg2017-sub.pdf (8 pages, 5202998 bytes).
 PDF statistics:
- 525 PDF objects out of 1000 (max. 8388607)
- 84 named destinations out of 1000 (max. 500000)
+ 530 PDF objects out of 1000 (max. 8388607)
+ 85 named destinations out of 1000 (max. 500000)
  56 words of extra memory for PDF output out of 10000 (max. 10000000)
 

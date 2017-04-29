@@ -9,12 +9,18 @@ From the perspective of co-segmentation, we evaluate our algorithm on synthetic 
 From the evaluation, we want to discuss two observations:\\
 Firstly, for all three groups, the point set with highest IOU score is not the same as the point set equiped with mannually placed layout.In other words , the point sets from the $3^{rd}$ column in Figure~\ref{fig:seg} are not the same point sets from $2^{nd}$. We believe this is because that the mannually placed layout is not accurate respecting to point-wise segmentation. At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}) can serve as a soft constraint to help constratining the shape of object, but in the final iterations the alteration will obstruct the further improvement of segmentation for the correspondent point set. 
 \subsection{Evaluation for Joint Registration on Synthetic Data}
-In the process of generating synthetic data, we didn't record the groundtruth of the transformation of the 
+From the perspective of joint registration, we evaluate the result by comparing the resulted transformation against the groundtruth. However, transformations recorded in the process of generating synthetic data are the object transformations from the $m^{th}$ point set to the $(m+1)^{th}$ point set. The transformations output by our algorithm are the transformations from the object model to each point set. For above reason, we first transfer our output to the  
+\begin{table}[!hbp]
+\centering
+\begin{tabular}{c l}
+		\hline
+\end{tabular}
+\end{table}
 \subsection{Test On Real Data}
 \begin{figure*}[htb]
 	\centering
 	\includegraphics[width=\linewidth]{images/realdata/realdata}
 	\caption{\label{fig:realdata}This figure shows our test on a real data. (a)(b)(c) shows how we capture real data and convert to input point set. (d) shows the first input point set, the input layout on it and its segmentation result. (e) shows pairs of other input point sets and corresponding segmentation result. (f) shows the final Gaussian centroids. (g) verifys the registration result by aligning input point sets respecting to each object. The light blue rectangle highlights the object that is aligned together. }
 \end{figure*}
-We test our algorithm on a set of real data, Figure~{\ref{fig:realdata}} shows the result of our test.
+We test our algorithm on a set of real data, Figure~{\ref{fig:realdata}} shows the complete of our test. 
 \subsection{Limitations and Future Work}
