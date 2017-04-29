@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  29 APR 2017 18:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  29 APR 2017 22:34
 entering extended mode
 **EGauthorGuidelines-pg2017-sub.tex
 (EGauthorGuidelines-pg2017-sub.tex
@@ -457,27 +457,24 @@ Overfull \hbox (3.5236pt too wide) in paragraph at lines 7--27
  []
 
 
-LaTeX Warning: Reference `tab:symbol' on page 3 undefined on input line 31.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 40--43
+Underfull \hbox (badness 10000) in paragraph at lines 40--42
 
  []
 
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 74.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 73.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 74.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 73.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 74.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 73.
 [3pdfTeX warning (ext4): destination with the same identifier (name{table.1}) h
 as been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.79 \begin{equation}
+l.78 \begin{equation}
                      ]
-Underfull \hbox (badness 1642) in paragraph at lines 117--122
+Underfull \hbox (badness 1642) in paragraph at lines 121--126
 \T1/ptm/m/n/9 where $\OML/ptmcm/m/it/9 P[]\OT1/ptmcm/m/n/9 (\OML/ptmcm/m/it/9 x
 ; y; \OT1/ptmcm/m/n/9 ) = \OML/ptmcm/m/it/9 []exp\OT1/ptmcm/m/n/9 (\OMS/cmsy/
 m/n/9  []jj\OML/ptmcm/m/it/9 x \OMS/cmsy/m/n/9   \OML/ptmcm/m/it/9 y\OMS/cmsy/m
@@ -485,94 +482,108 @@ m/n/9  []jj\OML/ptmcm/m/it/9 x \OMS/cmsy/m/n/9   \OML/ptmcm/m/it/9 y\OMS/cmsy/m
 /m/n/9 (\OML/ptmcm/m/it/9 x; y; \OT1/ptmcm/m/n/9 ) =$
  []
 
-<images/interact01.png, id=136, 1349.04pt x 875.27pt>
+<images/interact01.png, id=138, 1349.04pt x 875.27pt>
 File: images/interact01.png Graphic file (type png)
 
 <use images/interact01.png>
-Package pdftex.def Info: images/interact01.png used on input line 138.
+Package pdftex.def Info: images/interact01.png used on input line 142.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
-<images/interact02.png, id=138, 1349.04pt x 875.27pt>
+<images/interact02.png, id=140, 1349.04pt x 875.27pt>
 File: images/interact02.png Graphic file (type png)
 
 <use images/interact02.png>
-Package pdftex.def Info: images/interact02.png used on input line 139.
+Package pdftex.def Info: images/interact02.png used on input line 143.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
-<images/interact03.png, id=139, 1349.04pt x 875.27pt>
+<images/interact03.png, id=141, 1349.04pt x 875.27pt>
 File: images/interact03.png Graphic file (type png)
 
 <use images/interact03.png>
-Package pdftex.def Info: images/interact03.png used on input line 140.
+Package pdftex.def Info: images/interact03.png used on input line 144.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
-<images/interact04.png, id=140, 1349.04pt x 875.27pt>
+<images/interact04.png, id=142, 1349.04pt x 875.27pt>
 File: images/interact04.png Graphic file (type png)
 
 <use images/interact04.png>
-Package pdftex.def Info: images/interact04.png used on input line 141.
+Package pdftex.def Info: images/interact04.png used on input line 145.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
-<images/interact05.png, id=141, 1349.04pt x 875.27pt>
+<images/interact05.png, id=143, 1349.04pt x 875.27pt>
 File: images/interact05.png Graphic file (type png)
 
 <use images/interact05.png>
-Package pdftex.def Info: images/interact05.png used on input line 142.
+Package pdftex.def Info: images/interact05.png used on input line 146.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
-<images/interact06.png, id=142, 1349.04pt x 875.27pt>
+<images/interact06.png, id=144, 1349.04pt x 875.27pt>
 File: images/interact06.png Graphic file (type png)
 
 <use images/interact06.png>
-Package pdftex.def Info: images/interact06.png used on input line 143.
+Package pdftex.def Info: images/interact06.png used on input line 147.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
- [4pdfTeX warning (ext4): destination with the same identifier (name{figure.2})
- has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.155 \begin{equation}
-                       <./images/interact01.png> <./images/interact02.png> <./i
-mages/interact03.png> <./images/interact04.png> <./images/interact05.png> <./im
-ages/interact06.png>]
-<images/localoptimal/localoptimal.pdf, id=168, 473.77pt x 207.64082pt>
+ [4]
+<images/localoptimal/localoptimal.pdf, id=166, 473.77pt x 207.64082pt>
 File: images/localoptimal/localoptimal.pdf Graphic file (type pdf)
 
 <use images/localoptimal/localoptimal.pdf>
 Package pdftex.def Info: images/localoptimal/localoptimal.pdf used on input lin
-e 170.
+e 174.
 (pdftex.def)             Requested size: 240.0pt x 105.1857pt.
 ) (imp.tex
 Underfull \hbox (badness 10000) in paragraph at lines 3--4
 
  []
 
-
-Underfull \vbox (badness 1189) has occurred while \output is active []
-
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 7.
+[5pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) 
+has been already used, duplicate ignored
 
-<images/hotintervention/hi.pdf, id=188, 397.485pt x 93.11775pt>
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.30 \begin{equation}
+                     pdfTeX warning (ext4): destination with the same identifie
+r (name{figure.3}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.30 \begin{equation}
+                      <./images/interact01.png> <./images/interact02.png> <./im
+ages/interact03.png> <./images/interact04.png> <./images/interact05.png> <./ima
+ges/interact06.png> <./images/localoptimal/localoptimal.pdf>]
+<images/hotintervention/hi.pdf, id=239, 397.485pt x 93.11775pt>
 File: images/hotintervention/hi.pdf Graphic file (type pdf)
 
 <use images/hotintervention/hi.pdf>
 Package pdftex.def Info: images/hotintervention/hi.pdf used on input line 40.
 (pdftex.def)             Requested size: 240.0pt x 56.22629pt.
- [5pdfTeX warning (ext4): destination with the same identifier (name{figure.3})
- has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.43 
-      <./images/localoptimal/localoptimal.pdf>]) (exp.tex
-<images/seg/seg.pdf, id=238, 513.92pt x 358.79626pt>
+) (exp.tex
+<images/seg/seg.pdf, id=240, 513.92pt x 358.79626pt>
 File: images/seg/seg.pdf Graphic file (type pdf)
  <use images/seg/seg.pdf>
 Package pdftex.def Info: images/seg/seg.pdf used on input line 5.
 (pdftex.def)             Requested size: 240.0pt x 167.5612pt.
 
-<images/realdata/realdata.pdf, id=242, 593.20222pt x 173.96397pt>
+[6pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) 
+has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.19 \subsection
+                {Test On Real Data}pdfTeX warning (ext4): destination with the 
+same identifier (name{figure.5}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.19 \subsection
+                {Test On Real Data} <./images/hotintervention/hi.pdf> <./images
+/seg/seg.pdf
+
+pdfTeX warning: pdflatex.exe (file ./images/seg/seg.pdf): PDF inclusion: multip
+le pdfs with page group included in a single page
+>] <images/realdata/realdata.pdf, id=306, 593.20222pt x 173.96397pt>
 File: images/realdata/realdata.pdf Graphic file (type pdf)
 
 <use images/realdata/realdata.pdf>
@@ -585,100 +596,82 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 12.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 12.
- [6pdfTeX warning (ext4): destination with the same identifier (name{figure.4})
- has been already used, duplicate ignored
 
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.12 
-     pdfTeX warning (ext4): destination with the same identifier (name{figure.5
-}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.12 
-      <./images/hotintervention/hi.pdf> <./images/seg/seg.pdf
-
-pdfTeX warning: pdflatex.exe (file ./images/seg/seg.pdf): PDF inclusion: multip
-le pdfs with page group included in a single page
->]
-Underfull \hbox (badness 10000) in paragraph at lines 38--38
+Underfull \hbox (badness 10000) in paragraph at lines 47--47
 []\T1/ptm/m/sc/8 Evangelidis G. D., Kounades-Bastian D.,
  []
 
 
-Underfull \hbox (badness 6842) in paragraph at lines 38--38
+Underfull \hbox (badness 6842) in paragraph at lines 47--47
 \T1/ptm/m/sc/8 Ho-raud R., Psarakis E. Z.\T1/ptm/m/n/8 :  \T1/ptm/m/it/8 A Gen-
 er-a-tive Model for
  []
 
 
-Underfull \hbox (badness 5787) in paragraph at lines 38--38
+Underfull \hbox (badness 5787) in paragraph at lines 47--47
 \T1/ptm/m/it/8 the Joint Reg-is-tra-tion of Mul-ti-ple Point Sets\T1/ptm/m/n/8 
 .  Springer In-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 38--38
+Underfull \hbox (badness 10000) in paragraph at lines 47--47
 \T1/ptm/m/n/8 ter-na-tional Pub-lish-ing, Cham, 2014, pp. 109--122.  URL:
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 38--38
+Underfull \hbox (badness 10000) in paragraph at lines 47--47
 [][]$\T1/pcr/m/n/8 http : / / dx . doi . org / 10 . 1007 / 978-[]3-[]319-[]1058
 4-[]0 _ 8$[][]\T1/ptm/m/n/8 ,
  []
 
 
-Underfull \hbox (badness 1005) in paragraph at lines 66--66
+Underfull \hbox (badness 1005) in paragraph at lines 75--75
 \T1/ptm/m/n/8 struc-tion and in-ter-ac-tion us-ing a mov-ing depth cam-era.  In
  \T1/ptm/m/it/8 Pro-
  []
 
 
-Underfull \hbox (badness 1377) in paragraph at lines 66--66
+Underfull \hbox (badness 1377) in paragraph at lines 75--75
 \T1/ptm/m/it/8 ceed-ings of the 24th An-nual ACM Sym-po-sium on User In-ter-fac
 e
  []
 
 
-Underfull \hbox (badness 1442) in paragraph at lines 92--92
+Underfull \hbox (badness 1442) in paragraph at lines 101--101
 []\T1/ptm/m/sc/8 Li Y., Paluri M., Rehg J. M., Dol-lar P., un-de-
  []
 
 
-Underfull \hbox (badness 1478) in paragraph at lines 92--92
+Underfull \hbox (badness 1478) in paragraph at lines 101--101
 \T1/ptm/m/n/8 ing of edges.  \T1/ptm/m/it/8 2016 IEEE Con-fer-ence on Com-puter
  Vi-sion and
  []
 
 
-Underfull \hbox (badness 1253) in paragraph at lines 92--92
+Underfull \hbox (badness 1253) in paragraph at lines 101--101
 \T1/ptm/m/it/8 Pat-tern Recog-ni-tion (CVPR) 00 \T1/ptm/m/n/8 (2016), 1619--162
 7.  [][]$\T1/pcr/m/n/8 doi : doi .$
  []
 
 
-Underfull \hbox (badness 1867) in paragraph at lines 113--113
+Underfull \hbox (badness 1867) in paragraph at lines 122--122
 []\T1/ptm/m/sc/8 Merrell P., Schkufza E., Li Z., Agrawala M.,
  []
 
 
-Underfull \hbox (badness 3343) in paragraph at lines 156--156
+Underfull \hbox (badness 3343) in paragraph at lines 173--173
 []\T1/ptm/m/sc/8 Xu K., Chen K., Fu H., Sun W.-L., Hu S.-M.\T1/ptm/m/n/8 :
  []
 
-[7pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) 
-has been already used, duplicate ignored
+)
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 76.
+ [7] [8pdfTeX warning (ext4): destination with the same identifier (name{figure
+.6}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.156 
-       <./images/realdata/realdata.pdf>])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 76.
- [8
-
-]
+l.76 \end{document}
+                    <./images/realdata/realdata.pdf>]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 76.
 
 (EGauthorGuidelines-pg2017-sub.aux)
@@ -686,36 +679,32 @@ Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 76.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 76.
 Package rerunfilecheck Info: File `EGauthorGuidelines-pg2017-sub.brf' has not c
 hanged.
-(rerunfilecheck)             Checksum: 7BB6B1E8CD1998AB0130A37EEF1EB865;1620.
-
-
-LaTeX Warning: There were undefined references.
-
+(rerunfilecheck)             Checksum: C9BE1A35476FDC1E1B190D7D31799297;1702.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 76.
  ) ) 
 Here is how much of TeX's memory you used:
- 6949 strings out of 493698
- 99853 string characters out of 3144415
- 201505 words of memory out of 3000000
- 10026 multiletter control sequences out of 15000+200000
- 58899 words of font info for 95 fonts, out of 3000000 for 9000
+ 6963 strings out of 493698
+ 100017 string characters out of 3144415
+ 204738 words of memory out of 3000000
+ 10035 multiletter control sequences out of 15000+200000
+ 59588 words of font info for 97 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 32i,14n,25p,1460b,421s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,14n,26p,1460b,359s stack positions out of 5000i,500n,10000p,200000b,50000s
 {D:/Program Files/MiKTeX 2.9/fonts/enc/dvips/fontname/8r.enc}<D:/Program Fi
 les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><D:/Program Files/MiKT
 eX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><D:/Program Files/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmr10.pfb><D:/Program Files/MiKTeX 2.9/fonts/type
-1/public/amsfonts/cm/cmsy6.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/
-amsfonts/cm/cmsy7.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmsy9.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/m
-sbm10.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/courier/ucrr8a.pfb><D:/P
-rogram Files/MiKTeX 2.9/fonts/type1/urw/symbol/usyr.pfb><D:/Program Files/MiKTe
-X 2.9/fonts/type1/urw/times/utmb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1
-/urw/times/utmr8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8
-a.pfb>
-Output written on EGauthorGuidelines-pg2017-sub.pdf (8 pages, 5202998 bytes).
+1/public/amsfonts/cm/cmsy5.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/
+amsfonts/cm/cmsy6.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
+cm/cmsy7.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy9.
+pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/msbm10.pfb
+><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/courier/ucrr8a.pfb><D:/Program Fi
+les/MiKTeX 2.9/fonts/type1/urw/symbol/usyr.pfb><D:/Program Files/MiKTeX 2.9/fon
+ts/type1/urw/times/utmb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/time
+s/utmr8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
+Output written on EGauthorGuidelines-pg2017-sub.pdf (8 pages, 5214434 bytes).
 PDF statistics:
- 530 PDF objects out of 1000 (max. 8388607)
- 85 named destinations out of 1000 (max. 500000)
+ 550 PDF objects out of 1000 (max. 8388607)
+ 88 named destinations out of 1000 (max. 500000)
  56 words of extra memory for PDF output out of 10000 (max. 10000000)
 

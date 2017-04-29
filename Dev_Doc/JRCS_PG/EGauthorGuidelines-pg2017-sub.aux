@@ -87,6 +87,7 @@
 \newlabel{sec:method}{{3}{3}{Method Overview}{section.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem Statement}{3}{subsection.3.1}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Table of Symbols Used in the Paper}}{3}{table.1}}
+\newlabel{tab:symbol}{{1}{3}{Table of Symbols Used in the Paper}{table.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Basic Formulation}{3}{subsection.3.2}}
 \newlabel{equ:model}{{1}{3}{Basic Formulation}{equation.3.1}{}}
 \newlabel{equ:obj0}{{2}{3}{Basic Formulation}{equation.3.2}{}}
@@ -102,17 +103,18 @@
 \newlabel{equ:updatexk}{{10}{4}{Basic Formulation}{equation.3.10}{}}
 \newlabel{equ:updatesigma}{{11}{4}{Basic Formulation}{equation.3.11}{}}
 \newlabel{equ:updatepk}{{12}{4}{Basic Formulation}{equation.3.12}{}}
+\newlabel{equ:updatey}{{13}{4}{Basic Formulation}{equation.3.13}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Bilateral Formulation}{4}{subsection.3.3}}
-\newlabel{equ:bestep}{{14}{4}{Bilateral Formulation}{equation.3.14}{}}
-\newlabel{equ:updatefk}{{15}{4}{Bilateral Formulation}{equation.3.15}{}}
-\newlabel{equ:updatefsigma}{{16}{4}{Bilateral Formulation}{equation.3.16}{}}
+\newlabel{equ:bestep}{{15}{4}{Bilateral Formulation}{equation.3.15}{}}
+\newlabel{equ:updatefk}{{16}{4}{Bilateral Formulation}{equation.3.16}{}}
+\newlabel{equ:updatefsigma}{{17}{4}{Bilateral Formulation}{equation.3.17}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Interaction Design}{4}{subsection.3.4}}
 \newlabel{sec:imp:interact}{{3.4}{4}{Interaction Design}{subsection.3.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  From the first to the nineth, the nine images show the procedure of interaction: the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represent one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}}{4}{figure.2}}
-\newlabel{fig:interact}{{2}{4}{From the first to the nineth, the nine images show the procedure of interaction: the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represent one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}{figure.2}{}}
-\newlabel{equ:K_n}{{17}{4}{Interaction Design}{equation.3.17}{}}
-\@writefile{brf}{\backcite{Evangelidis2014}{{5}{3.4}{equation.3.17}}}
-\newlabel{equ:alteralpha}{{18}{5}{Interaction Design}{equation.3.18}{}}
+\newlabel{equ:K_n}{{18}{4}{Interaction Design}{equation.3.18}{}}
+\@writefile{brf}{\backcite{Evangelidis2014}{{4}{3.4}{equation.3.18}}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  From the first to the nineth, the nine images show the procedure of interaction: the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represent one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}}{5}{figure.2}}
+\newlabel{fig:interact}{{2}{5}{From the first to the nineth, the nine images show the procedure of interaction: the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represent one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}{figure.2}{}}
+\newlabel{equ:alteralpha}{{19}{5}{Interaction Design}{equation.3.19}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces This figure shows an example result when converges to a local optimal. (a) is the result of segmentation of this local optimal. (b) is the final centroids of latent model. It shows that from top to down the 2nd and 3rd object model both include part of the table and part of the chair.}}{5}{figure.3}}
 \newlabel{fig:localoptimal}{{3}{5}{This figure shows an example result when converges to a local optimal. (a) is the result of segmentation of this local optimal. (b) is the final centroids of latent model. It shows that from top to down the 2nd and 3rd object model both include part of the table and part of the chair}{figure.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Algorithms and Implementation Details}{5}{section.4}}
@@ -121,10 +123,7 @@
 \@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Joint Registration and Co-segmentation (JRCS)}}{5}{algorithm.1}}
 \newlabel{alg:jrcs}{{1}{5}{Algorithm}{algorithm.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Implementation Details}{5}{subsection.4.2}}
-\newlabel{equ:initt}{{20}{5}{Implementation Details}{equation.4.20}{}}
-\bibstyle{eg-alpha-doi}
-\bibdata{JRCS}
-\bibcite{LOF}{CB07}
+\newlabel{equ:initt}{{21}{6}{Implementation Details}{equation.4.21}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Hot Intervention Machinism}{6}{subsection.4.3}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces This figure shows the hot intervention machinism. (a) is the input point sets with mannually placed layout in 2rd point set. (b) shows that from the region highlighted by blue rectangle the user can see the instant result of segmentation and from the region highlighted by the red rectangle the user can see the space of latent model(the shape of the centroids of the Gaussian models). (c) shows that the user picks another input point set and add more boxes targeting the incorrect segmentation to further guide the optimization.}}{6}{figure.4}}
 \newlabel{fig:hi}{{4}{6}{This figure shows the hot intervention machinism. (a) is the input point sets with mannually placed layout in 2rd point set. (b) shows that from the region highlighted by blue rectangle the user can see the instant result of segmentation and from the region highlighted by the red rectangle the user can see the space of latent model(the shape of the centroids of the Gaussian models). (c) shows that the user picks another input point set and add more boxes targeting the incorrect segmentation to further guide the optimization}{figure.4}{}}
@@ -133,8 +132,14 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Three rows in the figure shows segmentation evaluations on three groups of synthetic data(child table, office desk, living room). Each group of data have 13 point sets. The first column are examples of point sets for each group of data. The second column are mannual placed layout for each group of data. The $3^{rd}$ column shows the segmentation result with maximum IOU scores in the groups. The $4^{th}$ column shows the segmentation result with median IOU scores in the groups. The $5^{th}$ column shows the segmentation result with minimum IOU scores in the groups.}}{6}{figure.5}}
 \newlabel{fig:seg}{{5}{6}{Three rows in the figure shows segmentation evaluations on three groups of synthetic data(child table, office desk, living room). Each group of data have 13 point sets. The first column are examples of point sets for each group of data. The second column are mannual placed layout for each group of data. The $3^{rd}$ column shows the segmentation result with maximum IOU scores in the groups. The $4^{th}$ column shows the segmentation result with median IOU scores in the groups. The $5^{th}$ column shows the segmentation result with minimum IOU scores in the groups}{figure.5}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Evaluation for Joint Registration on Synthetic Data}{6}{subsection.5.2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Test On Real Data}{6}{subsection.5.3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Limitations and Future Work}{6}{subsection.5.4}}
+\citation{VXH}
+\citation{PossionSampling}
+\citation{VXH}
+\citation{PossionSampling}
+\bibstyle{eg-alpha-doi}
+\bibdata{JRCS}
+\bibcite{LOF}{CB07}
+\bibcite{PossionSampling}{CCS12}
 \bibcite{Chen:2014:ASM:2661229.2661239}{CLW{$^{*}$}14}
 \bibcite{SceneFromExample}{DSS12}
 \bibcite{Evangelidis2014}{EKBHP14}
@@ -148,11 +153,16 @@
 \bibcite{CPD}{MS10}
 \bibcite{Merrell:2011:IFL:2010324.1964982}{MSL{$^{*}$}11}
 \bibcite{SearchClassify}{NXS12}
+\bibcite{VXH}{NZIS13}
 \bibcite{grabcut}{RKB04}
 \bibcite{hough}{TS10}
 \bibcite{Taniai_2016_CVPR}{TSS16}
 \bibcite{Xu:2013:SSC:2461912.2461968}{XCF{$^{*}$}13}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces This figure shows our test on a real data. (a)(b)(c) shows how we capture real data and convert to input point set. (d) shows the first input point set, the input layout on it and its segmentation result. (e) shows pairs of other input point sets and corresponding segmentation result. (f) shows the final Gaussian centroids. (g) verifys the registration result by aligning input point sets respecting to each object. The light blue rectangle highlights the object that is aligned together. }}{7}{figure.6}}
-\newlabel{fig:realdata}{{6}{7}{This figure shows our test on a real data. (a)(b)(c) shows how we capture real data and convert to input point set. (d) shows the first input point set, the input layout on it and its segmentation result. (e) shows pairs of other input point sets and corresponding segmentation result. (f) shows the final Gaussian centroids. (g) verifys the registration result by aligning input point sets respecting to each object. The light blue rectangle highlights the object that is aligned together}{figure.6}{}}
-\@writefile{toc}{\contentsline {section}{References}{7}{subsection.5.4}}
 \bibcite{Xu:2015:ACS:2816795.2818075}{XHS{$^{*}$}15}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Test On Real Data}{7}{subsection.5.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Limitations and Future Work}{7}{subsection.5.4}}
+\@writefile{toc}{\contentsline {section}{References}{7}{subsection.5.4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces This figure shows our test on a real data. (a)(b)(c) shows how we capture real data with method in \cite  {VXH} and convert to input point set with sampling method \cite  {PossionSampling}. (d) shows the first input point set, the input layout on it and its segmentation result. (e) shows pairs of other input point sets and corresponding segmentation result. (f) shows the final Gaussian centroids. (g) verifys the registration result by aligning input point sets respecting to each object. The light blue rectangle highlights the object that is aligned together. }}{8}{figure.6}}
+\newlabel{fig:realdata}{{6}{8}{This figure shows our test on a real data. (a)(b)(c) shows how we capture real data with method in \cite {VXH} and convert to input point set with sampling method \cite {PossionSampling}. (d) shows the first input point set, the input layout on it and its segmentation result. (e) shows pairs of other input point sets and corresponding segmentation result. (f) shows the final Gaussian centroids. (g) verifys the registration result by aligning input point sets respecting to each object. The light blue rectangle highlights the object that is aligned together}{figure.6}{}}
+\@writefile{brf}{\backcite{VXH}{{8}{6}{figure.6}}}
+\@writefile{brf}{\backcite{PossionSampling}{{8}{6}{figure.6}}}

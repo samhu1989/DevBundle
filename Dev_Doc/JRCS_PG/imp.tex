@@ -34,7 +34,7 @@ t_{mn}=\frac{\sum_{v_{mi} \in B_n}v_{mi}}{N(B_n)}-c_n
 where $N(B_n)$ is the number of element in $B_n$ and $B_n$ is the point set that is enclosed by the mannual input layout (boxes). 
 \subsection{Hot Intervention Machinism}
 Our current implementation of optimization is quite slow (fail to converge in interative time) epecially when the point numbers inside each input point set are large and it is possible for our optimization to stuck in a local optimal, requiring the guide from the mannual input. As a compensation for these drawbacks. We implement a hot intervention machinism, allowing the mannaul input take effect even after the optimization has started. Theoretically, this is possible due to the i.i.d assumption. 
-This assumption makes it possible for the calculation of posterior probability being independent for each input point set. Even after the optimization is started, we can still allow the user to add more layouts for other point sets and the program can do the same alteration as (\ref{equ:alteralpha}) in the next iteration. The Figure~\ref{fig:hi} shows how the users can use the hot intervention machinism with our tool.
+This assumption makes it possible for the calculation of posterior probability being independent for each input point set. Even after the optimization is started, we can still allow the user to add more layouts for other point sets and the program can do the same alteration as (\ref{equ:alteralpha}) in the next iteration. The Figure~\ref{fig:hi} shows how the users can use the hot intervention machinism within our tool.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\linewidth]{images/hotintervention/hi}

@@ -10,6 +10,15 @@
   {http://dx.doi.org/10.1016/j.patrec.2007.02.009}
   {\path{doi:10.1016/j.patrec.2007.02.009}}.
 
+\bibitem[CCS12]{PossionSampling}
+\textsc{Corsini M., Cignoni P., Scopigno R.}:
+\newblock Efficient and flexible sampling with blue noise properties of
+  triangular meshes.
+\newblock \emph{IEEE Transactions on Visualization and Computer Graphics 18}, 6
+  (June 2012), 914--924.
+\newblock URL: \url{http://dx.doi.org/10.1109/TVCG.2012.34}, \href
+  {http://dx.doi.org/10.1109/TVCG.2012.34} {\path{doi:10.1109/TVCG.2012.34}}.
+
 \bibitem[CLW{\etalchar{*}}14]{Chen:2014:ASM:2661229.2661239}
 \textsc{Chen K., Lai Y.-K., Wu Y.-X., Martin R., Hu S.-M.}:
 \newblock Automatic semantic modeling of indoor scenes from low-quality rgb-d
@@ -118,6 +127,14 @@
 \newblock URL: \url{http://doi.acm.org/10.1145/2366145.2366156}, \href
   {http://dx.doi.org/10.1145/2366145.2366156}
   {\path{doi:10.1145/2366145.2366156}}.
+
+\bibitem[NZIS13]{VXH}
+\textsc{Nie${\beta}$ner M., Zollh\"{o}fer M., Izadi S., Stamminger M.}:
+\newblock Real-time 3d reconstruction at scale using voxel hashing.
+\newblock \emph{ACM Trans. Graph. 32}, 6 (Nov. 2013), 169:1--169:11.
+\newblock URL: \url{http://doi.acm.org/10.1145/2508363.2508374}, \href
+  {http://dx.doi.org/10.1145/2508363.2508374}
+  {\path{doi:10.1145/2508363.2508374}}.
 
 \bibitem[RKB04]{grabcut}
 \textsc{Rother C., Kolmogorov V., Blake A.}:
