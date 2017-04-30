@@ -27,11 +27,16 @@ SceneMaker::SceneMaker(
     lst_view_->setOptions(opt);
     ui->verticalLayout->addWidget(lst_view_);
     connect(ui->toolButton,SIGNAL(clicked(bool)),this,SLOT(save_to_inputs()));
+    connect(ui->toolButton_2,SIGNAL(clicked(bool)),this,SLOT(save_rt()));
+    connect(lst_view_,SIGNAL(have_been_transfomed(arma::fmat,arma::fvec,int)),this,SLOT(update_rt(arma::fmat,arma::fvec,int)));
 }
 
 bool SceneMaker::configure(Config::Ptr)
 {
     lst_view_->query_open_file();
+    R_lst_.resize(lst_view_->list().size());
+    t_lst_.resize(lst_view_->list().size());
+    reset_rt();
     return true;
 }
 
@@ -52,6 +57,8 @@ void SceneMaker::save_to_inputs()
     widget->set_center_at_mesh(bundle_ptr->mesh_);
     widget->setWindowTitle(QString::fromStdString(bundle_ptr->name_));
     emit view_input(widget);
+    save_rt();
+    reset_rt();
 }
 
 void SceneMaker::save_to_input(DefaultMesh& mesh)
@@ -98,6 +105,62 @@ void SceneMaker::save_to_label(arma::uvec& lbl)
         lbl.rows(start,start+bundle.mesh_.n_vertices()-1).fill(oidx);
         ++oidx;
         start += bundle.mesh_.n_vertices();
+    }
+}
+
+void SceneMaker::save_rt()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                            tr("Save RT"),
+                                            tr("./"),
+                                            tr("TXT(*.txt)"));
+    if(fileName.isEmpty())return;
+    std::ofstream out;
+    out.open(fileName.toStdString());
+    std::vector<arma::fmat>::iterator riter;
+    std::vector<arma::fvec>::iterator titer = t_lst_.begin();
+    for(riter=R_lst_.begin();riter!=R_lst_.end();++riter)
+    {
+        arma::fmat& R = *riter;
+        arma::fvec& t = *titer;
+        out << R(0,0)<<" "<< R(0,1)<<" "<<R(0,2)<<" "<<t(0)<<std::endl;
+        out << R(1,0)<<" "<< R(1,1)<<" "<<R(1,2)<<" "<<t(1)<<std::endl;
+        out << R(2,0)<<" "<< R(2,1)<<" "<<R(2,2)<<" "<<t(2)<<std::endl;
+        ++titer;
+        if(titer==t_lst_.end())break;
+    }
+    out.close();
+}
+
+void SceneMaker::reset_rt()
+{
+    std::vector<arma::fmat>::iterator riter;
+    std::vector<arma::fvec>::iterator titer;
+    for(riter=R_lst_.begin();riter!=R_lst_.end();++riter)
+    {
+        *riter = arma::fmat(3,3,arma::fill::eye);
+    }
+    for(titer=t_lst_.begin();titer!=t_lst_.end();++titer)
+    {
+        *titer = arma::fvec(3,arma::fill::zeros);
+    }
+}
+
+void SceneMaker::update_rt(arma::fmat R,arma::fvec t,int idx)
+{
+    if(R_lst_[idx].empty())
+    {
+        R_lst_[idx] = R;
+    }else
+    {
+        R_lst_[idx] = R*R_lst_[idx];
+    }
+    if(t_lst_[idx].empty())
+    {
+        t_lst_[idx] = t;
+    }else
+    {
+        t_lst_[idx] += ( R*t_lst_[idx] + t );
     }
 }
 

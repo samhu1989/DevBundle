@@ -94,6 +94,15 @@ public slots:
       rect_select_=select;
       rect_selecting_ = false;
   }
+signals:
+  void have_been_transfomed(arma::fmat R,arma::fvec t,int index);
+
+public:
+ void notify_been_transfomed(arma::fmat R,arma::fvec t,int index)
+ {
+     emit have_been_transfomed(R,t,index);
+ }
+
 
 private:
 

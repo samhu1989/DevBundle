@@ -65,6 +65,7 @@ public slots:
 
     void view_input(WidgetPtr widget);
     void calculate_iou(QString dir0=QString(),QString dir1=QString());
+    void calculate_fit(QString dir=QString());
 protected slots:
     void configure();
 

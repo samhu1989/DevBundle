@@ -50,6 +50,7 @@ protected:
     void input( JRCSThread* jrcs_worker_ );
     bool allocate_x( JRCSThread* jrcs_worker_ );
     void move_worker_to_thread( JRCSThread* jrcs_worker );
+    void save_rt();
 private:
     Ui::JRCSView *ui;
     MeshListViewerWidget* geo_view_;

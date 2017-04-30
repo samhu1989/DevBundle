@@ -28,6 +28,14 @@
   {http://dx.doi.org/10.1145/2661229.2661239}
   {\path{doi:10.1145/2661229.2661239}}.
 
+\bibitem[CP16]{GOGMA}
+\textsc{Campbell D., Petersson L.}:
+\newblock Gogma: Globally-optimal gaussian mixture alignment.
+\newblock In \emph{2016 IEEE Conference on Computer Vision and Pattern
+  Recognition (CVPR)} (June 2016), pp.~5685--5694.
+\newblock \href {http://dx.doi.org/10.1109/CVPR.2016.613}
+  {\path{doi:10.1109/CVPR.2016.613}}.
+
 \bibitem[DSS12]{SceneFromExample}
 \textsc{Dema M.~A., Sari-Sarraf H.}:
 \newblock 3d scene generation by learning from examples.
@@ -44,6 +52,14 @@
 \newblock URL: \url{http://dx.doi.org/10.1007/978-3-319-10584-0_8}, \href
   {http://dx.doi.org/10.1007/978-3-319-10584-0_8}
   {\path{doi:10.1007/978-3-319-10584-0_8}}.
+
+\bibitem[EKT{\etalchar{*}}16]{AGM}
+\textsc{Eckart B., Kim K., Troccoli A., Kelly A., Kautz J.}:
+\newblock Accelerated generative models for 3d point cloud data.
+\newblock In \emph{2016 IEEE Conference on Computer Vision and Pattern
+  Recognition (CVPR)} (June 2016), pp.~5497--5505.
+\newblock \href {http://dx.doi.org/10.1109/CVPR.2016.593}
+  {\path{doi:10.1109/CVPR.2016.593}}.
 
 \bibitem[FRS{\etalchar{*}}12]{Fisher:2012:ESO:2366145.2366154}
 \textsc{Fisher M., Ritchie D., Savva M., Funkhouser T., Hanrahan P.}:

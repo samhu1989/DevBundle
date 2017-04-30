@@ -15,6 +15,7 @@
 \backcite {CPD}{{2}{2.1}{subsection.2.1}}
 \backcite {GMM_PAMI}{{2}{2.1}{subsection.2.1}}
 \backcite {Evangelidis2014}{{2}{2.1}{subsection.2.1}}
+\backcite {GOGMA}{{2}{2.1}{subsection.2.1}}
 \backcite {Evangelidis2014}{{2}{2.1}{subsection.2.1}}
 \backcite {Evangelidis2014}{{2}{2.1}{subsection.2.1}}
 \backcite {grabcut}{{2}{2.2}{subsection.2.2}}
@@ -28,5 +29,9 @@
 \backcite {Evangelidis2014}{{3}{3.2}{equation.3.2}}
 \backcite {Evangelidis2014}{{4}{3.2}{equation.3.7}}
 \backcite {Evangelidis2014}{{4}{3.4}{equation.3.18}}
+\backcite {VXH}{{7}{5.3}{figure.6}}
+\backcite {PossionSampling}{{7}{5.3}{figure.6}}
+\backcite {GOGMA}{{7}{5.4}{subsection.5.4}}
+\backcite {AGM}{{7}{5.4}{subsection.5.4}}
 \backcite {VXH}{{8}{6}{figure.6}}
 \backcite {PossionSampling}{{8}{6}{figure.6}}

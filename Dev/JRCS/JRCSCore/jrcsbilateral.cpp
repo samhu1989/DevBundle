@@ -100,7 +100,7 @@ void JRCSBilateral::step_a(int i)
         alpha_v = arma::trunc_exp(alpha_v);
         alpha_v %= arma::pow(xv_invvar_,1.5);
 
-        alpha.row(r) = alpha_v % ( (1-w)*alpha_f + w ) ;
+        alpha.row(r) = alpha_v ;
     }
 
     if(verbose_>1)std::cerr<<"normalize alpha"<<std::endl;
@@ -454,8 +454,8 @@ void JRCSBilateral::calc_weighted(
     int o = 0;
     for(int c=0;c<alpha.n_cols;++c)
     {
-        int k = alpha.n_rows*obj_prob_(o)*2.5;
-        k = k < alpha.n_rows ? alpha.n_rows-k : alpha.n_rows-1;
+        int k = alpha.n_rows*obj_prob_(o)*2.0;
+        k = k < ( alpha.n_rows / 2 ) ? alpha.n_rows-k : alpha.n_rows / 2 ;
         k = std::max(3,k);
         arma::vec col = trunc_alpha.col(c);
         arma::uvec ignore_index = arma::sort_index(col);

@@ -231,6 +231,7 @@ void JRCSView::finished()
     {
         emit closeInMdi(this);
     }
+    save_rt();
 }
 
 void JRCSView::passMessage(QString msg,int t)
@@ -261,6 +262,51 @@ void JRCSView::align(int i)
         ++idx;
     }
     geo_view_->show_back();
+}
+
+void JRCSView::save_rt()
+{
+    QString dirName;
+    while(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save RT"),
+                tr("../Dev_Data/")
+                );
+    }
+    QDir dir;
+    dir.setPath(dirName);
+    for(int idx=0;idx<rt_.size();++idx)
+    {
+        QString fileName = dir.absoluteFilePath(
+                    QString::fromStdString(inputs_[idx]->name_+".txt")
+                    );
+        std::ofstream out;
+        out.open(fileName.toStdString());
+        for(int o=0;o<rt_[idx].size();++o)
+        {
+            arma::fmat Rout(3,3,arma::fill::eye);
+            arma::fvec tout(3,arma::fill::zeros);
+            if(idx>0)
+            {
+                Rout = arma::fmat(rt_[idx-1][o].R,3,3,true,true);
+                tout = arma::fmat(rt_[idx-1][o].t,3,true,true);
+            }else{
+                Rout = arma::fmat(rt_.back()[o].R,3,3,true,true);
+                tout = arma::fmat(rt_.back()[o].t,3,true,true);
+            }
+            arma::fmat R(rt_[idx][o].R,3,3,false,true);
+            arma::fvec t(rt_[idx][o].t,3,false,true);
+            Rout = R * Rout.i();
+            tout = Rout*(- tout)+t;
+            out << Rout(0,0)<<" "<< Rout(0,1)<<" "<<Rout(0,2)<<" "<<tout(0)<<std::endl;
+            out << Rout(1,0)<<" "<< Rout(1,1)<<" "<<Rout(1,2)<<" "<<tout(1)<<std::endl;
+            out << Rout(2,0)<<" "<< Rout(2,1)<<" "<<Rout(2,2)<<" "<<tout(2)<<std::endl;
+        }
+        out.close();
+    }
+
 }
 
 JRCSView::~JRCSView()

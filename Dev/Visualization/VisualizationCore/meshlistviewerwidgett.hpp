@@ -995,6 +995,7 @@ void MeshListViewerWidgetT<M>::transform_current(int key)
         vv = R*vv;
         vv.each_col() += t;
         vn = R*vn;
+        t = {0,0,0};
         break;
     case Key_E:
         t = arma::mean(vv,1);
@@ -1004,8 +1005,10 @@ void MeshListViewerWidgetT<M>::transform_current(int key)
         vv = R*vv;
         vv.each_col() += t;
         vn = R*vn;
+        t = {0,0,0};
         break;
     }
+    this->QGLViewerWidget::notify_been_transfomed(R,t,int(current_mesh_start_));
 }
 
 template <typename M>

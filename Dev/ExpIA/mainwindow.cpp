@@ -92,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionGDCoord,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionScene_Maker,SIGNAL(triggered(bool)),this,SLOT(make_scene()));
     connect(ui->actionEstimate_IOU,SIGNAL(triggered(bool)),this,SLOT(calculate_iou()));
+    connect(ui->actionEstimate_Registration_for_JRCS,SIGNAL(triggered(bool)),this,SLOT(calculate_fit()));
 
     connect(ui->actionRegionGrowRGB,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionSort_AGD,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
@@ -1566,6 +1567,94 @@ void MainWindow::calculate_iou(QString dir0,QString dir1)
             maxi = i;
             max=iou;
         }
+    }
+    std::cout<<"min:"<<(inputs_[mini])->name_<<":"<<min<<std::endl;
+    std::cout<<"max:"<<(inputs_[maxi])->name_<<":"<<max<<std::endl;
+    std::cout.flush();
+}
+
+void MainWindow::calculate_fit(QString dirName)
+{
+    if(inputs_.empty())
+    {
+        QString msg = "Please Load Inputs First\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+    }
+    if(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Load RT"),
+                tr("../Dev_Data/")
+                );
+    }
+    if(dirName.isEmpty())return;
+    std::vector<arma::uvec>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter = inputs_.begin();
+    QDir dir;
+    dir.setPath(dirName);
+    arma::fmat v0;
+    arma::fmat v1((float*)(inputs_.back()->mesh_.points()),3,inputs_.back()->mesh_.n_vertices(),true,true);
+    float min = std::numeric_limits<float>::max();
+    float max = std::numeric_limits<float>::lowest();
+    int mini,maxi;
+    int i=0;
+    for(iter=labels_.begin();iter!=labels_.end();++iter)
+    {
+        QString filepath = dir.absoluteFilePath(
+                    QString::fromStdString((*miter)->name_+".txt")
+                    );
+        std::ifstream in;
+        in.open(filepath.toStdString());
+        v0 = v1;
+        v1 = arma::fmat((float*)(*miter)->mesh_.points(),3,(*miter)->mesh_.n_vertices(),true,true);
+        arma::fmat R(3,3);
+        arma::fvec t(3);
+        arma::uvec & label = *iter;
+        arma::uword maxl = arma::max(label);
+        if( maxl==0 || label.empty() )
+        {
+            in >> R(0,0) >> R(0,1) >> R(0,2) >> t(0);
+            in >> R(1,0) >> R(1,1) >> R(1,2) >> t(1);
+            in >> R(2,0) >> R(2,1) >> R(2,2) >> t(2);
+            std::cerr<<i<<std::endl;
+            std::cerr<<R<<std::endl;
+            v0 = R*v0;
+            v0.each_col() += t;
+        }else{
+            for(arma::uword l=arma::min(label);l<maxl;++l)
+            {
+                in >> R(0,0) >> R(0,1) >> R(0,2) >> t(0);
+                in >> R(1,0) >> R(1,1) >> R(1,2) >> t(1);
+                in >> R(2,0) >> R(2,1) >> R(2,2) >> t(2);
+                arma::uvec indices = arma::find(label==l);
+                arma::fmat cols = v0.cols(indices);
+                cols = R*cols;
+                cols.each_col() += t;
+                v0.cols(indices) = cols;
+            }
+        }
+        in.close();
+        arma::fvec scale = ( arma::max(v1,1) - arma::min(v1,1) );
+        float s = arma::mean(scale);
+        arma::fmat e = arma::square(v0 - v1);
+        arma::frowvec e2 = arma::sqrt(arma::sum(e));
+        float error = arma::mean( e2 );
+        error /= s;
+        std::cout<<(*miter)->name_<<":"<<error<<std::endl;
+        if(min>error)
+        {
+            mini = i;
+            min=error;
+        }
+        if(max<error)
+        {
+            maxi = i;
+            max=error;
+        }
+        if(miter==inputs_.end())break;
+        ++miter;
+        ++i;
     }
     std::cout<<"min:"<<(inputs_[mini])->name_<<":"<<min<<std::endl;
     std::cout<<"max:"<<(inputs_[maxi])->name_<<":"<<max<<std::endl;

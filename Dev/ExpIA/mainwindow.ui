@@ -230,6 +230,7 @@
     <addaction name="menuFeature"/>
     <addaction name="actionScene_Maker"/>
     <addaction name="actionEstimate_IOU"/>
+    <addaction name="actionEstimate_Registration_for_JRCS"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -670,6 +671,11 @@
   <action name="actionEstimate_IOU">
    <property name="text">
     <string>Estimate IOU</string>
+   </property>
+  </action>
+  <action name="actionEstimate_Registration_for_JRCS">
+   <property name="text">
+    <string>Estimate Registration for JRCS</string>
    </property>
   </action>
  </widget>
