@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  1 MAY 2017 01:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.4.24)  1 MAY 2017 11:18
 entering extended mode
 **EGauthorGuidelines-pg2017-sub.tex
 (EGauthorGuidelines-pg2017-sub.tex
@@ -433,12 +433,12 @@ l.54
 
 
  <./images/teaser/teaser2.pdf>] (relatedwork.tex [2]) (method.tex
-Overfull \hbox (3.5236pt too wide) in paragraph at lines 7--34
+Overfull \hbox (3.5236pt too wide) in paragraph at lines 7--35
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 47--49
+Underfull \hbox (badness 10000) in paragraph at lines 48--50
 
  []
 
@@ -447,16 +447,16 @@ as been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.77 \begin{equation}
+l.78 \begin{equation}
                      ]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 81.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 81.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 81.
 
-Underfull \hbox (badness 1642) in paragraph at lines 128--133
+Underfull \hbox (badness 1642) in paragraph at lines 129--134
 \T1/ptm/m/n/9 where $\OML/ptmcm/m/it/9 P[]\OT1/ptmcm/m/n/9 (\OML/ptmcm/m/it/9 x
 ; y; \OT1/ptmcm/m/n/9 ) = \OML/ptmcm/m/it/9 []exp\OT1/ptmcm/m/n/9 (\OMS/cmsy/
 m/n/9  []jj\OML/ptmcm/m/it/9 x \OMS/cmsy/m/n/9   \OML/ptmcm/m/it/9 y\OMS/cmsy/m
@@ -468,42 +468,42 @@ m/n/9  []jj\OML/ptmcm/m/it/9 x \OMS/cmsy/m/n/9   \OML/ptmcm/m/it/9 y\OMS/cmsy/m
 File: images/interact01.png Graphic file (type png)
 
 <use images/interact01.png>
-Package pdftex.def Info: images/interact01.png used on input line 149.
+Package pdftex.def Info: images/interact01.png used on input line 150.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact02.png, id=140, 1349.04pt x 875.27pt>
 File: images/interact02.png Graphic file (type png)
 
 <use images/interact02.png>
-Package pdftex.def Info: images/interact02.png used on input line 150.
+Package pdftex.def Info: images/interact02.png used on input line 151.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact03.png, id=141, 1349.04pt x 875.27pt>
 File: images/interact03.png Graphic file (type png)
 
 <use images/interact03.png>
-Package pdftex.def Info: images/interact03.png used on input line 151.
+Package pdftex.def Info: images/interact03.png used on input line 152.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact04.png, id=142, 1349.04pt x 875.27pt>
 File: images/interact04.png Graphic file (type png)
 
 <use images/interact04.png>
-Package pdftex.def Info: images/interact04.png used on input line 152.
+Package pdftex.def Info: images/interact04.png used on input line 153.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact05.png, id=143, 1349.04pt x 875.27pt>
 File: images/interact05.png Graphic file (type png)
 
 <use images/interact05.png>
-Package pdftex.def Info: images/interact05.png used on input line 153.
+Package pdftex.def Info: images/interact05.png used on input line 154.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
 
 <images/interact06.png, id=144, 1349.04pt x 875.27pt>
 File: images/interact06.png Graphic file (type png)
 
 <use images/interact06.png>
-Package pdftex.def Info: images/interact06.png used on input line 154.
+Package pdftex.def Info: images/interact06.png used on input line 155.
 (pdftex.def)             Requested size: 72.00073pt x 46.70427pt.
  [4]
 <images/localoptimal/localoptimal.pdf, id=167, 473.77pt x 207.64082pt>
@@ -511,7 +511,7 @@ File: images/localoptimal/localoptimal.pdf Graphic file (type pdf)
 
 <use images/localoptimal/localoptimal.pdf>
 Package pdftex.def Info: images/localoptimal/localoptimal.pdf used on input lin
-e 181.
+e 182.
 (pdftex.def)             Requested size: 240.0pt x 105.1857pt.
 ) (imp.tex
 Underfull \hbox (badness 10000) in paragraph at lines 3--4
@@ -699,11 +699,11 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 76.
 Here is how much of TeX's memory you used:
  6983 strings out of 493698
  100308 string characters out of 3144415
- 204198 words of memory out of 3000000
+ 203238 words of memory out of 3000000
  10049 multiletter control sequences out of 15000+200000
  59588 words of font info for 97 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 32i,14n,26p,1505b,417s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,14n,26p,1502b,417s stack positions out of 5000i,500n,10000p,200000b,50000s
 {D:/Program Files/MiKTeX 2.9/fonts/enc/dvips/fontname/8r.enc}<D:/Program Fi
 les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><D:/Program Files/MiKT
 eX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><D:/Program Files/MiKTeX 2.9/f
@@ -716,7 +716,7 @@ pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/msbm10.pfb
 les/MiKTeX 2.9/fonts/type1/urw/symbol/usyr.pfb><D:/Program Files/MiKTeX 2.9/fon
 ts/type1/urw/times/utmb8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/time
 s/utmr8a.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on EGauthorGuidelines-pg2017-sub.pdf (8 pages, 5385042 bytes).
+Output written on EGauthorGuidelines-pg2017-sub.pdf (8 pages, 5385232 bytes).
 PDF statistics:
  566 PDF objects out of 1000 (max. 8388607)
  92 named destinations out of 1000 (max. 500000)
