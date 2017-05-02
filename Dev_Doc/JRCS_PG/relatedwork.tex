@@ -1,17 +1,44 @@
 \section{Related Work}
 \label{sec:rw}
-In this section we explain how our work is related to the previous works and how we draw experience from these previous works.
-\subsection{Point Set Registration with GMM Representation}
-\label{subsec:gmmreg}
-There is a series of works that use Gaussion mixture model as representation for point set to formulate the registration problem.
-\cite{CPD} considers the registration of two point sets as a probability density estimation problem. They force the Gaussian mixture model centroids to move coherently as a group to preserve the topological structure of the point sets. Their method is appliable to both rigid registration and non-rigid registration. As we highlighted in Section \ref{sec:intro}, our problem is different from the non-rigid registration considered in \cite{CPD}, the point drift could be non-coherent in our probelm.\cite{GMM_PAMI} summarizes the works for point set registration using Gaussian mixture models and presents a unified framework for rigid and nonrigid point set registration problem. These works select one of the point sets as the ``model''. Unlike these works, \cite{Evangelidis2014} treats all point sets as data: they are all realizations of a Gaussian mixture and the registration is cast into a clustering problem. The recent work of \cite{GOGMA} pushes the idea to the application on a large scale of data. 
-Comparing to these works, our work is most related to \cite{Evangelidis2014}. Our formulation can be seen as an extention of the formulation of \cite{Evangelidis2014} to simultaneously handle joint registration and co-segmentation.
-\subsection{Image segmentation and co-segmentation}
-\label{subsec:coseg}
-\cite{grabcut} is an influential work for interactive image segmentation. It uses two Gaussian mixture models, one for foreground and the other for background. To initialize these two Gaussian mixture models, \cite{grabcut} lets users place a rectangle that contains the foreground. Our design of interaction draws on the experientce from \cite{grabcut}. The difference is that our interaction is designed for 3D space and can handle multi-object segmentation rather than foreground-background segmentation. \cite{Taniai_2016_CVPR} jointly recovers co-segmentation and dense per-pixel correspondences in two images. Its co-segmentation is limited to foreground-background segmentation. Our work solves a similar problem for multiple 3D point sets. 
+In this section we explain how our work is related to the previous work on point set processing and how we draw experience from these methods.
+\cxj{Work is typically used, not works. You can say previous approaches. }
 
-\subsection{Segmentation from Motion}
-The idea that motion can be a strong hint for segmentation is used in many works.\cite{Xu:2015:ACS:2816795.2818075} employs a robot to do proactive push and track the motion to learn object segmentation. \cite{unsupervisededge} exploits the motion in video and uses the motion edges as training data to learn an edge detector for image. These methods lean on the motion that is continuous in time and can be tracked. Our method can handle motion that is not continuous in time.
 
-\subsection{3D Object Recognition based on Correspondence Grouping}
-By allowing interactively input layout, the joint registration and co-segmentation problem can be treated as a series of 3D object recognition problem in point sets. Our method should be classified as one of the correspondence grouping method. Comparing to the previous methods of \cite{hough} and \cite{LOF}, our method simutaneously solve the problem for multiple target models in multiple scenes.
+%\subsection{Point Set Registration with GMM Representation}
+%\label{subsec:gmmreg}
+\paragraph{Point Set Registration with GMM Representation.}
+There is a series of \mdf{approaches} that use Gaussion \cxj{Gaussian} mixture model as \mdf{the} representation for the point set registration problem \cxj{due to what advantages of GMM?}.
+%
+\cite{CPD} considers the registration of two point sets as a probability density estimation problem. 
+They force the Gaussian mixture model centroids to move coherently as a group to preserve the topological structure of the point sets. Their method is appliable \cxj{applicable?} to both rigid registration and non-rigid registration. 
+%
+As we highlighted in Sec.~\ref{sec:intro}, our problem is different from the non-rigid registration while the point drift is non-coherent in our \mdf{problem}.
+%
+\cite{GMM_PAMI} summarizes the \mdf{approaches} for point set registration using Gaussian mixture models and presents a unified framework for rigid and nonrigid registration problem\mdf{s}. 
+%
+These methods select one of the point sets as the ``model''. \cxj{Is it better to use "template" than ``model''?} 
+%
+Unlike these works, \cite{Evangelidis2014} treats all point sets equally.
+They are all realizations of a Gaussian mixture model and the registration is cast into a clustering problem. 
+The recent work of \cite{GOGMA} pushes the idea to the application on a large scale data. 
+Comparing to these methods, our method can be seen as an extension of the formulation of \cite{Evangelidis2014} to simultaneously handle joint registration and co-segmentation. 
+\cxj{It should not be a simple extension. You should highlight what is the most challeging part we solved compared with others. I would say: } \mdf{In comparison, we employ the same GMM representation of object models while we formulate the non-coherent point drift as .....  }
+
+
+
+%\subsection{Image segmentation and co-segmentation}
+%\label{subsec:coseg}
+\paragraph{Image segmentation and co-segmentation}
+\cite{grabcut} is an influential work for interactive image segmentation. It uses two Gaussian mixture models, one for foreground and the other for background. 
+To initialize these two Gaussian mixture models, a rectangle is manually placed to contain the foreground. Our design of interaction draws on the \mdf{experience} from \cite{grabcut}. 
+%
+The difference is that our interaction is designed for 3D space and can handle multi-object segmentation rather than foreground-background segmentation. \cite{Taniai_2016_CVPR} jointly recovers co-segmentation and dense per-pixel correspondences in two images. 
+Its co-segmentation is limited to foreground-background segmentation. Our work solves a similar problem for multiple 3D point sets. 
+\cxj{There are many image co-segmentation papers. If you want to discuss it, you should discuss more. }
+
+\paragraph{Segmentation from Motion.}
+The idea that motion can be a strong hint for segmentation is used in many works.\cite{Xu:2015:ACS:2816795.2818075} employs a robot to do proactive push and track the motion to learn object segmentation. \cite{unsupervisededge} exploits the motion in \mdf{a} video and uses the motion edges as the training data to learn an edge detector for image \cxj{use 'an image' or 'images'}. 
+These methods lean on the motion that is continuous in time and can be tracked. Our method can handle motion that is not continuous in time.
+
+\paragraph{3D Object Recognition based on Correspondence Grouping.}
+By allowing interactively input \mdf{the scene layout}, the joint registration and co-segmentation problem can be treated as a series of 3D object recognition problem in point sets. Our method should be classified as one of the correspondence grouping method. Comparing to previous methods \cxj{that uses ...}~\cite{hough,LOF}, our method simutaneously \mdf{simultaneously} solve\mdf{s} the problem for multiple target models in multiple scenes.

@@ -4,18 +4,19 @@
 
 
 \title[Interactive Point Set Joint Registration and Co-segmentation]%
-      {Interactive Point Set Joint Registration and Co-segmentation}
+{Interactive Point Set Joint Registration and Co-segmentation}
 
 % for anonymous conference submission please enter your SUBMISSION ID
 % instead of the author's name (and leave the affiliation blank) !!
-\author[ID: paper1049]
-{\parbox{\textwidth}{\centering ID: paper1049}
-        \\
-% For Computer Graphics Forum: Please use the abbreviation of your first name.
-{\parbox{\textwidth}{\centering
-%         $^2$Graz University of Technology, Institute of Computer Graphics and Knowledge %Visualization, Austria
-       } 
-}
+\author[Paper 1049]
+{\parbox{\textwidth}{\centering Paper 1049}
+	\\
+	% For Computer Graphics Forum: Please use the abbreviation of your first name.
+	{\parbox{\textwidth}{\centering  
+			%        $^2$ Another Department to illustrate the use in papers from authors
+			%             with different affiliations
+		} 
+	}
 }
 % ------------------------------------------------------------------------
 
@@ -29,15 +30,16 @@
 
 %-------------------------------------------------------------------------
 \begin{document}
-
+	
 \teaser{
- \includegraphics[width=\linewidth]{images/teaser/teaser2}
- \centering
-  \caption{Given a series of point sets and user-placed object bounding boxes in one point set (a), our method jointly segment and register objects in the point sets to generate object-level co-segmentation (b) and registered object models represented as GMM (c). }
-\label{fig:teaser}
+	\includegraphics[width=0.8\linewidth]{images/teaser/teaser2}
+	\centering
+	\caption{\mdf{Given a series of point sets and user-placed object bounding boxes in one point set (a), our method jointly segment and register objects in the point sets to generate object-level co-segmentation (b) and registered object models represented as GMM (c).} }
+	\label{fig:teaser}
 }
-
+	
 \maketitle
+	
 \begin{abstract}
 We present a novel approach of joint registration and co-segmentation for point sets. 
 Considering the joint registration and co-segmentation as two problems heavily entangled with each other, we represent the input point sets as samples from a generative model and bring up with a novel formulation based on Gaussian mixture model. %
@@ -45,14 +47,16 @@ By maximizing the posterior probability of the samples, we gradually recover the
 %
 Along with the formulation, we design an interactive tool that helps users to intuitively control the optimization process. 
 %
-The experiment results on a group of synthetic and scanned point clouds demonstrate that our method is helpful and effective for the joint registration and co-segmentation on point sets of multiple objects.         
+The experiment results on a group of synthetic and scanned point clouds demonstrate that our method is helpful and effective for the joint registration and co-segmentation on point sets of multiple objects.  
+		
 \begin{classification} % according to http:http://www.acm.org/about/class/1998
-\CCScat{COMPUTER GRAPHICS}{I.3.8}{Applications}
-\CCScat{IMAGE PROCESSING AND COMPUTER VISION}{I.4.8}{Scene Analysis}{Range data}
+	\CCScat{COMPUTER GRAPHICS}{I.3.8}{Applications}
+	\CCScat{IMAGE PROCESSING AND COMPUTER VISION}{I.4.8}{Scene Analysis}{Range data}
 \end{classification}
 
 \end{abstract}
-
+	
+	
 %-------------------------------------------------------------------------
 
 \input{introduction}
@@ -68,14 +72,13 @@ The experiment results on a group of synthetic and scanned point clouds demonstr
 %-------------------------------------------------------------------------
 
 \input{imp}
-
 %-------------------------------------------------------------------------
-
 \input{exp}
 
 %-------------------------------------------------------------------------
 %\bibliographystyle{eg-alpha}
 \bibliographystyle{eg-alpha-doi}
+
 \bibliography{JRCS}
 %-------------------------------------------------------------------------
 \end{document}

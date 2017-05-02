@@ -1,6 +1,8 @@
 \section{Algorithms and Implementation Details}
 \label{sec:imp}
-In this section, we summarize the entire algorithm and explain the implemented details.\\ 
+
+In this section, we summarize the entire algorithm and explain the implemented details.
+
 \subsection{Algorithm}
 Based on our formulation in section \ref{sec:method}, our algorithm can be summarized as in Algorithm \ref{alg:jrcs}.
 \begin{algorithm}[htb]
@@ -24,20 +26,33 @@ Based on our formulation in section \ref{sec:method}, our algorithm can be summa
 		\item \textbf{return} $\Theta^q$
 	\end{enumerate}
 \end{algorithm}
+
+
+
 \subsection{Implementation Details}
 \textbf{Initialization of $\Theta$}:\\
-We first determine the total number of Gaussian model $K_{all}$ as we explained in subsection \ref{sec:imp:interact}. We set $p_k=\frac{1}{\sum K_n}$ which means each Gaussian model have the same weight at the beginning. We seperate the Gaussian models into $N$ groups to represent $N$ objects. Each group has $K_n$ Gaussian models based on (\ref{equ:K_n}). $\{\pmb x_k\}_n$ are Gaussian centroids of $n^{th}$ group and they are initialized as a random positions uniformally distributed on the surface of a sphere. The radius of the sphere is chosen as the median of the radius of the input point sets $r$. The center of the $n^{th}$ spheres is $c_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$. This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c) and in Figure~\ref{fig:localoptimal}(b).We choose vertical arrangement for groups of object merely for the convenience of visualization. We choose the sphere as the initial shape so that we can initialize all the $R_{mn}$ to identity matrix. For the $\pmb t_{mn}$ we initialize them as $\pmb t_{mn}=- \pmb c_n$ so that all the object model starting with position at origin point when they are transformed to the space of each input set. However, if the $m^{th}$ input point set has the manually placed layout, we treat the associated $\pmb t_{mn}$ differently. For this case we have:
+We first determine the total number of Gaussian model $K_{all}$ as we explained in \mdf{Sec.}~\ref{sec:imp:interact}. 
+We set $p_k=\frac{1}{\sum K_n}$, which means each Gaussian model \mdf{has} the same weight at the beginning. 
+We seperate \cxj{->separate} the Gaussian models into $N$ groups to represent $N$ objects. 
+Each group has $K_n$ Gaussian models based on \mdf{Eq.}~(\ref{equ:K_n}). $\{\vb{x}_k\}_n$ are Gaussian centroids of $n^{th}$ group and they are initialized as a random positions uniformally \cxj{->uniformaly} distributed on the surface of a sphere. 
+The radius of the sphere is chosen as the median of the radius of the input point sets $r$. The center of the $n^{th}$ spheres is $c_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$. This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c) and in Figure~\ref{fig:localoptimal}(b). 
+We choose vertical arrangement for groups of object merely for the convenience of visualization. We choose the sphere as the initial shape so that we can initialize all the $\vb{R}_{mn}$ to identity matrix. For the $\vb{t}_{mn}$ we initialize them as $\vb{t}_{mn}=- \vb{c}_n$ so that all the object model starting with position at origin point when they are transformed to the space of each input set. However, if the $m^{th}$ input point set has the manually placed layout, we treat the associated $\vb{t}_{mn}$ differently. For this case we have:
 \begin{equation}
 \label{equ:initt}
-\pmb t_{mn}=\frac{\sum_{\pmb v_{mi} \in B_n}\pmb v_{mi}}{N(B_n)}-\pmb c_n
+\vb{t}_{mn}=\frac{\sum_{\vb{v}_{mi} \in B_n}\vb{v}_{mi}}{N(B_n)}-\vb{c}_n
 \end{equation}
-where $N(B_n)$ is the number of element in $B_n$ and $B_n$ is the point set that is enclosed by the mannual input layout (boxes). 
-\subsection{Hot Intervention Machinism}
-Our current implementation of optimization is quite slow (fail to converge in interative time) especially when the point numbers inside each input point set are large and it is possible for our optimization to stuck in a local optimal, requiring the guide from the mannual input. As a compensation for these drawbacks. We implement a hot intervention machinism, allowing the mannaul input take effect even after the optimization has started. Theoretically, this is possible due to the i.i.d assumption. 
-This assumption makes it possible for the calculation of posterior probability being independent for each input point set. Even after the optimization is started, we can still allow the user to add more layouts for other point sets and the program can do the same alteration as (\ref{equ:alteralpha}) in the next iteration. The Figure~\ref{fig:hi} shows how the users can use the hot intervention machinism within our tool.
+where $N(B_n)$ is the number of element in $B_n$ and $B_n$ is the point set that is enclosed by the mannual \cxj{->manually} input layout (boxes). 
+
+
+
+\subsection{Hot Intervention Machenism \cxj{->Mechanism}}
+%
+
+Our current implementation of optimization is quite slow (fail to converge in interative \cxj{interactive or iterative?} time) especially when the point numbers inside each input point set are large and it is possible for our optimization to stuck in a local optimal, requiring the guide from the mannual \cxj{->manual} input. As a compensation for these drawbacks. We implement a hot intervention machinism \cxj{->mechanism}, allowing the mannaul \cxj{->manual} input take effect even after the optimization has started. Theoretically, this is possible due to the i.i.d assumption. 
+This assumption makes it possible for the calculation of posterior probability being independent for each input point set. Even after the optimization is started, we can still allow the user to add more layouts for other point sets and the program can do the same alteration as (\ref{equ:alteralpha}) in the next iteration. Figure~\ref{fig:hi} shows how the users can use the hot intervention machinism \cxj{->mechanism} within our tool.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\linewidth]{images/hotintervention/hi}
-	\caption{\label{fig:hi}This figure shows the hot intervention machinism. (a) is the input point sets with mannually placed layout in 2rd point set. (b) shows that from the region highlighted by blue rectangle the user can see the instant result of segmentation and from the region highlighted by the red rectangle the user can see the space of object model(the shape of the centroids of the Gaussian models). (c) shows that the user picks another input point set and adds more boxes targeting the incorrect segmentation to further guide the optimization when the optimization is running.}
+	\caption{\label{fig:hi}This figure shows the hot intervention \mdf{mechanism}. (a) is the input point sets with mannually \cxj{->manually} placed layout in 2rd \cxj{2-nd} point set. (b) shows that from the region highlighted by blue rectangle the user can see the instant result of segmentation and from the region highlighted by the red rectangle the user can see the space of object model(the shape of the centroids of the Gaussian models). (c) shows that the user picks another input point set and adds more boxes targeting the incorrect segmentation to further guide the optimization when the optimization is running.}
 \end{figure}
  

@@ -1,16 +1,69 @@
 \section{Introduction}
 \label{sec:intro}
-In many researches and applications of indoor scenes, the data of segmented and even annotated 3D indoor scenes are required as either database or training data (e.g.\cite{SearchClassify}\cite{SceneFromExample}\cite{Fisher:2012:ESO:2366145.2366154}\cite{Chen:2014:ASM:2661229.2661239}\cite{Fisher:ActivityCentricSceneSynthesis}).\\
-One way to build such database is to interactively compose scenes from 3D shape models, resulting in scenes with object segmentation and annotation naturally available. Another way is to mannually segment and annotate existing scenes. This procedure can be tedious and time consuming, despite the efforts to improve the interaction experience (e.g.\cite{Merrell:2011:IFL:2010324.1964982}\cite{Xu:2013:SSC:2461912.2461968}).\\
-A better way would is to automatically generate scenes from 3D shape models according to the input RGB or RGB-D images (e.g.\cite{Liu2015Model}\cite{Chen:2014:ASM:2661229.2661239}). In such methods, a retrievial procedure is usually needed and inevitablely limits the result to a certain set of 3D models despite the actual 3D model in the input images.\\
-We prefer an approach that helps us build such dataset directly from the captured data. One of the major gap between the required dataset and available scene capturing framework (e.g.\cite{KinectFusion}) is the general object level segmentation. We want to stress that a general object level segmentation problem should not be treated as an equivalence of multilabel classification problem since it is not limited to a certain set of objects. For 3D data, \cite{3DReasoningfromBlockstoStability} uses some simplified physical prior knowledge (i.e. the block-based stability) to help achieving the general objectness segmentation. The work of \cite{Xu:2015:ACS:2816795.2818075} proposes a practical and rather complete framework to close the gap between the required dataset and available scene capturing method. One of the observations in \cite{Xu:2015:ACS:2816795.2818075} is that the motion consistency of rigid object can serve as a strong evidence of general objectness. To exploit this fact, they employ a robot to do proactive push and use the movement tracking to verify and iteratively improve their object level segmentation result. Our work presented in this paper is trying to exploit the same observation from a different approach.\\
-We intend to use the motion consistency in objects that is naturally revealed by human activities along the time. Down to this approach, we are facing the choice of scanning schemes. One way is to record the change of the scene along with the human activities, another is to  schedule a daily sweep to only record the result of human activities but avoid the instant of human motion. The main challenge brought in by the second scheme is that we may not be able to solve the object correspondence by a local search due to the sparse sampling over time. The very same challenge also exists in the first scheme due to the exclusion caused by human bodies not to mention other additional process (e.g. tracking with severe occlussion ) needed for human bodies. Therefore, we choose the second scheme. With the second scanning scheme, our original intention of building 3D scene dataset from capturing leads us to the problem of coupled joint registration and co-segmentation.\\ 
-In this problem, registration and segmentaion are entangled in each other. On one hand the segmentation depends on the registration to connect the point clouds into series of rigid movement so that the objectness segmentation can be done based on the motion consistency. On the other hand, the registration depends on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift. The non-coherent point drift means that a pair of points is close to each other in one point set but their correspondent pair of points in another point set is far from each other, in other words, the point drift of this pair is non-coherent. This happens when this pair of points actually belong to different objects.\\
-To model the problem, we employ several groups of Gaussian models and each group of these Gaussian models represents a potential object. This model unentangle the registration and segmentation in the way that the segmentation can be done by evaluating the probability of points belongs to the Gaussian mixture models and the registration can be done by estimating rigid registration against each gaussain mixture models.\\
-In summary our work makes following contributions: \\
+
+Many research projects and applications of indoor scenes require segmented, and even annotated 3D databases~\cite{SearchClassify,SceneFromExample,Fisher:2012:ESO:2366145.2366154,Chen:2014:ASM:2661229.2661239,Fisher:ActivityCentricSceneSynthesis}).
 %
-%"We are the first solution that can be downloaded to a phone," Tawkon co-founder and CEO Gil Friedlander told Reuters
+One way to build such a database is to interactively compose scenes using 3D object models, resulting in scenes with object segmentation and annotation naturally available, or to manually segment and annotate existing 3D scenes. 
 %
-1) As far as we know, we are the first work that bring up with the problem of point set joint registration and co-segmentation for indoor scenes.\\
-2) We come up with a Gaussian mixture model based formulation to simultaneously model both the joint registration and co-segmentation problem.\\
-3) Targeting the disadvantages of our formulation, we design a procedure of interaction and provide a practical tool for point set joint registration and co-segmentation based on it. We will release our tool with acceptance of this paper.
+This procedure can be tedious and time consuming, despite many efforts of improving the interaction experience~\cite{Merrell:2011:IFL:2010324.1964982, Xu:2013:SSC:2461912.2461968}.
+%
+Another way is to automatically generate scenes from 3D shape models according to images~\cite{Liu2015Model,Chen:2014:ASM:2661229.2661239}. 
+%
+In these methods, a retrieval procedure is usually needed and inevitably limit the result to a certain set of 3D models despite the actual 3D model in the input images.
+
+
+
+\mdf{Generating scene models directly from captured point clouds will significantly facilitate dataset construction and increas the dataset variety.}
+%
+One of the major gap\mdf{s} between the required \mdf{dataset} and the available scene capturing frameworks~\cite{KinectFusion, dai2016bundlefusion} \cxj{add bundle fusions as the latest capture method} is the \mdf{generic object-level} segmentation. 
+%
+\mdf{A generic object-level segmentation} is not an equivalence of multi-label classification problem since it is not limited to a fixed number of objects in different scenes. 
+%
+Existing approaches for segmenting scanned 3D data require additional knowledge, such as the block-based stability~\cite{3DReasoningfromBlockstoStability}, or the motion consistency of rigid objects~\cite{Xu:2015:ACS:2816795.2818075}.  
+%
+%\cite{Xu:2015:ACS:2816795.2818075} proposes a practical and rather complete framework to close the gap between the required data set and available scene capturing method. 
+%
+%One of the observation in \cite{Xu:2015:ACS:2816795.2818075} is that the motion consistency of rigid object can serve as a strong evidence of general objectness.
+\mdf{While they employ a robot to do proactive push and use the movement tracking to verify and iteratively improve their object level segmentation result, it is remains significant challenging to recover the motion consistency in static scenes without an expensive robot. }
+
+In this paper, we explore the motion consistency of rigid objects in a different aspect.
+%
+While the motion consistency of objects in indoor scenes is naturally revealed by human activities along the time, we hope to segment the objects in a scene from the scanned point clouds at different times. 
+%
+With respect to this idea, we are facing the choice of scanning schemes. 
+%
+One way is to record the change of the scene along with human activities.
+Another option is to schedule a periodic sweep that only records the result of human activities but avoids the instants of human motion. 
+%
+The main challenge brought in by the second scheme is that we may not be able to solve the object correspondence by a local search due to the sparse sampling over time.
+However, the very same challenge exists in the first scheme due to the exclusion caused by human bodies, not to mention other additional process (e.g. tracking with severe \mdf{occlusions}) needed for human bodies. 
+\cxj{what do you mean by "exlusion"? n}
+%
+\cxj{What is the advantage of the second scheme? }
+%
+With the second scanning scheme, our original intention of building 3D scene datasets from \mdf{natually data capture} \cxj{natually or naturally?} leads us to the problem of coupled joint registration and co-segmentation.
+
+
+In this problem, registration and segmentaion \cxj{segmentation} are entangled in each other. 
+%
+On one hand, the segmentation depends on the registration to connect the point clouds into series of rigid movement so that the \mdf{object-level} segmentation can be done based on the motion consistency \mdf{. On} the other hand, the registration depends on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift.
+\mdf{Non-coherent point drift means that a pair of points is close to each other in one point set}, but their correspondent \cxj{corresponding} pair of points in another point set is far from each other. 
+%
+This happens when this pair of points actually belong to different objects.
+
+
+
+We employ a group of Gaussian mixture models and each of these Gaussian mixture models represents a potential object. 
+This model unentangle \cxj{Where do you find the word "unentangle"? did you create it?} the registration and segmentation in the way that the segmentation can be done by evaluate the probability of points belongs to the Gaussian mixture models and the registration can be done by evaluate rigid registration against each \mdf{G}aussain mixture models.
+
+
+In summary our work makes following contributions: 
+\begin{enumerate}
+	\item To the best of our knowledge, we first put forward the problem of joint registration and co-segmentation of point sets.
+	
+	\item We propose a generative model to simultaneously solve the joint registration and co-segmentation of point sets.
+	
+	\item We design a practical tool for efficient joint registration and co-segmentation based on the generative model. 
+	
+\end{enumerate}
+
