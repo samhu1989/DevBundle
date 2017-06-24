@@ -1,6 +1,6 @@
 \section{Introduction}
 \label{sec:intro}
-
+\mdf{In this paper, we present a new method to solve the object-level joint registration and co-segmentation problem. This problem originates from our attempt to build databases from scanned data.} \hsy{One reviewer said we should state this at the beginning of the introduction, he didn't understand our motivation until the late of introduction}
 Many research projects and applications of indoor scenes require segmented, and even annotated 3D databases~\cite{SearchClassify,SceneFromExample,Fisher:2012:ESO:2366145.2366154,Chen:2014:ASM:2661229.2661239,Fisher:ActivityCentricSceneSynthesis}).
 %
 One way to build such a database is to interactively compose scenes using 3D object models, resulting in scenes with object segmentation and annotation naturally available, or to manually segment and annotate existing 3D scenes. 
@@ -11,20 +11,20 @@ Another way is to automatically generate scenes from 3D shape models according t
 %
 In these methods, a retrieval procedure is usually needed and inevitably limit the result to a certain set of 3D models despite the actual 3D model in the input images.
 
-
-
-\mdf{Generating scene models directly from captured point clouds will significantly facilitate dataset construction and increas the dataset variety.}
+Generating scene models directly from captured point clouds will significantly facilitate dataset construction and \mdf{increase} the dataset variety.
 %
-One of the major gap\mdf{s} between the required \mdf{dataset} and the available scene capturing frameworks~\cite{KinectFusion, dai2016bundlefusion} \cxj{add bundle fusions as the latest capture method} is the \mdf{generic object-level} segmentation. 
+One of the major gaps between the required dataset and the available scene capturing frameworks~\cite{KinectFusion, dai2016bundlefusion} is the generic object-level segmentation. 
 %
-\mdf{A generic object-level segmentation} is not an equivalence of multi-label classification problem since it is not limited to a fixed number of objects in different scenes. 
+A generic object-level segmentation is not an equivalence of multi-label classification problem since it is not limited to a fixed number of objects in different scenes. 
 %
 Existing approaches for segmenting scanned 3D data require additional knowledge, such as the block-based stability~\cite{3DReasoningfromBlockstoStability}, or the motion consistency of rigid objects~\cite{Xu:2015:ACS:2816795.2818075}.  
 %
 %\cite{Xu:2015:ACS:2816795.2818075} proposes a practical and rather complete framework to close the gap between the required data set and available scene capturing method. 
 %
 %One of the observation in \cite{Xu:2015:ACS:2816795.2818075} is that the motion consistency of rigid object can serve as a strong evidence of general objectness.
-\mdf{While they employ a robot to do proactive push and use the movement tracking to verify and iteratively improve their object level segmentation result, it is remains significant challenging to recover the motion consistency in static scenes without an expensive robot. }
+While they employ a robot to do proactive push and use the movement tracking to verify and iteratively improve their object level segmentation result, \mdf{it remains significantly} challenging to recover the motion consistency in a \mdf{non-invasive} way.
+\hsy{Without robot, our method is more tedious, since we need to schedule scanning every day.}
+
 
 In this paper, we explore the motion consistency of rigid objects in a different aspect.
 %
@@ -36,25 +36,24 @@ One way is to record the change of the scene along with human activities.
 Another option is to schedule a periodic sweep that only records the result of human activities but avoids the instants of human motion. 
 %
 The main challenge brought in by the second scheme is that we may not be able to solve the object correspondence by a local search due to the sparse sampling over time.
-However, the very same challenge exists in the first scheme due to the exclusion caused by human bodies, not to mention other additional process (e.g. tracking with severe \mdf{occlusions}) needed for human bodies. 
-\cxj{what do you mean by "exlusion"? n}
+However, the very same challenge exists in the first scheme due to the occlusion caused by human bodies, not to mention other additional process (e.g. tracking with severe occlusions) needed for human bodies.
 %
-\cxj{What is the advantage of the second scheme? }
+Therefore, we choose the second scheme.
+\cxj{What is the advantage of the second scheme?} \hsy{Both schemes are difficult. We simply choose the less difficult one. The second scheme simply has less disadvantage.}
 %
-With the second scanning scheme, our original intention of building 3D scene datasets from \mdf{natually data capture} \cxj{natually or naturally?} leads us to the problem of coupled joint registration and co-segmentation.
+With the second scanning scheme, our original intention of building 3D scene datasets from canned data leads us to the problem of coupled joint registration and co-segmentation.
 
 
-In this problem, registration and segmentaion \cxj{segmentation} are entangled in each other. 
+In this problem, registration and segmentation are entangled in each other. 
 %
-On one hand, the segmentation depends on the registration to connect the point clouds into series of rigid movement so that the \mdf{object-level} segmentation can be done based on the motion consistency \mdf{. On} the other hand, the registration depends on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift.
-\mdf{Non-coherent point drift means that a pair of points is close to each other in one point set}, but their correspondent \cxj{corresponding} pair of points in another point set is far from each other. 
+On one hand, the segmentation depends on the registration to connect the point clouds into series of rigid movement so that the object-level segmentation can be done based on the motion consistency. On the other hand, the registration depends on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift.
+Non-coherent point drift means that a pair of points is close to each other in one point set, but their corresponding pair of points in another point set is far from each other. 
 %
 This happens when this pair of points actually belong to different objects.
 
 
-
 We employ a group of Gaussian mixture models and each of these Gaussian mixture models represents a potential object. 
-This model unentangle \cxj{Where do you find the word "unentangle"? did you create it?} the registration and segmentation in the way that the segmentation can be done by evaluate the probability of points belongs to the Gaussian mixture models and the registration can be done by evaluate rigid registration against each \mdf{G}aussain mixture models.
+This model unentangle \cxj{Where do you find the word "unentangle"? did you create it?} \hsy{As verbs the difference between untangle and unentangle is that untangle is to remove tangles or knots while unentangle is to reverse the process of entanglement. Disentangle is to free something from entanglement.} the registration and segmentation in the way that the segmentation can be done by evaluate the probability of points belongs to the Gaussian mixture models and the registration can be done by evaluate rigid registration against each Gaussain mixture models.
 
 
 In summary our work makes following contributions: 
