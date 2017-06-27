@@ -1,59 +1,70 @@
 \section{Introduction}
 \label{sec:intro}
-\mdf{In this paper, we present a new method to solve the object-level joint registration and co-segmentation problem. This problem originates from our attempt to build databases from scanned data.} \hsy{One reviewer said we should state this at the beginning of the introduction, he didn't understand our motivation until the late of introduction}
-Many research projects and applications of indoor scenes require segmented, and even annotated 3D databases~\cite{SearchClassify,SceneFromExample,Fisher:2012:ESO:2366145.2366154,Chen:2014:ASM:2661229.2661239,Fisher:ActivityCentricSceneSynthesis}).
+% 
+Many research projects and applications of indoor scenes require segmented, and even annotated 3D databases~\cite{SearchClassify,SceneFromExample,Fisher:2012:ESO:2366145.2366154,Chen:2014:ASM:2661229.2661239,Fisher:ActivityCentricSceneSynthesis}.
 %
 One way to build such a database is to interactively compose scenes using 3D object models, resulting in scenes with object segmentation and annotation naturally available, or to manually segment and annotate existing 3D scenes. 
 %
-This procedure can be tedious and time consuming, despite many efforts of improving the interaction experience~\cite{Merrell:2011:IFL:2010324.1964982, Xu:2013:SSC:2461912.2461968}.
+This procedure can be tedious and time-consuming, despite many efforts of improving the interaction experience~\cite{Merrell:2011:IFL:2010324.1964982, Xu:2013:SSC:2461912.2461968}.
 %
 Another way is to automatically generate scenes from 3D shape models according to images~\cite{Liu2015Model,Chen:2014:ASM:2661229.2661239}. 
 %
-In these methods, a retrieval procedure is usually needed and inevitably limit the result to a certain set of 3D models despite the actual 3D model in the input images.
+In these methods, a retrieval procedure is usually needed and inevitably limit the result to a certain set of 3D models, without producing the actual 3D shapes that appear in the input images.
 
-Generating scene models directly from captured point clouds will significantly facilitate dataset construction and \mdf{increase} the dataset variety.
+%%%%% Importance and Challenges %%%%%%
 %
-One of the major gaps between the required dataset and the available scene capturing frameworks~\cite{KinectFusion, dai2016bundlefusion} is the generic object-level segmentation. 
+Generating scene models directly from captured point clouds will significantly facilitate dataset construction and increase the dataset variety.
 %
-A generic object-level segmentation is not an equivalence of multi-label classification problem since it is not limited to a fixed number of objects in different scenes. 
+\mdf{However, there is a large gap between the desired 3D model dataset and current available scene capturing tools.
+Typically, clean, complete and separated models for objects are desired to construct scene database.
+By contrast, a noisy and incomplete point set of different objects all in one is usually obtained with current available consumer-level scene capturing frameworks~\cite{KinectFusion, dai2016bundlefusion}. 
+	%
+Thus, a generic object-level segmentation and modeling method from scanned sets is a strong demand to fill the gap. }
 %
-Existing approaches for segmenting scanned 3D data require additional knowledge, such as the block-based stability~\cite{3DReasoningfromBlockstoStability}, or the motion consistency of rigid objects~\cite{Xu:2015:ACS:2816795.2818075}.  
+
+
+%%%%% Challenges %%%%%%
+A generic object-level segmentation is not an equivalence of multi-label classification problem since it is not limited to a fixed number of objects in training data. 
+\cxj{I have concern here: multi-label classification is not limited to a fixe number of objects...}
+%
+Existing approaches for segmenting scanned 3D data require additional knowledges, such as the block-based stability~\cite{3DReasoningfromBlockstoStability}, or the motion consistency of rigid objects~\cite{Xu:2015:ACS:2816795.2818075}.  
 %
 %\cite{Xu:2015:ACS:2816795.2818075} proposes a practical and rather complete framework to close the gap between the required data set and available scene capturing method. 
 %
 %One of the observation in \cite{Xu:2015:ACS:2816795.2818075} is that the motion consistency of rigid object can serve as a strong evidence of general objectness.
 While they employ a robot to do proactive push and use the movement tracking to verify and iteratively improve their object level segmentation result, \mdf{it remains significantly} challenging to recover the motion consistency in a \mdf{non-invasive} way.
-\hsy{Without robot, our method is more tedious, since we need to schedule scanning every day.}
+%\hsy{Without robot, our method is more tedious, since we need to schedule scanning every day.}
+%\cxj{what do you mean here? I think here we should talk about our main challenge..}
 
-
-In this paper, we explore the motion consistency of rigid objects in a different aspect.
+In this paper, we explore the motion consistency of rigid objects in a \cxj{brand-new} aspect.
 %
 While the motion consistency of objects in indoor scenes is naturally revealed by human activities along the time, we hope to segment the objects in a scene from the scanned point clouds at different times. 
 %
 With respect to this idea, we are facing the choice of scanning schemes. 
 %
-One way is to record the change of the scene along with human activities.
-Another option is to schedule a periodic sweep that only records the result of human activities but avoids the instants of human motion. 
+One way is to record the change of a scene along with human activities.
+Another option is to schedule a periodic sweep that only records the result of human activities but avoids capturing human motion. 
 %
 The main challenge brought in by the second scheme is that we may not be able to solve the object correspondence by a local search due to the sparse sampling over time.
 However, the very same challenge exists in the first scheme due to the occlusion caused by human bodies, not to mention other additional process (e.g. tracking with severe occlusions) needed for human bodies.
 %
-Therefore, we choose the second scheme.
+Therefore, we choose the second scheme. \cxj{Can we say the second scheme requires less scanning effort and storage, which is better for users. but it brings more challenges from the technical aspect for us?}
 \cxj{What is the advantage of the second scheme?} \hsy{Both schemes are difficult. We simply choose the less difficult one. The second scheme simply has less disadvantage.}
+%break into two short
 %
 With the second scanning scheme, our original intention of building 3D scene datasets from canned data leads us to the problem of coupled joint registration and co-segmentation.
 
 
 In this problem, registration and segmentation are entangled in each other. 
 %
-On one hand, the segmentation depends on the registration to connect the point clouds into series of rigid movement so that the object-level segmentation can be done based on the motion consistency. On the other hand, the registration depends on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift.
+On the one hand, the segmentation depends on the registration to connect the point clouds into series of rigid movement so that the object-level segmentation can be done based on the motion consistency. On the other hand, the registration depends on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift.
 Non-coherent point drift means that a pair of points is close to each other in one point set, but their corresponding pair of points in another point set is far from each other. 
 %
 This happens when this pair of points actually belong to different objects.
-
+\cxj{i would suggest explain non-coherent point drift just after when we say we choose the second scheme.. than analyze the relationship between registration and segmentation..}
 
 We employ a group of Gaussian mixture models and each of these Gaussian mixture models represents a potential object. 
-This model unentangle \cxj{Where do you find the word "unentangle"? did you create it?} \hsy{As verbs the difference between untangle and unentangle is that untangle is to remove tangles or knots while unentangle is to reverse the process of entanglement. Disentangle is to free something from entanglement.} the registration and segmentation in the way that the segmentation can be done by evaluate the probability of points belongs to the Gaussian mixture models and the registration can be done by evaluate rigid registration against each Gaussain mixture models.
+This model \mdf{unentangles} the registration and segmentation in the way that the segmentation can be done by evaluate \mdf{evaluating} the probability of points belongs to the Gaussian mixture models and the registration can be done by evaluate \mdf{evaluating} rigid registration against each Gaussain mixture models \mdf{model}.
 
 
 In summary our work makes following contributions: 
@@ -65,4 +76,3 @@ In summary our work makes following contributions:
 	\item We design a practical tool for efficient joint registration and co-segmentation based on the generative model. 
 	
 \end{enumerate}
-

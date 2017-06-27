@@ -31,54 +31,43 @@
 %-------------------------------------------------------------------------
 \begin{document}
 	
-\teaser{
-	\includegraphics[width=0.8\linewidth]{images/teaser/teaser2}
-	\centering
-	\caption{Given a series of point sets and user-placed object layout boxes in one point set (a), our method jointly segment and register objects in the point sets to generate object-level co-segmentation (b) and registration to object models represented as GMM (c).}
-	\label{fig:teaser}
-}
+	\teaser{
+		\includegraphics[width=0.8\linewidth]{images/teaser/teaser2}
+		\centering
+		\caption{Given a series of point sets and user-placed object layout boxes in one point set (a), our method jointly segment and register objects in the point sets to generate object-level co-segmentation (b) and registration to object models represented as GMM (c). \cxj{What are the black points in the last object model?}}
+		\label{fig:teaser}
+	}
 	
-\maketitle
+	\maketitle
 	
-\begin{abstract}
-We present a novel approach of joint registration and co-segmentation for point sets. 
-Considering the joint registration and co-segmentation as two problems heavily entangled with each other, we represent the input point sets as samples from a generative model and bring up with a novel formulation based on Gaussian mixture model. %
-By maximizing the posterior probability of the samples, we gradually recover the latent object models as well as the object-level segmentation, and simultaneously align the segmented points to the latent object models. 
-%
-Along with the formulation, we design an interactive tool that helps users to intuitively control the optimization process. 
-%
-The experiment results on a group of synthetic and scanned point clouds demonstrate that our method is helpful and effective for the joint registration and co-segmentation on point sets of multiple objects.  
+	\begin{abstract}
+		We present a novel approach of joint registration and co-segmentation for point sets \mdf{where objects move in different ways}. 
+		Considering the joint registration and co-segmentation as two problems heavily entangled with each other, we represent the input point sets as samples from a generative model and bring up with a novel formulation based on Gaussian mixture model. %
+		By maximizing the posterior probability of the samples, we gradually recover the latent object models as well as the object-level segmentation, and simultaneously align the segmented points to the latent object models. 
+		%
+		Along with the formulation, we design an interactive tool that helps users to intuitively control the optimization process. 
+		%
+		The experiment results on a group of synthetic and scanned point clouds demonstrate that our method is helpful and effective for the joint registration and co-segmentation on point sets of multiple objects.  
 		
-\begin{classification} % according to http:http://www.acm.org/about/class/1998
-	\CCScat{COMPUTER GRAPHICS}{I.3.8}{Applications}
-	\CCScat{IMAGE PROCESSING AND COMPUTER VISION}{I.4.8}{Scene Analysis}{Range data}
-\end{classification}
-
-\end{abstract}
+		\begin{classification} % according to http:http://www.acm.org/about/class/1998
+			\CCScat{COMPUTER GRAPHICS}{I.3.8}{Applications}
+			\CCScat{IMAGE PROCESSING AND COMPUTER VISION}{I.4.8}{Scene Analysis}{Range data}
+		\end{classification}
+		
+	\end{abstract}
 	
 	
-%-------------------------------------------------------------------------
-
-\input{introduction}
-
-%-------------------------------------------------------------------------
-
-\input{relatedwork}
-
-%-------------------------------------------------------------------------
-
-\input{method}
-
-%-------------------------------------------------------------------------
-
-\input{imp}
-%-------------------------------------------------------------------------
-\input{exp}
-
-%-------------------------------------------------------------------------
-%\bibliographystyle{eg-alpha}
-\bibliographystyle{eg-alpha-doi}
-
-\bibliography{JRCS}
-%-------------------------------------------------------------------------
+	%-------------------------------------------------------------------------
+	\input{introduction}
+	\input{relatedwork}
+	\input{method}
+	\input{imp}
+	\input{exp}
+	
+	%-------------------------------------------------------------------------
+	%\bibliographystyle{eg-alpha}
+	\bibliographystyle{eg-alpha-doi}
+	
+	\bibliography{JRCS}
+	%-------------------------------------------------------------------------
 \end{document}
