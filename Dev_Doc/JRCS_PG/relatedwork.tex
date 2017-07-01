@@ -5,21 +5,20 @@ In this section we explain how our work is related to the previous work on point
 %\subsection{Point Set Registration with GMM Representation}
 %\label{subsec:gmmreg}
 \noindent{\textbf{Point Set Registration with GMM Representation.}}
-There is a series of approaches that use Gaussian mixture model as \mdf{the} representation for point set registration problems \cxj{due to its general ability of representing point sets for both rigid and non-rigid registation}.
+There is a series of approaches that use Gaussian mixture model as the representation for point set registration problems due to its general ability of representing point sets for both rigid and non-rigid registation and its robustness against noise.
 %
-%
-A \mdf{comprehensive} survey about approaches for point set registration using Gaussian mixture models can be found in \cite{GMM_PAMI}. 
+A comprehensive survey about approaches for point set registration using Gaussian mixture models can be found in \cite{GMM_PAMI}. 
 They also present a unified framework for rigid and nonrigid registration problems. 
 %
-These methods select one of the point sets as the ``model'' and align other point sets with this \mdf{template}. \cxj{Is it better to use "template" than ``model''?} 
+These methods select one of the point sets as the ``template model" and fit other point sets to this ``template model".
 %
-Myroeko and Song consider the registration of two point sets as a probability density estimation problem, and use Gaussian mixture model to represent the geometry and force the GMM centroids to move coherently as a group to preserve the topological structure of the point sets \cite{CPD}. This method is applicable to both rigid registration and non-rigid registration. \cxj{Does this method treat one point set as the template?}
+Myroeko and Song consider the registration of two point sets as a probability density estimation problem, and use Gaussian mixture model to represent the geometry and force the GMM centroids to move coherently as a group to preserve the topological structure of the point sets \cite{CPD}. This method is applicable to both rigid registration and non-rigid registration. \cxj{Does this method treat one point set as the template?} \hsy{yes}
 %
-As we highlighted in Sec.~\ref{sec:intro}, our problem is different from the non-rigid registration while the point drift is non-coherent in our \mdf{problem}.
+(As we highlighted in Sec.~\ref{sec:intro}, our problem is different from the non-rigid registration while the point drift is non-coherent in our problem.)
 %
 Unlike these works, \cite{Evangelidis2014} treats all point sets equally.
-They are all realizations of a Gaussian mixture model and the registration is cast into a clustering problem. 
-A recent method pushes this idea to the application on a large scale dataset~\cite{GOGMA}. 
+They are all treated as realizations of a Gaussian mixture model and the registration is cast into a clustering problem. 
+A more recent method pushes this idea to the application on a large scale dataset~\cite{GOGMA}. 
 Comparing to these methods, our method can be seen as an extension of the formulation of \cite{Evangelidis2014} to simultaneously handle joint registration and co-segmentation. 
 \cxj{It should not be a simple extension. You should highlight what is the most challeging part we solved compared with others. I would say: } \mdf{In comparison, we employ the same GMM representation of object models while we formulate the non-coherent point drift as .....  }
 
@@ -29,7 +28,7 @@ Comparing to these methods, our method can be seen as an extension of the formul
 %
 An influential work for interactive image segmentation is GrabCut~\cite{grabcut}. It uses two Gaussian mixture models, one for foreground and the other for background. 
 To initialize these two Gaussian mixture models, a rectangle is manually placed to contain the foreground. 
-Our design of interaction draws on the \mdf{experience} from \cite{grabcut}. 
+Our design of interaction draws on the experience from \cite{grabcut}. 
 %
 The difference is that our interaction is designed for 3D space and can handle multi-object segmentation rather than foreground-background segmentation. 
 %
@@ -40,8 +39,8 @@ Its co-segmentation is limited to foreground-background segmentation. Our work s
 \noindent{\textbf{Segmentation from Motion.}}
 The idea that motion can be a strong hint for segmentation is used in many works.
 \cite{Xu:2015:ACS:2816795.2818075} employs a robot to do proactive push and track the motion to learn object segmentation. 
-\cite{unsupervisededge} exploits the motion in a video and uses the motion edges as the training data to learn an edge detector for image \cxj{use 'an image' or 'images'}. 
+\cite{unsupervisededge} exploits the motion in a video and uses the motion edges as the training data to learn an edge detector for images
 These methods lean on the motion that is continuous in time and can be tracked. Our method can handle motion that is not continuous in time.
 
 \noindent{\textbf{3D Object Recognition based on Correspondence Grouping.}}
-By allowing interactively input \mdf{the scene layout}, the joint registration and co-segmentation problem can be treated as a series of 3D object recognition problem in point sets. Our method should be classified as one of the correspondence grouping method. Comparing to previous methods \cxj{that uses ...}~\cite{hough,LOF}, our method simultaneously solve\mdf{s} the problem for multiple target models in multiple scenes.
+By allowing interactively input the scene layout, the joint registration and co-segmentation problem can be treated as a series of 3D object recognition problem in point sets. Our method should be classified as one of the correspondence grouping method. Comparing to previous methods that uses\cite{hough,LOF}, our method simultaneously solves the problem for multiple target models in multiple scenes.
