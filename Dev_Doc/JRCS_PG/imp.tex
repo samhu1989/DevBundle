@@ -1,6 +1,5 @@
 \section{Implementation Details}
 \label{sec:imp}
-
 In this section, we summarize the entire algorithm and explain the implemented details.
 %
 Based on our formulation in Sec.~\ref{sec:method}, our algorithm can be summarized as in Algorithm \ref{alg:jrcs}.
@@ -25,20 +24,18 @@ Based on our formulation in Sec.~\ref{sec:method}, our algorithm can be summariz
 		\item \textbf{return} $\Theta^q$
 	\end{enumerate}
 \end{algorithm}
-
-
-
 \subsection{Implementation Details}
 %
-\textbf{Initialization of $\Theta$}: We first determine the total number of Gaussian model $K_{all}$ as we explained in Sec.~\ref{sec:imp:interact}. 
-\cxj{Can we move the interaction section here?}
+\textbf{Initialization of $\Theta$}: We start with determining the total number of Gaussian model $K_{all}$ as we explained in Sec.~\ref{sec:imp:interact}.
 We set $p_k=\frac{1}{\sum K_n}$, which means each Gaussian has the same weight at the beginning. 
 %
-We separate the Gaussian models into $N$ groups to represent $N$ objects. \cxj{How do you separate them?}
+We separate the total $K_{all}$ Gaussian models into $N$ groups to represent $N$ objects. 
 %
-Each group has $K_n$ Gaussian models based Eq.~(\ref{equ:K_n}). $\{\vb{x}_k\}_n$ are Gaussian centroids of $n^{th}$ group and they are initialized as a random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets. 
+Each group has $K_n$ Gaussian models based on Eq.~(\ref{equ:K_n}). 
+We implement this by recording the start and end indices of the $N$ objects. In other words, we record
+$\{0,K_1,K_1+1,K_1+K_2,...,\sum^{N-1}K_n+1,\sum^N K_n\}$. $\{\vb{x}_k\}_n$ are Gaussian centroids of $n^{th}$ group and they are initialized as a random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets. 
 %
-The center of the $n^{th}$ sphere is $\vb{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$.  \cxj{What is N? In total, there would be $2N-1$ centers?}
+The center of the $n^{th}$ sphere is $\vb{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$ when $N$ is odd and $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$ when $N$ is even.\cxj{What is N? In total, there would be $2N-1$ centers?} \hsy{The common difference is 2r here}
 %
 This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c) and in Figure~\ref{fig:localoptimal}(b). 
 We choose vertical arrangement for groups of object merely for the convenience of visualization. \cxj{So you can also set the spheres horizontally or slantly or arbitrarily for registration only?}
@@ -52,13 +49,9 @@ However, if the $m^{th}$ input point set has the manually placed layout, we trea
 	\label{equ:initt}
 	\vb{t}_{mn}=\frac{\sum_{\vb{v}_{mi} \in B_n}\vb{v}_{mi}}{N(B_n)}-\vb{c}_n
 \end{equation}
-where $N(B_n)$ is the number of element in $B_n$ and $B_n$ is the point set that is enclosed by the manually input layout (boxes). 
-\cxj{You have many boxes, $B_n$ is which one?. The number $n$ is also confusing while you use $n$ for sphere center index.} 
-
-
+where $N(B_n)$ here is the number of element in $B_n$ and $B_n$ is the point set that is enclosed by the manually input layout (box) \mdf{indicating arrangement of the $n^{th}$ object}. 
+\cxj{You have many boxes, $B_n$ is which one?. The number $n$ is also confusing while you use $n$ for sphere center index.} \hsy{ $n$ is always indices for object and $B_n$ is the box for $n^{th}$ object }
 \subsection{Hot Intervention Mechanism}
-%
-
 \cxj{I am curious where do you get this word? Any reference?}
 %
 Our current implementation of optimization is quite slow (fails to converge in an interactive-rate time) especially when the numbers of points inside the input point sets are large and it is possible for our optimization to stuck in a local optimal, requiring the guide from the manual input. 
