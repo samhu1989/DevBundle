@@ -20,15 +20,13 @@ This method is applicable to both rigid registration and non-rigid registration.
 %
 Unlike above approaches, all point sets are treated equally as realizations of a Gaussian mixture model and the registration is cast into a clustering problem \cite{Evangelidis2014} . 
 A more recent method pushes this idea to the application on a large scale dataset~\cite{GOGMA}. 
-Comparing to these methods, our method can be seen as an extension of the formulation of \cite{Evangelidis2014} to simultaneously handle joint registration and co-segmentation. 
-\mdf{In comparison, we employ the same GMM representation of object models while we formulate the non-coherent point drift as .....  }
-\cxj{The challenging part is the non-coherent point drifts in different objects in point sets which brings a large number of unknown discrete labels in the formulation.}
+Comparing to these methods, our method can be seen as an extension of the formulation of \cite{Evangelidis2014} to simultaneously handle joint registration and co-segmentation. The difference between our method and non-rigid registration is that we can handle the non-coherent point drift by simply estimating independent transformation for each segmentation.
+%
+\cxj{The challenging part is the non-coherent point drifts in different objects in point sets which brings a large number of unknown discrete labels in the formulation.}\hsy{There is no such discrete variables in our formulation.}
 
-%\subsection{Image segmentation and co-segmentation}
-%\label{subsec:coseg}
 \noindent{\textbf{Image segmentation and co-segmentation}}
 %
-\mdf{Due to the challenges in automatic segmentation problems, many interactive methods have been proposed to levarage human's interaction on high-level hints and computational abilities of computers.}
+Due to the challenges in automatic segmentation problems, many interactive methods have been proposed to levarage human's interaction on high-level hints and computational abilities of computers.
 An influential work for interactive image segmentation is GrabCut~\cite{grabcut}. 
 It uses two Gaussian mixture models, one for foreground and the other for background. 
 To initialize these two Gaussian mixture models, a rectangle is manually placed to contain the foreground. 
@@ -51,4 +49,4 @@ In comparison, our method can handle motion that is not continuous in time.
 By allowing interactively input the scene layout, the joint registration and co-segmentation problem can be treated as a series of 3D object recognition problem in point sets. 
 %
 Our method should be classified as one of the correspondence grouping method. 
-Comparing to previous methods that uses \cxj{use what?}\cite{hough,LOF}, our method simultaneously solves the problem for multiple target models in multiple scenes.
+Comparing to previous methods that uses \cxj{use what?}\hsy{you added "that uses" here I'm not sure }\cite{hough,LOF}, our method simultaneously solves the problem for multiple target models in multiple scenes.
