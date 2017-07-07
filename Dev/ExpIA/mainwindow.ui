@@ -231,6 +231,7 @@
     <addaction name="actionScene_Maker"/>
     <addaction name="actionEstimate_IOU"/>
     <addaction name="actionEstimate_Registration_for_JRCS"/>
+    <addaction name="actionMake_Incomplete"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -676,6 +677,11 @@
   <action name="actionEstimate_Registration_for_JRCS">
    <property name="text">
     <string>Estimate Registration for JRCS</string>
+   </property>
+  </action>
+  <action name="actionMake_Incomplete">
+   <property name="text">
+    <string>Make Incomplete</string>
    </property>
   </action>
  </widget>
