@@ -4,10 +4,11 @@
 #include <QDir>
 MakeIncomplete::MakeIncomplete(
         MeshBundle<DefaultMesh>::PtrList inputs,
+        std::vector<arma::uvec> &labels,
         QList<float> ratio,
         QString path,
         QObject *parent
-        ):inputs_(inputs),ratio_(ratio),path_(path),QObject(parent)
+        ):inputs_(inputs),labels_(labels),ratio_(ratio),path_(path),QObject(parent)
 {
     qSort(ratio_.begin(),ratio_.end());
 }
@@ -19,10 +20,17 @@ bool MakeIncomplete::configure(Config::Ptr)
 
 void MakeIncomplete::process(void)
 {
-    std::cerr<<"a"<<std::endl;
-    for(MeshBundle<DefaultMesh>::PtrList::iterator iter=inputs_.begin();iter!=inputs_.end();++iter)
+    if(inputs_.size()==labels_.size())
     {
-        saveByRatio(*iter);
+        std::vector<arma::uvec>::iterator liter=labels_.begin();
+        for(MeshBundle<DefaultMesh>::PtrList::iterator iter=inputs_.begin();iter!=inputs_.end();++iter)
+        {
+            saveByRatio(*iter,*liter);
+            ++liter;
+            if(liter==labels_.end())break;
+        }
+    }else{
+        std::cerr<<"Mesh and Labels are not match"<<std::endl;
     }
     emit end();
 }
@@ -34,7 +42,7 @@ bool less(Pair& p0,Pair& p1)
     return p0.second < p1.second;
 }
 
-void MakeIncomplete::saveByRatio(MeshBundle<DefaultMesh>::Ptr in)
+void MakeIncomplete::saveByRatio(MeshBundle<DefaultMesh>::Ptr in,arma::uvec& li)
 {
     QString msg;
     DefaultMesh& m = in->mesh_;
@@ -70,6 +78,7 @@ void MakeIncomplete::saveByRatio(MeshBundle<DefaultMesh>::Ptr in)
     }
     std::sort(sortedV.begin(),sortedV.end(),less);
     idx = 0;
+    std::vector<arma::uword> label;
     foreach(float r,ratio_)
     {
         QString tmp;
@@ -87,6 +96,7 @@ void MakeIncomplete::saveByRatio(MeshBundle<DefaultMesh>::Ptr in)
             DefaultMesh::VertexHandle vo = om.add_vertex(m.point(vi));
             om.set_normal(vo,m.normal(vi));
             om.set_color(vo,m.color(vi));
+            label.push_back(li(vi.idx()));
         }
         OpenMesh::IO::Options opt;
         opt+=OpenMesh::IO::Options::Binary;
@@ -96,6 +106,9 @@ void MakeIncomplete::saveByRatio(MeshBundle<DefaultMesh>::Ptr in)
         if(!OpenMesh::IO::write_mesh(om,filepath.toStdString(),opt,13)){
             std::cerr<<"can't save to:"<<filepath.toStdString()<<std::endl;
         }
+        QString labelpath = dir.absoluteFilePath(QString::fromStdString(in->name_+".label.arma"));
+        arma::uvec ol(label);
+        ol.save(labelpath.toStdString(),arma::arma_binary);
         idx++;
     }
 }

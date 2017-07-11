@@ -825,8 +825,11 @@ void MainWindow::start_editing()
     {
         QString dirName = QFileDialog::getExistingDirectory(this);
         if(dirName.isEmpty())return;
-        QList<float> ratiolist = {1.00,0.95,0.90,0.85,0.80,0.75,0.70,0.65,0.60,0.55,0.50,0.45,0.40};
-        MakeIncomplete* worker = new MakeIncomplete(inputs_,ratiolist,dirName);
+        QList<float> ratiolist = {1.00,
+                                  0.98,0.96,0.94,0.92,0.90,
+                                  0.88,0.86,0.84,0.82,0.80,
+                                  0.78,0.76,0.74,0.72,0.70};
+        MakeIncomplete* worker = new MakeIncomplete(inputs_,labels_,ratiolist,dirName);
         if(!worker->configure(config_))
         {
             QString msg = "Missing Some Inputs or configure\n";
