@@ -26,6 +26,7 @@
 #include "jrcsbox.h"
 #include "MeshPairViewerWidget.h"
 #include "scenemaker.h"
+#include "makeincomplete.h"
 void MainWindow::start_editing()
 {
     if(edit_thread_)
@@ -819,6 +820,30 @@ void MainWindow::start_editing()
         th->setObjectName(tr("GDCoord"));
         edit_thread_ = th;
     }
+
+    if(edit==ui->actionMakeIncomplete)
+    {
+        QString dirName = QFileDialog::getExistingDirectory(this);
+        if(dirName.isEmpty())return;
+        QList<float> ratiolist = {1.00,0.95,0.90,0.85,0.80,0.75,0.70,0.65,0.60,0.55,0.50,0.45,0.40};
+        MakeIncomplete* worker = new MakeIncomplete(inputs_,ratiolist,dirName);
+        if(!worker->configure(config_))
+        {
+            QString msg = "Missing Some Inputs or configure\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            worker->deleteLater();
+            return;
+        }
+        QThread* th = new QThread();
+        worker->moveToThread(th);
+        connect(th,SIGNAL(started()),worker,SLOT(process()));
+        connect(worker,SIGNAL(end()),th,SLOT(quit()));
+        connect(worker,SIGNAL(end()),worker,SLOT(deleteLater()));
+        connect(worker,SIGNAL(message(QString,int)),ui->statusBar,SLOT(showMessage(QString,int)));
+        th->setObjectName(tr("Make Incomplete"));
+        edit_thread_ = th;
+    }
+
     if(edit_thread_){
         connect(edit_thread_,SIGNAL(finished()),this,SLOT(finish_editing()));
         edit_thread_->start(QThread::HighestPriority);

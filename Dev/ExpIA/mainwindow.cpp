@@ -104,6 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionBase_Segments,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionConsensus_Segment,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
     connect(ui->actionShow_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
+    connect(ui->actionMakeIncomplete,SIGNAL(triggered(bool)),this,SLOT(start_editing()));
 
     connect(ui->actionLab_Color_Space,SIGNAL(triggered(bool)),this,SLOT(showLab()));
     connect(ui->actionObject_View,SIGNAL(triggered(bool)),this,SLOT(viewObj()));
