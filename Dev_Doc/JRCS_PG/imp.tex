@@ -35,7 +35,7 @@ Each group has $K_n$ Gaussian models based on Eq.~(\ref{equ:K_n}).
 We implement this by recording the start and end indices of the $N$ objects. In other words, we record
 $\{0,K_1,K_1+1,K_1+K_2,...,\sum^{N-1}K_n+1,\sum^N K_n\}$. $\{\vb{x}_k\}_n$ are Gaussian centroids of $n^{th}$ group and they are initialized as a random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets. 
 %
-The center of the $n^{th}$ sphere is $\vb{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$ when $N$ is odd and $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$ when $N$ is even.\cxj{What is N? In total, there would be $2N-1$ centers?} \hsy{The common difference is 2r here}
+The center of the $n^{th}$ sphere is $\vb{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$.\cxj{What is N? In total, there would be $2N-1$ centers?} \hsy{No, The common difference is $2r$ here. it is $\{-2r,0,2r\}$ when $N=3$ and $\{-3r,-r,r,3r\}$ when $N=4$}
 %
 This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c) and in Figure~\ref{fig:localoptimal}(b). 
 We choose vertical arrangement for groups of object merely for the convenience of visualization. \cxj{So you can also set the spheres horizontally or slantly or arbitrarily for registration only?}
