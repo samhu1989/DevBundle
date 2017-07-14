@@ -1,5 +1,4 @@
 \section{Experiment and Discussion}
-
 \mdf{In this section, we will show a series of experimental results} \cxj{including a. b....} to demonstrate the robustness of our method on \cxj{parameter selections, point completeness, amout of user interactions.}
 
 
@@ -18,16 +17,12 @@ To estimate the power of the algorithm, we only input layout for one point set i
 For numerical estimation, we calculate the intersection over union (IOU) scores for the result segmentation against ground-truth segmentation. 
 We generate three groups of synthetic point sets and each group has 13 point sets as inputs. 
 Figure~\ref{fig:seg} shows the segmentation result.
-
-
 From the evaluation, we want to discuss one interesting observation:\\
 %
 For all three groups, the point set with highest IOU score is not the same as the point set equipped with manually placed layout.
 In other words, the point sets from Figure~\ref{fig:seg}(c) are not the same point sets from Figure~\ref{fig:seg}(b). 
 In the first group of data (dataset of child table in Figure~\ref{fig:seg}), the segmentation result of the point set with layout is even the second worst in the sense of IOU score. We believe this is because that the manually placed layout is not accurate respecting to point-wise segmentation. 
 At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}) can serve as a soft constraint to help constraining the shape of object, but in the final iterations the alteration will obstruct the further improvement of segmentation for the correspondent point set. 
-
-
 \subsection{Evaluation for Joint Registration on Synthetic Data}
 %
 From the perspective of joint registration, we evaluate the result by transferring the point cloud of objects to each input point set based on result $\{\phi_{mn}\}$ and calculating the average distance from a point to its true correspondent point for each input point set.
@@ -38,7 +33,6 @@ We use this average distance as fitness error to evaluate the registration quali
 \vb{t}_{mn}=\frac{\sum_{\vb{v}_{mi} \in B_n}\vb{v}_{mi}}{N(B_n)}-\vb{c}_n
 \end{equation}
 Table~\ref{tab:regerror} shows the result of this evaluation.
-
 \begin{table}
 	\centering
 	\begin{tabular}{c c c c}
@@ -53,6 +47,20 @@ Table~\ref{tab:regerror} shows the result of this evaluation.
 \end{table}
 For this evaluation we want to discuss that:\\
 We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
+
+\subsection{Investigation on Interaction}
+a) with respect to improvement on the point set with interaction (prove that the interaction is only a initialization).
+
+b) with respect to number of interactions 
+
+\subsection{Investigation on Influence of Point Incompleteness}
+In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point sets. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increased point set incompleteness.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/incompleteness/IOU.png}
+	\caption{This figure shows how the data incompleteness affect the IOU score of co-segmentation}
+	\label{fig:incompleteness}
+\end{figure}
 
 \subsection{Test On Real Data}
 To capture real data we employ the voxel hashing method~\cite{VXH} and use plane fitting to remove walls and floors. 
@@ -73,16 +81,8 @@ Figure~{\ref{fig:realdata}} shows the segmentation and registration results on a
 From Figure~\ref{fig:realdata}(e), we can see that all input point sets are partitioned into objects. From the Figure~\ref{fig:realdata}(g), we can verify that the object from each input set are aligned together by the result transformation.  
 \cxj{More discussions about the robustness of our method according to reviewer's comments..}
 \textbf{Different user interaction}
-\subsection{Point Set Incompleteness}
-In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point set that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point sets. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increased point set incompleteness.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=\linewidth]{images/incompleteness/IOU.png}
-	\caption{This figure shows how the data incompleteness affect the IOU score of co-segmentation}
-	\label{fig:incompleteness}
-\end{figure}
-
 \subsection{Limitations and Future Work}
+\hsy{Need to add discussion on failure cases}
 The biggest problem holding us back is the time performance of our current implementation.  Due to i.i.d. assumption most calculation of our algorithm can actually be parallelized. We plan to implement a new version on GPU cluster so that we can explore more potentials of our algorithm. 
 For example, to integrate semantic feature vectors (generated by neural networks) into it and try it on a scene of a larger scale like \cite{GOGMA}. 
 As advocated in the recent work of \cite{AGM}, it may be a good idea to do the joint registration and co-segmentation with hierarchical GMM representation when for scenes in larger scales. 
