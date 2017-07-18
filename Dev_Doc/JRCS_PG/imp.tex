@@ -1,6 +1,6 @@
-\section{Implementation Details}
+\section{Initialization and Optimization}
 \label{sec:imp}
-In this section, we summarize the entire algorithm and explain the implemented details.
+In this section, we summarize the entire framework for our algorithm and explain how do we intialize the parameters and guide the optimization with interaction.  
 %
 Based on our formulation in Sec.~\ref{sec:method}, our algorithm can be summarized as in Algorithm \ref{alg:jrcs}.
 \begin{algorithm}[htb]
@@ -17,14 +17,64 @@ Based on our formulation in Sec.~\ref{sec:method}, our algorithm can be summariz
 		\item \textbf{repeat}
 		\item E-step: Use $\Theta^{q-1}$ to estimate $\alpha_{mik}^q$ according to Eq.~(\ref{equ:estep}) (use Eq.~(\ref{equ:bestep}) for a bilateral formulation);
 		\item Alter $\alpha_{mik}^q$ with $\{\beta_{ik}\}_{m}$ according to Eq.~(\ref{equ:alteralpha});
-		\item M-step-a: use $\alpha^q_{mik}$, $\pmb x^{q-1}_k$ to estimate $\{R_{mn}^q\}$ and $\{\pmb t_{mn}^q\}$ according to Eqs.~(\ref{equ:updateR})(\ref{equ:updatet});
-		\item M-step-b: use $\alpha^q_{mik}$, $\{\vb{R}_{mn}^q\}$ and $\{\vb{t}_{mn}^q\}$ to update other parameters for Gaussian models according to Eqs.~ (\ref{equ:updatexk})(\ref{equ:updatesigma})(\ref{equ:updatepk})(\ref{equ:updatey})  (or use Eqs.~ (\ref{equ:updatefk})(\ref{equ:updatefsigma}) for a bilateral formulation);
+		\item M-step-a: use $\alpha^q_{mik}$, $\mathbf x^{q-1}_k$ to estimate $\{\mathbf{R}_{mn}^q\}$ and $\{\mathbf t_{mn}^q\}$ according to Eqs.~(\ref{equ:updateR})(\ref{equ:updatet});
+		\item M-step-b: use $\alpha^q_{mik}$, $\{\mathbf{R}_{mn}^q\}$ and $\{\mathbf{t}_{mn}^q\}$ to update other parameters for Gaussian models according to Eqs.~ (\ref{equ:updatexk})(\ref{equ:updatesigma})(\ref{equ:updatepk})(\ref{equ:updatey})  (or use Eqs.~ (\ref{equ:updatefk})(\ref{equ:updatefsigma}) for a bilateral formulation);
 		\item $q \leftarrow q+1$
 		\item \textbf{until} Convergence \cxj{what is the convergence conditions?}
 		\item \textbf{return} $\Theta^q$
 	\end{enumerate}
 \end{algorithm}
-\subsection{Implementation Details}
+
+\subsection{Interaction}
+\label{sec:imp:interact}
+Unfortunately, there are a large number of parameters that can not be easily initialized in our formulation. 
+%
+In this subsection we first introduce our design of interaction, which is intuitive for users to input the semantic prior this way. We then explain how we can easily initialize those parameters for our optimization based on the manual input.
+
+
+As demonstrated in Figure~\ref{fig:interact}, we let user choose one of the point sets and place boxes in it to indicate the layout for this point set. From this, we can easily initialize the total number of objects $N$ and determine $\{K_n\}$ which is the numbers of Gaussian mixture models used to represent each object.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=.3\linewidth]{images/interact01.png}
+	\includegraphics[width=.3\linewidth]{images/interact02.png}
+	\includegraphics[width=.3\linewidth]{images/interact03.png}
+	\includegraphics[width=.3\linewidth]{images/interact04.png}
+	\includegraphics[width=.3\linewidth]{images/interact05.png}
+	\includegraphics[width=.3\linewidth]{images/interact06.png}
+	\caption{\label{fig:interact}
+		From the first to the sixth, the nine images show the procedure of interaction:
+		the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represents one object. The interaction allows multiple boxes to represents same object.(e.g. the desk is represented by three boxes in same color)}
+\end{figure}
+These two parameters are difficult to be initialized without semantic prior, but with the input of the users we can naturally initialize the $N$ as the number of different color label and the ${K_n}$ as 
+\begin{equation}
+\label{equ:K_n}
+K_n=\frac{V_n}{\sum V_n}K_{all},
+\end{equation}
+in which the $V_n$ represent the total volume of the boxes in the $n^{th}$ color and the $K_{all}$ is initialized as $K_{all}=\frac{median(L_m)}{2}$ and $\{L_m\}$ are point numbers of $M$ input point sets. This is an empirical choice borrowed from \cite{Evangelidis2014}.\\
+%
+The expectation maximization framework is easily converged to a local optimal. To cope with this problem we further use this layout (boxes) from interaction as a soft constraint to guide the optimization and constrain the shape of generated object model. Such constraint is enforced by simply altering the posterior probability $\alpha_{mik}$ as
+%
+\begin{equation}
+\label{equ:alteralpha}
+\alpha_{mik}^*=\frac{\alpha_{mik}\beta_{mik}}{\sum_{i,k}\alpha_{mik}\beta_{mik}}
+\end{equation}
+where the $\beta_{mik}$ is the prior probability according to the boxes. It is defined as:
+\begin{equation}
+\beta_{mik}=\left\{
+\begin{array}{rcl}
+1& &\mathbf v_{mi} \in B_n\\
+\exp(-\frac{\min_{\mathbf v_{mj}}|| \mathbf v_{mi} - \mathbf v_{mj} ||_2^2  )}{L})& &\mathbf v_{mi} \notin B_n~and~\mathbf v_{mj} \in B_n\\
+\end{array} \right.
+\end{equation}
+where the $B_n$ is a point set that is enclosed by the boxes used to represent the layout of $n^{th}$ object. The $k^{th}$ Gaussian model is predefined to be one of the Gaussians used to represent $n^{th}$ object. $\min_{v_{mj}}|| v_{mi} - v_{mj} ||_2^2$ is actually the squared euclidean distance from point $v_{mi}$ to the point set $B_n$, as we define the distance from a point to a point set as the minimum distance from the point to any point inside the point set. $L$ here is a constant number with $L=2r^2$, and $r$ is the median of the radius of input point sets. The radius of a point set is half of length of diagonal line of its axis-aligned bounding box.   
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/localoptimal/localoptimal}
+	\caption{\label{fig:localoptimal}This figure shows an example result when converges to a local optimal. (a) is the result of segmentation of this local optimal. (b) is the final centroids of latent model. It shows that from top to down the 2nd and 3rd object model both include part of the table and part of the chair.}
+\end{figure}
+This alteration on posterior probability is only done with the probability related to the $m^{th}$ point set that have the mannual input layout (the boxes) in it. This alteration can help prevent the optimization from converging to a local optimal as in Figure~\ref{fig:localoptimal}. The result from the Figure~\ref{fig:localoptimal} has the same input and initialization with the result from Figure~\ref{fig:teaser}, but it does not use the posterior alteration as a soft constraint.
+
+\subsection{Initialization}
 %
 \textbf{Initialization of $\Theta$}: We start with determining the total number of Gaussian model $K_{all}$ as we explained in Sec.~\ref{sec:imp:interact}.
 We set $p_k=\frac{1}{\sum K_n}$, which means each Gaussian has the same weight at the beginning. 
@@ -40,11 +90,11 @@ The center of the $n^{th}$ sphere is $\vb{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1
 This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c) and in Figure~\ref{fig:localoptimal}(b). 
 We choose vertical arrangement for groups of object merely for the convenience of visualization. \cxj{So you can also set the spheres horizontally or slantly or arbitrarily for registration only?}
 %
-We choose spheres as the initial shape so that we can initialize all the $\vb{R}_{mn}$ to identity matrix. 
+We choose spheres as the initial shape so that we can initialize all the $\mathbf{R}_{mn}$ to identity matrix. 
 %
-For the $\vb{t}_{mn}$ we initialize them as $\vb{t}_{mn}=- \vb{c}_n$ so that all the object model starting with position at origin point when they are transformed to the space of each input set. 
+For the $\vb{t}_{mn}$ we initialize them as $\mathbf{t}_{mn}=- \mathbf{c}_n$ so that all the object model starting with position at origin point when they are transformed to the space of each input set. 
 %
-However, if the $m^{th}$ input point set has the manually placed layout, we treat the associated $\vb{t}_{mn}$ differently. For this case we have:
+However, if the $m^{th}$ input point set has the manually placed layout, we treat the associated $\mathbf{t}_{mn}$ differently. For this case we have:
 \begin{equation}
 	\label{equ:initt}
 	\vb{t}_{mn}=\frac{\sum_{\vb{v}_{mi} \in B_n}\vb{v}_{mi}}{N(B_n)}-\vb{c}_n
@@ -68,4 +118,3 @@ Figure~\ref{fig:hi} shows how the users can use the hot intervention mechanism w
 	\includegraphics[width=\linewidth]{images/hotintervention/hi}
 	\caption{\label{fig:hi} This figure shows the hot intervention mechanism. (a) The input point sets with manually placed layout in the $2^{nd}$ point set. (b) For each iteration, the instant segmentation results for all point sets are shown in the blue region while the object models (the shape of the centroids of the Gaussian models) are shown in the red region. (c) The user picks another input point set and adds more boxes targeting the incorrect segmentation to further guide the optimization when the optimization is running. \cxj{highlight the newly added box. Do not show the entire interface.. just show the data. }}
 \end{figure}
-
