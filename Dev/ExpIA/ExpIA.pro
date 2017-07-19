@@ -50,7 +50,8 @@ SOURCES += main.cpp\
     annotator.cpp \
     gdcthread.cpp \
     jrcsplatedialog.cpp \
-    scenemaker.cpp
+    scenemaker.cpp \
+    makeincomplete.cpp
 
 HEADERS  += mainwindow.h \
     regiongrowthread.h \
@@ -84,7 +85,8 @@ HEADERS  += mainwindow.h \
     annotator.h \
     gdcthread.h \
     jrcsplatedialog.h \
-    scenemaker.h
+    scenemaker.h \
+    makeincomplete.h
 
 FORMS    += mainwindow.ui \
     unifylabelmannual.ui \

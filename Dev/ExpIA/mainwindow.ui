@@ -65,6 +65,7 @@
     <addaction name="actionLoad_Base_Segments"/>
     <addaction name="actionSave_Clusters"/>
     <addaction name="actionLoad_Clusters"/>
+    <addaction name="actionSave_XYZRGBL_mat"/>
     <addaction name="actionSave_Object_Model"/>
     <addaction name="actionLoad_Objects"/>
     <addaction name="actionSave_Cube_Color"/>
@@ -682,6 +683,11 @@
   <action name="actionMakeIncomplete">
    <property name="text">
     <string>Make Incomplete</string>
+   </property>
+  </action>
+  <action name="actionSave_XYZRGBL_mat">
+   <property name="text">
+    <string>Save XYZRGBL.mat</string>
    </property>
   </action>
  </widget>

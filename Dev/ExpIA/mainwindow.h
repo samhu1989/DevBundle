@@ -66,6 +66,8 @@ public slots:
     void view_input(WidgetPtr widget);
     void calculate_iou(QString dir0=QString(),QString dir1=QString());
     void calculate_fit(QString dir=QString());
+
+    void save_XYZRGBL_MAT(QString dirName=QString());
 protected slots:
     void configure();
 
@@ -107,6 +109,7 @@ protected slots:
 
 protected:
     QAction* getActionByText(const QString& txt);
+    void save_XYZRGBL_MAT(MeshBundle<DefaultMesh>::Ptr,arma::uvec&,QString);
 
 protected slots:
     void LAPACKE_dggsvd_test(void){TEST::LAPACKE_dggsvd_test();}

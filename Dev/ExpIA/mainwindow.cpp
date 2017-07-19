@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoad_Supervoxels,SIGNAL(triggered(bool)),this,SLOT(load_supervoxels()));
     connect(ui->actionSave_Segments,SIGNAL(triggered(bool)),this,SLOT(save_labels()));
     connect(ui->actionLoad_Segments,SIGNAL(triggered(bool)),this,SLOT(load_labels()));
+    connect(ui->actionSave_XYZRGBL_mat,SIGNAL(triggered(bool)),this,SLOT(save_XYZRGBL_MAT()));
     connect(ui->actionSave_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(save_base_segs()));
     connect(ui->actionLoad_Base_Segments,SIGNAL(triggered(bool)),this,SLOT(load_base_segs()));
     connect(ui->actionSave_Object_Model,SIGNAL(triggered(bool)),this,SLOT(save_objects()));
@@ -367,6 +368,52 @@ void MainWindow::save_labels(QString dirName)
         if(miter==inputs_.end())break;
         ++miter;
     }
+}
+
+void MainWindow::save_XYZRGBL_MAT(QString dirName)
+{
+    if(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Export To XYZRGBL.mat"),
+                tr("../Dev_Data/")
+                );
+    }
+    if(dirName.isEmpty())return;
+    std::vector<arma::uvec>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    QDir dir;
+    dir.setPath(dirName);
+    miter = inputs_.begin();
+    for(iter=labels_.begin();iter!=labels_.end();++iter)
+    {
+        QString filepath = dir.absoluteFilePath(
+                    QString::fromStdString((*miter)->name_+".mat")
+                    );
+        save_XYZRGBL_MAT(*miter,*iter,filepath);
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
+}
+
+void MainWindow::save_XYZRGBL_MAT(MeshBundle<DefaultMesh>::Ptr m,arma::uvec& l,QString filepath)
+{
+    DefaultMesh& mesh = m->mesh_;
+    arma::fmat xyzrgbl(7,mesh.n_vertices());
+    arma::fmat pts((float*)mesh.points(),3,mesh.n_vertices(),false,true);
+    arma::Mat<uint8_t> color((uint8_t*)mesh.vertex_colors(),3,mesh.n_vertices(),false,true);
+    for(int i=0;i<mesh.n_vertices();++i)
+    {
+        xyzrgbl(0,i) = pts(0,i);
+        xyzrgbl(1,i) = pts(1,i);
+        xyzrgbl(2,i) = pts(2,i);
+        xyzrgbl(3,i) = float(color(0,i));
+        xyzrgbl(4,i) = float(color(1,i));
+        xyzrgbl(5,i) = float(color(2,i));
+        xyzrgbl(6,i) = float(l(i));
+    }
+    MATIO::save_to_matlab(xyzrgbl,filepath.toStdString(),"xyzrgbl");
 }
 
 void MainWindow::save_cube_color(QString fileName)
