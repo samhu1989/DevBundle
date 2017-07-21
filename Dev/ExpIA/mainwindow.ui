@@ -201,6 +201,7 @@
     <addaction name="separator"/>
     <addaction name="actionSpectral_Function"/>
     <addaction name="actionColor_By_Cube"/>
+    <addaction name="actionColor_By_Text"/>
    </widget>
    <widget class="QMenu" name="menuTests">
     <property name="title">
@@ -688,6 +689,11 @@
   <action name="actionSave_XYZRGBL_mat">
    <property name="text">
     <string>Save XYZRGBL.mat</string>
+   </property>
+  </action>
+  <action name="actionColor_By_Text">
+   <property name="text">
+    <string>Color By Text</string>
    </property>
   </action>
  </widget>

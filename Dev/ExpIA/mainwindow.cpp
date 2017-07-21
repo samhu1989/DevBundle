@@ -20,6 +20,7 @@
 #include <QTime>
 #include "cube.h"
 #include <QDate>
+#include <fstream>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -114,6 +115,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionIndex_By_Color,SIGNAL(triggered(bool)),this,SLOT(showIndex()));
     connect(ui->actionSpectral_Function,SIGNAL(triggered(bool)),this,SLOT(showSpectralFunc()));
     connect(ui->actionColor_By_Cube,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_cube()));
+    connect(ui->actionColor_By_Text,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_txt()));
 
     connect(ui->actionLAPACKE_dggsvd,SIGNAL(triggered(bool)),this,SLOT(LAPACKE_dggsvd_test()));
     connect(ui->actionInside_Bounding_Box,SIGNAL(triggered(bool)),this,SLOT(Inside_BBox_test()));
@@ -541,6 +543,45 @@ void MainWindow::custom_color_from_cube()
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
     miter = inputs_.begin();
     Common::Cube::reset_color_set();
+    for(iter=labels_.begin();iter!=labels_.end();++iter)
+    {
+        MeshBundle<DefaultMesh>& m = **miter;
+        Common::Cube::colorByLabel((uint32_t*)m.custom_color_.vertex_colors(),m.custom_color_.size(),*iter);
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
+}
+
+void MainWindow::custom_color_from_txt()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Costum Color"),
+        tr("./"),
+        tr("TXT (*.txt);;"
+        "All Files (*)"));
+    if(labels_.size()!=inputs_.size())
+    {
+        return;
+    }
+    std::vector<arma::uword> colors;
+    std::ifstream in(fileName.toStdString());
+    if(!in.is_open())
+    {
+        std::cerr<<"Failed to open"<<fileName.toStdString();
+        return;
+    }
+    int r,g,b;
+    while(!in.eof())
+    {
+        in >> r;in >> g;in >> b;
+        QColor c(b,g,r);
+        colors.push_back(c.rgba());
+    }
+    std::vector<arma::uvec>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    miter = inputs_.begin();
+    Common::Cube::reset_color_set();
+    Common::Cube::set_color(arma::uvec(colors));
     for(iter=labels_.begin();iter!=labels_.end();++iter)
     {
         MeshBundle<DefaultMesh>& m = **miter;
@@ -1604,7 +1645,7 @@ void MainWindow::calculate_iou(QString dir0,QString dir1)
         arma::uvec intersect = arma::find(lbl0==lbl1);
         iou = float(intersect.size());
         iou = iou / ( 2.0*float(lbl0.size()) - iou );
-        std::cout<<(inputs_[i])->name_<<":"<<iou<<std::endl;
+        std::cout<<(inputs_[i])->name_<<":"<<iou<<","<<intersect.size()<<"/"<<lbl0.size()<<std::endl;;
         if(min>iou)
         {
             mini = i;
