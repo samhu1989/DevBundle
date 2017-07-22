@@ -224,19 +224,20 @@ void JRCSView::finished()
     }
     std::cout<<msg.toStdString()<<std::endl;
     emit message(msg,1000);
-    connect(ui->spinBox,SIGNAL(valueChanged(int)),this,SLOT(align(int)));
-    ui->spinBox->show();
-    this->updateGeometry();
-    this->update();
-    move(pos().x()+1,pos().y());
-    align(ui->spinBox->value());
     if(close_on_finish_)
     {
         emit closeInMdi(this);
     }
+
     save_rt();
-    save_order();
+    if(!order_.empty())save_order();
     save_centroids();
+    move(pos().x()+1,pos().y());
+    ui->spinBox->show();
+    connect(ui->spinBox,SIGNAL(valueChanged(int)),this,SLOT(align(int)));
+    align(ui->spinBox->value());
+    this->updateGeometry();
+    this->update();
 }
 
 void JRCSView::passMessage(QString msg,int t)
@@ -360,7 +361,18 @@ void JRCSView::save_order()
     QDir dir;
     dir.setPath(dirName);
     miter = inputs_.begin();
-    for(iter=order_.begin();iter!=order_.end();++iter)
+    iter = order_.begin();
+    QString filepath = dir.absoluteFilePath(
+                QString::fromStdString("X.order.arma")
+                );
+    if(!iter->save(filepath.toStdString(),arma::arma_binary))
+    {
+        QString msg = "Failed to Save "+filepath+"\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+        return;
+    }
+    ++iter;
+    for( ;iter!=order_.end();++iter)
     {
         QString filepath = dir.absoluteFilePath(
                     QString::fromStdString((*miter)->name_+".order.arma")
@@ -371,8 +383,8 @@ void JRCSView::save_order()
             QMessageBox::critical(this, windowTitle(), msg);
             return;
         }
-        if(miter==inputs_.end())break;
         ++miter;
+        if(miter==inputs_.end())break;
     }
 }
 

@@ -51,12 +51,49 @@ void JRCSBox::get_label(std::vector<arma::uvec>& lbl)
     }
 }
 
+typedef struct{
+    int idx;
+    arma::fvec coord;
+}Xorder;
+
+arma::fvec order_eps;
+
+bool ordering(const Xorder& x1,const Xorder& x2)
+{
+    if( std::fabs( x1.coord(2) - x2.coord(2) ) < order_eps(2) ) // consider equal
+    {
+        if( std::fabs( x1.coord(1) - x2.coord(1) ) < order_eps(1) )
+        {
+            return x1.coord(0) < x2.coord(0);
+        }else return x1.coord(1) < x2.coord(1);
+    }
+    else return x1.coord(2) < x2.coord(2);
+}
+
 void JRCSBox::get_order(std::vector<arma::uvec>& orders)
 {
     if(verbose_)std::cerr<<"JRCSBox::get_order"<<std::endl;
-    if(orders.size()!=vvs_ptrlst_.size()){
-        orders.resize(vvs_ptrlst_.size());
+    if(orders.size()!=(vvs_ptrlst_.size()+1)){
+        orders.resize(vvs_ptrlst_.size()+2);
     }
+    arma::fvec maxX = arma::max(*xv_ptr_,1);
+    arma::fvec minX = arma::min(*xv_ptr_,1);
+    order_eps = ( maxX - minX ) / 200.0;
+    std::vector<Xorder> Xscore(xv_ptr_->n_cols);
+    #pragma omp parallel for
+    for(int i = 0 ; i < Xscore.size() ; ++i )
+    {
+        Xscore[i].coord = xv_ptr_->col(i);
+        Xscore[i].idx = i;
+    }
+    std::sort(Xscore.begin(),Xscore.end(),ordering);
+    arma::uvec Xorder(Xscore.size());
+    #pragma omp parallel for
+    for(arma::uword i = 0 ; i < Xscore.size() ; ++i )
+    {
+        Xorder(Xscore[i].idx) = i;
+    }
+    orders[0] = Xorder;
     for(int idx=0;idx<vvs_ptrlst_.size();++idx)
     {
         arma::mat& alpha = *alpha_ptrlst_[idx];
@@ -67,9 +104,9 @@ void JRCSBox::get_order(std::vector<arma::uvec>& orders)
             arma::uword l;
             arma::rowvec point_prob = alpha.row(r);
             point_prob.max(l);
-            order(r) = l;
+            order(r) = Xorder(l);
         }
-        orders[idx] = order;
+        orders[idx+1] = order;
     }
 }
 
