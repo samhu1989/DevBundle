@@ -48,6 +48,7 @@ public:
     inline int get_k(){return jrcs_->evaluate_k();}
     inline void get_rt(JRCS::JRCSBase::TsLst&rt){jrcs_->get_rt(rt);}
     inline void get_lbl(std::vector<arma::uvec>&lbl){jrcs_->get_label(lbl);}
+    inline void get_order(std::vector<arma::uvec>&orders){jrcs_->get_order(orders);}
     inline void set_method(std::shared_ptr<JRCS::JRCSBase> method){jrcs_ = method;}
     inline void set_init_method(std::shared_ptr<JRCS::JRCSInitBase> method){jrcs_->set_init_method(method);}
     inline int get_iter(){if(jrcs_)return jrcs_->get_iter_num();else return -1;}

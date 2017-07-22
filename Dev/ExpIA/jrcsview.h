@@ -51,12 +51,15 @@ protected:
     bool allocate_x( JRCSThread* jrcs_worker_ );
     void move_worker_to_thread( JRCSThread* jrcs_worker );
     void save_rt();
+    void save_centroids();
+    void save_order();//corrrespondence by order
 private:
     Ui::JRCSView *ui;
     MeshListViewerWidget* geo_view_;
     QThread* jrcs_thread_;
     JRCSThread* jrcs_worker_;
     JRCS::JRCSBase::TsLst rt_;
+    std::vector<arma::uvec> order_;
     MeshList& inputs_;
     LabelList& labels_;
     ModelList& objects_;

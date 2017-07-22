@@ -57,6 +57,7 @@ public:
     virtual inline int  get_obj_num(void){return obj_num_;}
 
 
+    virtual void get_order(std::vector<arma::uvec>&);
     virtual void get_label(std::vector<arma::uvec>&);
     virtual void input(
             const MatPtrLst& vv,

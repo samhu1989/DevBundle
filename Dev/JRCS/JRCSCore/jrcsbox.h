@@ -26,6 +26,7 @@ public:
     static void set_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
     static void add_boxes(std::vector<Cube::PtrLst>& cube_ptrlsts);
     virtual void get_label(std::vector<arma::uvec>&);
+    virtual void get_order(std::vector<arma::uvec>&);
 //    virtual void compute(void);
 protected:
     virtual void prepare_compute();

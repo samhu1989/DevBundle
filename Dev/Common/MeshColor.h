@@ -59,6 +59,7 @@ namespace ColorArray
     void COMMONSHARED_EXPORT colorfromValue(RGB888*   ptr,arma::uword size,const arma::fvec& value);
     void COMMONSHARED_EXPORT colorfromlabel(uint32_t* ptr,arma::uword size,const arma::uvec& label);
     void COMMONSHARED_EXPORT colorfromIndex(uint32_t* ptr,arma::uword size);
+    void COMMONSHARED_EXPORT colorfromIndex(uint32_t* ptr,arma::uword size,const arma::uvec& index);
 
     uint32_t COMMONSHARED_EXPORT rand_color(void);
 
@@ -79,6 +80,7 @@ public:
     void* vertex_colors(void);
     void fromlabel(const arma::uvec&);
     void fromIndex(void);
+    void fromIndex(const arma::uvec&);
     inline long size()const{return v_colors.size_;}
 protected:
     ColorArray::RGBArray v_colors;

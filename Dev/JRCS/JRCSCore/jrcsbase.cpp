@@ -810,6 +810,11 @@ void JRCSBase::get_label(std::vector<arma::uvec>&lbl)
     }
 }
 
+void JRCSBase::get_order(std::vector<arma::uvec>&)
+{
+    ;
+}
+
 bool JRCSBase::isEnd()
 {
     if(iter_count_>=max_iter_)return true;

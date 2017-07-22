@@ -48,3 +48,9 @@ void MeshColor<M>::fromIndex(void)
     ColorArray::colorfromIndex(ptr,v_colors.size_);
 }
 
+template<typename M>
+void MeshColor<M>::fromIndex(const arma::uvec& idx)
+{
+    uint32_t* ptr = (uint32_t*)vertex_colors();
+    ColorArray::colorfromIndex(ptr,v_colors.size_,idx);
+}

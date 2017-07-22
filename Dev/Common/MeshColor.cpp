@@ -2,6 +2,7 @@
 #include "common_global.h"
 #include <QColor>
 #include <random>
+#include <cassert>
 const float ColorArray::Lab_L_min = 0;
 const float ColorArray::Lab_L_max = 100;
 const float ColorArray::Lab_ab_min = -120;
@@ -270,7 +271,24 @@ void ColorArray::colorfromIndex(uint32_t* ptr,arma::uword size)
     for(int i = 0 ; i < size ; ++i )
     {
         QColor color;
-        color.setHslF(0.65*qreal(i)/qreal(size),0.6,0.73);
+        qreal r0 = qreal(i % 10) / 10.0;
+        qreal r1 = qreal(i)/qreal(size);
+        color.setHslF(0.9*r1,0.5+0.4*r0,0.73);
+        ptr[i] = qRgb(color.blue(),color.green(),color.red());
+    }
+}
+
+void ColorArray::colorfromIndex(uint32_t* ptr,arma::uword size,const arma::uvec& index)
+{
+    assert(size==index.size());
+    qreal max = qreal(arma::max(index));
+    #pragma omp parallel for
+    for(int i = 0 ; i < size ; ++i )
+    {
+        QColor color;
+        qreal r0 = qreal(index(i) % 10) / 10.0;
+        qreal r1 = qreal(index(i))/qreal(max);
+        color.setHslF(0.9*r1,0.5+0.4*r0,0.73);
         ptr[i] = qRgb(color.blue(),color.green(),color.red());
     }
 }

@@ -216,6 +216,7 @@ void JRCSView::finished()
         ui->spinBox->setReadOnly(false);
         jrcs_worker_->get_lbl(labels_);
         jrcs_worker_->get_rt(rt_);
+        jrcs_worker_->get_order(order_);
         jrcs_worker_->deleteLater();
         jrcs_worker_ = NULL;
         jrcs_thread_->deleteLater();
@@ -225,6 +226,8 @@ void JRCSView::finished()
     emit message(msg,1000);
     connect(ui->spinBox,SIGNAL(valueChanged(int)),this,SLOT(align(int)));
     ui->spinBox->show();
+    this->updateGeometry();
+    this->update();
     move(pos().x()+1,pos().y());
     align(ui->spinBox->value());
     if(close_on_finish_)
@@ -232,6 +235,8 @@ void JRCSView::finished()
         emit closeInMdi(this);
     }
     save_rt();
+    save_order();
+    save_centroids();
 }
 
 void JRCSView::passMessage(QString msg,int t)
@@ -307,6 +312,68 @@ void JRCSView::save_rt()
         out.close();
     }
 
+}
+
+void JRCSView::save_centroids()
+{
+    QString fileName;
+    while(fileName.isEmpty())
+    {
+        fileName = QFileDialog::getSaveFileName(
+                this,
+                tr("Save Centroids"),
+                tr("../Dev_Data/"),
+                tr(
+                    "PLY Files (*.ply);;"
+                    "OBJ Files (*.obj);;"
+                    "OFF Files (*.off);;"
+                    "STL Files (*.stl);;"
+                    "All Files (*)"
+                   )
+                );
+    }
+    DefaultMesh& m = geo_view_->list().back()->mesh_;
+    OpenMesh::IO::Options opt;
+    opt+=OpenMesh::IO::Options::Binary;
+    if(m.has_vertex_colors())opt+=OpenMesh::IO::Options::VertexColor;
+    if(m.has_vertex_normals())opt+=OpenMesh::IO::Options::VertexNormal;
+    if(!OpenMesh::IO::write_mesh(m,fileName.toStdString(),opt,13)){
+        std::cerr<<"can't save to:"<<fileName.toStdString()<<std::endl;
+        return;
+    }
+
+}
+
+void JRCSView::save_order()
+{
+    QString dirName;
+    while(dirName.isEmpty())
+    {
+        dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save Order"),
+                tr("../Dev_Data/")
+                );
+    }
+    std::vector<arma::uvec>::iterator iter;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    QDir dir;
+    dir.setPath(dirName);
+    miter = inputs_.begin();
+    for(iter=order_.begin();iter!=order_.end();++iter)
+    {
+        QString filepath = dir.absoluteFilePath(
+                    QString::fromStdString((*miter)->name_+".order.arma")
+                    );
+        if(!iter->save(filepath.toStdString(),arma::arma_binary))
+        {
+            QString msg = "Failed to Save "+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        if(miter==inputs_.end())break;
+        ++miter;
+    }
 }
 
 JRCSView::~JRCSView()

@@ -24,7 +24,7 @@ JRCSBox::JRCSBox()
 
 void JRCSBox::get_label(std::vector<arma::uvec>& lbl)
 {
-    if(verbose_)std::cerr<<"JRCSBase::get_label"<<std::endl;
+    if(verbose_)std::cerr<<"JRCSBox::get_label"<<std::endl;
     if(lbl.size()!=vvs_ptrlst_.size()){
         lbl.resize(vvs_ptrlst_.size());
     }
@@ -48,6 +48,28 @@ void JRCSBox::get_label(std::vector<arma::uvec>& lbl)
             label(r) = l+1;
         }
         lbl[idx] = label;
+    }
+}
+
+void JRCSBox::get_order(std::vector<arma::uvec>& orders)
+{
+    if(verbose_)std::cerr<<"JRCSBox::get_order"<<std::endl;
+    if(orders.size()!=vvs_ptrlst_.size()){
+        orders.resize(vvs_ptrlst_.size());
+    }
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[idx];
+        arma::uvec order(alpha.n_rows);
+        #pragma omp parallel for
+        for(int r = 0 ; r < alpha.n_rows ; ++r )
+        {
+            arma::uword l;
+            arma::rowvec point_prob = alpha.row(r);
+            point_prob.max(l);
+            order(r) = l;
+        }
+        orders[idx] = order;
     }
 }
 

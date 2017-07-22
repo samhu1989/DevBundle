@@ -202,6 +202,7 @@
     <addaction name="actionSpectral_Function"/>
     <addaction name="actionColor_By_Cube"/>
     <addaction name="actionColor_By_Text"/>
+    <addaction name="actionColor_By_Order"/>
    </widget>
    <widget class="QMenu" name="menuTests">
     <property name="title">
@@ -694,6 +695,11 @@
   <action name="actionColor_By_Text">
    <property name="text">
     <string>Color By Text</string>
+   </property>
+  </action>
+  <action name="actionColor_By_Order">
+   <property name="text">
+    <string>Color By Order</string>
    </property>
   </action>
  </widget>

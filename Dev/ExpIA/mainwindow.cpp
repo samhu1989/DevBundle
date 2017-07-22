@@ -116,6 +116,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSpectral_Function,SIGNAL(triggered(bool)),this,SLOT(showSpectralFunc()));
     connect(ui->actionColor_By_Cube,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_cube()));
     connect(ui->actionColor_By_Text,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_txt()));
+    connect(ui->actionColor_By_Order,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_order()));
 
     connect(ui->actionLAPACKE_dggsvd,SIGNAL(triggered(bool)),this,SLOT(LAPACKE_dggsvd_test()));
     connect(ui->actionInside_Bounding_Box,SIGNAL(triggered(bool)),this,SLOT(Inside_BBox_test()));
@@ -588,6 +589,44 @@ void MainWindow::custom_color_from_txt()
         Common::Cube::colorByLabel((uint32_t*)m.custom_color_.vertex_colors(),m.custom_color_.size(),*iter);
         if(miter==inputs_.end())break;
         ++miter;
+    }
+}
+
+void MainWindow::custom_color_from_order()
+{
+    if(inputs_.empty())
+    {
+        QString msg = "Please Load Inputs First\n";
+        QMessageBox::critical(this, windowTitle(), msg);
+    }
+    QString dirName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Load Order"),
+                tr("../Dev_Data/")
+                );
+    if(dirName.isEmpty())return;
+    std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator miter;
+    QDir dir;
+    dir.setPath(dirName);
+    for(miter = inputs_.begin();miter!=inputs_.end();++miter)
+    {
+        arma::uvec order;
+        QString filepath = dir.absoluteFilePath(
+                    QString::fromStdString((*miter)->name_+".order.arma")
+                    );
+        if(!order.load(filepath.toStdString()))
+        {
+            QString msg = "Failed to Load "+filepath+"\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        if( order.size() != (*miter)->mesh_.n_vertices() )
+        {
+            QString msg = "Some size of this set of Order doesn't match the inputs\n";
+            QMessageBox::critical(this, windowTitle(), msg);
+            return;
+        }
+        (*miter)->custom_color_.fromIndex(order);
     }
 }
 

@@ -109,6 +109,8 @@ protected slots:
 
     void custom_color_from_txt();
 
+    void custom_color_from_order();
+
 protected:
     QAction* getActionByText(const QString& txt);
     void save_XYZRGBL_MAT(MeshBundle<DefaultMesh>::Ptr,arma::uvec&,QString);
