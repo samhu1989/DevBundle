@@ -1,8 +1,19 @@
 \section{Experiment and Discussion}
-\mdf{In this section, we will show a series of experimental results} \cxj{including a. b....} to demonstrate the robustness of our method on \cxj{parameter selections, point completeness, amout of user interactions.}
+In this section, we will show a series of experimental results including 
+a) evaluation for co-segmentation and joint registration on synthetic data in which we compare our method to previous methods  b) investigation on the robustness of our method on point completeness and amount of user interaction c) testing on one group of real data and verifying the result visually.
 
-
-\cxj{Describe the data. How do you generate the synthetic data. and how do you capture real data. How many data do you have. }
+In the experiments, the synthetic datasets are generated as follows:
+\begin{enumerate}
+	\item Acquire meshes for objects from 3D Warehouse.
+	\item Turn the meshes into point sets with sampling method of \cite{PossionSampling}
+	\item Manually place and move the point sets of objects into different point sets of scenes.   
+\end{enumerate}
+The real dataset (as shown in \ref{fig:realdata}) is acquired as follows:
+\begin{enumerate}
+	\item Scan the scenes with method of \cite{KinectFusion} 
+	\item Remove walls and floors with plane fitting
+	\item Turn the meshes of scenes into point sets with sampling method of \cite{PossionSampling}
+\end{enumerate}
 
 \subsection{Evaluation for Co-segmentation on Synthetic Data}
 \begin{figure}[htb]
