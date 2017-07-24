@@ -74,11 +74,11 @@ void JRCSBox::get_order(std::vector<arma::uvec>& orders)
 {
     if(verbose_)std::cerr<<"JRCSBox::get_order"<<std::endl;
     if(orders.size()!=(vvs_ptrlst_.size()+1)){
-        orders.resize(vvs_ptrlst_.size()+2);
+        orders.resize(vvs_ptrlst_.size()+1);
     }
     arma::fvec maxX = arma::max(*xv_ptr_,1);
     arma::fvec minX = arma::min(*xv_ptr_,1);
-    order_eps = ( maxX - minX ) / 200.0;
+    order_eps = ( maxX - minX ) / 20.0;
     std::vector<Xorder> Xscore(xv_ptr_->n_cols);
     #pragma omp parallel for
     for(int i = 0 ; i < Xscore.size() ; ++i )
@@ -590,7 +590,7 @@ void JRCSBox::step_a(int i)
     }
 
     //applying terms of points in box constraint to alpha
-    if(inbox_prob_lsts_[i])
+    if(inbox_prob_lsts_[i] && ( iter_count_ < max_iter_ - 30 ) )
     {
         arma::mat& b_alpha  = *inbox_prob_lsts_[i];
         int o = 0;
@@ -679,6 +679,7 @@ void JRCSBox::step_a(int i)
                     std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
                     dR.fill(arma::fill::eye);
                 }
+                if(iter_count_ < max_init_iter_+ 3 )dR.fill(arma::fill::eye);
                 arma::fmat tmp = _v - dR*objv;
                 tmp.each_row() %= square_norm_lambdav;
                 dt = arma::sum(tmp,1);
@@ -702,6 +703,7 @@ void JRCSBox::step_a(int i)
                     std::cerr<<iter_count_<<":!dR.is_finite()"<<std::endl;
                     dR.fill(arma::fill::eye);
                 }
+                if(iter_count_ < max_init_iter_+ 3 )dR.fill(arma::fill::eye);
                 arma::fmat tmp = _v - dR*objv;
                 tmp.each_row() %= square_norm_lambdav;
                 dt = arma::sum(tmp,1);
