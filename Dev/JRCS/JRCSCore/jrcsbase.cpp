@@ -478,7 +478,7 @@ void JRCSBase::computeOnce()
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[idx]);
         arma::rowvec alpha_colsum = arma::sum( alpha );
         arma::rowvec alpha_median = arma::median( alpha );
-        std::cerr<<"a"<<std::endl;
+//        std::cerr<<"a"<<std::endl;
 //        arma::uvec closest_i(alpha.n_cols);
 
 //        #pragma omp parallel for
@@ -542,7 +542,7 @@ void JRCSBase::computeOnce()
             arma::fvec dt;
             arma::fmat objv = *objv_ptrlst_[o];
             arma::uvec oidx = arma::find(obj_label_==(o+1));
-            std::cerr<<"(s,e)=("<<oidx.min()<<","<<oidx.max()<<")"<<std::endl;
+            if(verbose_>1)std::cerr<<"(s,e)=("<<oidx.min()<<","<<oidx.max()<<")"<<std::endl;
             arma::fmat v;
             v = wv.cols(oidx);
             arma::fmat cv = v.each_col() - arma::mean(v,1);
@@ -810,9 +810,63 @@ void JRCSBase::get_label(std::vector<arma::uvec>&lbl)
     }
 }
 
-void JRCSBase::get_order(std::vector<arma::uvec>&)
+typedef struct{
+    int idx;
+    arma::fvec coord;
+}Xorder;
+
+arma::fvec order_eps;
+
+bool ordering(const Xorder& x1,const Xorder& x2)
 {
-    ;
+    if( std::fabs( x1.coord(2) - x2.coord(2) ) < order_eps(2) ) // consider equal
+    {
+        if( std::fabs( x1.coord(1) - x2.coord(1) ) < order_eps(1) )
+        {
+            return x1.coord(0) < x2.coord(0);
+        }else return x1.coord(1) < x2.coord(1);
+    }
+    else return x1.coord(2) < x2.coord(2);
+}
+
+void JRCSBase::get_order(std::vector<arma::uvec>& orders)
+{
+    if(verbose_)std::cerr<<"JRCSBase::get_order"<<std::endl;
+    if(orders.size()!=(vvs_ptrlst_.size()+1)){
+        orders.resize(vvs_ptrlst_.size()+1);
+    }
+    arma::fvec maxX = arma::max(*xv_ptr_,1);
+    arma::fvec minX = arma::min(*xv_ptr_,1);
+    order_eps = ( maxX - minX ) / 20.0;
+    std::vector<Xorder> Xscore(xv_ptr_->n_cols);
+    #pragma omp parallel for
+    for(int i = 0 ; i < Xscore.size() ; ++i )
+    {
+        Xscore[i].coord = xv_ptr_->col(i);
+        Xscore[i].idx = i;
+    }
+    std::sort(Xscore.begin(),Xscore.end(),ordering);
+    arma::uvec Xorder(Xscore.size());
+    #pragma omp parallel for
+    for(arma::uword i = 0 ; i < Xscore.size() ; ++i )
+    {
+        Xorder(Xscore[i].idx) = i;
+    }
+    orders[0] = Xorder;
+    for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+    {
+        arma::mat& alpha = *alpha_ptrlst_[idx];
+        arma::uvec order(alpha.n_rows);
+        #pragma omp parallel for
+        for(int r = 0 ; r < alpha.n_rows ; ++r )
+        {
+            arma::uword l;
+            arma::rowvec point_prob = alpha.row(r);
+            point_prob.max(l);
+            order(r) = Xorder(l);
+        }
+        orders[idx+1] = order;
+    }
 }
 
 bool JRCSBase::isEnd()
