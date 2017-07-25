@@ -109,6 +109,7 @@ private:
   virtual void init(void);
 
 public:
+  static bool draw_coordinate_;
 
   /* Sets the center and size of the whole scene. 
      The _center is used as fixpoint for rotations and for adjusting

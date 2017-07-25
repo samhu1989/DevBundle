@@ -2,6 +2,7 @@
 #include "ui_jrcsview.h"
 #include <QThread>
 #include <armadillo>
+#include <iomanip>
 JRCSView::JRCSView(
         MeshList& inputs,
         LabelList& labels,
@@ -288,8 +289,13 @@ void JRCSView::save_rt()
         QString fileName = dir.absoluteFilePath(
                     QString::fromStdString(inputs_[idx]->name_+".txt")
                     );
+        QString fileName2 = dir.absoluteFilePath(
+                    QString::fromStdString(inputs_[idx]->name_+".FromX.txt")
+                    );
         std::ofstream out;
+        std::ofstream out2;
         out.open(fileName.toStdString());
+        out2.open(fileName2.toStdString());
         for(int o=0;o<rt_[idx].size();++o)
         {
             arma::fmat Rout(3,3,arma::fill::eye);
@@ -304,13 +310,19 @@ void JRCSView::save_rt()
             }
             arma::fmat R(rt_[idx][o].R,3,3,false,true);
             arma::fvec t(rt_[idx][o].t,3,false,true);
+
             Rout = R * Rout.i();
             tout = Rout*(- tout)+t;
             out << Rout(0,0)<<" "<< Rout(0,1)<<" "<<Rout(0,2)<<" "<<tout(0)<<std::endl;
             out << Rout(1,0)<<" "<< Rout(1,1)<<" "<<Rout(1,2)<<" "<<tout(1)<<std::endl;
             out << Rout(2,0)<<" "<< Rout(2,1)<<" "<<Rout(2,2)<<" "<<tout(2)<<std::endl;
+            out2<<std::setprecision(8)<<std::scientific;
+            out2 << R(0,0)<<" "<< R(0,1)<<" "<<R(0,2)<<" "<<t(0)<<std::endl;
+            out2 << R(1,0)<<" "<< R(1,1)<<" "<<R(1,2)<<" "<<t(1)<<std::endl;
+            out2 << R(2,0)<<" "<< R(2,1)<<" "<<R(2,2)<<" "<<t(2)<<std::endl;
         }
         out.close();
+        out2.close();
     }
 
 }

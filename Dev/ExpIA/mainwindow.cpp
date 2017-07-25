@@ -117,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionColor_By_Cube,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_cube()));
     connect(ui->actionColor_By_Text,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_txt()));
     connect(ui->actionColor_By_Order,SIGNAL(triggered(bool)),this,SLOT(custom_color_from_order()));
+    connect(ui->actionCoordinate,SIGNAL(toggled(bool)),this,SLOT(drawCoord(bool)));
 
     connect(ui->actionLAPACKE_dggsvd,SIGNAL(triggered(bool)),this,SLOT(LAPACKE_dggsvd_test()));
     connect(ui->actionInside_Bounding_Box,SIGNAL(triggered(bool)),this,SLOT(Inside_BBox_test()));

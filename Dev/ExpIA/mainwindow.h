@@ -8,6 +8,7 @@
 #include <QTimer>
 #include "tests.h"
 #include <QDir>
+#include "QGLViewerWidget.h"
 using namespace OpenMesh;
 namespace Ui {
 class MainWindow;
@@ -110,6 +111,11 @@ protected slots:
     void custom_color_from_txt();
 
     void custom_color_from_order();
+
+    void drawCoord(bool checked)
+    {
+        QGLViewerWidget::draw_coordinate_ = checked;
+    }
 
 protected:
     QAction* getActionByText(const QString& txt);

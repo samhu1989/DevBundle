@@ -4,6 +4,7 @@
 #include <strstream>
 #include "jrmpc.h"
 #include "common.h"
+#include <iomanip>
 namespace Registration {
 template<typename M>
 JRMPC<M>::JRMPC():RegistrationBase(),
@@ -159,12 +160,11 @@ void JRMPC<M>::reset(
     V_ptrs = source;
     info_ptr = info;
     P_ = arma::frowvec(c);
-    P_.fill(1.0/float(c));
+    P_.fill(1.0/float(c+1.0));
     //initialize R and t
     res_ptr = ResPtr(new Result);
     std::vector<std::shared_ptr<arma::fmat>>::iterator VIter;
     arma::fvec meanX = arma::mean(*X_ptr,1);
-    arma::fmat& v0 = *V_ptrs.front();
     for( VIter = V_ptrs.begin() ; VIter != V_ptrs.end() ; ++VIter )
     {
         arma::fmat&v = **VIter;
@@ -175,12 +175,6 @@ void JRMPC<M>::reset(
         res_ptr->Rs.emplace_back(new arma::fmat(3,3,arma::fill::eye));
         res_ptr->ts.emplace_back(new arma::fvec( meanX - meanV ));
         v.each_col() += *(res_ptr->ts.back());
-        if(VIter!=V_ptrs.begin())
-        {
-            alignAroundZ(v0,v,*res_ptr->Rs.back());
-            v = (*res_ptr->Rs.back())*v;
-            (*res_ptr->ts.back()) = *res_ptr->Rs.back()*(*res_ptr->ts.back());
-        }
     }
     info_ptr ->result = (void*)(res_ptr.get());
 
@@ -219,6 +213,7 @@ void JRMPC<M>::reset(
     beta = gamma/(h*(gamma+1));
 
     std::cerr<<V_ptrs.size()<<std::endl;
+    std::cerr<<"beta:"<<beta<<std::endl;
     std::cerr<<"V_pts[0]:"<<V_ptrs[0]->n_cols<<std::endl;
     std::cerr<<"V_pts[1]:"<<V_ptrs[1]->n_cols<<std::endl;
     std::cerr<<"X_ptr->n_cols:"<<X_ptr->n_cols<<std::endl;
@@ -357,8 +352,9 @@ void JRMPC<M>::stepMa()
         dR = U*C*(V.t());
         R = dR*R;
         tmp = X_ - dR*W;
-        tmp.each_row()%=square_norm_lambda;
-        dt = arma::sum(tmp,1);
+//        tmp.each_row()%=square_norm_lambda;
+//        dt = arma::sum(tmp,1);
+        dt = arma::mean(tmp,1);
         t = dR*t + dt;
         V_ = dR*V_;
         V_.each_col() += dt;
@@ -434,7 +430,6 @@ void JRMPC<M>::computeOnce(void)
     arma::fmat U,V;
     arma::fvec s;
     arma::fmat C(3,3,arma::fill::eye);
-    float t_ratio = float(count) / ( info_ptr->max_iter - 1 );
     for(VIter=V_ptrs.begin();VIter!=V_ptrs.end();++VIter)
     {
         arma::fmat& V_ = **VIter;
@@ -451,26 +446,8 @@ void JRMPC<M>::computeOnce(void)
             alpha.row(r) = arma::sum(arma::square(X_.each_col() - V_.col(r)));
         }
         alpha.each_row()%=(-0.5*var);
-//        alpha = arma::exp(alpha);
-        float* alpha_memptr = alpha.memptr();
-        int  N = alpha.size();
-        #pragma omp parallel for
-        for(int n=0;n<N;++n)
-        {
-            alpha_memptr[n] = std::exp(alpha_memptr[n]);
-        }
+        alpha = arma::trunc_exp(alpha);
         alpha.each_row()%=arma::pow(var,1.5)%P_;
-        #pragma omp parallel for
-        for(int c=0;c<alpha.n_cols;++c)
-        {
-            arma::fvec ccol = alpha.col(c);
-            arma::fvec sorted_ccol = arma::sort(ccol);
-            float th;
-            th =  arma::median(sorted_ccol.tail(3+ccol.n_rows/3));
-            arma::uvec smallerth = arma::find( ccol < th );
-            ccol(smallerth).fill(0.0);
-            alpha.col(c) = ccol;
-        }
         alpha_rowsum = arma::sum(alpha,1)+beta;
         alpha.each_col() /= alpha_rowsum;
         //update R t
@@ -478,55 +455,22 @@ void JRMPC<M>::computeOnce(void)
         arma::fmat dR;
         arma::fvec& t = *(res_ptr->ts[idx]);
         arma::fvec dt;
-        arma::frowvec alpha_colsum = arma::sum( alpha );
+        arma::frowvec lambda = arma::sum( alpha );
         arma::fmat W = V_*alpha;
-        #pragma omp parallel for
-        for(int c=0;c<alpha.n_cols;++c)
-        {
-            if( 0 != alpha_colsum(c) )
-            {
-                W.col(c) /= alpha_colsum(c);
-            }
-        }
-        arma::frowvec square_lambda = var % alpha_colsum;
-        arma::frowvec p(square_lambda.n_cols,arma::fill::ones);
-        arma::frowvec square_norm_lambda = square_lambda / arma::accu(square_lambda);
-        p -= square_norm_lambda;
-        arma::fmat tmp = X_;
-        tmp.each_row() %= p % square_lambda;
-        arma::uvec selectedX;
-        arma::uvec sortedX = arma::sort_index(alpha_colsum);
-        selectedX = sortedX.tail(0.55f*sortedX.n_rows);
-        arma::uvec nearest(selectedX.n_rows);
-        #pragma omp parallel for
-        for(int i=0;i<selectedX.n_rows;++i)
-        {
-            arma::uword uidx;
-            alpha.col(selectedX(i)).max( uidx );
-            nearest(i) = uidx;
-        }
-        arma::fmat V_nearest = V_.cols(nearest);
+        W.each_row() %= var;
+        arma::fvec mW = arma::sum(W,1);
+        arma::frowvec b = lambda%var;
+        arma::fvec mX = X_*b.t();
+        float sumofWeights = arma::accu(b);
         arma::fmat A;
-        if(V_ptrs.size()>2) A = tmp* W.t();
-        else A = tmp.cols(selectedX)*V_nearest.t();
+        A = X_*W.t() - mX*mW.t() / sumofWeights;
         dR = arma::fmat(3,3,arma::fill::eye);
         dt = arma::fvec(3,arma::fill::zeros);
-//        arma::fmat selectedW = W.cols(selectedX);
         if(arma::svd(U,s,V,A,"std"))
         {
             C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
             dR = U*C*(V.t());
-            if(V_ptrs.size()>2)
-            {
-                tmp = X_.cols(selectedX) - dR*V_nearest;
-                tmp.each_row() %= square_norm_lambda.cols(selectedX);
-            }else{
-                tmp = X_ - dR*W;
-                tmp.each_row() %= square_norm_lambda;
-            }
-//            tmp = X_.cols(selectedX) - dR*W.cols(selectedX);
-//            tmp.each_row() %= square_norm_lambda.cols(selectedX);
-            dt = arma::sum(tmp,1);
+            dt = ( mX-dR*mW ) / sumofWeights;
         }
         R = dR*R;
         t = dR*t + dt;
@@ -545,7 +489,7 @@ void JRMPC<M>::computeOnce(void)
         V_.each_col() += dt;
 
         //update X var
-        alpha_sum += alpha_colsum; 
+        alpha_sum += lambda;
         X_sum += V_*alpha;
         arma::fmat alpha_2(alpha.n_rows,alpha.n_cols);
         #pragma omp parallel for
@@ -555,26 +499,136 @@ void JRMPC<M>::computeOnce(void)
         }
         arma::frowvec tmpvar = arma::sum(alpha_2%alpha);
         var_sum += tmpvar;
-        //
-        alpha_sumij += alpha_colsum;
         ++idx;
     }
     //count how much X are updated
-    arma::frowvec alpha_sum_no_bias = ( alpha_sum * ( double( V_ptrs.size() ) - 1 ) / double(V_ptrs.size()) );
     arma::fmat newX = X_sum.each_row() / alpha_sum;
-    arma::frowvec delta =  arma::sum(arma::square(X_ - newX));
+    arma::frowvec delta =  arma::sum( arma::square( X_ - newX ) );
     arma::uvec updatedX = arma::find( delta > info_ptr->eps_ );
     X_updated_ = updatedX.size();
-    if(X_updated_>0){
-        arma::uvec finite_i = arma::find_finite(delta);
-        X_.cols(finite_i) = newX.cols(finite_i);
-    }
-    arma::fvec meanX = arma::mean(X_,1);
-    X_.each_col() -= meanX;
-    var = ( (3.0*alpha_sum ) / ( var_sum + 1e-6 ) );//restore reciprocal fractions of variation
-    mu = arma::accu(alpha_sumij);
+    X_ = newX;
+    var = ( (3.0*alpha_sum ) / ( var_sum + 3.0*alpha_sum*1e-6 ) );//restore reciprocal fractions of variation
+    mu = arma::accu(alpha_sum);
     mu*=(info_ptr->gamma+1.0);
-    P_ = alpha_sumij;
+    P_ = alpha_sum;
+    if( mu != 0)P_ /= mu;
+}
+
+template<typename M>
+void JRMPC<M>::computeOnceJRCS(void)
+{
+    if(count==0)
+    {
+        int ridx =0;
+        std::vector<std::shared_ptr<arma::fmat>>::iterator VIter;
+        for( VIter = V_ptrs.begin() ; VIter != V_ptrs.end() ; ++VIter )
+        {
+            arma::fmat&v = **VIter;
+            arma::fmat& R = *(res_ptr->Rs[ridx]);
+            arma::fvec& t = *(res_ptr->ts[ridx]);
+            v = R.i()*v;
+            v.each_col() -= t;
+            R.fill(arma::fill::eye);
+            t*=-1.0;
+            ++ridx;
+        }
+    }
+    arma::fmat& X_ = *X_ptr;
+    X_sum.fill(0.0);
+    var_sum.fill(0.0);
+    alpha_sum.fill(0.0);
+    alpha_sumij.fill(0.0);
+    T_updated_ = 0;
+    X_updated_ = 0;
+    float mu = 0.0;
+    int idx = 0;
+    std::vector<MatPtr>::iterator VIter;
+    arma::fvec alpha_rowsum;
+    arma::fmat U,V;
+    arma::fvec s;
+    arma::fmat C(3,3,arma::fill::eye);
+    for(VIter=V_ptrs.begin();VIter!=V_ptrs.end();++VIter)
+    {
+        arma::fmat& V_ = **VIter;
+        while(alpha_ptrs.size()<=idx)
+        {
+            alpha_ptrs.emplace_back(new arma::fmat(V_.n_cols,X_.n_cols));
+        }
+        //allocate alpha
+        //compute alpha(step-E)
+        arma::fmat& alpha = *alpha_ptrs[idx];
+        arma::fmat& R = *(res_ptr->Rs[idx]);
+        arma::fvec& t = *(res_ptr->ts[idx]);
+        arma::fmat tX = R*X_;
+        tX.each_col() += t;
+        #pragma omp parallel for
+        for(int r=0;r<alpha.n_rows;++r)
+        {
+            alpha.row(r) = arma::sum(arma::square(tX.each_col() - V_.col(r)));
+        }
+        alpha.each_row()%=(-0.5*var);
+        alpha = arma::trunc_exp(alpha);
+        alpha.each_row()%=arma::pow(var,1.5)%P_;
+        alpha_rowsum = arma::sum(alpha,1)+beta;
+        alpha.each_col() /= alpha_rowsum;
+        //update R t
+        arma::fmat dR;
+        arma::fvec dt;
+        arma::frowvec lambda = arma::sum( alpha );
+        arma::fmat W = V_*alpha;
+        W.each_row() %= var;
+        arma::fvec mW = arma::sum(W,1);
+        arma::frowvec b = lambda%var;
+        arma::fvec mX = tX*b.t();
+        float sumofWeights = arma::accu(b);
+        arma::fmat A = W*tX.t() - mW*mX.t() / sumofWeights;
+        dR = arma::fmat(3,3,arma::fill::eye);
+        dt = arma::fvec(3,arma::fill::zeros);
+        if(arma::svd(U,s,V,A,"std"))
+        {
+            C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
+            dR = U*C*(V.t());
+            dt = ( mW - dR*mX ) / sumofWeights;
+        }
+        R = dR*R;
+        t = dR*t + dt;
+        //evaluate if the T is really updated
+        arma::fmat I(3,3,arma::fill::eye);
+        if(
+            ( info_ptr->eps_ < arma::accu(arma::square(dR - I)) ) ||
+            ( info_ptr->eps_ < arma::accu(arma::square(dt)) )
+           )
+        {
+            ++T_updated_;
+        }
+
+        //update V
+        arma::fmat tV = V_.each_col() - t;
+        tV = R.i()*tV;
+
+        //update X var
+        alpha_sum += lambda;
+        X_sum += tV*alpha;
+        arma::fmat alpha_2(alpha.n_rows,alpha.n_cols);
+        #pragma omp parallel for
+        for(int r=0;r<alpha_2.n_rows;++r)
+        {
+            alpha_2.row(r) = arma::sum(arma::square(X_.each_col() - tV.col(r)));
+        }
+        arma::frowvec tmpvar = arma::sum(alpha_2%alpha);
+        var_sum += tmpvar;
+        ++idx;
+    }
+    //count how much X are updated
+    arma::fmat newX = X_sum.each_row() / alpha_sum;
+    arma::frowvec delta =  arma::sum( arma::square( X_ - newX ) );
+    arma::uvec updatedX = arma::find( delta > info_ptr->eps_ );
+    X_updated_ = updatedX.size();
+    X_ = newX;
+    var = ( (3.0*alpha_sum ) / ( var_sum + 3.0*alpha_sum*1e-6 ) );//restore reciprocal fractions of variation
+    mu = arma::accu(alpha_sum);
+    mu*=(info_ptr->gamma+1.0);
+    P_ = alpha_sum;
     if( mu != 0)P_ /= mu;
 }
 
@@ -618,41 +672,55 @@ void JRMPC<M>::restart(void)
 template<typename M>
 bool JRMPC<M>::isEnd()
 {
+    bool end = false;
     if( count >= info_ptr->max_iter )
     {
         if( restart_count >= info_ptr->max_restart )
         {
             std::cerr<<"N_Iter=="<<count<<std::endl;
             info_ptr->mode = MaxIter;
-            return true;
+            end = true;
         }else{
             ++ restart_count;
             restart();
         }
     }
-    if( 0==T_updated_ && count > 10)
+    if( 0==T_updated_ && count > 20)
     {
         std::cerr<<"T_updated_=="<<T_updated_<<std::endl;
         info_ptr->mode = Converge;
-        return true;
+        end = true;
     }
-    if( 0==X_updated_ && count > 10){
+    if( 0==X_updated_ && count > 20){
         std::cerr<<"X_updated_=="<<X_updated_<<std::endl;
         info_ptr->mode = Converge;
-        return true;
+        end = true;
     }
-    if( 0==X_updated_ && 0==T_updated_ && count > 5 )
+    if( 0==X_updated_ && 0==T_updated_ && count > 20 )
     {
         std::cerr<<"X_updated_=="<<X_updated_<<"&&"<<"T_updated_=="<<T_updated_<<std::endl;
         info_ptr->mode = Converge;
-        return true;
+        end = true;
     }
     if( end_ )
     {
         info_ptr->mode = Force;
-        return true;
+        end = true;
     }
-    return false;
+    if(end)
+    {
+        for(int idx=0;idx<res_ptr->Rs.size();++idx)
+        {
+            std::cout<< std::setprecision(8) << std::scientific;
+            std::cout<<"R["<<idx<<"]=\n";
+            arma::fmat& R = (*res_ptr->Rs[idx]);
+            std::cout<<R(0,0)<<" "<<R(0,1)<<" "<<R(0,2)<<"\n";
+            std::cout<<R(1,0)<<" "<<R(1,1)<<" "<<R(1,2)<<"\n";
+            std::cout<<R(2,0)<<" "<<R(2,1)<<" "<<R(2,2)<<"\n";
+            std::cout<<"\n";
+        }
+    }
+    return end;
 }
 
 }

@@ -238,7 +238,7 @@ void JRCSBase::initx(
         pxl += obj_size;
         r_k -= obj_size;
         arma::fvec pos = obj_pos_.col(obj_idx);
-        reset_obj_vn(0.5,pos,(*objv_ptrlst_.back()),(*objn_ptrlst_.back()));
+        reset_obj_vn(1.0,pos,(*objv_ptrlst_.back()),(*objn_ptrlst_.back()));
         reset_obj_c((*objc_ptrlst_.back()));
     }
     *xv_ptr_ = xtv_;
@@ -400,31 +400,18 @@ void JRCSBase::computeOnce()
             {
                 arma::mat tmpv = arma::conv_to<arma::mat>::from(xtv_.each_col() - vv_.col(r)); //after the objv is transformed the xtv is transformed
                 alpha.row(r)  = arma::sum(arma::square(tmpv));
-                if(iter_count_<max_init_iter_)
-                {
-                    arma::mat tmpc = tmpxc.each_col() - tmpvc.col(r);
-                    tmpc /= ( 256 +  2.0*iter_count_ );
-                    alpha.row(r) += arma::sum(arma::square(tmpc));
-                }
             }
 
             alpha.each_row() %= (-0.5*x_invvar_);
-            alpha = arma::exp(alpha);
+            alpha = arma::trunc_exp(alpha);
             alpha.each_row() %= arma::pow(x_invvar_,1.5);
             alpha.each_row() %= x_p_;
-
-            #pragma omp parallel for
-            for(int o = 0 ; o < obj_num_ ; ++o )
-            {
-                arma::uvec oidx = arma::find(obj_label_==(o+1));
-                alpha.cols(oidx) *= obj_prob_(o);
-            }
         }else{
             if(verbose_>0)std::cerr<<"using init alpha"<<std::endl;
         }
 
         //normalise alpha
-        arma::vec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
+        arma::vec alpha_rowsum = arma::sum(alpha,1) + beta_;
         alpha.each_col() /= alpha_rowsum;
         alpha_rowsum = arma::sum(alpha,1);
 
@@ -478,18 +465,6 @@ void JRCSBase::computeOnce()
         arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[idx]);
         arma::rowvec alpha_colsum = arma::sum( alpha );
         arma::rowvec alpha_median = arma::median( alpha );
-//        std::cerr<<"a"<<std::endl;
-//        arma::uvec closest_i(alpha.n_cols);
-
-//        #pragma omp parallel for
-//        for(int c=0;c<alpha.n_cols;++c)
-//        {
-//            arma::vec col = alpha.col(c);
-//            arma::uword m;
-//            col.max(m);
-//            closest_i(c)=m;
-//        }
-
         arma::mat trunc_alpha = alpha;
 
         #pragma omp parallel for
@@ -503,6 +478,11 @@ void JRCSBase::computeOnce()
         trunc_alpha += std::numeric_limits<double>::epsilon(); //add eps for numerical stability
 
         arma::rowvec trunc_alpha_colsum = arma::sum(trunc_alpha);
+
+        arma::frowvec square_lambda = arma::conv_to<arma::frowvec>::from(x_invvar_ % trunc_alpha_colsum);
+        arma::frowvec p(square_lambda.n_cols,arma::fill::ones);
+        arma::frowvec square_norm_lambda = square_lambda / arma::accu(square_lambda);
+        p -= square_norm_lambda;
 
         wv = vv_*arma::conv_to<arma::fmat>::from(trunc_alpha);
 
@@ -547,6 +527,7 @@ void JRCSBase::computeOnce()
             v = wv.cols(oidx);
             arma::fmat cv = v.each_col() - arma::mean(v,1);
             objv.each_col() -= arma::mean(objv,1);
+            objv.each_row() %= p.cols(oidx) % square_lambda.cols(oidx) ;
             A = cv*objv.t();
             switch(rttype_)
             {
@@ -560,7 +541,9 @@ void JRCSBase::computeOnce()
                     C(1,1) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
                     arma::fmat dR2D = U*C*(V.t());
                     dR.submat(0,0,1,1) = dR2D;
-                    dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
+                    arma::fmat ddt = v - dR*(*objv_ptrlst_[o]);
+                    ddt.each_row() %= square_norm_lambda.cols(oidx);
+                    dt = arma::sum(ddt,1);
                 }
             }
                 break;
@@ -571,7 +554,9 @@ void JRCSBase::computeOnce()
                     arma::fmat C(3,3,arma::fill::eye);
                     C(2,2) = arma::det( U * V.t() )>=0 ? 1.0 : -1.0;
                     dR = U*C*(V.t());
-                    dt = arma::mean( v - dR*(*objv_ptrlst_[o]),1);
+                    arma::fmat ddt = v - dR*(*objv_ptrlst_[o]);
+                    ddt.each_row() %= square_norm_lambda.cols(oidx);
+                    dt = arma::sum(ddt,1);
                 }
             }
             }
@@ -589,14 +574,15 @@ void JRCSBase::computeOnce()
             t = dR*t + dt;
 
             //accumulate for updating X
-            arma::fmat tv = v.each_col() - t;
-            xv_sum_.cols(oidx) =  rate0*xv_sum_.cols(oidx)+rate1*(R.i()*tv);
+            arma::fmat tv = vv_.each_col() - t;
+            tv = R.i() * tv;
+            arma::fmat twv = tv*arma::conv_to<arma::fmat>::from(trunc_alpha);
+            xv_sum_.cols(oidx) +=  twv.cols(oidx);
             xn_sum_.cols(oidx) = rate0*xn_sum_.cols(oidx)+rate1*R.i()*wn.cols(oidx);
             xc_sum_.cols(oidx) = rate0*xc_sum_.cols(oidx)+rate1*wc.cols(oidx);
-//            }
         }
         //update var
-        alpha_sum += alpha_colsum;
+        alpha_sum += trunc_alpha_colsum;
         arma::fmat alpha_2(alpha.n_rows,alpha.n_cols);
         #pragma omp parallel for
         for(int r=0;r<alpha_2.n_rows;++r)
@@ -612,17 +598,23 @@ void JRCSBase::computeOnce()
     if(verbose_>0)std::cerr<<"Updating X:"<<std::endl;
 //    float N =  vvs_ptrlst_.size();
     assert(xv_sum_.is_finite());
+    xv_sum_.each_row() /= arma::conv_to<arma::frowvec>::from(alpha_sum);
     *xv_ptr_ = xv_sum_;
 //    assert((*xv_ptr_).has_inf()||(*xv_ptr_).has_nan());
     //fix the x center position
-    std::cerr<<"xv:"<<xv_ptr_->n_cols<<std::endl;
+//    std::cerr<<"xv:"<<xv_ptr_->n_cols<<std::endl;
     #pragma omp parallel for
     for(int o = 0 ; o < obj_num_ ; ++o )
     {
         arma::uvec oidx = arma::find(obj_label_==(o+1));
         arma::fmat newxv = xv_ptr_->cols(oidx);
-        arma::fvec t =  obj_pos_.col(o) - arma::mean(newxv,1);
-        xv_ptr_->cols(oidx) = newxv.each_col() + t;
+        arma::fvec adjustt =  obj_pos_.col(o) - arma::mean(newxv,1);
+        xv_ptr_->cols(oidx) = newxv.each_col() + adjustt;
+        for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+        {
+            arma::fvec t(rt_lst_[idx][o].t,3,false,true);
+            t += adjustt;
+        }
     }
 
     *xn_ptr_ = xn_sum_;
@@ -728,26 +720,25 @@ void JRCSBase::reset_prob()
         }
     }
 
-    std::cerr<<"a"<<std::endl;
     float maxvar = arma::accu(arma::square(maxAllXYZ-minAllXYZ));
+    (*xv_ptr_) *= (0.5*std::sqrt(maxvar));
     x_invvar_ = arma::rowvec(xv_ptr_->n_cols);
     x_invvar_.fill(1.0/maxvar);
 
-    std::cerr<<"b"<<std::endl;
     xv_sum_ = arma::fmat(xv_ptr_->n_rows,xv_ptr_->n_cols,arma::fill::zeros);
     xn_sum_ = arma::fmat(xn_ptr_->n_rows,xn_ptr_->n_cols,arma::fill::zeros);
     xc_sum_ = arma::fmat(xc_ptr_->n_rows,xc_ptr_->n_cols,arma::fill::zeros);
 
-    std::cerr<<"c"<<std::endl;
     x_p_ = arma::rowvec(xv_ptr_->n_cols);
     x_p_.fill(1.0/float(xv_ptr_->n_cols));
 
-    std::cerr<<"d"<<std::endl;
     var_sum = arma::rowvec(xv_ptr_->n_cols,arma::fill::zeros);
     alpha_sum = arma::rowvec(xv_ptr_->n_cols,arma::fill::zeros);
     alpha_sumij = arma::rowvec(xv_ptr_->n_cols,arma::fill::zeros);
 
-    beta_ = 1e-5;
+    float h;
+    h = 2.0 / arma::mean(x_invvar_);
+    beta_ = 0.1/(h*(0.1+1));
     if(verbose_>0)std::cerr<<"done probability"<<std::endl;
 }
 

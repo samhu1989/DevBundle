@@ -19,12 +19,12 @@ namespace Registration {
 
         typedef struct{
             int k = 0;
-            float gamma = 0.05;// weight for uniform distribution
-            int max_iter = 50;
+            float gamma = 0.1;// weight for uniform distribution
+            int max_iter = 100;
             int max_restart = 0;
             float fitness_th = 0.0;
             float var_th = 0.0 ;
-            float eps_ = 1e-7;
+            float eps_ = 1e-9;
             bool isApplyed = true;//is transform applied on input matrix source
             EndMode mode;
             void* result = NULL;
@@ -101,6 +101,7 @@ namespace Registration {
         }
 
         virtual void computeOnce(void);
+        virtual void computeOnceJRCS(void);
         virtual void setVarColor(uint32_t*,int k);
 
     protected:

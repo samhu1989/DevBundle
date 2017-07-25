@@ -87,6 +87,7 @@ using namespace OpenMesh;
 //== IMPLEMENTATION ========================================================== 
 
 std::string QGLViewerWidget::nomode_ = "";
+bool QGLViewerWidget::draw_coordinate_=false;
 
 //----------------------------------------------------------------------------
 
@@ -278,7 +279,7 @@ QGLViewerWidget::paintGL()
   if (draw_mode_)
   {
     assert(draw_mode_ <= n_draw_modes_);
-    draw_coordinate();
+    if(draw_coordinate_)draw_coordinate();
     draw_scene(draw_mode_names_[draw_mode_-1]);
     if(!selections_.empty())processSelections();
 

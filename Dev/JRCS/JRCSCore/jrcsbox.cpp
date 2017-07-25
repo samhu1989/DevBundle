@@ -544,7 +544,7 @@ void JRCSBox::step_a(int i)
 
     if(verbose_>1)std::cerr<<"normalize alpha"<<std::endl;
     alpha += std::numeric_limits<double>::epsilon(); //add eps for numeric stability
-    arma::vec alpha_rowsum = ( 1.0 + beta_ ) * arma::sum(alpha,1);
+    arma::vec alpha_rowsum = arma::sum(alpha,1) + beta_;
     alpha.each_col() /= alpha_rowsum;
 
     if(!alpha.is_finite())

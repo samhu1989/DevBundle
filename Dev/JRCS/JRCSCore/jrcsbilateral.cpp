@@ -249,18 +249,20 @@ void JRCSBilateral::step_b(void)
     xn_ptr_->fill(0.0);
     xf_ptr_->fill(0.0);
     arma::fmat xc(xc_ptr_->n_rows,xc_ptr_->n_cols,arma::fill::zeros);
-    for(int i=0;i<wvs_ptrlst_.size();++i)
+    if(verbose_)std::cerr<<"JRCSBilateral collecting to update X"<<std::endl;
+    for(int i=0;i<vvs_ptrlst_.size();++i)
     {
         float rate0 = float(i) / float(i+1.0);
         float rate1 = 1.0 - rate0;
+        arma::mat& alpha = *alpha_ptrlst_[i];
         if( i >= rt_lst_.size() )
         {
             std::cerr<<"i >= rt_lst_.size()"<<std::endl;
         }
         Ts& rt = rt_lst_[i];
-        arma::fmat& wv = *wvs_ptrlst_[i];
+        arma::fmat& vv = *vvs_ptrlst_[i];
         arma::fmat& wf = *wfs_ptrlst_[i];
-        arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[i]);
+        arma::fmat wc = arma::conv_to<arma::fmat>::from(*vcs_ptrlst_[i]);
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
@@ -277,19 +279,21 @@ void JRCSBilateral::step_b(void)
             }
             arma::uword s = obj_range_[2*o];
             arma::uword e = obj_range_[2*o+1];
-            arma::fmat tv = wv.cols(s,e);
+            arma::fmat tv = vv.each_col() - t;
+            tv = invR*tv;
             if(!tv.is_finite())
             {
                 std::cerr<<iter_count_<<":"<<o<<":!tv.is_finite()"<<std::endl;
             }
-            tv.each_col() -= t;
-            xv_ptr_->cols(s,e) =  rate0*xv_ptr_->cols(s,e)+rate1*(invR*tv);
+            arma::fmat twv = tv*arma::conv_to<arma::fmat>::from(alpha);
+            xv_ptr_->cols(s,e) +=  twv.cols(s,e);
             xf_ptr_->cols(s,e) = rate0*xf_ptr_->cols(s,e)+rate1*wf.cols(s,e);
             xc.cols(s,e) = rate0*xc.cols(s,e)+rate1*wc.cols(s,e);
         }
     }
 
     //the method of updating normal is different from others
+    if(verbose_)std::cerr<<"JRCSBilateral Updating Normal"<<std::endl;
     int o = 0;
     for( int i=0 ; i < xn_ptr_->n_cols ; ++i )
     {
@@ -323,21 +327,6 @@ void JRCSBilateral::step_b(void)
     {
         std::cerr<<"!xc.is_finite()"<<std::endl;
     }
-
-    if(verbose_>1)std::cerr<<"Fix the x center position"<<std::endl;
-    #pragma omp parallel for
-    for(int o = 0 ; o < obj_num_ ; ++o )
-    {
-        arma::uword s = obj_range_[2*o];
-        arma::uword e = obj_range_[2*o+1];
-        arma::fmat newxv = xv_ptr_->cols(s,e);
-        arma::fvec t =  obj_pos_.col(o) - arma::mean(newxv,1);
-        xv_ptr_->cols(s,e) = newxv.each_col() + t;
-    }
-    *xn_ptr_ = arma::normalise(*xn_ptr_);
-    *xc_ptr_ = arma::conv_to<arma::Mat<uint8_t>>::from( xc );
-
-    if(verbose_>1)std::cerr<<"Updating variance of centroids"<<std::endl;
     arma::rowvec alpha_sum;
     for(int i=0;i<alpha_ptrlst_.size();++i)
     {
@@ -345,14 +334,33 @@ void JRCSBilateral::step_b(void)
         if(alpha_sum.empty())alpha_sum = arma::sum(alpha);
         else alpha_sum += arma::sum(alpha);
     }
-
+    if(verbose_)std::cerr<<"JRCSBilateral Updating X"<<std::endl;
+    xv_ptr_->each_row() /= arma::conv_to<arma::frowvec>::from(alpha_sum);
+    if(verbose_>1)std::cerr<<"Fix the x center position"<<std::endl;
+    #pragma omp parallel for
+    for(int o = 0 ; o < obj_num_ ; ++o )
+    {
+        arma::uword s = obj_range_[2*o];
+        arma::uword e = obj_range_[2*o+1];
+        arma::fmat newxv = xv_ptr_->cols(s,e);
+        arma::fvec adjt =  obj_pos_.col(o) - arma::mean(newxv,1);
+        xv_ptr_->cols(s,e) = newxv.each_col() + adjt;
+        for(int idx=0;idx<vvs_ptrlst_.size();++idx)
+        {
+            arma::fvec t(rt_lst_[idx][o].t,3,false,true);
+            t += adjt;
+        }
+    }
+    *xn_ptr_ = arma::normalise(*xn_ptr_);
+    *xc_ptr_ = arma::conv_to<arma::Mat<uint8_t>>::from( xc );
+    if(verbose_>1)std::cerr<<"Updating variance of centroids"<<std::endl;
     if(verbose_>1)std::cerr<<"Restore reciprocal fractions of variation"<<std::endl;
-    xv_invvar_ = ( ( 3.0*alpha_sum ) / ( arma::sum(vvar_) + beta_ ) );
-    xf_invvar_ = ( ( double(f_dim_)*alpha_sum ) / ( arma::sum(fvar_) + beta_ ) );
+    xv_invvar_ = ( ( 3.0*alpha_sum ) / ( arma::sum(vvar_) + 3.0*alpha_sum*1e-6 ) );
+    xf_invvar_ = ( ( double(f_dim_)*alpha_sum ) / ( arma::sum(fvar_) + 3.0*alpha_sum*1e-6 ) );
 
     if(verbose_>1)std::cerr<<"Updating weight of centroids"<<std::endl;
     float mu = arma::accu(alpha_sum);
-    mu *= ( 1.0 + beta_ );
+    mu *= ( 1.0 + beta_ );;
     x_p_ = alpha_sum;
     if( mu != 0)x_p_ /= mu;
 }
