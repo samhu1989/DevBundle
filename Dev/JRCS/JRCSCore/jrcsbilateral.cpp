@@ -262,7 +262,7 @@ void JRCSBilateral::step_b(void)
         Ts& rt = rt_lst_[i];
         arma::fmat& vv = *vvs_ptrlst_[i];
         arma::fmat& wf = *wfs_ptrlst_[i];
-        arma::fmat wc = arma::conv_to<arma::fmat>::from(*vcs_ptrlst_[i]);
+        arma::fmat wc = arma::conv_to<arma::fmat>::from(*wcs_ptrlst_[i]);
         #pragma omp parallel for
         for(int o = 0 ; o < obj_num_ ; ++o )
         {
