@@ -38,7 +38,15 @@ $\phi_{mn}$    & Rigid transformation from object $O_n$ to point set $\mathbf{V}
 \hline
 \end{tabular}
 \end{table}
-\subsection{Basic Formulation}\hsy{Need to add figures to demonstrate the formulation}
+\subsection{Basic Formulation}
+\begin{figure*}[htb]
+	\centering
+	\includegraphics[width=0.45\linewidth]{images/formulation}
+	\hspace{0.1\linewidth}
+	\includegraphics[width=0.40\linewidth]{images/formulation2}
+	\caption{Illustration of formulation.} 
+	\label{fig:formulation}
+\end{figure*}
 For robustness, we do not model the point sets as a simple composition of transformed 3D points in each object model. Instead, we model the point sets as realizations of an unknown central Gaussian mixture model (GMM) from of the transformed object models. In other words, we explicitly separate total $K_{all}$ Gaussian models to $N$ groups to represent $N$ objects $\{O_n\}_{n=1}^N$ as
 \begin{equation}
 \begin{aligned}
