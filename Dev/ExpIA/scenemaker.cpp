@@ -65,8 +65,11 @@ void SceneMaker::save_to_input(DefaultMesh& mesh)
 {
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter = lst_view_->list().begin();
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator list_end = lst_view_->list().end();
+    int idx = -1;
     for(;iter!=list_end;++iter)
     {
+        ++idx;
+        if( !visible(idx) )continue;
         MeshBundle<DefaultMesh>& bundle = **iter;
         DefaultMesh::VertexIter viter;
         for(viter=bundle.mesh_.vertices_begin();viter!=bundle.mesh_.vertices_end();++viter)
@@ -78,8 +81,11 @@ void SceneMaker::save_to_input(DefaultMesh& mesh)
     mesh.request_vertex_normals();
     DefaultMesh::VertexIter vviter = mesh.vertices_begin();
     iter = lst_view_->list().begin();
+    idx = -1;
     for(;iter!=list_end;++iter)
     {
+        ++idx;
+        if( ! visible(idx) )continue;
         MeshBundle<DefaultMesh>& bundle = **iter;
         DefaultMesh::VertexIter viter;
         for(viter=bundle.mesh_.vertices_begin();viter!=bundle.mesh_.vertices_end();++viter)
@@ -93,18 +99,29 @@ void SceneMaker::save_to_input(DefaultMesh& mesh)
     }
 }
 
+bool SceneMaker::visible(const int&idx)
+{
+    uint32_t start = lst_view_->visible_index();
+    uint32_t num = lst_view_->visible_num();
+    uint32_t total_num = lst_view_->list().size();
+    if( idx >= start && idx < std::min(total_num,start+num)) return true;
+    if( (start+num) > total_num  && idx >=0 && idx < (start+num)%total_num) return true;
+    return false;
+}
+
 void SceneMaker::save_to_label(arma::uvec& lbl)
 {
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator iter = lst_view_->list().begin();
     std::vector<MeshBundle<DefaultMesh>::Ptr>::iterator list_end = lst_view_->list().end();
-    arma::uword start = 0;
-    arma::uword oidx = 1;
+    arma::uword startl = 0;
+    int idx = -1;
     for(;iter!=list_end;++iter)
     {
+        ++idx;
+        if( !visible(idx) )continue;
         MeshBundle<DefaultMesh>& bundle = **iter;
-        lbl.rows(start,start+bundle.mesh_.n_vertices()-1).fill(oidx);
-        ++oidx;
-        start += bundle.mesh_.n_vertices();
+        lbl.rows(startl,startl+bundle.mesh_.n_vertices()-1).fill(idx+1);
+        startl += bundle.mesh_.n_vertices();
     }
 }
 

@@ -62,6 +62,8 @@ public:
 
   std::vector< typename MeshBundle<Mesh>::Ptr >& list() { return mesh_list_; }
   const std::vector< typename MeshBundle<Mesh>::Ptr >& list() const { return mesh_list_; }
+  uint32_t visible_index() {return current_mesh_start_;}
+  uint32_t visible_num(){return current_visible_num_;}
 
   void show_back(){
       current_mesh_start_ = mesh_list_.size() - 1;

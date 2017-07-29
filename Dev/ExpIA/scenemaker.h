@@ -30,6 +30,8 @@ public slots:
     void save_rt();
     void reset_rt();
     void update_rt(arma::fmat R,arma::fvec t,int idx);
+protected:
+    bool visible(const int&idx);
 private:
     Ui::SceneMaker *ui;
     MeshListViewerWidget* lst_view_;
