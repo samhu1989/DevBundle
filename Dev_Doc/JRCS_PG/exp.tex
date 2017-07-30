@@ -8,7 +8,7 @@ In the experiments, the synthetic datasets are generated as follows:
 	\item Turn the meshes into point sets with sampling method of \cite{PossionSampling}
 	\item Manually place and move the point sets of objects into different point sets of scenes.   
 \end{enumerate}
-The real dataset (as shown in \ref{fig:realdata}) is acquired as follows:
+The real dataset (as shown in Figure~\ref{fig:realdata}) is acquired as follows:
 \begin{enumerate}
 	\item Scan the scenes with method of \cite{KinectFusion} 
 	\item Remove walls and floors with plane fitting
@@ -50,7 +50,7 @@ At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}
 From the perspective of joint registration, we first compare our method with \cite{Evangelidis2014} on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bcunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
 \begin{table}
 	\centering
-	\caption{This table shows the RMSE of joint registration on 4 point sets of Stanford Bunny. JRMPC is the method of \cite{Evangelidis2014}. JRCS Basic is our basic formualtion}
+	\caption{This table shows the RMSE of joint registration on 4 point sets of Stanford Bunny. JRMPC is the method of \cite{Evangelidis2014}. JRCS Basic is our basic formulation}
 	\begin{tabular}{c c c c}
 		Point Sets& View 2 & View 3 & View 4 \\
 		\hline
@@ -93,30 +93,38 @@ We find that even the input set with high IOU scores in segmentation can result 
 a) with respect to improvement on the point set with interaction (prove that the interaction is only a initialization).
 b) with respect to number of interactions 
 \subsection{Investigation on Influence of Point Incompleteness}
-In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point sets. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increased point set incompleteness.
-\begin{figure}[htb]
+In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point sets. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increased point set incompleteness. The Figure~\ref{fig:incompleteness2} shows the visual result of this experiment. 
+\begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/incompleteness/IOU.png}
-	\caption{This figure shows how the data incompleteness affect the IOU score of co-segmentation}
+	\caption{This figure shows how the data incompleteness affect the IOU score of co-segmentation
+		}
 	\label{fig:incompleteness}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=\linewidth]{images/incompleteness/visual}
+	\caption{This figure shows some of the visual result of experiments on incompleteness. This figure shows results at 3 different level of incompleteness which are $0.0\%$ at row 01-04, $14\%$ at row 05-08 and  $30\%$ at row 09-12. Each column shows the information of the same point set. Row 01,05,09 shows the inputs. For the A column the input is not only the point set but also a layout for initialization. Row 02,06,10 are ground-truth of segmentation. Row 03,04,10 are results of segmentation. For the A column, the intial segmentation and final segmentation are both shown. For the rest column, the final segmentation are shown.
+	Row 04,08,12 shows the point-wise correspondences of joint registration by color-coding}
+	\label{fig:incompleteness2}
 \end{figure}
 \subsection{Test On Real Data}
 To capture real data we employ the voxel hashing method~\cite{VXH} and use plane fitting to remove walls and floors. 
 We then transfer the meshes into point sets using a Poisson sampling process~\cite{PossionSampling}.
 Figure~\ref{fig:challenge} shows a scanned point set. We can see that, there are noised and blurred color, shape distortion, partial scanning and outliers in real data.
 %
+Figure~{\ref{fig:realdata}} shows the segmentation and registration results on a group of scanned point sets.
+From Figure~\ref{fig:realdata}(e), we can see that all input point sets are partitioned into objects. From the Figure~\ref{fig:realdata}(g), we can verify that the object from each input set are aligned together by the result transformation.
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/challenge/challenge}
 	\caption{\label{fig:challenge}This figure highlights the common challenges on real data.}
 \end{figure}
-\begin{figure*}[htb]
+\begin{figure*}
 	\centering
 	\includegraphics[width=\linewidth]{images/realdata/realdata}
 	\caption{\label{fig:realdata} Segmentation and registration on real data. (a) Scanned mesh using method in \cite{VXH}. (b) Remove walls and floors by plane fitting. (c) Sampled point set using \cite{PossionSampling}. (d) With roughly placed boxes on only one point set, the points are initially segmented in this one point set. Note that parts of the chair legs are segmented to the table due to the rough box placement by users. (e) Pairs of input point sets and corresponding segmentation results. (f) The final Gaussian centroids for the five objects in the scene. (g) Verification of the registration result by aligning all point sets with respect to each object. The light blue rectangle highlights the object that is aligned together. Except the aligned object, the other objects are placed quite messy since they came from different point sets and have different arrangement relative to the aligned object. \cxj{Again, i think (g) is really messy and confusing...}  }
-\end{figure*}
-Figure~{\ref{fig:realdata}} shows the segmentation and registration results on a group of scanned point sets.
-From Figure~\ref{fig:realdata}(e), we can see that all input point sets are partitioned into objects. From the Figure~\ref{fig:realdata}(g), we can verify that the object from each input set are aligned together by the result transformation.  
+\end{figure*} 
 \cxj{More discussions about the robustness of our method according to reviewer's comments..}
 \textbf{Different user interaction}
 \subsection{Limitations and Future Work}
