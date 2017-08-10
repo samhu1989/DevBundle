@@ -1,4 +1,12 @@
 \section{Method Overview}
+\begin{figure*}[htb]
+	\centering
+	\includegraphics[width=0.45\linewidth]{images/formulation}
+	\hspace{0.1\linewidth}
+	\includegraphics[width=0.40\linewidth]{images/formulation2}
+	\caption{This figure shows the generative model for joint registration and co-segmentation (left) and its associated graphical model (right). In this figure, $N$ Gaussian groups $\{O_n\}_N$ are predefined to represent $N$ objects } 
+	\label{fig:formulation}
+\end{figure*}
 \label{sec:method}
 In this section, we introduce our formulation of the joint registration and co-segmentation problem for point sets. Tabel~\ref{tab:symbol} lists all the symbols used in our formulation. The input of our problem is a group of 3D point sets  $\mathcal{V}=\{\mathbf{V}_m\}^{M}_{m=1}$ that are captured at $M$ different times in a scene, where objects move in different ways. Each point set $\mathbf{V}_m=\{\mathbf{v}_{mi}\}^{L_m}_{i=1}$ contains $L_m$ 3D points. Our problem is to simultaneously partition the point sets into $N$ objects and figure out the transformations from objects to each point set. For partitioning, we output point-wise label vectors $\{\mathbf{y}_m\}$ for each input point set to indicate its object partition. For registration, we output $\{\mathbf{R}_{mn},\mathbf{t}_{mn}\}$ to indicate the transformations from $N$ different objects to $M$ different point sets.
 \begin{table}[!hbp]
@@ -39,14 +47,6 @@ $\phi_{mn}$    & Rigid transformation from object $O_n$ to point set $\mathbf{V}
 \end{tabular}
 \end{table}
 \subsection{Basic Formulation}
-\begin{figure*}[htb]
-	\centering
-	\includegraphics[width=0.45\linewidth]{images/formulation}
-	\hspace{0.1\linewidth}
-	\includegraphics[width=0.40\linewidth]{images/formulation2}
-	\caption{Illustration of formulation.} 
-	\label{fig:formulation}
-\end{figure*}
 For robustness, we do not model the point sets as a simple composition of transformed 3D points in each object model. Instead, we model the point sets as realizations of an unknown central Gaussian mixture model (GMM) from of the transformed object models. In other words, we explicitly separate total $K_{all}$ Gaussian models to $N$ groups to represent $N$ objects $\{O_n\}_{n=1}^N$ as
 \begin{equation}
 \begin{aligned}
