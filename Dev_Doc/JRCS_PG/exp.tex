@@ -18,7 +18,7 @@ The real dataset (as shown in Figure~\ref{fig:realdata}) is acquired as follows:
 \subsection{Evaluation for Co-segmentation on Synthetic Data}
 \begin{table}
 	\centering
-	\caption{IOU scores on three synthetic datasets. JRCS Basic is our basic formulation. JRCS Bilateral  is our bilateral formualtion with point color as feature. PointNet is the semantic segmentation of \cite{qi2016pointnet} }
+	\caption{IOU scores on three synthetic datasets. JRCS Basic is our basic formulation. JRCS Bilateral  is our bilateral formulation with point color as feature. PointNet is the semantic segmentation of \cite{qi2016pointnet} }
 	\begin{tabular}{c c c c}
 		Datasets & Child Shelf & Office Desk  & Living Room  \\
 		\hline
@@ -47,7 +47,7 @@ In other words, the point sets from Figure~\ref{fig:seg}(c) are not the same poi
 In the first group of data (dataset of child table in Figure~\ref{fig:seg}), the segmentation result of the point set with layout is even the second worst in the sense of IOU score. We believe this is because that the manually placed layout is not accurate respecting to point-wise segmentation. 
 At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}) can serve as a soft constraint to help constraining the shape of object, but in the final iterations the alteration will obstruct the further improvement of segmentation for the correspondent point set. 
 \subsection{Evaluation for Joint Registration on Synthetic Data}
-From the perspective of joint registration, we first compare our method with \cite{Evangelidis2014} on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bcunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
+From the perspective of joint registration, we first compare our method with \cite{Evangelidis2014} on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
 \begin{table}
 	\centering
 	\caption{This table shows the RMSE of joint registration on 4 point sets of Stanford Bunny. JRMPC is the method of \cite{Evangelidis2014}. JRCS Basic is our basic formulation}
