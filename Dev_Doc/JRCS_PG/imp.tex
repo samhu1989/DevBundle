@@ -26,9 +26,17 @@ Based on our formulation in Sec.~\ref{sec:method}, our algorithm can be summariz
 \end{algorithm}
 \subsection{Initialization}
 \label{sec:imp:interact}
-Unfortunately, there are a large number of parameters that can not be easily initialized in our formulation. We let users to place boxes in one of the point sets to help with the initialization, as shown in Figure~\ref{fig:interact}.\\
-In this subsection, we explain how we can initialize the parameters in our formulation with these boxes.
- We first determine the total number of objects $N$ and $\{K_n\}$ which is the numbers of Gaussian mixture models used to represent each object.
+Unfortunately, there are a large number of parameters that can not be easily initialized in our formulation. We let users to place boxes in one of the point sets to help with the initialization, as shown in Figure~\ref{fig:interact}. In this interaction, user can use boxes with different colors to indicate layouts for different objects in one of the point sets.\\
+In following paragraphs, we explain how we can initialize the parameters in our formulation with these boxes.
+
+\noindent\textbf{Number of objects $N$:} we can naturally determine the $N$ as the number of different color label of the boxes.
+ 
+\noindent\textbf{Number of Gaussian models in each object $\{K_n\}_N$:} The $K_n$ can be set as (\ref{equ:K_n}): 
+\begin{equation}
+\label{equ:K_n}
+K_n=\frac{V_n}{\sum V_n}K_{all}
+\end{equation}
+in which the $V_n$ represent the total volume of the boxes in the $n^{th}$ color and the $K_{all}$ is initialized as $K_{all}=\frac{median(L_m)}{2}$ and $\{L_m\}_M$ are point numbers of $M$ input point sets. This is an empirical choice borrowed from \cite{Evangelidis2014}.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=.3\linewidth]{images/interact01.png}
@@ -41,19 +49,18 @@ In this subsection, we explain how we can initialize the parameters in our formu
 		From the first to the sixth, the nine images show the procedure of interaction:
 		the user pick one point set and place boxes in it to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represents one object. The interaction allows multiple boxes to represents same object.(e.g. the desk is represented by three boxes in same color)}
 \end{figure}
-These two parameters are difficult to be initialized without semantic prior, but with the input of the users we can naturally initialize the $N$ as the number of different color label and the ${K_n}$ as 
-\begin{equation}
-\label{equ:K_n}
-K_n=\frac{V_n}{\sum V_n}K_{all},
-\end{equation}
-in which the $V_n$ represent the total volume of the boxes in the $n^{th}$ color and the $K_{all}$ is initialized as $K_{all}=\frac{median(L_m)}{2}$ and $\{L_m\}$ are point numbers of $M$ input point sets. This is an empirical choice borrowed from \cite{Evangelidis2014}.We then set $p_k=\frac{1}{K_{all}}$, which means each Gaussian has the same weight at the beginning. For the Gaussian centroids $\{\mathcal{x}_k\}$, we first allocate memory for total $K_{all}$ Gaussian centroids and then sparate them into $N$ groups to represent $N$ objects. Each group has $K_n$ Gaussian centroids based on Eq.~(\ref{equ:K_n}). We implement this by recording the start and end indices of the $N$ objects. In other words, we record $\{0,K_1,K_1+1,K_1+K_2,...,\sum^{N-1}K_n+1,\sum^N K_n\}$. We initialize the $\{\mathbf{x}_k\}_n$ for the $n^{th}$ Gaussian group as random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets. 
+
+\noindent\textbf{Gaussian Parameters $\{p_k,\mathbf{x}_k,\Sigma_k\}_{k=1}^{K_{all}}$:}
+We then set $p_k=\frac{1}{K_{all}}$ as the initial values for $p_k$, which means each Gaussian has the same weight at the beginning. For the Gaussian centroids $\{\mathbf{x}_k\}$, we first allocate memory for total $K_{all}$ Gaussian centroids and then sparate them into $N$ groups to represent $N$ objects. Each group has $K_n$ Gaussian centroids based on Eq.~(\ref{equ:K_n}). We implement this by recording the start and end indices of the $N$ objects. In other words, we record $\{0,K_1,K_1+1,K_1+K_2,...,\sum^{N-1}K_n+1,\sum^N K_n\}$. We initialize the $\{\mathbf{x}_k\}_n$ for the $n^{th}$ Gaussian group as random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets. 
 %
 The center of the $n^{th}$ sphere is $\mathbf{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$.
 %
-This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c) and in Figure~\ref{fig:localoptimal}(b). 
+This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c). 
 We choose vertical arrangement for groups of object merely for the convenience of visualization.
-%
-We choose spheres as the initial shape so that we can initialize all the $\mathbf{R}_{mn}$ to identity matrix. 
+Figure~(need a figure here) shows an example for the initialization of the Gaussian Centroids.
+
+\noindent\textbf{Transformations$\{\phi_{mn}\}_{m=1,n=1}^{M,N}=\{\mathbf{R}_{mn},\mathbf{t}_{mn}\}_{m=1,n=1}^{M,N}$}
+Since we have chosen spheres as the initial shapes, we can initialize all the $\mathbf{R}_{mn}$ to identity matrix. For sphere, the different initial orientation makes little differences.
 %
 For the $\vb{t}_{mn}$ we initialize them as $\mathbf{t}_{mn}=- \mathbf{c}_n$ so that all the object model starting with position at origin point when they are transformed to the space of each input set. 
 %
@@ -84,9 +91,11 @@ where the $B_n$ is a point set that is enclosed by the boxes used to represent t
 	\includegraphics[width=\linewidth]{images/localoptimal/localoptimal}
 	\caption{\label{fig:localoptimal}This figure shows an example result when converges to a local optimal. (a) is the result of segmentation of this local optimal. (b) is the final centroids of latent model. It shows that from top to down the 2nd and 3rd object model both include part of the table and part of the chair.}
 \end{figure}
-This alteration on posterior probability is only done with the probability related to the $m^{th}$ point set that have the mannual input layout (the boxes) in it. This alteration can help prevent the optimization from converging to a local optimal as in Figure~\ref{fig:localoptimal}. The result from the Figure~\ref{fig:localoptimal} has the same input and initialization with the result from Figure~\ref{fig:teaser}, but it does not use the posterior alteration as a soft constraint.
-%
-For initialization and object shape constraint we only need the user to input boxes in one point set. However, our algorithm will stuck at local minimum due to non-local movement. For this, we allow the user to add more boxes for other point sets and the program can do the same alteration as (\ref{equ:alteralpha}) to deal with non-local movement of the objects.
+This alteration on posterior probability is only done with the probability related to the $m^{th}$ point set that have the mannual input layout (the boxes) in it. This alteration can help prevent the object from deforming into an arbitrary shape as shown in Figure~\ref{fig:localoptimal}. In Figure~\ref{fig:localoptimal}, the $2nd$ and $3rd$ object has deformed into a combination of two objects due to lack of constraint.
+
+For initialization and object shape constraint, we only need the user to input boxes in one point set. However, our algorithm will also stuck at local minimum due to objects' non-local movement. For this, our implementation allow the user to add more boxes for other point sets (even during optimization ) and the program can do the same alteration as (\ref{equ:alteralpha}) to further constrain the optimization.
+
+The Figure~(need a figure here) shows an example of converging procedure of our algorithm. 
 %
 %Figure~\ref{fig:hi} shows how the users can use the hot intervention mechanism within %our tool.
 %
