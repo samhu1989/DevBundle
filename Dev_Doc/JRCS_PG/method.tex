@@ -107,7 +107,7 @@ where $\alpha_{mik} = P( z_{mi} = k | \mathbf{v}_{mi} ; \Theta )$.
 By bringing in Eq.~\ref{equ:model} and ignoring constant terms, we can rewrite the objective as:
 \begin{equation}
 \label{equ:obj3}
-\Theta=\arg\max\sum_{mik}\alpha_{mik}(||\mathbf{v}_{mi}-\phi_{mn}(\mathbf{x}_k)||_{\Sigma_k}^2 + \ln |\Sigma_k| - 2\ln p_k), 
+\Theta=\arg\max(-\frac{1}{2}\sum_{mik}\alpha_{mik}(||\mathbf{v}_{mi}-\phi_{mn}(\mathbf{x}_k)||_{\Sigma_k}^2 + \ln |\Sigma_k| - 2\ln p_k)), 
 \end{equation}
 %
 where the $|\cdot|$ denotes the determinant and $||\mathbf{x}||_{\mathbf{A}}^2= \mathbf{x}^T\mathbf{A}^{-1}\mathbf{x}$. 

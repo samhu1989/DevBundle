@@ -1,6 +1,6 @@
 \section{Initialization and Optimization}
 \label{sec:imp}
-In this section, we summarize the entire framework for our algorithm and explain how do we intialize the parameters and guide the optimization with input from user interaction.
+In this section, we summarize the entire framework for our algorithm and explain how do we initialize the parameters and guide the optimization with input from user interaction.
 
 Based on our formulation in Sec.~\ref{sec:method}, our algorithm can be summarized as in Algorithm \ref{alg:jrcs}.
 \begin{algorithm}[htb]
@@ -16,11 +16,11 @@ Based on our formulation in Sec.~\ref{sec:method}, our algorithm can be summariz
 		\item $q\leftarrow1$
 		\item \textbf{repeat}
 		\item E-step: Use $\Theta^{q-1}$ to estimate $\alpha_{mik}^q$ according to Eq.~(\ref{equ:estep}) (use Eq.~(\ref{equ:bestep}) for a bilateral formulation);
-		\item Alter $\alpha_{mik}^q$ with $\{\beta_{ik}\}_{m}$ according to Eq.~(\ref{equ:alteralpha});
+		\item \textbf{if} $q < q_{alt}$ \textbf{then} Alter $\alpha_{mik}^q$ with $\{\beta_{ik}\}_{m}$ according to Eq.~(\ref{equ:alteralpha});
 		\item M-step-a: use $\alpha^q_{mik}$, $\mathbf x^{q-1}_k$ to estimate $\{\mathbf{R}_{mn}^q\}$ and $\{\mathbf t_{mn}^q\}$ according to Eqs.~(\ref{equ:updateR})(\ref{equ:updatet});
 		\item M-step-b: use $\alpha^q_{mik}$, $\{\mathbf{R}_{mn}^q\}$ and $\{\mathbf{t}_{mn}^q\}$ to update other parameters for Gaussian models according to Eqs.~ (\ref{equ:updatexk})(\ref{equ:updatesigma})(\ref{equ:updatepk})(\ref{equ:updatey})  (or use Eqs.~ (\ref{equ:updatefk})(\ref{equ:updatefsigma}) for a bilateral formulation);
 		\item $q \leftarrow q+1$
-		\item \textbf{until} Convergence \cxj{what is the convergence conditions?}
+		\item \textbf{until} $q > q_{max}$
 		\item \textbf{return} $\Theta^q$
 	\end{enumerate}
 \end{algorithm}
@@ -51,18 +51,20 @@ in which the $V_n$ represent the total volume of the boxes in the $n^{th}$ color
 \end{figure}
 
 \noindent\textbf{Gaussian Parameters $\{p_k,\mathbf{x}_k,\Sigma_k\}_{k=1}^{K_{all}}$:}
-We then set $p_k=\frac{1}{K_{all}}$ as the initial values for $p_k$, which means each Gaussian has the same weight at the beginning. For the Gaussian centroids $\{\mathbf{x}_k\}$, we first allocate memory for total $K_{all}$ Gaussian centroids and then sparate them into $N$ groups to represent $N$ objects. Each group has $K_n$ Gaussian centroids based on Eq.~(\ref{equ:K_n}). We implement this by recording the start and end indices of the $N$ objects. In other words, we record $\{0,K_1,K_1+1,K_1+K_2,...,\sum^{N-1}K_n+1,\sum^N K_n\}$. We initialize the $\{\mathbf{x}_k\}_n$ for the $n^{th}$ Gaussian group as random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets. 
+We then set $p_k=\frac{1}{K_{all}}$ as the initial values for $p_k$, which means each Gaussian has the same weight at the beginning. For the Gaussian centroids $\{\mathbf{x}_k\}$, we first allocate memory for total $K_{all}$ Gaussian centroids and then sparate them into $N$ groups to represent $N$ objects. Each group has $K_n$ Gaussian centroids based on Eq.~(\ref{equ:K_n}). We implement this by recording the start and end indices of the $N$ objects. In other words, we record $\{0,K_1,K_1+1,K_1+K_2,...,K_S+1,K_S+K_n,...\}$. We initialize the $\{\mathbf{x}_k\}_{K_S+1}^{K_S+K_n}$ for the $n^{th}$ Gaussian group as random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets. 
 %
 The center of the $n^{th}$ sphere is $\mathbf{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$.
 %
 This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c). 
 We choose vertical arrangement for groups of object merely for the convenience of visualization.
 Figure~(need a figure here) shows an example for the initialization of the Gaussian Centroids.
+The variance $\{\Sigma_k\}$ are all initialized as $\Sigma_k=\sigma^2 I$ in which $\sigma=r$.
+The $r$ here is the radius of sphere. Without any prior knowledge, such initialization for Gaussian parameters put all the objects at similar starting condition and they can compete fairly to segment the points in point sets.   
 
 \noindent\textbf{Transformations$\{\phi_{mn}\}_{m=1,n=1}^{M,N}=\{\mathbf{R}_{mn},\mathbf{t}_{mn}\}_{m=1,n=1}^{M,N}$}
 Since we have chosen spheres as the initial shapes, we can initialize all the $\mathbf{R}_{mn}$ to identity matrix. For sphere, the different initial orientation makes little differences.
 %
-For the $\vb{t}_{mn}$ we initialize them as $\mathbf{t}_{mn}=- \mathbf{c}_n$ so that all the object model starting with position at origin point when they are transformed to the space of each input set. 
+For the $\mathbf{t}_{mn}$ we initialize them as $\mathbf{t}_{mn}=- \mathbf{c}_n$ so that all the object model starting with position at origin point when they are transformed to the space of each input set. 
 %
 However, if the $m^{th}$ input point set has the manually placed layout, we treat the associated $\mathbf{t}_{mn}$ differently. For this case we have:
 \begin{equation}
@@ -92,10 +94,20 @@ where the $B_n$ is a point set that is enclosed by the boxes used to represent t
 	\caption{\label{fig:localoptimal}This figure shows an example result when converges to a local optimal. (a) is the result of segmentation of this local optimal. (b) is the final centroids of latent model. It shows that from top to down the 2nd and 3rd object model both include part of the table and part of the chair.}
 \end{figure}
 This alteration on posterior probability is only done with the probability related to the $m^{th}$ point set that have the mannual input layout (the boxes) in it. This alteration can help prevent the object from deforming into an arbitrary shape as shown in Figure~\ref{fig:localoptimal}. In Figure~\ref{fig:localoptimal}, the $2nd$ and $3rd$ object has deformed into a combination of two objects due to lack of constraint.
-
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/Initialization/iters}
+	\caption{\label{fig:iter}need to add explaination for this figure}
+\end{figure}
 For initialization and object shape constraint, we only need the user to input boxes in one point set. However, our algorithm will also stuck at local minimum due to objects' non-local movement. For this, our implementation allow the user to add more boxes for other point sets (even during optimization ) and the program can do the same alteration as (\ref{equ:alteralpha}) to further constrain the optimization.
 
-The Figure~(need a figure here) shows an example of converging procedure of our algorithm. 
+The Figure~\ref{fig:iter} and Figure~\ref{fig:iter_curve}  shows an example of converging procedure of our algorithm. (need to add analysis about this two figures)
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/Initialization/obj_iter.png}
+	\caption{\label{fig:iter_curve}The curve of objective value(need to add explaination for this figure)}
+\end{figure}
 %
 %Figure~\ref{fig:hi} shows how the users can use the hot intervention mechanism within %our tool.
 %
