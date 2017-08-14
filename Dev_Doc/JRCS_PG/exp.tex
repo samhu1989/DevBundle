@@ -81,24 +81,24 @@ Table~\ref{tab:regerror} shows the result of this evaluation.
 	\begin{tabular}{c c c c}
 		Dataset & Maximum Error & Median Error & Minimum Error \\
 		\hline
-		Child Shelf & 0.0715 & 0.0112 & 4.91e-005 \\   
-		Office Desk & 0.189  & 0.0618 & 0.00518 \\
-		Living Room & 0.132  & 0.0563 & 0.0301\\
+		Child Shelf & - & - & - \\   
+		Office Desk & -  & - & - \\
+		Living Room & -  & - & -\\
 	\end{tabular}
 	\label{tab:regerror}
 \end{table}
 For this evaluation we want to discuss that:\\
 We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
 \subsection{Investigation on Interaction}
-a) with respect to improvement on the point set with interaction (prove that the interaction is only a initialization).
-b) with respect to number of interactions 
+\label{subsec:interact}
+For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and invesigate on the amount of interaction that is needed for the improvement of result. 
+
 \subsection{Investigation on Influence of Point Incompleteness}
-In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point sets. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increased point set incompleteness. The Figure~\ref{fig:incompleteness2} shows the visual result of this experiment. 
+In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point set. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increased point set incompleteness. The Figure~\ref{fig:incompleteness2} shows the visual result of this experiment. 
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/incompleteness/IOU.png}
-	\caption{This figure shows how the data incompleteness affect the IOU score of co-segmentation
-		}
+	\caption{This figure shows how the data incompleteness affect the IOU score of co-segmentation}
 	\label{fig:incompleteness}
 \end{figure}
 \begin{figure}
@@ -125,8 +125,6 @@ From Figure~\ref{fig:realdata}(e), we can see that all input point sets are part
 	\includegraphics[width=\linewidth]{images/realdata/realdata}
 	\caption{\label{fig:realdata} Segmentation and registration on real data. (a) Scanned mesh using method in \cite{VXH}. (b) Remove walls and floors by plane fitting. (c) Sampled point set using \cite{PossionSampling}. (d) With roughly placed boxes on only one point set, the points are initially segmented in this one point set. Note that parts of the chair legs are segmented to the table due to the rough box placement by users. (e) Pairs of input point sets and corresponding segmentation results. (f) The final Gaussian centroids for the five objects in the scene. (g) Verification of the registration result by aligning all point sets with respect to each object. The light blue rectangle highlights the object that is aligned together. Except the aligned object, the other objects are placed quite messy since they came from different point sets and have different arrangement relative to the aligned object. \cxj{Again, i think (g) is really messy and confusing...}  }
 \end{figure*} 
-\cxj{More discussions about the robustness of our method according to reviewer's comments..}
-\textbf{Different user interaction}
 \subsection{Limitations and Future Work}
 \hsy{Need to add discussion on failure cases}
 The biggest problem holding us back is the time performance of our current implementation.  Due to i.i.d. assumption most calculation of our algorithm can actually be parallelized. We plan to implement a new version on GPU cluster so that we can explore more potentials of our algorithm. 
