@@ -1,39 +1,55 @@
 \section{Introduction}
 \label{sec:intro}
 Many research projects and applications of indoor scenes require segmented, and even annotated 3D databases~\cite{SearchClassify,SceneFromExample,Fisher:2012:ESO:2366145.2366154,Chen:2014:ASM:2661229.2661239,Fisher:ActivityCentricSceneSynthesis}.
-One way to build such a database is to interactively compose scenes using 3D object models, resulting in scenes with object segmentation and annotation naturally available, or to manually segment and annotate existing 3D scenes. This procedure can be tedious and time-consuming, despite many efforts of improving the interaction experience~\cite{Merrell:2011:IFL:2010324.1964982, Xu:2013:SSC:2461912.2461968}. Another way is to automatically generate scenes from 3D shape models according to images~\cite{Liu2015Model,Chen:2014:ASM:2661229.2661239}. In these methods, a retrieval procedure is usually needed and inevitably limit the result to a certain set of 3D models, without producing the actual 3D shapes that appear in the input images.
+%
+One way to build such a database is to interactively compose scenes using 3D meshes for objects, resulting in scenes with object segmentation and annotation naturally available, or to manually segment and annotate existing 3D scenes. This procedure is tedious and time-consuming, despite many efforts of improving the interaction experience~\cite{Merrell:2011:IFL:2010324.1964982, Xu:2013:SSC:2461912.2461968}. 
+%
+Another way is to automatically \mdf{compose a scene model from an image based on existing 3D shape models~\cite{Liu2015Model,Chen:2014:ASM:2661229.2661239}.}  
+In these methods, a retrieval procedure is usually needed and inevitably limit the result to a certain set of 3D models, without producing the actual 3D shapes that appear in the input image.
 
 %%%%% Importance and Challenges %%%%%%
-Generating scene models directly from captured point clouds will significantly facilitate dataset construction and increase the dataset variety. However, there is a large gap between the desired 3D model dataset and current available scene capturing tools. Typically, clean, complete and separated models for objects are desired to construct scene database. By contrast, a noisy and incomplete point set of different objects all in one is usually obtained with current available consumer-level scene capturing frameworks~\cite{KinectFusion, dai2016bundlefusion}. Thus, a generic object-level segmentation and modeling method from scanned sets is a strong demand to fill the gap.
+Generating scene models directly from captured point clouds will significantly facilitate dataset construction and increase the variety of the dataset. 
+However, there is a large gap between the desired 3D model dataset and current available scene capturing tools. Typically, clean, complete and separated models for objects are desired to construct \mdf{a} scene database. 
+By contrast, a noisy and incomplete point set of different objects all in one is usually obtained with current available consumer-level scene capturing frameworks~\cite{KinectFusion, dai2016bundlefusion}. 
+Thus, a \emph{generic object-level segmentation and modeling method} from scanned sets is a strong demand to fill the gap.
 
 %%%%% Challenges %%%%%%
 A generic object-level segmentation is not an equivalence of the multi-label classification problem since segmentation is not limited to a fixed number of object categories predefined in the training data. 
-Existing approaches for segmenting scanned 3D data require additional knowledges, such as the block-based stability~\cite{3DReasoningfromBlockstoStability}, or the motion consistency of rigid objects~\cite{Xu:2015:ACS:2816795.2818075}. 
-While a robot is employed to do proactive push and movement tracking is used to verify and iteratively improve the object-level segmentation result~\cite{Xu:2015:ACS:2816795.2818075}, it remains significantly challenging to recover the motion consistency in a \emph{non-invasive way}. 
-\cxj{still not comfortable with the word "invasive"... This word is mainly used in cancer or medical procedure. Or provide more detailed explaination on "non-invasive". }
-\cxj{Do we "recover" the motion consistency or "use" the motion consistency to do co-semgentation and registration?}
-\hsy{"Invasive" is the original word used in \cite{Xu:2015:ACS:2816795.2818075}.}
+Existing approaches for segmenting scanned 3D data require additional knowledges, such as a block-based stability~\cite{3DReasoningfromBlockstoStability}, or motion consistency of rigid objects~\cite{Xu:2015:ACS:2816795.2818075}. 
+While a robot is employed to do proactive pushes, a movement tracking is used to verify and iteratively improve the object-level segmentation result~\cite{Xu:2015:ACS:2816795.2818075}.
+However, it remains significantly challenging to recover the motion consistency in a \emph{non-invasive way}. 
 
 %%%%% Scan scheme %%%%%%
 In this paper, we explore the motion consistency of rigid objects in a new aspect.
-While the motion consistency of objects in indoor scenes is naturally revealed by human activities along the time, we hope to segment the objects in a scene from the scanned point clouds at different times. With respect to this idea, we are facing the choice of scanning schemes. One way is to record the change of a scene along with human activities. Another option is to schedule a periodic sweep that only records the result of human activities but avoids capturing human motion. 
-In both schemes, it is non-trivial to recover the correspondences of objects in different point sets due to the occlusions by human bodies in the first scheme or sparse sampling on times in the second scheme. In the first scheme, additional challenging processing may be required such as tracking objects with severe occlusions by human bodies. Therefore, we choose the second scanning scheme. 
+While the motion consistency of objects in indoor scenes is naturally revealed by human activities over time, we hope to segment the objects in a scene from scanned point clouds at different times. 
+%
+With respect to this idea, we are facing the choice of scanning schemes. One way is to record the change of a scene along with human activities. Another option is to schedule a periodic sweep that only records the result of human activities but avoids capturing human motion. 
+In both schemes, it is non-trivial to recover object correspondences in different point sets due to occlusions.
+The occlusions are probably caused by human bodies in the first scheme or sparse sampling on times in the second scheme. 
+%
+In the first scheme, extra challenging processing may be required such as tracking objects with severe occlusions by human bodies. Therefore, we choose the second scanning scheme. 
 Thus, our original intention of building 3D scene datasets from scanned data leads us to the problem of coupled joint registration and co-segmentation.
 
-In this problem, registration and segmentation are entangled in each other. On the one hand, the segmentation depends on the registration to connect the point clouds into series of rigid movement so that the object-level segmentation can be done based on the motion consistency. On the other hand, the registration depends on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift. 
-Non-coherent point drift means that a pair of points is close to each other in one point set, but their corresponding pair of points in another point set is far from each other. 
-This happens when this pair of points actually belong to different objects.
+
+
+In this problem, registration and segmentation are entangled in each other. On the one hand, the segmentation problem depends on the registration to connect the point clouds into series of rigid movement so that the object-level segmentation can be done based on the motion consistency. 
+On the other hand, the registration problem relies on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift. 
+\cxj{need discussion here for more accurate and clear expression.}
+%
+Non-coherent point drift means that a pair of points are close to each other in one point set, but their corresponding pair of points in another point set is far from each other. 
+This happens when two points actually belong to different objects.
 %
 This makes the big difference from non-rigid registration problems where point motions are smooth everywhere.
 %
-We employ a group of Gaussian mixture models and each of these Gaussian mixture models represents a potential object. 
-This model unentangles the registration and segmentation in the way that the segmentation can be done by evaluating the probability of points belongs to the Gaussian mixture models and the registration can be done by evaluating rigid registration against each Gaussain mixture model.
+In our method, we employ a group of Gaussian mixture models and each of these Gaussian mixture models (GMM) represents a potential object. 
+This representation unentangles the registration and segmentation in the way that the segmentation can be done by evaluating the probability of belonging to the Gaussian mixture models for each point, while the registration can be done by evaluating a rigid registration \mdf{in different point sets} against each Gaussain mixture model.
+
 
 In summary, our work makes the following contributions: 
 \begin{enumerate}
-	\item To the best of our knowledge, we first put forward the problem of joint registration and co-segmentation of point sets.
+	\item To the best of our knowledge, we first put forward the problem of joint registration and co-segmentation of multiple point sets.
 	
 	\item We propose a generative model to simultaneously solve the joint registration and co-segmentation of point sets.
 	
-	\item We design a tool for joint registration and co-segmentation based on the generative model and release it to public. 
+	\item We design an \mdf{interactive} tool for joint registration and co-segmentation based on the generative model. 
 \end{enumerate}

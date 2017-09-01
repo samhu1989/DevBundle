@@ -1,4 +1,7 @@
-\section{Method Overview}
+\section{Problem Definition}
+\label{sec:method}
+
+
 \begin{figure*}[htb]
 	\centering
 	\includegraphics[width=0.45\linewidth]{images/formulation}
@@ -7,8 +10,10 @@
 	\caption{This figure shows the generative model for joint registration and co-segmentation (left) and its associated graphical model (right). In this figure, $N$ Gaussian groups $\{O_n\}_N$ are predefined to represent $N$ objects } 
 	\label{fig:formulation}
 \end{figure*}
-\label{sec:method}
-In this section, we introduce our formulation of the joint registration and co-segmentation problem for point sets. Tabel~\ref{tab:symbol} lists all the symbols used in our formulation. The input of our problem is a group of 3D point sets  $\mathcal{V}=\{\mathbf{V}_m\}^{M}_{m=1}$ that are captured at $M$ different times in a scene, where objects move in different ways. Each point set $\mathbf{V}_m=\{\mathbf{v}_{mi}\}^{L_m}_{i=1}$ contains $L_m$ 3D points. Our problem is to simultaneously partition the point sets into $N$ objects and figure out the transformations from objects to each point set. For partitioning, we output point-wise label vectors $\{\mathbf{y}_m\}$ for each input point set to indicate its object partition. For registration, we output $\{\mathbf{R}_{mn},\mathbf{t}_{mn}\}$ to indicate the transformations from $N$ different objects to $M$ different point sets.
+
+
+
+In this section, we introduce our formulation of the joint registration and co-segmentation problem for point sets. Tabel~\ref{tab:symbol} lists all the symbols used in our formulation. The input of our problem is a group of 3D point sets  $\mathcal{V}=\{\mathbf{V}_m\}^{M}_{m=1}$ that are captured at $M$ different times in a scene, where objects move in different ways. Each point set $\mathbf{V}_m=\{\mathbf{v}_{mi}\}^{L_m}_{i=1}$ contains $L_m$ 3D points. Our problem is to simultaneously partition the point sets into $N$ objects and figure out the transformations from objects to each point set. For partitioning, we output point-wise label vectors $\{\mathbf{y}_m\}$ for each input point set to indicate its object partition. For registration, we output $\{\mathbf{R}_{mn},\mathbf{t}_{mn}\}$ to indicate the transformations from $N$ objects to $M$ point sets, respectively.
 \begin{table}[!hbp]
 \centering
 \caption{Table of symbols used in the paper.} 
@@ -46,8 +51,15 @@ $\phi_{mn}$    & Rigid transformation from object $O_n$ to point set $\mathbf{V}
 \hline
 \end{tabular}
 \end{table}
+
+
+
+
 \subsection{Basic Formulation}
-For robustness, we do not model the point sets as a simple composition of transformed 3D points in each object model. Instead, we model the point sets as realizations of an unknown central Gaussian mixture model (GMM) from of the transformed object models. In other words, we explicitly separate total $K_{all}$ Gaussian models to $N$ groups to represent $N$ objects $\{O_n\}_{n=1}^N$ as
+For robustness, we do not model a point set as a simple composition of transformed 3D points in each object model. 
+Instead, we model each point set as a realization of an unknown central Gaussian mixture model (GMM) from of the transformed object models. 
+In other words, we explicitly separate total $K_{all}$ Gaussian models to $N$ groups to represent $N$ objects $\{O_n\}_{n=1}^N$ as
+%
 \begin{equation}
 \begin{aligned}
 \{
@@ -58,31 +70,43 @@ For robustness, we do not model the point sets as a simple composition of transf
 \end{equation}
 where $K_S = \sum_{i=1}^{n-1}K_i$.
 
-The Gaussian centroids $\{\mathbf{x}_{k}\}$ represent the point positions in objects. $\{\Sigma_{k}\}$ qautify the variance of point positions in objects. $O_n$ has $K_n$ Gaussian models and $\{K_n\}_{n=1}^N$ are predefined.
-Each object model $O_{n}$ is rigidly transformed to each point set $\mathbf{V}_m$ with a transformation $\phi_{mn}(\mathbf{x}_{k})=\mathbf{R}_{mn}\mathbf{x}_{k}+\mathbf{t}_{mn}$ for $\mathbf{x}_{k} \in O_n$
+The Gaussian centroids $\{\mathbf{x}_{k}\}$ represent the point positions in objects. $\{\Sigma_{k}\}$ quantify the variance of point positions in objects. $O_n$ has $K_n$ Gaussian models and $\{K_n\}_{n=1}^N$ are predefined, \mdf{as described in Sec.~\ref{sec:imp}}.
+\mdf{The total number of Gaussian centroids is denoted as} $K_{all} = \sum_{n=1}^{N}K_n$.  
 %
-Hence, for each point $\mathbf{v}_{mi}$ in a point set $\mathbf{V}_m$, given object models $\O_{n}\}$ and their rigid transformations $\{\phi_{mn}\}$ to the point sets, we can write
+Each object $O_{n}$ is rigidly transformed to each point set $\mathbf{V}_m$ with a transformation $\phi_{mn}(\mathbf{x}_{k})=\mathbf{R}_{mn}\mathbf{x}_{k}+\mathbf{t}_{mn}$ for $\mathbf{x}_{k} \in O_n$.
+%
+Hence, for each point $\mathbf{v}_{mi}$ in a point set $\mathbf{V}_m$, given object models $\{O_{n}\}$ and their rigid transformations $\{\phi_{mn}\}$ to the point sets, we can write
 \begin{equation}
 \label{equ:model}
-P(\mathbf{v}_{mi})=\sum^{K_{all}}_{k=1}p_k\mathcal{N}(\mathbf{v}_{mi}|\phi_{mn}(\mathbf{x}_k),\Sigma_k)
+P(\mathbf{v}_{mi})=\sum^{K_{all}}_{k=1}p_k\mathcal{N}(\mathbf{v}_{mi}|\phi_{mn}(\mathbf{x}_k),\Sigma_k),
 \end{equation}
-which treat the $i^{th}$ observed point $\mathbf{v}_{mi}$ from the $m^{th}$ point set as a sample point generated by a large Gaussian mixture model that represent $N$ objects all together.
+%
+where the $i^{th}$ observed point $\mathbf{v}_{mi}$ from the $m^{th}$ point set is sampling point from a large Gaussian mixture model that represents $N$ objects all together.
+\cxj{I move it here.}
+$\{p_k\}_{k=1}^{K_{all}} $ are weights for $K_{all}$ Gaussian models. 
+\mdf{Figure \ref{fig:formulation} illustrates this formulation. }
+
 
 Given the generative representation of point sets, the unknown model parameters of our joint registration and segmentation problem are
 %
 \begin{equation}
 \varTheta=\big \{\{p_k,\mathbf{x}_{k},\Sigma_k\}_{k=1}^{K_{all}},\{\phi_{mn}\}_{m=1,n=1}^{M,N}\big\}.
 \end{equation}
- 
-In these parameters, the  $\{\phi_{mn}\}_{m=1,n=1}^{M,N}$ are the transformations for joint registration problem. $ \{\mathbf{x}_{k},\Sigma_k\}_{k=1}^{K_{all}}$ are the Gaussian models which are predefined to be one of the $N$ objects. $\{p_k\}_{k=1}^{K_{all}} $ are weights for these Gaussian models. After we estimate these parameters, we can assign each point in all input point sets to one of the Gaussian models. Since the Gaussian models are predefined to be one of the $N$ objects, we can further deduce the $\{\mathbf{y}_m\}_{m=1}^M$ indicating vectors of object-level co-segmentation for each input point sets based on such assignment.
-To estimate the parameters $\Theta$ to fit all the input point sets without knowing object labels for all 3D points, the problem can be solved in the EM framework of Expectation-Maximization. 
+\comments{
+In these parameters, the  $\{\phi_{mn}\}_{m=1,n=1}^{M,N}$ are the transformations for joint registration problem. $ \{\mathbf{x}_{k},\Sigma_k\}_{k=1}^{K_{all}}$ are the Gaussian models which are predefined to be one of the $N$ objects. $\{p_k\}_{k=1}^{K_{all}} $ are weights for these Gaussian models. }
+%
+Once we estimate these parameters, each point in all input point sets can be assigned to one of the Gaussian models \cxj{according to the Gaussian centroid with the largest smapling probablity?}. 
+%
+Since the Gaussian models are predefined to be one of the $N$ objects, we can further deduce the $\{\mathbf{y}_m\}_{m=1}^M$ indicating vectors of object-level co-segmentation for each input point set based on such assignment.
+%
+To estimate the parameters $\Theta$ to fit all the input point sets without knowing object labels for all 3D points, the problem can be solved in an Expectation-Maximization (EM) framework. 
 %
 In particular, we bring in hidden variables as: 
 \begin{equation}
 \mathcal{Z}=\{z_{mi}|m=1...M,i=1...L_m\},
 \end{equation}
 %
-such that $z_{mi}=k(k=1,2...,K_{all})$ assigns the observed point $\mathbf{v}_{mi}$ to the $k^{th}$ component of the Gaussian mixture model. 
+such that $z_{mi}=k$, $k \in \{1,2...,K_{all}\}$ assigns the observed point $\mathbf{v}_{mi}$ to the $k^{th}$ component of the Gaussian mixture model. 
 %
 We aim to maximize the expected complete-data log-likelihood:
 \begin{equation}
@@ -93,12 +117,12 @@ We aim to maximize the expected complete-data log-likelihood:
 
 This formulation can be seen as an adaption of the joint registration formulation in \cite{Evangelidis2014}, upon which we separate Gaussian models into groups to express multiple objects. 
 %
-The parameter $\defZ$ that assigns observed points to Gaussian models can naturally indicate the object level segmentation.
+The parameter $\defZ$ that assigns observed points to Gaussian models can naturally indicate the object-level segmentation.
 %
 Under the assumption that the input points are independent and identically distributed, we can rewrite the objective defined in Eq.~(\ref{equ:obj0}) into:
 %
 \begin{equation} \label{equ:obj2}
-\Theta=\arg\max\sum_{mik}\alpha_{mik}(\ln p_k + \ln P(\mathbf{v}_{mi}|z_{mi}=k;\Theta)),
+\Theta=\arg\max\sum_{m,i,k}\alpha_{mik}(\ln p_k + \ln P(\mathbf{v}_{mi}|z_{mi}=k;\Theta)),
 \end{equation}
 %
 where $\alpha_{mik} = P( z_{mi} = k | \mathbf{v}_{mi} ; \Theta )$.
@@ -107,16 +131,16 @@ where $\alpha_{mik} = P( z_{mi} = k | \mathbf{v}_{mi} ; \Theta )$.
 By bringing in Eq.~\ref{equ:model} and ignoring constant terms, we can rewrite the objective as:
 \begin{equation}
 \label{equ:obj3}
-\Theta=\arg\max(-\frac{1}{2}\sum_{mik}\alpha_{mik}(||\mathbf{v}_{mi}-\phi_{mn}(\mathbf{x}_k)||_{\Sigma_k}^2 + \ln |\Sigma_k| - 2\ln p_k)), 
+\Theta=\arg\max(-\frac{1}{2}\sum_{m,i,k}\alpha_{mik}(||\mathbf{v}_{mi}-\phi_{mn}(\mathbf{x}_k)||_{\Sigma_k}^2 + \ln |\Sigma_k| - 2\ln p_k)), 
 \end{equation}
 %
 where the $|\cdot|$ denotes the determinant and $||\mathbf{x}||_{\mathbf{A}}^2= \mathbf{x}^T\mathbf{A}^{-1}\mathbf{x}$. 
 %
-It is predefined that $\mathbf{x}_k$ is one of the Gaussian centroids used to represent $n^{th}$ object, which is why we apply transformation $\phi_{mn}$ on to the $\mathbf{x}_k$. 
+It is predefined that $\mathbf{x}_k$ is one of the Gaussian centroids used to represent the $n^{th}$ object, which is why we apply the transformation $\phi_{mn}$ on $\mathbf{x}_k$. 
 %
-For the convenience of computation, we restrict the model to isotropic covariances, i.e.,$\Sigma_k=\sigma^2\mathbf{I}$ and $\mathbf{I}$ is the identity matrix.
+For the convenience of computation, we restrict the model to isotropic covariances, i.e., $\Sigma_k=\sigma^2\mathbf{I}$ and $\mathbf{I}$ is the identity matrix.
 %
-Now, we can optimize this through iterating between estimating $\alpha_{mik}$ (Expectation-step) and maximizing $\mathcal{E}(\Theta|\defV,\defZ)$ sequentially with respect to each parameters in $\Theta$ (Maximization-steps).
+Now, we can optimize the objective through iterating between estimating $\alpha_{mik}$ (Expectation-step) and maximizing $\mathcal{E}(\Theta|\defV,\defZ)$ sequentially with respect to each parameter in $\Theta$ (Maximization-step).
 
 %These steps are:
 \noindent\textbf{E-step}:
@@ -140,26 +164,28 @@ We only consider rigid transformations, making  $\phi_{mn}(\mathbf{x})=\mathbf{R
 s.t.&      &\mathbf{R}_{mn}^T\mathbf{R}_{mn}=I, |\mathbf{R}_{mn}|=1\\
 \end{array} \right.
 \end{equation}
-where $\Lambda_{mn}$ is $K_n \times K_n$ diagonal matrix with elements $\lambda_{mnk}=\frac{1}{\sigma_k}\sqrt{\sum_i^{L_{m}}\alpha_{mik}}$,$L_m$ is the number of point for the $m^{th}$ input point set, $\mathbf{X}_n = [\mathbf{x}_{K_S+1}, \mathbf{x}_{K_S+2},...., \mathbf{x}_{K_S+K_n}]$ where $K_S = \sum_{i=1}^{n-1}K_i$ is the matrix stacked by the centroids of gaussian models that are predefined to represent the $n^{th}$ object. $\mathbf{e}^T$ is a vector of ones, $||\cdot||_F$ denotes the Frobenius norm, and $\mathbf{W}_{mn}=[\mathbf{w}_{m(K_S+1)},\mathbf{w}_{m(K_S+2)},...,\mathbf{w}_{mk},...,\mathbf{w}_{m(K_S+K_n)}]$ where $K_S = \sum_{i=1}^{n-1}K_i$, in which $\mathbf{w}_{mk}$ is a weighted point as
+where $\Lambda_{mn}$ is a $K_n \times K_n$ diagonal matrix with elements $\lambda_{mnk}=\frac{1}{\sigma_k}\sqrt{\sum_i^{L_{m}}\alpha_{mik}}$, $L_m$ is the number of point for the $m^{th}$ input point set, $\mathbf{X}_n = [\mathbf{x}_{K_S+1}, \mathbf{x}_{K_S+2},...., \mathbf{x}_{K_S+K_n}]$ is the matrix stacked by the centroids of Gaussian models that are predefined to represent the $n^{th}$ object. 
+$\mathbf{e}^T$ is a vector of ones, $||\cdot||_F$ denotes the Frobenius norm, and $\mathbf{W}_{mn}=[\mathbf{w}_{m(K_S+1)},\mathbf{w}_{m(K_S+2)},...,\mathbf{w}_{mk},...,\mathbf{w}_{m(K_S+K_n)}]$ where $\mathbf{w}_{mk}$ is a weighted average point as
 %
 \begin{equation}
 \mathbf{w}_{mk}=\frac{\sum_{i=1}^{L_m}\alpha_{mik} \mathbf{v}_{mi}}{\sum_{i=1}^{L_m}\alpha_{mik}}
 \end{equation}
 
 This problem has a similar solution with \cite{Evangelidis2014}. 
-The only difference is that we are estimating the transformation from Gaussian models to the input point sets instead of the transformation from input point sets to Gaussian models, since there are multiple group of $\mathbf{x}_k$ corresponding to multiple objects in our Gaussian models. The optimal can be given by:
+The only difference is that we are estimating the transformation from Gaussian models to the input point sets instead of the transformation from input point sets to Gaussian models, since there are multiple groups of $\mathbf{x}_k$ corresponding to multiple objects in our Gaussian models. The optimal can be given by:
 %
 \begin{equation}
 \label{equ:updateR}
 \mathbf{R}_{mn}^*=\mathbf{U}_{mn}\mathbf{C}_{mn}\mathbf{V}_{mn}^T
 \end{equation}
+%
 \begin{equation}
 \label{equ:updatet}
 \mathbf{t}_{mn}^*=\frac{1}{tr(\Lambda_{mn}^2)}(\mathbf{W}_{mn}-\mathbf{R}_{mn}X_n)\Lambda_{mn}^2\mathbf{e}
 \end{equation}
-where $[\mathbf{U}_{mn},\mathbf{S},\mathbf{V}_{mn}]=svd( \mathbf{W}_{mn}\Lambda_{mn}\mathbf{P}_{mn}\Lambda_{mn}\mathbf{X}_{n}^T )$ and $\mathbf{P}_{mn}=I-\frac{\Lambda_{mn}\mathbf{e}(\Lambda_{mn}\mathbf{e})^T}{(\Lambda_{mn}\mathbf{e})^T\Lambda_{mn}\mathbf{e}}$, $I$ is identity matrix. $C_{mn}=diag(1,1,|\mathbf{U}_{mn}||\mathbf{V}_{mn}|)$.
+where $[\mathbf{U}_{mn},\mathbf{S},\mathbf{V}_{mn}]=svd( \mathbf{W}_{mn}\Lambda_{mn}\mathbf{P}_{mn}\Lambda_{mn}\mathbf{X}_{n}^T )$ and $\mathbf{P}_{mn}=\mathbf{I}-\frac{\Lambda_{mn}\mathbf{e}(\Lambda_{mn}\mathbf{e})^T}{(\Lambda_{mn}\mathbf{e})^T\Lambda_{mn}\mathbf{e}}$, $\mathbf{I}$ is identity matrix. $C_{mn}=diag(1,1,|\mathbf{U}_{mn}||\mathbf{V}_{mn}|)$.
 
-\textbf{M-step-b}: this step we update the parameters related to the Gaussian mixture model and the indicating vector for object segmentation 
+\textbf{M-step-b}: in this step we update the parameters related to the Gaussian mixture model and the indicating vector for object segmentation 
 \begin{equation}
 \label{equ:updatexk}
 \mathbf x_k^*=\frac{\sum_{m=1}^M\sum_{i=1}^{L_m}\alpha_{mik}(\mathbf{R}_{mn}^{-1}\mathbf{v}_{mi}-\mathbf t_{mn})}{\sum_{m=1}^M\sum_{i=1}^{L_m}\alpha_{mik}}
@@ -177,13 +203,22 @@ p_k^*=\frac{\sum_{m,i}\alpha_{mik}}{M}
 \label{equ:updatey}
 y_{mi}^*=\arg \max_n \sum_{k=\sum_{s=1}^{n-1}K_S+1}^{\sum_{s=1}^{n}K_S} \alpha_{mik} 
 \end{equation}
-where $y_{mi}$ is the $i^{th}$ entry of the indicate vector $\mathbf{y}_{m}$ and it assigns the $i^{th}$ point of $m^{th}$ point set to one of $N$ objects.  
+where $y_{mi}$ is the $i^{th}$ entry of the indicate vector $\mathbf{y}_{m}$ and it assigns the $i^{th}$ point of the $m^{th}$ point set to one of $N$ objects.  
+
+
+
+
+
+
 \subsection{Bilateral Formulation}
-When considering point-wise features, we can add bilateral terms into the generative model.
+\label{sec:bilateral-formulation}
+
+\mdf{In the basic formulation, only position information is used in Gaussian models.}
+When considering point-wise features, \cxj{such as color, texture, etc,} we can add bilateral terms into the generative model.
 \begin{equation}
 P(\mathbf{v}_{mi},\mathbf{f}_{mi})=\sum^{K_{all}}_{k=1}p_k\mathcal{N}(\mathbf{v}_{mi}|\phi_{mn}(\mathbf{x}^v_k),\sigma v_k)\mathcal{N}(\mathbf{f}_{mi}|\mathbf{x}^f_k,\sigma^f_k),
 \end{equation}
-where $\mathbf{f}_{mi}$ is the feature vector for point $\mathbf{v}_{mi}$ and $\mathbf{x}_k^f$ is the feature vector for $k^{th}$ point in object model. As shown in the formulation, there is no transformation applyed onto $\mathbf{x}_k^f$, which means that this formulation is only suitable to the features that is rotation and translation invariant. For example, the point color vector(for all the result in this paper we use RGB color as feature vector ) $[red_{mi},green_{mi},blue_{mi}]$ is a suitable feature for this formulation. In this formulation $\mathcal{N}(v_{mi}|\phi_{mn}(xv_k),\sigma v_k)$ is the spatial term and $\mathcal{N}(\mathbf{f}_{mi}|\mathbf{x}^f_k,\sigma^f_k)$ is the feature term.
+where $\mathbf{f}_{mi}$ is the feature vector for point $\mathbf{v}_{mi}$ and $\mathbf{x}_k^f$ is the feature vector for $k^{th}$ point in object model. As shown in the formulation, there is no transformation applied onto $\mathbf{x}_k^f$, which means that this formulation is only suitable to the feature that is rotation and translation invariant. For example, the point color vector (for all the result in this paper we use RGB color as feature vector) $[red_{mi},green_{mi},blue_{mi}]$ is a suitable feature for this formulation. In this formulation $\mathcal{N}(v_{mi}|\phi_{mn}(xv_k),\sigma v_k)$ is the spatial term and $\mathcal{N}(\mathbf{f}_{mi}|\mathbf{x}^f_k,\sigma^f_k)$ is the feature term.
 For the bilateral formulation, iteration steps will be as follows:
 
 \noindent\textbf{E-step}:in this step the calculation of posterior probability need to consider both the spatial term and the feature term.
@@ -193,10 +228,10 @@ For the bilateral formulation, iteration steps will be as follows:
 \end{equation}
 where $P_v(\mathbf{x},\mathbf{y},\sigma)=\sigma^{-3}exp(-\frac{1}{2\sigma^2}||\mathbf{x}-\mathbf{y}||^2)$ and $P_f(\mathbf{x},\mathbf{y},\sigma)=\sigma^{-D(\mathbf{x})}exp(-\frac{1}{2\sigma^2}||\mathbf{x}-\mathbf{y}||^2)$ and $D(\mathbf{x})$ means the dimension of the vector $\mathbf x$. 
 
-\textbf{M-step-a:}for bilateral formulation, this step is the same with the basic formulation and the update can be done as (\ref{equ:updateR}) and (\ref{equ:updatet}).
+\textbf{M-step-a:} for bilateral formulation, this step is the same with the basic formulation and the update can be done as (\ref{equ:updateR}) and (\ref{equ:updatet}).
 
-\textbf{M-step-b}:for bilateral formulation, this step need not only update model centroids and variance for spatial term as (\ref{equ:updatexk}) and (\ref{equ:updatesigma}).
-but also update the centroids and variance for feature term as in (\ref{equ:updatefk}) and (\ref{equ:updatefsigma}).
+\textbf{M-step-b}: for bilateral formulation, this step needs not only update model centroids and variance for the spatial term as (\ref{equ:updatexk}) and (\ref{equ:updatesigma}).
+but also update the centroids and variance for the feature term as in (\ref{equ:updatefk}) and (\ref{equ:updatefsigma}).
 \begin{equation}
 \label{equ:updatefk}
 \mathbf{x}_k^{f*}=\frac{\sum_{m=1}^M\sum_{i=1}^{L_m}\alpha_{mik}\mathbf{f}_{mi}}{\sum_{m=1}^M\sum_{i=1}^{L_m}\alpha_{mik}}
