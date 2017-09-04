@@ -1,4 +1,6 @@
 #include "jrcsbilateral.h"
+#include <QTime>
+#include "iocore.h"
 namespace JRCS{
 JRCSBilateral::JRCSBilateral():SJRCSBase()
 {
@@ -12,7 +14,6 @@ JRCSBilateral::JRCSBilateral():SJRCSBase()
 //Update var pk
 void JRCSBilateral::compute(void)
 {
-
     prepare_compute();
     while(!isEnd())
     {
@@ -25,6 +26,28 @@ void JRCSBilateral::compute(void)
         if(verbose_)std::cerr<<"step b"<<std::endl;
         step_b();
         finish_steps();
+        if(verbose_<0)
+        {
+            int step = std::abs(verbose_);
+            if(iter_count_%step==1)
+            {
+               std::cerr<<"pause to let you get snapshot"<<std::endl;
+               QTime t = QTime::currentTime();
+               t.start();
+               while(t.elapsed()<300000)
+               {
+                   if( t.elapsed() % 1000 == 0 )
+                   {
+                       std::cerr<<"waited: "<<t.elapsed()/1000<<" s"<<std::endl;
+                   }
+               }
+            }
+        }
+    }
+    if(verbose_>1)
+    {
+        arma::vec obj(obj_vec_);
+        MATIO::save_to_matlab(obj,"./debug/obj_vec.mat");
     }
 }
 
@@ -421,10 +444,10 @@ void JRCSBilateral::calc_obj()
             arma::frowvec tmpv = arma::sum(arma::square(xtv_.each_col() - vv_.col(r)));
             tmpv %= arma::conv_to<arma::frowvec>::from(xv_invvar_);
             tmpv -= 1.5*arma::conv_to<arma::frowvec>::from(arma::trunc_log(xv_invvar_));
-            tmpv -= 1.0*arma::conv_to<arma::frowvec>::from(arma::trunc_log(x_p_));
+            tmpv -= 2.0*arma::conv_to<arma::frowvec>::from(arma::trunc_log(x_p_));
             alpha_v2.row(r) = tmpv;
         }
-        obj_v += arma::accu( alpha % alpha_v2 );
+        obj_v += -0.5*arma::accu( alpha % alpha_v2 );
         arma::fmat alpha_n2(alpha.n_rows,alpha.n_cols);
         #pragma omp parallel for
         for(int r=0;r<alpha_n2.n_rows;++r)
@@ -432,14 +455,14 @@ void JRCSBilateral::calc_obj()
             arma::frowvec tmpn = arma::sum(arma::square(xtn_.each_col() - vn_.col(r)));
             tmpn %= arma::conv_to<arma::frowvec>::from(xf_invvar_);
             tmpn -= double(f_dim_)/2.0*arma::conv_to<arma::frowvec>::from(arma::trunc_log(xf_invvar_));
-            tmpn -= 1.0*arma::conv_to<arma::frowvec>::from(arma::trunc_log(x_p_));
+            tmpn -= 2.0*arma::conv_to<arma::frowvec>::from(arma::trunc_log(x_p_));
             alpha_n2.row(r) = tmpn;
         }
         obj_f += arma::accu( alpha % alpha_n2 );
     }
     std::cout<<"obj_v:"<<obj_v<<std::endl;
     std::cout<<"obj_f:"<<obj_f<<std::endl;
-    obj_vec_.push_back(obj_f + obj_v) ;
+    obj_vec_.push_back(obj_v) ;
 }
 
 void JRCSBilateral::calc_weighted(

@@ -186,6 +186,7 @@ void JRCSBox::init_obj_x(
         vp += 3*cube_size;
         vn += 3*cube_size;
         reset_obj_vn(arma::mean(ss)/4.0,p,ov,on);
+//        reset_obj_vn(0.5,p,ov,on);
         r_k -= cube_size;
     }
     arma::fvec center = arma::mean(objv,1);
@@ -467,7 +468,9 @@ void JRCSBox::prepare_compute(void)
         QThread::currentThread()->sleep(3);
         std::cerr<<"JRCSBox::beta_:"<<beta_<<std::endl;
     }
+    if(verbose_>3)QThread::currentThread()->sleep(60);
 }
+
 
 void JRCSBox::step_a(int i)
 {
@@ -531,7 +534,7 @@ void JRCSBox::step_a(int i)
     }
 
     //applying terms of points in box constraint to alpha
-    if(inbox_prob_lsts_[i] && ( iter_count_ < max_iter_ - 30 ) )
+    if(inbox_prob_lsts_[i] && ( ( iter_count_ < max_iter_ - 10 ) || ( iter_count_ < 10 ) ) )
     {
         arma::mat& b_alpha  = *inbox_prob_lsts_[i];
         int o = 0;

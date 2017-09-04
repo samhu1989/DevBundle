@@ -68,8 +68,6 @@ From the perspective of joint registration, we first compare our method with \ci
 \end{figure}
 We then evaluate the result by transferring the point cloud of objects to each input point set based on result $\{\phi_{mn}\}$ and calculating the average distance from a point to its true correspondent point for each input point set.
 We use this average distance as fitness error to evaluate the registration quality respect to each input set.
-
-
 \begin{equation}
 \label{equ:error}
 \vb{t}_{mn}=\frac{\sum_{\vb{v}_{mi} \in B_n}\vb{v}_{mi}}{N(B_n)}-\vb{c}_n
@@ -91,10 +89,30 @@ For this evaluation we want to discuss that:\\
 We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
 \subsection{Investigation on Interaction}
 \label{subsec:interact}
-For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and invesigate on the amount of interaction that is needed for the improvement of result. 
+For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and invesigate on the amount of interaction that is needed for the improvement of result. Figure~\ref{fig:interact_number}
+\begin{figure}
+	\centering
+	\includegraphics[width=\linewidth]{images/interact/IOU.png}
+	\caption{This figure shows an example of how the amount of interaction affect the IOU score of co-segmentation,the X axis is ratio: $x=\frac{Input~Box~Number}{Total~Object~Number}$. $x=1.0$ means that the user have input one box for each object in all point sets}
+	\label{fig:interact_number}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\linewidth]{images/interact/interact}
+	\caption{This figure shows 3 out of 16 point sets  for experiment on amount of interaction}
+	\label{fig:interact_vis}
+\end{figure}
 
 \subsection{Investigation on Influence of Point Incompleteness}
-In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point set. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increased point set incompleteness. The Figure~\ref{fig:incompleteness2} shows the visual result of this experiment. 
+In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point set. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increasing point set incompleteness. The Figure~\ref{fig:incompleteness2} shows the visual result of this experiment. 
+
+In order to simulate the point incompleteness caused by occlusion using a simple method, we generate the incomplete point sets with incompleteness of $p\%$ as follows:
+\begin{enumerate}
+	\item We randomly pick one point from each complete point set. 
+	\item For one point set, sort all points ascendingly according to their euclidean distance to the picked point.  
+	\item Remove the first $p\%$ points from the point set to generate a point set with incompleteness of $p\%$.
+\end{enumerate}
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/incompleteness/IOU.png}

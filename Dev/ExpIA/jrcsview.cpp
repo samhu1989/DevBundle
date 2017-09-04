@@ -61,7 +61,6 @@ bool JRCSView::init(Config::Ptr config)
     return true;
 }
 
-
 void JRCSView::input( JRCSThread* jrcs_worker_ )
 {
     std::cerr<<"JRCSView::input"<<std::endl;
