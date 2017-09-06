@@ -89,7 +89,7 @@ For this evaluation we want to discuss that:\\
 We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
 \subsection{Investigation on Interaction}
 \label{subsec:interact}
-For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and invesigate on the amount of interaction that is needed for the improvement of result. Figure~\ref{fig:interact_number}
+For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and invesigate on the amount of interaction that is needed for the improvement of result. Figure~\ref{fig:interact_number} shows how the IOU score increases along with the amount of interaction.
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/interact/IOU.png}
@@ -100,7 +100,7 @@ For parameter initialization and object shape constraint, we only need user to i
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/interact/interact}
-	\caption{This figure shows 3 out of 16 point sets  for experiment on amount of interaction}
+	\caption{This figure shows 3 out of 16 point sets for experiment on amount of interaction. The first column shows the input point sets, the second column shows the groundtruth segmentation. The third column shows the visual result when 8 boxes are input. The third column shows the visual result when 88 boxes are input.}
 	\label{fig:interact_vis}
 \end{figure}
 
@@ -113,6 +113,7 @@ In order to simulate the point incompleteness caused by occlusion using a simple
 	\item For one point set, sort all points ascendingly according to their euclidean distance to the picked point.  
 	\item Remove the first $p\%$ points from the point set to generate a point set with incompleteness of $p\%$.
 \end{enumerate}
+In Figure~\ref{fig:incompleteness2}, the case of $p=\{0.0,14.0,30.0\}$ are shown. In row 09 of Figure~\ref{fig:incompleteness2} we can see that for some object in the scene half of the points are already removed.
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/incompleteness/IOU.png}
