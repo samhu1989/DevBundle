@@ -1,11 +1,30 @@
 \section{Experiment and Discussion}
-In this section, we will show a series of experimental results including 
-a) evaluation for co-segmentation and joint registration on synthetic data in which we compare our method to previous methods  b) investigation on the robustness of our method on point completeness and amount of user interaction c) testing on one group of real data and verifying the result visually.
+\label{sec:results}
 
+
+In this section, we will show a series of experimental results including evaluation for co-segmentation and joint registration on synthetic data for quantitative analysis, investigation on the robustness of our method on point completeness and amount of user interaction, and testing on one group of real data and verifying the result visually.
+
+\noindent \textbf{Data Collection.} 
+We generate a group of synthetic point sets for quantitatively evaluate our algorithm. 
+%
+For each dataset, we model a 3D scene using object models from 3D Warehouse~\cxj{add reference.} 
+We convert the mesh model of the scene into a point set using the Poisson sampling method~\cite{PossionSampling}. \cxj{reference for possion sampling.}
+%
+Then we manually move the objects according to their functions and generate multiple point sets. 
+
+
+To collect data of real scenes, we scan a scene at different times using \cxj{voxel hashing or kinect fusion?}  \cite{KinectFusion}.
+%
+The reconstructed mesh model of the scene is converted to point sets using Poisson sampling method~\cite{PossionSampling}.
+% 
+Since our approach focuses on objects in the scene, the wall and floor are removed by detecting large planes.
+
+\comments{
 In the experiments, the synthetic datasets are generated as follows:
 \begin{enumerate}
 	\item Acquire meshes for objects from 3D Warehouse.
-	\item Turn the meshes into point sets with sampling method of \cite{PossionSampling}
+	\item Turn the meshes into point sets
+	 with sampling method of \cite{PossionSampling}
 	\item Manually place and move the point sets of objects into different point sets of scenes.   
 \end{enumerate}
 The real dataset (as shown in Figure~\ref{fig:realdata}) is acquired as follows:
@@ -14,8 +33,13 @@ The real dataset (as shown in Figure~\ref{fig:realdata}) is acquired as follows:
 	\item Remove walls and floors with plane fitting
 	\item Turn the meshes of scenes into point sets with sampling method of \cite{PossionSampling}
 \end{enumerate}
+}
+
 
 \subsection{Evaluation for Co-segmentation on Synthetic Data}
+
+
+
 \begin{table}
 	\centering
 	\caption{IOU scores on three synthetic datasets. JRCS Basic is our basic formulation. JRCS Bilateral  is our bilateral formulation with point color as feature. PointNet is the semantic segmentation of \cite{qi2016pointnet} }
@@ -33,19 +57,32 @@ The real dataset (as shown in Figure~\ref{fig:realdata}) is acquired as follows:
 	\includegraphics[width=0.8\linewidth]{images/seg/seg}
 	\caption{\label{fig:seg} Segmentation evaluations on three groups of synthetic data (From top to bottom: child table, office desk, living room). Each group of data have 13 point sets. Columns from left to right: (a) Examples of point sets for each group of data. The groundtruth bounding boxes of objects in the 3D model are shown in white. (b) Manually placed boxes \cxj{on one point set}; Three segmentation results with (c) maximum IOU scores, (d) median IOU scores and (e) minimum IOU scores in the groups.}
 \end{figure}
+
+
+
 From the perspective of co-segmentation, we quantitatively evaluate our algorithm on three group of synthetic data of indoor scenes. 
 %
-To estimate the power of the algorithm, we only input layout for one point set in each group for initialization and do not add further interaction.
+To estimate the power of the proposed algorithm, the interaction of placing boxes is only performed at one point set. No further interaction is required. 
+% we only input layout for one point set in each group for initialization and do not add further interaction.
 %
-For numerical estimation, we calculate the intersection over union (IOU) scores for the result segmentation against ground-truth segmentation. 
-In order to compare with the semantic segmentation method of PointNet\cite{qi2016pointnet}, we produce the "Living Room" with objects inside 13 object classes of PointNet\cite{qi2016pointnet}.
+For numerical estimation, we calculate the intersection over union (IOU) scores for the inducing segmentation against the ground-truth segmentation.
+% 
+We compare our results with the state of art semantic segmentation method, PointNet~\cite{qi2016pointnet}, which trains a network using a large-scale database. 
+%
+We produce a "Living Room" scene with 13 classes of objects that are contained in the training data of PointNet~\cite{qi2016pointnet}.
+%
 Table~\ref{tab:seg} shows the numeric result and Figure~\ref{fig:seg} shows some samples of visual result.
+
+
 From the evaluation, we want to discuss one interesting observation:\\
 %
-For all three groups, the point set with highest IOU score is not the same as the point set equipped with manually placed layout.
+For all three groups, the point set with the highest IOU score is not the same as the point set equipped with manually placed layout.
 In other words, the point sets from Figure~\ref{fig:seg}(c) are not the same point sets from Figure~\ref{fig:seg}(b). 
-In the first group of data (dataset of child table in Figure~\ref{fig:seg}), the segmentation result of the point set with layout is even the second worst in the sense of IOU score. We believe this is because that the manually placed layout is not accurate respecting to point-wise segmentation. 
+In the first group of data (dataset of child table in Figure~\ref{fig:seg}), the segmentation result of the point set with layout is even the second worst in the sense of IOU score. 
+We believe this is because that the manually placed layout is not accurate respecting to point-wise segmentation. 
 At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}) can serve as a soft constraint to help constraining the shape of object, but in the final iterations the alteration will obstruct the further improvement of segmentation for the correspondent point set. 
+
+
 \subsection{Evaluation for Joint Registration on Synthetic Data}
 From the perspective of joint registration, we first compare our method with \cite{Evangelidis2014} on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
 \begin{table}
@@ -87,9 +124,12 @@ Table~\ref{tab:regerror} shows the result of this evaluation.
 \end{table}
 For this evaluation we want to discuss that:\\
 We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
+\cxj{show a table case.}
+
 \subsection{Investigation on Interaction}
 \label{subsec:interact}
-For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and invesigate on the amount of interaction that is needed for the improvement of result. Figure~\ref{fig:interact_number}
+For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and investigate on the amount of interaction that is needed for the improvement of result. Figure~\ref{fig:interact_number}
+\cxj{TBD.}
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/interact/IOU.png}
