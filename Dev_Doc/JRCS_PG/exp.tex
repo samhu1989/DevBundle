@@ -85,6 +85,8 @@ At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}
 
 \subsection{Evaluation for Joint Registration on Synthetic Data}
 From the perspective of joint registration, we first compare our method with \cite{Evangelidis2014} on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
+
+\cxj{My suggestion for algorithm names: JRCS-Basic and JRCS-Bilateral. I also suggest move this section before co-segmentation.  }
 \begin{table}
 	\centering
 	\caption{This table shows the RMSE of joint registration on 4 point sets of Stanford Bunny. JRMPC is the method of \cite{Evangelidis2014}. JRCS Basic is our basic formulation}
@@ -109,7 +111,7 @@ We use this average distance as fitness error to evaluate the registration quali
 \label{equ:error}
 \vb{t}_{mn}=\frac{\sum_{\vb{v}_{mi} \in B_n}\vb{v}_{mi}}{N(B_n)}-\vb{c}_n
 \end{equation}
-Table~\ref{tab:regerror} shows the result of this evaluation.
+
 \begin{table}
 	\centering
 	\caption{Registration errors of the three groups of synthetic data in Figure~\ref{fig:seg}. The errors are measured in meter. \cxj{3 cm is actually large error...}}
@@ -122,14 +124,23 @@ Table~\ref{tab:regerror} shows the result of this evaluation.
 	\end{tabular}
 	\label{tab:regerror}
 \end{table}
-For this evaluation we want to discuss that:\\
+
+
+Table~\ref{tab:regerror} shows the result of this evaluation.
+\cxj{Why Table 4? New group of experiments? }
+%
+%For this evaluation we want to discuss that:\\
 We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
 \cxj{show a table case.}
 
 \subsection{Investigation on Interaction}
 \label{subsec:interact}
-For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and investigate on the amount of interaction that is needed for the improvement of result. Figure~\ref{fig:interact_number}
-\cxj{TBD.}
+
+For parameter initialization and object shape constraint, we only need user to input layout (boxes) in one of the input point sets. However, our algorithm will stuck at local minimum on handling non-local motion of objects. In such challenging cases, we require more user input to further guide the optimization. In this subsection, we show an example of such challenging case and investigate on the amount of interaction that is needed for the improvement of result. Figure~\ref{fig:interact_number} shows how the IOU score increases along with the amount of interaction.
+
+
+\cxj{Add more discussion about the results. Discuss Fig 10.} 
+ 
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/interact/IOU.png}
@@ -140,12 +151,29 @@ For parameter initialization and object shape constraint, we only need user to i
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/interact/interact}
-	\caption{This figure shows 3 out of 16 point sets  for experiment on amount of interaction}
+	\caption{This figure shows 3 out of 16 point sets for experiment on amount of interaction. The first column shows the input point sets, the second column shows the groundtruth segmentation. The third column shows the visual result when 8 boxes are input. The third column shows the visual result when 88 boxes are input. \cxj{88 boxes are too much... how about 20 or 10 boxes?}}
 	\label{fig:interact_vis}
 \end{figure}
 
+
+
 \subsection{Investigation on Influence of Point Incompleteness}
-In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. In this subsection, we investigate how the point set incompleteness affect result of our algorithm. To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. We then gradually remove certain percentage ( $0\%-30\%$ ) of points from each point set. The Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increasing point set incompleteness. The Figure~\ref{fig:incompleteness2} shows the visual result of this experiment. 
+\label{sec:exp-incompleteness}
+
+
+In previous evaluation on synthetic data, we use data that the objects are evenly and completely covered by the sampled points. 
+\cxj{Does Poisson sampling lead to evenly distributed points?}
+%
+In this subsection, we investigate how the point set incompleteness affect the result of our algorithm. 
+%To do this, we pick a group of point sets that can converge well ( IOU $> 99\%$ for each point set ) when the point sets are complete. 
+%
+\mdf{To test this, we pick a group of point sets, and} gradually remove certain percentage ( $0\%-30\%$ ) of points from each point set \cxj{not evenly, but on some specific part?}.
+\cxj{For different group of point sets, do you use the same interaction input?}
+% 
+Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increasing point set incompleteness. 
+Figure~\ref{fig:incompleteness2} shows the visual result of this experiment. 
+\cxj{Do not use 'the' before "Figure".}
+
 
 In order to simulate the point incompleteness caused by occlusion using a simple method, we generate the incomplete point sets with incompleteness of $p\%$ as follows:
 \begin{enumerate}
@@ -153,6 +181,12 @@ In order to simulate the point incompleteness caused by occlusion using a simple
 	\item For one point set, sort all points ascendingly according to their euclidean distance to the picked point.  
 	\item Remove the first $p\%$ points from the point set to generate a point set with incompleteness of $p\%$.
 \end{enumerate}
+\cxj{Do you use the same group of data for Figure~\ref{fig:incompleteness}?}
+%
+In Figure~\ref{fig:incompleteness2}, the case of $p=\{0.0,14.0,30.0\}$ are shown. In row 09 of Figure~\ref{fig:incompleteness2} we can see that for some object in the scene half of the points are already removed.
+\cxj{Do not use "row 09" to indicate the subfigure.}
+
+
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/incompleteness/IOU.png}
@@ -166,9 +200,14 @@ In order to simulate the point incompleteness caused by occlusion using a simple
 	Row 04,08,12 shows the point-wise correspondences of joint registration by color-coding}
 	\label{fig:incompleteness2}
 \end{figure}
+
+
 \subsection{Test On Real Data}
 To capture real data we employ the voxel hashing method~\cite{VXH} and use plane fitting to remove walls and floors. 
+\cxj{You said you use "Kinect fusion" at the beginning.}
+%
 We then transfer the meshes into point sets using a Poisson sampling process~\cite{PossionSampling}.
+%
 Figure~\ref{fig:challenge} shows a scanned point set. We can see that, there are noised and blurred color, shape distortion, partial scanning and outliers in real data.
 %
 Figure~{\ref{fig:realdata}} shows the segmentation and registration results on a group of scanned point sets.
@@ -183,8 +222,14 @@ From Figure~\ref{fig:realdata}(e), we can see that all input point sets are part
 	\includegraphics[width=\linewidth]{images/realdata/realdata}
 	\caption{\label{fig:realdata} Segmentation and registration on real data. (a) Scanned mesh using method in \cite{VXH}. (b) Remove walls and floors by plane fitting. (c) Sampled point set using \cite{PossionSampling}. (d) With roughly placed boxes on only one point set, the points are initially segmented in this one point set. Note that parts of the chair legs are segmented to the table due to the rough box placement by users. (e) Pairs of input point sets and corresponding segmentation results. (f) The final Gaussian centroids for the five objects in the scene. (g) Verification of the registration result by aligning all point sets with respect to each object. The light blue rectangle highlights the object that is aligned together. Except the aligned object, the other objects are placed quite messy since they came from different point sets and have different arrangement relative to the aligned object. \cxj{Again, i think (g) is really messy and confusing...}  }
 \end{figure*} 
+
+\cxj{Add one more  group of real-data.}
+
+%
 \subsection{Limitations and Future Work}
 \hsy{Need to add discussion on failure cases}
-The biggest problem holding us back is the time performance of our current implementation.  Due to i.i.d. assumption most calculation of our algorithm can actually be parallelized. We plan to implement a new version on GPU cluster so that we can explore more potentials of our algorithm. 
+The biggest problem holding us back is the time performance of our current implementation. 
+However, based on the i.i.d. assumption, the most calculation of our algorithm can actually be parallelized. 
+We plan to implement a new version on GPU cluster so that we can explore more potentials of our algorithm. 
 For example, to integrate semantic feature vectors (generated by neural networks) into it and try it on a scene of a larger scale like \cite{GOGMA}. 
 As advocated in the recent work of \cite{AGM}, it may be a good idea to do the joint registration and co-segmentation with hierarchical GMM representation when for scenes in larger scales. 
