@@ -9,8 +9,8 @@ In these methods, a retrieval procedure is usually needed and inevitably limit t
 
 %%%%% Importance and Challenges %%%%%%
 Generating scene models directly from captured point clouds will significantly facilitate dataset construction and increase the variety of the dataset. 
-However, there is a large gap between the desired 3D model dataset and current available scene capturing tools. Typically, clean, complete and separated models for objects are desired to construct \mdf{a} scene database. 
-By contrast, a noisy and incomplete point set of different objects all in one is usually obtained with current available consumer-level scene capturing frameworks~\cite{KinectFusion, dai2016bundlefusion}. 
+However, there is a large gap between the desired 3D model dataset and current available scene capturing tools. Typically, clean, complete and separated models for objects are desired to construct a scene database. 
+By contrast, a noisy and incomplete point set of different objects all in one is usually obtained with current available consumer-level scene capturing frameworks~\cite{KinectFusion,VXH,dai2016bundlefusion}. 
 Thus, a \emph{generic object-level segmentation and modeling method} from scanned sets is a strong demand to fill the gap.
 
 %%%%% Challenges %%%%%%
@@ -29,8 +29,6 @@ The occlusions are probably caused by human bodies in the first scheme or sparse
 %
 In the first scheme, extra challenging processing may be required such as tracking objects with severe occlusions by human bodies. Therefore, we choose the second scanning scheme. 
 Thus, our original intention of building 3D scene datasets from scanned data leads us to the problem of coupled joint registration and co-segmentation.
-
-
 
 In this problem, registration and segmentation are entangled in each other. On the one hand, the segmentation problem depends on the registration to connect the point clouds into series of rigid movement so that the object-level segmentation can be done based on the motion consistency. 
 On the other hand, the registration problem relies on the segmentation to break the problem into a series of rigid joint registration instead of a joint registration with non-coherent point drift. 
