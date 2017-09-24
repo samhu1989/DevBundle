@@ -23,7 +23,7 @@ A more recent method pushes this idea to the application on a large-scale datase
 Comparing to these methods, our method can be seen as an extension of the formulation of \cite{Evangelidis2014} to simultaneously handle joint registration and co-segmentation. The difference between our method and non-rigid registration is that we can handle the non-coherent point drift by simply estimating independent transformation for each object.
 % 
 
-\noindent{\textbf{Image segmentation and co-segmentation}.}
+\noindent{\textbf{Interactive Image segmentation and Image co-segmentation}.}
 %
 Due to the challenges in automatic segmentation problems, many interactive methods have been proposed to leverage human interaction on high-level hints and computational abilities of computers.
 %
@@ -34,10 +34,11 @@ Our design of user interaction draws on the experience from \cite{grabcut}.
 %
 The difference is that our tool is designed for 3D space and handles multi-object segmentation rather than a binary segmentation. 
 %
-\cite{Taniai_2016_CVPR} jointly recovers co-segmentation and dense per-pixel correspondences in two images. 
-Its co-segmentation is limited to foreground-background segmentation. 
-Our work solves a similar problem for multiple 3D point sets. 
-\cxj{There are many image co-segmentation papers. If you want to discuss it, you should discuss more. }
+At least dating back to 2006 ( \cite{COSEG} ), a serious of works have been done on image co-segmentation.
+These works are based on the basic idea of exploring inter-image consistent information to extract common objects from multiple images.
+%
+A more recent work of \cite{Taniai_2016_CVPR} jointly recovers co-segmentation and dense per-pixel correspondences in two images. 
+Though our input and output are totally different from \cite{Taniai_2016_CVPR}, we share with \cite{Taniai_2016_CVPR} the idea that we should jointly recover co-segmentation and point-to-point correspondences (by registration).
 
 \noindent{\textbf{Segmentation from motion.}}
 Object motion, as a strong hint for object segmentation, is widely used in many approaches.
