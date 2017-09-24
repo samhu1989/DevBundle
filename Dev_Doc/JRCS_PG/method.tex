@@ -11,8 +11,6 @@
 	\label{fig:formulation}
 \end{figure*}
 
-
-
 In this section, we introduce our formulation of the joint registration and co-segmentation problem for point sets. Tabel~\ref{tab:symbol} lists all the symbols used in our formulation. The input of our problem is a group of 3D point sets  $\mathcal{V}=\{\mathbf{V}_m\}^{M}_{m=1}$ that are captured at $M$ different times in a scene, where objects move in different ways. Each point set $\mathbf{V}_m=\{\mathbf{v}_{mi}\}^{L_m}_{i=1}$ contains $L_m$ 3D points. Our problem is to simultaneously partition the point sets into $N$ objects and figure out the transformations from objects to each point set. For partitioning, we output point-wise label vectors $\{\mathbf{y}_m\}$ for each input point set to indicate its object partition. For registration, we output $\{\mathbf{R}_{mn},\mathbf{t}_{mn}\}$ to indicate the transformations from $N$ objects to $M$ point sets, respectively.
 \begin{table}[!hbp]
 \centering
@@ -70,8 +68,8 @@ In other words, we explicitly separate total $K_{all}$ Gaussian models to $N$ gr
 \end{equation}
 where $K_S = \sum_{i=1}^{n-1}K_i$.
 
-The Gaussian centroids $\{\mathbf{x}_{k}\}$ represent the point positions in objects. $\{\Sigma_{k}\}$ quantify the variance of point positions in objects. $O_n$ has $K_n$ Gaussian models and $\{K_n\}_{n=1}^N$ are predefined, \mdf{as described in Sec.~\ref{sec:imp}}.
-\mdf{The total number of Gaussian centroids is denoted as} $K_{all} = \sum_{n=1}^{N}K_n$.  
+The Gaussian centroids $\{\mathbf{x}_{k}\}$ represent the point positions in objects. $\{\Sigma_{k}\}$ quantify the variance of point positions in objects. $O_n$ has $K_n$ Gaussian models and $\{K_n\}_{n=1}^N$ are predefined, as described in Sec.~\ref{sec:imp}.
+The total number of Gaussian centroids is denoted as $K_{all} = \sum_{n=1}^{N}K_n$.  
 %
 Each object $O_{n}$ is rigidly transformed to each point set $\mathbf{V}_m$ with a transformation $\phi_{mn}(\mathbf{x}_{k})=\mathbf{R}_{mn}\mathbf{x}_{k}+\mathbf{t}_{mn}$ for $\mathbf{x}_{k} \in O_n$.
 %
@@ -82,9 +80,9 @@ P(\mathbf{v}_{mi})=\sum^{K_{all}}_{k=1}p_k\mathcal{N}(\mathbf{v}_{mi}|\phi_{mn}(
 \end{equation}
 %
 where the $i^{th}$ observed point $\mathbf{v}_{mi}$ from the $m^{th}$ point set is sampling point from a large Gaussian mixture model that represents $N$ objects all together.
-\cxj{I move it here.}
+I move it here.
 $\{p_k\}_{k=1}^{K_{all}} $ are weights for $K_{all}$ Gaussian models. 
-\mdf{Figure \ref{fig:formulation} illustrates this formulation. }
+Figure \ref{fig:formulation} illustrates this formulation.
 
 
 Given the generative representation of point sets, the unknown model parameters of our joint registration and segmentation problem are
@@ -92,10 +90,8 @@ Given the generative representation of point sets, the unknown model parameters 
 \begin{equation}
 \varTheta=\big \{\{p_k,\mathbf{x}_{k},\Sigma_k\}_{k=1}^{K_{all}},\{\phi_{mn}\}_{m=1,n=1}^{M,N}\big\}.
 \end{equation}
-\comments{
-In these parameters, the  $\{\phi_{mn}\}_{m=1,n=1}^{M,N}$ are the transformations for joint registration problem. $ \{\mathbf{x}_{k},\Sigma_k\}_{k=1}^{K_{all}}$ are the Gaussian models which are predefined to be one of the $N$ objects. $\{p_k\}_{k=1}^{K_{all}} $ are weights for these Gaussian models. }
 %
-Once we estimate these parameters, each point in all input point sets can be assigned to one of the Gaussian models \cxj{according to the Gaussian centroid with the largest smapling probablity?}. 
+Once we estimate these parameters, each point in all input point sets can be assigned to one of the Gaussian models according to the largest sampling probability.
 %
 Since the Gaussian models are predefined to be one of the $N$ objects, we can further deduce the $\{\mathbf{y}_m\}_{m=1}^M$ indicating vectors of object-level co-segmentation for each input point set based on such assignment.
 %
@@ -152,7 +148,6 @@ this step estimates the posterior probability $\alpha_{mik}$ of $\mathbf v_{mi}$
 \end{equation}
 %
 
-
 \noindent\textbf{M-step-a}: this step updates the transformations $\phi_{mn}$ that maximize $\mathcal{E}(\Theta)$, given instant values for $\alpha_{mik}$, $\mathbf{x}_k$, $\sigma_k$.
 %
 We only consider rigid transformations, making  $\phi_{mn}(\mathbf{x})=\mathbf{R}_{mn}\mathbf{x}+\mathbf{t}_{mn}$. The maximizer $\mathbf{R}_{mn}^*,\mathbf{t}_{mn}^*$ of $\mathcal{E}(\Theta)$ is the same with the minimizers of the following constrained optimization problems
@@ -205,16 +200,11 @@ y_{mi}^*=\arg \max_n \sum_{k=\sum_{s=1}^{n-1}K_S+1}^{\sum_{s=1}^{n}K_S} \alpha_{
 \end{equation}
 where $y_{mi}$ is the $i^{th}$ entry of the indicate vector $\mathbf{y}_{m}$ and it assigns the $i^{th}$ point of the $m^{th}$ point set to one of $N$ objects.  
 
-
-
-
-
-
 \subsection{Bilateral Formulation}
 \label{sec:bilateral-formulation}
 
-\mdf{In the basic formulation, only position information is used in Gaussian models.}
-When considering point-wise features, \cxj{such as color, texture, etc,} we can add bilateral terms into the generative model.
+In the basic formulation, only position information is used in Gaussian models.
+When considering point-wise features ( such as color, texture, etc), we can add bilateral terms into the generative model.
 \begin{equation}
 P(\mathbf{v}_{mi},\mathbf{f}_{mi})=\sum^{K_{all}}_{k=1}p_k\mathcal{N}(\mathbf{v}_{mi}|\phi_{mn}(\mathbf{x}^v_k),\sigma v_k)\mathcal{N}(\mathbf{f}_{mi}|\mathbf{x}^f_k,\sigma^f_k),
 \end{equation}
