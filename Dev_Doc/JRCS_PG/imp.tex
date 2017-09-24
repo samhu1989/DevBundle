@@ -1,7 +1,5 @@
 \section{Initialization and Optimization}
 \label{sec:imp}
-
-
 Based on our formulation in Sec.~\ref{sec:method}, our algorithm can be summarized as in Algorithm \ref{alg:jrcs}.
 %
 In this section, we explain how do we initialize the parameters and guide the optimization with user interactions for our algorithm.
@@ -55,38 +53,37 @@ This is an empirical choice borrowed from \cite{Evangelidis2014}.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=.3\linewidth]{images/interact01.png}
-	\includegraphics[width=.3\linewidth]{images/interact02.png}
-	\includegraphics[width=.3\linewidth]{images/interact03.png}
-	\includegraphics[width=.3\linewidth]{images/interact04.png}
-	\includegraphics[width=.3\linewidth]{images/interact05.png}
-	\includegraphics[width=.3\linewidth]{images/interact06.png}
+	\includegraphics[width=.45\linewidth]{images/interact01.png}
+	\includegraphics[width=.45\linewidth]{images/interact02.png}
+	\includegraphics[width=.45\linewidth]{images/interact03.png}
+	%\includegraphics[width=.3\linewidth]{images/interact04.png}
+	%\includegraphics[width=.3\linewidth]{images/interact05.png}
+	\includegraphics[width=.45\linewidth]{images/interact06.png}
 	\caption{\label{fig:interact}
-		From the first to the sixth, the nine \cxj{nine or six?} images show the procedure of interaction:
-		the user picks one point set and place boxes to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represents one object. The interaction allows multiple boxes to represents same object.(e.g. the desk is represented by three boxes in same color) \cxj{I suggest only use three images here.}}
+		From the $1^{st}$ to the $4^{th}$, the four images show the procedure of interaction:
+		Given all the point sets as input, the user picks one point set and place boxes to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represents one object. The interaction allows multiple boxes to represent same object.(e.g. the desk is represented by three boxes in same color)}
 \end{figure}
-
 
 \noindent\textbf{Gaussian Parameters $\{p_k,\mathbf{x}_k,\Sigma_k\}_{k=1}^{K_{all}}$}:
 We then set $p_k=\frac{1}{K_{all}}$ as the initial values for $p_k$, which means each Gaussian has the same weight at the beginning. 
 %
 For the Gaussian centroids $\{\mathbf{x}_k\}$, we first allocate memory for total $K_{all}$ Gaussian centroids and then separate them into $N$ groups to represent $N$ objects. 
 %Each group has $K_n$ Gaussian centroids based on Eq.~(\ref{equ:K_n}). We implement this by recording the start and end indices of the $N$ objects. In other words, we record $\{0,K_1,K_1+1,K_1+K_2,...,K_S+1,K_S+K_n,...\}$. 
-For the $n^{th}$ object, we initialize its $K_n$ Gaussian centroids $\{\mathbf{x}_k\}_{K_S+1}^{K_S+K_n}$ as random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets. 
-\cxj{confusing here..}
+For the $n^{th}$ object, we initialize its $K_n$ Gaussian centroids $\{\mathbf{x}_k\}_{K_S+1}^{K_S+K_n}$ as random positions uniformly distributed on the surface of a sphere, whose radius $r$ is chosen as the median of the radius of the input point sets.
+%
+ 
 %
 The center of the $n^{th}$ sphere is $\mathbf{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$.
-\cxj{I modified here? $z_n=\frac{2n+1-N}{N}r$} 
 %
 This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c). 
 %
 We choose vertical arrangement for groups of object merely for the convenience of visualization.
 %
-Figure~\ref{fig:iter}(a) \cxj{add subfigure no.} shows the initial Gaussian centroids of a scene.
+Figure~\ref{fig:iter}(a) shows an example of the initial Gaussian centroids of a scene with three objects.
 %
-The variance $\{Sigma_k\}$ are all initialized as $\Sigma_k=\sigma^2 \vb{I}$ in which $\sigma=r$.
+The variance $\{\Sigma_k\}$ are all initialized as $\Sigma_k=\sigma^2 \vb{I}$ in which $\sigma=r$.
 %The $r$ here is the radius of sphere. 
-Without any prior knowledge, such initialization for Gaussian parameters put all the objects at similar starting points and they can compete fairly to group points in the input point sets.   
+Without any prior knowledge, such initialization for Gaussian parameters put all the objects at similar starting points and they can compete fairly to group points in the input point sets. If we set the $r$ differently for each object based on the size of input boxes then it is easier to converge to a local minimum that all the points are assigned to the largest object.
 
 \noindent\textbf{Transformations} $\{\phi_{mn}\}_{m=1,n=1}^{M,N}=\{\mathbf{R}_{mn},\mathbf{t}_{mn}\}_{m=1,n=1}^{M,N}$:
 Since we have chosen spheres as the initial shapes, we can initialize all the $\mathbf{R}_{mn}$ to the identity matrix.
@@ -107,17 +104,14 @@ where $N(B_n)$ here is the number of elements in the point set that is enclosed 
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/localoptimal/localoptimal}
-	\caption{\label{fig:localoptimal} An example result when our algorithm converges to a local optimal. (a) The segmentation result in six point sets of this local optimal. (b) The Gaussian centroids of the latent object models. It shows that the chair and the table are not perfectly segmented. \cxj{remove ... in the figure.}}
+	\caption{\label{fig:localoptimal} An example result when our algorithm converges to a local optimal. (a) The segmentation result in six point sets of this local optimal. (b) The Gaussian centroids of the latent object models. It shows that the chair and the table are not perfectly segmented.}
 \end{figure}
-
-
 
 \subsection{Layout Constrained Optimization}
 \label{subsec:optimzation}
 
 The expectation maximization framework is easily converged to a local optimal. 
-\cxj{I move fig 4 here.}
-\mdf{From a random initialization for object models, the EM framework usually converges to a local optimal, as shown in Figure~\ref{fig:localoptimal}. It shows that the chair and the table are not perfectly segmented. }
+From a random initialization for object models, the EM framework usually converges to a local optimal, as shown in Figure~\ref{fig:localoptimal}. It shows that the chair and the table are not perfectly segmented.
 %
 To cope with this problem, we adopt the user placed boxes as soft constraints to guide the optimization and confine the shape of generated object models. 
 Such constraints are enforced by altering the posterior probability as
@@ -135,20 +129,17 @@ where $\beta_{mik}$ is the prior probability according to the boxes, defined as:
 	\end{array} \right.
 \end{equation}
 %
-\cxj{So $\beta_{mik}$ are not related with $k$?}
 where $B_n$ is a set of points that are enclosed by the boxes used to represent object $O_{n}$. 
 %
 %The $k^{th}$ Gaussian model is predefined to be one of the Gaussians used to represent $n^{th}$ object.
 $\min_{\vb{v}_{mj}}|| \vb{v}_{mi} - \vb{v}_{mj} ||_2^2$ is the minimum distance from a point $\vb{v}_{mi}$ to the points $\{\vb{v}_{mj}\}$ in an object $O_n$.
 %the squared Euclidean distance from point $v_{mi}$ to the point set $B_n$, as we define the distance from a point to a point set as the minimum distance from the point to any point inside the point set. 
-$L$ here is a constant number with $L=2r^2$, and $r$ is the median of the radius of input point sets. \cxj{$L$, $r$ are used many times for different things?}
+$L$ here is a constant with $L=2r^2$, and $r$ is the median of the radius of input point sets.
 %
 The radius of a point set is half of length of diagonal line of its axis-aligned bounding box.   
 %
 This alteration on posterior probability is only done with the points in the $m^{th}$ point set where boxes are manually placed. 
 %
-
-
 
 \begin{figure}
 	\centering
@@ -168,16 +159,16 @@ This alteration can prevent the object models from deforming into an arbitrary s
 %
 Figure~\ref{fig:iter} and Figure~\ref{fig:iter_curve} demonstrate an example of converging procedure with the box constraints. 
 %
-\mdf{We can see that with the boxes placed in one point set as constraints, our framework converges to a good segmenation result. The point sets are finally segmented to three objects, and the object models develop from a initial sphere shape at $q=1$ to a dense point cloud which fits the input point sets well. }
+We can see that with the boxes placed in one point set as constraints, our framework converges to a good segmenation result. The point sets are finally segmented to three objects, and the object models develop from a initial sphere shape at $q=1$ to a dense point cloud which fits the input point sets well. 
 %
 However, in Figure~\ref{fig:iter_curve}, the objective function is not monotonically increasing. 
 This is due to our alteration on the posterior probability in Eq.~(\ref{equ:alteralpha}). This alteration is a quite brutal solution to enforce the shape constraint and it will interfere with the convergence of EM algorithms.
 % 
 This makes it difficult to set a stop criteria based on the objective value. 
 We now stop the iteration when the maximum iteration number $q_{max}$ is reached.
-% as shown in Algorithm~\ref{alg:jrcs} step 8. 
+% as shown in Algorithm~\ref{alg:jrcs} step 8.
+ 
 In Figure~\ref{fig:iter}, note that the segmentation in the first point set seldom changes until the last few iterations. 
-\cxj{Zoom in the bear and table part in the first row.}
 %
 This is due to the alteration in (\ref{equ:alteralpha}) as well. 
 %
@@ -190,5 +181,3 @@ For initialization and object shape constraint, the boxes are first roughly plac
 However, in more challenging cases, our algorithm will stuck at local minimum due to objects' non-local movement. 
 For such cases, our implementation allows placing more constraints in other point sets (even during the optimization process). 
 The same alteration as (\ref{equ:alteralpha}) is performed to further constrain the optimization. We will discuss an example of such case later in Sec~\ref{subsec:interact}.
-
-\cxj{I suggest put Fig 5, 6 together.}
