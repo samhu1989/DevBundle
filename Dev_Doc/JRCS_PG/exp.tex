@@ -5,12 +5,12 @@ In this section, we will show a series of experimental results including evaluat
 \noindent \textbf{Data Collection.} 
 We generate a group of synthetic point sets for quantitatively evaluate our algorithm. 
 %
-For each dataset, we model a 3D scene using object models from 3D Warehouse~\cxj{add reference.} 
+For each dataset, we model a 3D scene using object models from 3D Warehouse (\url{https://3dwarehouse.sketchup.com/}).
 We convert the mesh model of the scene into a point set using the Poisson sampling method~\cite{PossionSampling}.
 %
 Then we manually move the objects according to their functions and generate multiple point sets. 
 
-To collect data of real scenes, we scan a scene at different times using \cite{VHX}.
+To collect data of real scenes, we scan a scene at different times using \cite{VXH}.
 %
 The reconstructed mesh model of the scene is converted to point sets using Poisson sampling method~\cite{PossionSampling}.
 % 
@@ -168,7 +168,6 @@ In this subsection, we investigate how the point set incompleteness affect the r
 % 
 Figure~\ref{fig:incompleteness} shows how the IOU score is affected with the increasing point set incompleteness. 
 Figure~\ref{fig:incompleteness2} shows the visual result of this experiment. 
-\cxj{Do not use 'the' before "Figure".}
 
 
 In order to simulate the point incompleteness caused by occlusion using a simple method, we generate the incomplete point sets with incompleteness of $p\%$ as follows:
@@ -179,8 +178,7 @@ In order to simulate the point incompleteness caused by occlusion using a simple
 \end{enumerate}
 \cxj{Do you use the same group of data for Figure~\ref{fig:incompleteness}?}
 %
-In Figure~\ref{fig:incompleteness2}, the case of $p=\{0.0,14.0,30.0\}$ are shown. In row 09 of Figure~\ref{fig:incompleteness2} we can see that for some object in the scene half of the points are already removed.
-\cxj{Do not use "row 09" to indicate the subfigure.}
+In Figure~\ref{fig:incompleteness2}, the case of $p=\{0.0,14.0,30.0\}$ are shown. In Figure~\ref{fig:incompleteness2}(A09-E09), we can see that for some object in the scene half of the points are already removed.
 
 
 \begin{figure}
