@@ -79,7 +79,7 @@ This means that the object models are vertically arranged in latent space as sho
 %
 We choose vertical arrangement for groups of object merely for the convenience of visualization.
 %
-Figure~\ref{fig:iter}(a) shows an example of the initial Gaussian centroids of a scene with three objects.
+Figure~\ref{fig:iter}(b)"E00" shows an example of the initial Gaussian centroids of a scene with three objects.
 %
 The variance $\{\Sigma_k\}$ are all initialized as $\Sigma_k=\sigma^2 \vb{I}$ in which $\sigma=r$.
 %The $r$ here is the radius of sphere. 
@@ -141,34 +141,29 @@ The radius of a point set is half of length of diagonal line of its axis-aligned
 This alteration on posterior probability is only done with the points in the $m^{th}$ point set where boxes are manually placed. 
 %
 
-\begin{figure}
+\begin{figure*}
 	\centering
-	\includegraphics[width=\linewidth]{images/Initialization/iters}
-	\caption{\label{fig:iter} This figure shows an example of our algorithm converging with increasing number of iterations. The $1^{st}-3^{rd}$ row show the images for three example out of total nine point sets. The $4^{th}$ row shows the images for Gaussian centroids (the space of object models). The first column shows the input layout (boxes) which is only placed in the first point set. The second column shows the input point sets and the initial Gaussian centroids. The $3^{rd}-9^{th}$ shows result of segmentation (in $1^{st}-3^{rd}$ row) and Gaussian centroids (in $4^{th}$ row) at different iteration numbers $q$. The $q$ is shown at top of each column}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\linewidth]{images/Initialization/obj_iter.png}
-	\caption{\label{fig:iter_curve}This figure shows the curve of objective function - iteration number for the data partially shown in Figure~\ref{fig:iter}. The objective value is calculated according to (\ref{equ:obj3}). Note that the curve is not monotonic increasing, which makes it difficult to set a stop condition based on our objective.}
-\end{figure}
+	\includegraphics[width=\linewidth]{images/Initialization/iters_merge}
+	\caption{\label{fig:iter} This figure shows an example of our algorithm converging with increasing number of iterations.
+		(a) shows the curve of objective function - iteration number. The $1^{st}-3^{rd}$ row show the images for three example out of total nine point sets. The $4^{th}$ row shows the images for Gaussian centroids (the space of object models). The objective value is calculated according to (\ref{equ:obj3}). Note that the curve is not monotonic increasing, which makes it difficult to set a stop condition based on our objective.(b) shows three input point set as examples out of 12. Column "00" shows the input point sets and the initial Gaussian centroids, among which "B00" has two images the left one  is the input layout (boxes) which is only placed in the first point set. The column "01"-"08" shows result of segmentation (in row "B"-"D") and Gaussian centroids (in row "E") at different iteration numbers $q$. The $q$ is shown at top of each column. The row "A" shows highligted areas of "B01"-"B08" }
+\end{figure*}
 
 This alteration can prevent the object models from deforming into an arbitrary shape.
 %
 %In Figure~\ref{fig:localoptimal}, the $2nd$ and $3rd$ object has deformed into a combination of two objects due to lack of constraint.
 %
-Figure~\ref{fig:iter} and Figure~\ref{fig:iter_curve} demonstrate an example of converging procedure with the box constraints. 
+Figure~\ref{fig:iter} demonstrate an example of converging procedure with the box constraints. 
 %
 We can see that with the boxes placed in one point set as constraints, our framework converges to a good segmenation result. The point sets are finally segmented to three objects, and the object models develop from a initial sphere shape at $q=1$ to a dense point cloud which fits the input point sets well. 
 %
-However, in Figure~\ref{fig:iter_curve}, the objective function is not monotonically increasing. 
+However, in Figure~\ref{fig:iter}(a), the objective function is not monotonically increasing. 
 This is due to our alteration on the posterior probability in Eq.~(\ref{equ:alteralpha}). This alteration is a quite brutal solution to enforce the shape constraint and it will interfere with the convergence of EM algorithms.
 % 
 This makes it difficult to set a stop criteria based on the objective value. 
 We now stop the iteration when the maximum iteration number $q_{max}$ is reached.
 % as shown in Algorithm~\ref{alg:jrcs} step 8.
  
-In Figure~\ref{fig:iter}, note that the segmentation in the first point set seldom changes until the last few iterations. 
+As highlighted in Figure~\ref{fig:iter}(b)"A01"-"A08", the segmentation in the first point set seldom changes until the last few iterations. 
 %
 This is due to the alteration in (\ref{equ:alteralpha}) as well. 
 %
