@@ -33,9 +33,8 @@ The real dataset (as shown in Figure~\ref{fig:realdata}) is acquired as follows:
 }
 
 \subsection{Evaluation for Joint Registration on Synthetic Data}
-From the perspective of joint registration, we first compare our method with \cite{Evangelidis2014} on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
+From the perspective of joint registration, we first compare our method (JRCS-Basic) with \cite{Evangelidis2014}(JRMPC) on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
 
-\cxj{My suggestion for algorithm names: JRCS-Basic and JRCS-Bilateral. I also suggest move this section before co-segmentation.  }
 \begin{table}
 	\centering
 	\caption{This table shows the RMSE of joint registration on 4 point sets of Stanford Bunny. JRMPC is the method of \cite{Evangelidis2014}. JRCS Basic is our basic formulation}
@@ -51,7 +50,7 @@ From the perspective of joint registration, we first compare our method with \ci
 	\centering
 	\includegraphics[width=0.4\linewidth]{images/JRMPC.png}
 	\includegraphics[width=0.4\linewidth]{images/JRCSReg.png}
-	\caption{This figure shows the visual result of joint registration on 4 point sets of Stanford Bunny by JRMPC(\cite{Evangelidis2014} at left) and JRCS Basic( our basic formulation at right) }
+	\caption{This figure shows the visual result of joint registration on 4 point sets of Stanford Bunny by JRMPC(\cite{Evangelidis2014} at left) and JRCS-Basic( our basic formulation at right) }
 	\label{fig:reg}
 \end{figure}
 We then evaluate the result by transferring the point cloud of objects to each input point set based on result $\{\phi_{mn}\}$ and calculating the average distance from a point to its true correspondent point for each input point set.
@@ -194,7 +193,6 @@ In Figure~\ref{fig:incompleteness2}, the case of $p=\{0.0,14.0,30.0\}$ are shown
 	Row 04,08,12 shows the point-wise correspondences of joint registration by color-coding}
 	\label{fig:incompleteness2}
 \end{figure}
-
 
 \subsection{Test On Real Data}
 To capture real data we employ the voxel hashing method~\cite{VXH} and use plane fitting to remove walls and floors. 
