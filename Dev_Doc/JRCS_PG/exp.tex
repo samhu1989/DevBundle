@@ -16,8 +16,78 @@ The reconstructed mesh model of the scene is converted to point sets using Poiss
 % 
 Since our approach focuses on objects in the scene, the wall and floor are removed by detecting large planes.
 
+\subsection{Evaluation for Co-segmentation on Synthetic Data}
+\begin{table}
+	\centering
+	\caption{Mean and standard deviation of IOU scores on two synthetic datasets. JRCS Basic is our basic formulation. JRCS Bilateral  is our bilateral formulation with point color as feature. PointNet is the semantic segmentation of \cite{qi2016pointnet}. }
+	\begin{tabular}{c c c c}
+		Datasets &  Study Room & Office Desk \\
+		\hline
+		JRCS Basic & 0.808$\pm$0.032 & 0.831 $\pm$ 0.027\\   
+		JRCS Bilateral & 0.876$\pm$0.012 & 0.829 $\pm$ 0.028\\
+		PointNet & 0.402$\pm$0.032 &  0.439 $\pm$ 0.049\\
+	\end{tabular}
+	\label{tab:seg}
+\end{table}
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/exp/exp_seg}
+	\caption{\label{fig:seg} Segmentation evaluations on two groups of synthetic data (study room and office desk). Three examples of point set have been shown from each group.}
+\end{figure}
+%
+From the perspective of co-segmentation, we quantitatively evaluate our algorithm on two group of synthetic data of indoor scenes. 
+%
+To estimate the power of the proposed algorithm, the interaction of placing boxes is only performed at one point set. No further interaction is required. 
+% we only input layout for one point set in each group for initialization and do not add further interaction.
+%
+For numerical estimation, we calculate the intersection over union (IOU) scores for the inducing segmentation against the ground-truth segmentation.
+% 
+We compare our results with the state of art semantic segmentation method, PointNet~\cite{qi2016pointnet}, which trains a network using a large-scale database. 
+%
+Table~\ref{tab:seg} shows the numeric result and Figure~\ref{fig:seg} shows visual result of three input point set including the one that is equiped with input layout.
+For the object class that is not annotated in the training data the PointNet treat it as a special class of "clutter". This is why we have different ground truth for our method and PointNet. As shown in Figure~\ref{fig:seg}, we have "GT" as groundtruth used to evaluate our method and "GT for PointNet" as groundtruth used to evaluate PointNet. 
+%
+\comments{
+From the evaluation, we want to discuss one interesting observation:\\
+%
+For all two groups, the point set with the highest IOU score is not the same as the point set equipped with manually placed layout.
+In other words, the point sets from Figure~\ref{fig:seg}(c) are not the same point sets from Figure~\ref{fig:seg}(b). 
+In the first group of data (dataset of child table in Figure~\ref{fig:seg}), the segmentation result of the point set with layout is even the second worst in the sense of IOU score. 
+We believe this is because that the manually placed layout is not accurate respecting to point-wise segmentation. 
+At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}) can serve as a soft constraint to help constraining the shape of object, but in the final iterations the alteration will obstruct the further improvement of segmentation for the correspondent point set. 
+}
+
+Comparing our method to PointNet is not an exact fair comparison in following aspects:
+\begin{enumerate}
+\item Our method allow user interaction and PointNet is fully automatic in test phase.
+\item Our synthetic data is quite different from the data in Stanford 3D semantic parsing dataset\cite{semsegdataset} which is used to train the semantic segmentation network of PointNet.
+\item Our method output object-level segmentation without semantic label, while PointNet output semantic labels.  
+\end{enumerate}
+However, by comparison we can see that the generalization ability of current learning based point set segmentation method is still far from enough to be used as tool to prepare data and build dataset. Semantic segmentation method is limited to certain set of object classes ( 13 classes for PointNet) and cannot be used to carry on our task. 
 \subsection{Evaluation for Joint Registration on Synthetic Data}
-From the perspective of joint registration, we first compare our method (JRCS-Basic) with \cite{Evangelidis2014}(JRMPC) on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
+From the perspective of joint registration, we first evaluate the result by transferring the point cloud of objects to each input point set based on result $\{\phi_{mn}\}$ and calculating the average distance from a point to its true correspondent point for each input point set.
+We use this average distance as fitness error to evaluate the registration quality respect to each input set.
+
+\begin{table}
+	\centering
+	\caption{Registration errors of the three groups of synthetic data in Figure~\ref{fig:seg}. The errors are measured in meter. \cxj{3 cm is actually large error...}}
+	\begin{tabular}{c c c c}
+		Dataset & Maximum Error & Median Error & Minimum Error \\
+		\hline 
+		Office Desk & -  & - & - \\
+		Living Room & -  & - & -\\
+	\end{tabular}
+	\label{tab:regerror}
+\end{table}
+
+Table~\ref{tab:regerror} shows the result of this evaluation.
+\cxj{Why Table 4? New group of experiments? }
+%
+%For this evaluation we want to discuss that:\\
+We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
+\cxj{show a table case.}
+
+We then compare our method (JRCS-Basic) with \cite{Evangelidis2014}(JRMPC) on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
 
 \begin{table}
 	\centering
@@ -37,73 +107,6 @@ From the perspective of joint registration, we first compare our method (JRCS-Ba
 	\caption{This figure shows the visual result of joint registration on 4 point sets of Stanford Bunny by JRMPC(\cite{Evangelidis2014} at left) and JRCS-Basic( our basic formulation at right) }
 	\label{fig:reg}
 \end{figure}
-We then evaluate the result by transferring the point cloud of objects to each input point set based on result $\{\phi_{mn}\}$ and calculating the average distance from a point to its true correspondent point for each input point set.
-We use this average distance as fitness error to evaluate the registration quality respect to each input set.
-
-\begin{table}
-	\centering
-	\caption{Registration errors of the three groups of synthetic data in Figure~\ref{fig:seg}. The errors are measured in meter. \cxj{3 cm is actually large error...}}
-	\begin{tabular}{c c c c}
-		Dataset & Maximum Error & Median Error & Minimum Error \\
-		\hline
-		Child Shelf & - & - & - \\   
-		Office Desk & -  & - & - \\
-		Living Room & -  & - & -\\
-	\end{tabular}
-	\label{tab:regerror}
-\end{table}
-
-
-Table~\ref{tab:regerror} shows the result of this evaluation.
-\cxj{Why Table 4? New group of experiments? }
-%
-%For this evaluation we want to discuss that:\\
-We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
-\cxj{show a table case.}
-
-
-\subsection{Evaluation for Co-segmentation on Synthetic Data}
-
-
-
-\begin{table}
-	\centering
-	\caption{IOU scores on three synthetic datasets. JRCS Basic is our basic formulation. JRCS Bilateral  is our bilateral formulation with point color as feature. PointNet is the semantic segmentation of \cite{qi2016pointnet} }
-	\begin{tabular}{c c c c}
-		Datasets &  Study Room & Office Desk \\
-		\hline
-		JRCS Basic & 0.808$\pm$0.032 & 0.831 $\pm$ 0.027\\   
-		JRCS Bilateral & 0.876$\pm$0.012 &\\
-		PointNet & 0.402$\pm$0.032 & \\
-	\end{tabular}
-	\label{tab:seg}
-\end{table}
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=\linewidth]{images/exp/exp_seg}
-	\caption{\label{fig:seg} Segmentation evaluations on two groups of synthetic data (study room and office desk). Each group of data have 13 point sets.}
-\end{figure}
-
-From the perspective of co-segmentation, we quantitatively evaluate our algorithm on three group of synthetic data of indoor scenes. 
-%
-To estimate the power of the proposed algorithm, the interaction of placing boxes is only performed at one point set. No further interaction is required. 
-% we only input layout for one point set in each group for initialization and do not add further interaction.
-%
-For numerical estimation, we calculate the intersection over union (IOU) scores for the inducing segmentation against the ground-truth segmentation.
-% 
-We compare our results with the state of art semantic segmentation method, PointNet~\cite{qi2016pointnet}, which trains a network using a large-scale database. 
-%
-We produce a "Living Room" scene with 13 classes of objects that are contained in the training data of PointNet~\cite{qi2016pointnet}.
-%
-Table~\ref{tab:seg} shows the numeric result and Figure~\ref{fig:seg} shows some samples of visual result.
-
-From the evaluation, we want to discuss one interesting observation:\\
-%
-For all three groups, the point set with the highest IOU score is not the same as the point set equipped with manually placed layout.
-In other words, the point sets from Figure~\ref{fig:seg}(c) are not the same point sets from Figure~\ref{fig:seg}(b). 
-In the first group of data (dataset of child table in Figure~\ref{fig:seg}), the segmentation result of the point set with layout is even the second worst in the sense of IOU score. 
-We believe this is because that the manually placed layout is not accurate respecting to point-wise segmentation. 
-At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}) can serve as a soft constraint to help constraining the shape of object, but in the final iterations the alteration will obstruct the further improvement of segmentation for the correspondent point set. 
 
 \subsection{Investigation on Interaction}
 \label{subsec:interact}
