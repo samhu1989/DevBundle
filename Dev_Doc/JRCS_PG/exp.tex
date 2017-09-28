@@ -47,16 +47,6 @@ We compare our results with the state of art semantic segmentation method, Point
 Table~\ref{tab:seg} shows the numeric result and Figure~\ref{fig:seg} shows visual result of three input point set including the one that is equiped with input layout.
 For the object class that is not annotated in the training data the PointNet treat it as a special class of "clutter". This is why we have different ground truth for our method and PointNet. As shown in Figure~\ref{fig:seg}, we have "GT" as groundtruth used to evaluate our method and "GT for PointNet" as groundtruth used to evaluate PointNet. 
 %
-\comments{
-From the evaluation, we want to discuss one interesting observation:\\
-%
-For all two groups, the point set with the highest IOU score is not the same as the point set equipped with manually placed layout.
-In other words, the point sets from Figure~\ref{fig:seg}(c) are not the same point sets from Figure~\ref{fig:seg}(b). 
-In the first group of data (dataset of child table in Figure~\ref{fig:seg}), the segmentation result of the point set with layout is even the second worst in the sense of IOU score. 
-We believe this is because that the manually placed layout is not accurate respecting to point-wise segmentation. 
-At early iterations of the optimization, the alteration in (\ref{equ:alteralpha}) can serve as a soft constraint to help constraining the shape of object, but in the final iterations the alteration will obstruct the further improvement of segmentation for the correspondent point set. 
-}
-
 Comparing our method to PointNet is not an exact fair comparison in following aspects:
 \begin{enumerate}
 \item Our method allow user interaction and PointNet is fully automatic in test phase.
@@ -70,18 +60,19 @@ We use this average distance as fitness error to evaluate the registration quali
 
 \begin{table}
 	\centering
-	\caption{Registration errors of the three groups of synthetic data in Figure~\ref{fig:seg}. The errors are measured in meter. \cxj{3 cm is actually large error...}}
-	\begin{tabular}{c c c c}
-		Dataset & Maximum Error & Median Error & Minimum Error \\
+	\caption{Registration errors of the three groups of synthetic data in Figure~\ref{fig:seg}. The errors are measured in meter.}
+	\begin{tabular}{c | c c c}
+		Method@Dataset&Maximum&Median&Minimum\\
 		\hline 
-		Office Desk & -  & - & - \\
-		Living Room & -  & - & -\\
+		Basic@Study Room&0.441&0.085&0.027\\
+		Bilateral@Study Room&0.139&0.052&1.31e-05\\
+	    Basic@Office Desk&0.309&0.0408&5.82e-03\\
+		Bilateral@Office Desk&0.222&0.0574&8.33e-03\\
 	\end{tabular}
 	\label{tab:regerror}
 \end{table}
 
 Table~\ref{tab:regerror} shows the result of this evaluation.
-\cxj{Why Table 4? New group of experiments? }
 %
 %For this evaluation we want to discuss that:\\
 We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
