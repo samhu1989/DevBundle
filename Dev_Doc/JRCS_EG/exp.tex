@@ -71,12 +71,19 @@ We use this average distance as fitness error to evaluate the registration quali
 	\end{tabular}
 	\label{tab:regerror}
 \end{table}
-
-Table~\ref{tab:regerror} shows the result of this evaluation.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/exp/exp_reg}
+	\caption{This figure shows some visual examples of joint registration.  The result  is illustrated by color-coding the point-wise correspondences }
+	\label{fig:reg_colorcode}
+\end{figure}
+Table~\ref{tab:regerror} shows the result of this evaluation. In Table~\ref{tab:regerror} the Maximum Median and Minimum of the fitness error across input sets are reported.
 %
 %For this evaluation we want to discuss that:\\
-We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error.
+We find that even the input set with high IOU scores in segmentation can result in high fitness error. We believe this is due to the symmetric and near-symmetric objects in the scene. For symmetric objects, even the registration is correct the distance from a point to its true correspondent point can be high, since the rotation in registration result can be different from the one we use to generate this synthetic data. For near-symmetric objects, the registration often gets stuck in a local optimal and results in a high IOU score but a high fitness error. 
 
+Therefore, we show some example of visual result for joint registration in Figure~\ref{fig:reg_colorcode}.By comparing Figure~\ref{fig:reg_colorcode}"A01" and Figure~\ref{fig:reg_colorcode}"A02", we can see that the registration of the round carpet is correct but due its symmetry its point-wise correspondences are not the same with identity transformation.
+By comparing Figure~\ref{fig:reg_colorcode}"A00" and Figure~\ref{fig:reg_colorcode}"A01", we can see that registration of the shelf is not correct and it is stucked at a local minimum that maps left to right.
 
 We then compare our method (JRCS-Basic) with \cite{Evangelidis2014}(JRMPC) on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
 
@@ -95,7 +102,7 @@ We then compare our method (JRCS-Basic) with \cite{Evangelidis2014}(JRMPC) on th
 	\centering
 	\includegraphics[width=0.4\linewidth]{images/JRMPC.png}
 	\includegraphics[width=0.4\linewidth]{images/JRCSReg.png}
-	\caption{This figure shows the visual result of joint registration on 4 point sets of Stanford Bunny by JRMPC(\cite{Evangelidis2014} at left) and JRCS-Basic( our basic formulation at right) }
+	\caption{This figure shows the visual result of joint registration on 4 point sets of Stanford Bunny by JRMPC(\cite{Evangelidis2014} at left) and JRCS-Basic( our basic formulation at right)}
 	\label{fig:reg}
 \end{figure}
 
