@@ -31,6 +31,7 @@ In the first scheme, extra challenging processing may be required such as tracki
 
 Thus, our original intention of building 3D scene datasets from scanned point sets leads us to the problem of coupled joint registration and co-segmentation.
 %%%%% Introdution to the problem of JRCS %%%%%
+As shown in Figure~\ref{fig:teaser}, by solving the problem of coupled joint registration and co-segmentation we not only partition point sets into objects but also align the objects together by solving rigid motion.
 In this problem, registration and segmentation are entangled in each other. On the one hand, the segmentation problem depends on the registration to connect the point clouds into series of rigid movement so that the object-level segmentation can be done based on the motion consistency. 
 On the other hand, the registration problem relies on the segmentation to break the problem into a series of rigid joint registration of objects, otherwise the registration of multiple scenes is a non-rigid joint registration with \emph{non-coherent point drift}.
 %
