@@ -1,0 +1,171 @@
+%%%%%%%%%%%%%%%%%%%%%%% file template.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is a general template file for the LaTeX package SVJour3
+% for Springer journals.          Springer Heidelberg 2010/09/16
+%
+% Copy it to a new file with a new name and use it as the basis
+% for your article. Delete % signs as needed.
+%
+% This template includes a few options for different layouts and
+% content for various journals. Please consult a previous issue of
+% your journal as needed.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% First comes an example EPS file -- just ignore it and
+% proceed on the \documentclass line
+% your LaTeX will extract the file if required
+\begin{filecontents*}{example.eps}
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 19 19 221 221
+%%CreationDate: Mon Sep 29 1997
+%%Creator: programmed by hand (JK)
+%%EndComments
+gsave
+newpath
+  20 20 moveto
+  20 220 lineto
+  220 220 lineto
+  220 20 lineto
+closepath
+2 setlinewidth
+gsave
+  .4 setgray fill
+grestore
+stroke
+grestore
+\end{filecontents*}
+%
+\RequirePackage{fix-cm}
+%
+%\documentclass{svjour3}                     % onecolumn (standard format)
+%\documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
+%\documentclass[smallextended]{svjour3}       % onecolumn (second format)
+\documentclass[twocolumn]{svjour3}          % twocolumn
+%
+\smartqed  % flush right qed marks, e.g. at end of proof
+%
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{algorithm}
+%
+\usepackage{mathptmx}      % use Times fonts if available on your TeX system
+%\usepackage{cite}
+%\usepackage{url}
+\usepackage{hyperref}
+% insert here the call for the packages your document requires
+%\usepackage{latexsym}
+% etc.
+%
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+%\newcommand{\cxj}[1]{\textcolor[rgb]{1.00,0.00,0.00}{(cxj: #1)}}
+%\newcommand{\mdf}[1]{\textcolor[rgb]{1.00,0.00,1.00}{#1}}
+%\newcommand{\hsy}[1]{\textcolor[rgb]{0.44,0.67,0.22}{(hsy: #1)}}
+%\newcommand{\confirm}[1]{\textcolor[rgb]{0.00,1.00,1.00}{#1}}
+\newcommand{\vb}[1]{\mathbf{#1}}
+\newcommand{\defV}{\mathcal{V}}
+\newcommand{\defZ}{\mathcal{Z}}
+\newcommand{\comments}[1]{}
+%
+% Insert the name of "your journal" with
+% \journalname{myjournal}
+%
+\begin{document}
+
+\title{Point Sets Joint Registration and Co-segmentation%\thanks{Grants or other notes
+%about the article that should go on the front page should be
+%placed here. General acknowledgments should be placed at the end of the article.}
+}
+\subtitle{}
+
+%\titlerunning{Short form of title}        % if too long for running head
+
+\author{Siyu Hu         \and
+        Xuejin Chen \and
+        Xin Tong
+}
+
+%\authorrunning{Short form of author list} % if too long for running head
+
+\institute{Siyu Hu \at
+	Dept. of Electronic Engineering and Information Science
+	University of Science and Technology of China\\
+              \email{sy891228@mail.ustc.edu.cn}           %  \\
+%             \emph{Present address:} of F. Author  %  if needed
+           \and
+           Xuejin Chen \at
+           Dept. of Electronic Engineering and Information Science
+           University of Science and Technology of China\\
+           \email{xjchen99@ustc.edu.cn}
+           \and
+           Xin Tong \at
+           Microsoft Research Asia\\
+           \email{xtong@microsoft.com}
+}
+
+\date{Received: date / Accepted: date}
+% The correct dates will be entered by the editor
+
+
+\maketitle
+
+\begin{abstract}
+We present a novel approach of joint registration and co-segmentation for point sets where objects move in different ways. 
+Considering the joint registration and co-segmentation as two problems heavily entangled with each other, we represent the input point sets as samples from a generative model and bring up with a novel formulation based on Gaussian mixture model. %
+By maximizing the posterior probability of the samples, we gradually recover the latent object models as well as an object-level segmentation, and simultaneously align the segmented points to the latent object models. 
+%
+Along with the formulation, we design an interactive tool that helps users intuitively intervene the process to optimize the registration and segmentation result. 
+%
+The experiment results on a group of synthetic and scanned point clouds demonstrate that our method is powerful and effective for joint registration and co-segmentation on point sets of multiple objects. 
+\keywords{Point Cloud \and Registration \and Co-segmentation}
+% \PACS{PACS code1 \and PACS code2 \and more}
+% \subclass{MSC code1 \and MSC code2 \and more}
+\end{abstract}
+
+\input{introduction}
+\input{relatedwork}
+\input{method}
+\input{imp}
+\input{exp}
+
+\section*{Compliance with Ethical Standards}
+\noindent \textbf{Funding:} This study was funded by the National Natural Science Foundation of China under Nos. 61472377, 61632006, and 6133101.
+
+\noindent \textbf{Conflict of Interest:} Siyu Hu declares that he has no conflict of interest.
+Xuejin Chen has received research grants from Microsoft and Huawei Technology Co. Ltd. Xuejin Chen had visited Leonidas Guibas’s Group in Stanford University during Feb 21 to Aug 20, 2017.
+Xin Tong is researcher of Microsoft.
+He is associate editor of ACM TOG and IEEE TVCG. He is also guest professor of University of Science and Technology of China and Tianjin University.
+
+
+%\begin{acknowledgements}
+%If you'd like to thank anyone, place your comments here
+%and remove the percent signs.
+%\end{acknowledgements}
+
+% BibTeX users please use one of
+%\bibliographystyle{spbasic}      % basic style, author-year citations
+\bibliographystyle{spmpsci}      % mathematics and physical sciences
+%\bibliographystyle{spphys}       % APS-like style for physics
+%\bibliographystyle{IEEEtran}
+\bibliography{JRCS}   % name your BibTeX data base
+
+% Non-BibTeX users please use
+%\begin{thebibliography}{}
+%
+% and use \bibitem to create references. Consult the Instructions
+% for authors for reference list style.
+%
+%\bibitem{RefJ}
+% Format for Journal Reference
+%Author, Article title, Journal, Volume, page numbers (year)
+% Format for books
+%\bibitem{RefB}
+%Author, Book title, page numbers. Publisher, place (year)
+% etc
+%\end{thebibliography}
+
+\end{document}
+% end of file template.tex
+
