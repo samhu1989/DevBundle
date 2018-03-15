@@ -5,7 +5,11 @@ In this section, we will show a series of experimental results including evaluat
 \noindent \textbf{Synthetic Data Collection.} 
 We generate a group of synthetic datasets ( synthetic point sets) for quantitatively evaluate our algorithm. 
 %
+<<<<<<< HEAD
 For each dataset, we model a 3D scene using object models from 3D Warehouse.
+=======
+For each dataset, we model a 3D scene using object models from 3D Warehouse. %(\url{https://3dwarehouse.sketchup.com/}).
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 We convert the mesh model of the scene into a point set using the Poisson sampling method~\cite{PossionSampling}.
 %
 Then we manually move the objects according to their functions and generate multiple point sets. 
@@ -19,20 +23,28 @@ Since our approach focuses on objects in the scene, the wall and floor are remov
 \subsection{Evaluation for Co-segmentation on Synthetic Data}
 \begin{table}
 	\centering
+<<<<<<< HEAD
 	\caption{Mean and standard deviation of IOU scores on two synthetic datasets. JRCS-Basic is our basic formulation. JRCS-Bilateral  is our bilateral formulation with point color as feature. PointNet is the semantic segmentation of \cite{qi2016pointnet}. }
+=======
+	\caption{Mean and standard deviation of IOU scores on two synthetic datasets. JRCS-Basic is our basic formulation. JRCS-Bilateral  is our bilateral formulation with point color as feature.  }
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 	\begin{tabular}{c c c c}
 		Datasets &  Study Room & Office Desk \\
 		\hline
 		JRCS-Basic & 0.808$\pm$0.032 & 0.831 $\pm$ 0.027\\   
 		JRCS-Bilateral & 0.876$\pm$0.012 & 0.829 $\pm$ 0.028\\
+<<<<<<< HEAD
 		PointNet & 0.402$\pm$0.032 &  0.439 $\pm$ 0.049\\
+=======
+		PointNet~\cite{qi2016pointnet} & 0.402$\pm$0.032 &  0.439 $\pm$ 0.049\\
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 	\end{tabular}
 	\label{tab:seg}
 \end{table}
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\linewidth]{images/exp/exp_seg}
-	\caption{\label{fig:seg} Segmentation evaluations on two groups of synthetic data (study room and office desk). Three examples of point set have been shown from each group.}
+	\caption{\label{fig:seg} Segmentation evaluations on two groups of synthetic data (study room and office desk). Three examples of point set from each group are shown.}
 \end{figure}
 %
 From the perspective of co-segmentation, we quantitatively evaluate our algorithm on two group of synthetic data of indoor scenes. 
@@ -74,7 +86,11 @@ We use this average distance as fitness error to evaluate the registration quali
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\linewidth]{images/exp/exp_reg}
+<<<<<<< HEAD
 	\caption{This figure shows some visual examples of joint registration.  The result  is illustrated by color-coding the point-wise correspondences. }
+=======
+	\caption{Joint registration results on two scenes using two variants of our method. Point-wise correspondences are color-coded.}
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 	\label{fig:reg_colorcode}
 \end{figure}
 Table~\ref{tab:regerror} shows the result of this evaluation. In Table~\ref{tab:regerror} the Maximum, Median and Minimum of the fitness error across input sets are reported.
@@ -89,11 +105,19 @@ We then compare our method (JRCS-Basic) with \cite{Evangelidis2014}(JRMPC) on th
 
 \begin{table}
 	\centering
+<<<<<<< HEAD
 	\caption{This table shows the RMSE of joint registration on 4 point sets of Stanford Bunny. JRMPC is the method of \cite{Evangelidis2014}. JRCS-Basic is our basic formulation}
 	\begin{tabular}{c c c c}
 		Point Sets& View 2 & View 3 & View 4 \\
 		\hline
 		JRMPC & 0.1604 & 0.1719 & 0.1838\\   
+=======
+	\caption{RMSE of joint registration on 4 point sets of Stanford Bunny by two methods.}
+	\begin{tabular}{c c c c}
+		Point Sets& View 2 & View 3 & View 4 \\
+		\hline
+		JRMPC~\cite{Evangelidis2014} & 0.1604 & 0.1719 & 0.1838\\   
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 		JRCS-Basic & 0.0822 &  0.1570  & 0.2301\\
 	\end{tabular}
 	\label{tab:reg}
@@ -102,7 +126,11 @@ We then compare our method (JRCS-Basic) with \cite{Evangelidis2014}(JRMPC) on th
 	\centering
 	\includegraphics[width=0.4\linewidth]{images/JRMPC.png}
 	\includegraphics[width=0.4\linewidth]{images/JRCSReg.png}
+<<<<<<< HEAD
 	\caption{This figure shows the visual result of joint registration on 4 point sets of Stanford Bunny by JRMPC (\cite{Evangelidis2014} at left) and JRCS-Basic (our basic formulation at right)}
+=======
+	\caption{Joint registration results on 4 point sets of Stanford Bunny by JRMPC~\cite{Evangelidis2014} (left) and our JRCS-Basic (right).}
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 	\label{fig:reg}
 \end{figure}
 
@@ -115,14 +143,22 @@ From Figure~\ref{fig:interact_vis}, we can see that actually quite a lot more in
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/interact/IOU.png}
+<<<<<<< HEAD
 	\caption{This figure shows an example of how the amount of interaction affect the IOU score of co-segmentation, the X axis is ratio: $x=\frac{Input~Box~Number}{Total~Object~Number}$. $x=1.0$ means that the user input one box for each object in all point sets}
+=======
+	\caption{IOU scores of co-segmentation results based on different amount of user interaction. The $X$ axis is the ratio: $x=\frac{Input~Box~Number}{Total~Object~Number}$. $x=1.0$ means that the user places one box for each object in all point sets.}
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 	\label{fig:interact_number}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/interact/interact}
+<<<<<<< HEAD
 	\caption{This figure shows 3 out of 16 point sets as examples for experiment on amount of interaction. The column A shows the input point sets, the column B shows the groundtruth segmentation. The column C shows the visual result when 1 point set is equipped with manual input layout. The column D shows the visual result when 11 out of 16 point sets are equipped with manual input layout.
+=======
+	\caption{Given the same input point sets, more accurate segmentation results can be obtained with more interaction. From left to right: 3 out of 16 input point sets, the ground-truth segmentation, our result when only one point set is equipped with manual input layout, and our result when 11 out of 16 point sets are equipped with manual input layout.
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 	}
 	\label{fig:interact_vis}
 \end{figure}
@@ -147,14 +183,21 @@ Figure~\ref{fig:incompleteness2} shows some example of visual result in this exp
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/incompleteness/IOU.png}
+<<<<<<< HEAD
 	\caption{This figure shows how the data incompleteness affect the IOU score of co-segmentation. The data used in this experiment is partially shown in Figure~\ref{fig:incompleteness2}.}
+=======
+	\caption{IOU scores of co-segmentation with different data incompleteness. The used data is partially shown in Figure~\ref{fig:incompleteness2}. }
+>>>>>>> f3b7495718a303c1bdafa2280072981b6697e028
 	\label{fig:incompleteness}
 \end{figure}
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/incompleteness/visual}
-	\caption{This figure shows some of the visual result of experiments on incompleteness. This figure shows results at 3 different level of incompleteness which are $0.0\%$ at row 01-04, $14\%$ at row 05-08 and  $30\%$ at row 09-12. Each column shows the information of the same point set. Row 01,05,09 shows the inputs. For the A column the input is not only the point set but also a layout for initialization. Row 02,06,10 are ground-truth of segmentation. Row 03,04,10 are results of segmentation. For the A column, the intial segmentation and final segmentation are both shown. For the rest column, the final segmentation are shown.
-	Row 04,08,12 shows the point-wise correspondences of joint registration by color-coding}
+	\caption{Experiments on data incompleteness. This figure shows results at 3 different level of incompleteness which are $0.0\%$ at row 01-04, $14\%$ at row 05-08 and $30\%$ at row 09-12. Each column shows the information of the same point set. Rows 01, 05, 09 show the inputs. 
+	Column A shows one point set and the manual input for initialization. 
+	The initial segmentation and final segmentation of this point set are shown in column A as well.
+	Row 02,06,10 are ground-truth of segmentation. Row 03,07,10 are our segmentation results. 
+	Row 04,08,12 shows the point-wise correspondences of joint registration by color-coding.}
 	\label{fig:incompleteness2}
 \end{figure}
 \subsection{Test On Real Data}
@@ -169,7 +212,7 @@ From Figure~\ref{fig:realdata}(e), we can see that all input point sets are part
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/challenge/challenge}
-	\caption{\label{fig:challenge}This figure highlights the common challenges on real data.}
+	\caption{\label{fig:challenge}Common challenges in scanned data.}
 \end{figure}
 \begin{figure*}
 	\centering
