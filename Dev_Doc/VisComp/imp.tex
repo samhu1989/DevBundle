@@ -53,15 +53,14 @@ This is an empirical choice borrowed from \cite{Evangelidis2014}.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=.45\linewidth]{images/interact/01.png}
-	\includegraphics[width=.45\linewidth]{images/interact/02.png}
-	\includegraphics[width=.45\linewidth]{images/interact/03.png}
+	\includegraphics[width=\linewidth]{images/interact/interact_step}
+	%\includegraphics[width=.45\linewidth]{images/interact/02.png}
+	%\includegraphics[width=.45\linewidth]{images/interact/03.png}
 	%\includegraphics[width=.3\linewidth]{images/interact/04.png}
 	%\includegraphics[width=.3\linewidth]{images/interact/05.png}
-	\includegraphics[width=.45\linewidth]{images/interact/06.png}
-	\caption{\label{fig:interact}
-		From the $1^{st}$ to the $4^{th}$, the four images show the procedure of interaction:
-		Given all the point sets as input, the user picks one point set and place boxes to indicate the layout for this point set. The box in white is the box currently under editing. The boxes in other colors are boxes placed to represent object layouts. One color represents one object. The interaction allows multiple boxes to represent same object. (e.g. the desk is represented by three boxes in same color)}
+	%\includegraphics[width=.45\linewidth]{images/interact/06.png}
+	\caption{\mdf{The procedure of interaction:
+		(a) Load all the input point sets into the system. These point sets records the same scene at different time. The objects inside the scene have been moved. (b) Pick one point set to add boxes to indicate layout for objects. The box in white is the box currently under editing. (c) Add boxes to represent each object inside the scene. One color represents one object. The interaction allows multiple boxes to represent same object. (e.g. the desk is represented by three boxes in same color) (d) The interaction is finished.}}
 \end{figure}
 
 \noindent\textbf{Gaussian parameters $\{p_k,\mathbf{x}_k,\Sigma_k\}_{k=1}^{K_{all}}$}:
@@ -77,7 +76,7 @@ The radius of a point set is defined as half of the length of diagonal line of i
 %
 The center of the $n^{th}$ sphere is $\mathbf{c}_n=(0,0,z_n)$, where $z_n\in \{-(N-1)r,-(N-3)r,...,(N-1)r\}$.
 %
-This means that the object models are vertically arranged in latent space as shown in Figure~\ref{fig:teaser}(c). 
+This means that the object models are vertically arranged in latent space as shown in \mdf{Figure~\ref{fig:localoptimal}(b)}. 
 %
 We choose vertical arrangement for groups of object merely for the convenience of visualization.
 %
@@ -106,7 +105,7 @@ where $N(B_n)$ here is the number of points enclosed by the manually placed boxe
 \begin{figure}
 	\centering
 	\includegraphics[width=\linewidth]{images/localoptimal/localoptimal}
-	\caption{\label{fig:localoptimal} An example result when our algorithm converges to a local optimal. (a) The segmentation result in six point sets of this local optimal. (b) The Gaussian centroids of the latent object models. It shows that the chair and the table are not perfectly segmented. }
+	\caption{\label{fig:localoptimal} An example result when our algorithm converges to a local optimal. \mdf{(a) shows the  segmentation result in six point sets. The algorithm stuck at a local optimal where a part of the table and a part of the chair are segmented into one combined object. (b) shows the same result as (a), but in the view of Gaussian centroids. It shows three group of Gaussian centroids vertically arranged. Each row shows one group of Gaussian centroids representing one object. It shows that the chair and the table are not perfectly segmented.}}
 \end{figure}
 
 \subsection{Layout Constrained Optimization}

@@ -80,7 +80,7 @@ While the shelf corner highlighted in the red rectangles is not correctly aligne
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\linewidth]{images/exp/exp_reg}
-	\caption{Joint registration results on two scenes using two variants of our method. Point-wise correspondences are color-coded.}
+	\caption{Joint registration results on two scenes using two variants of our method. Point-wise correspondences are color-coded. \mdf{The row 00 to 02 show the result for the same point set in each row for each scene. The column A and B shows result of methods JRCS-Basic and JRCS-Bilateral for study room.  The column C and D show results of JRCS-Basic and JRCS-Bilateral for office desk.}}
 	\label{fig:reg_colorcode}
 \end{figure}
 We then compare our method (JRCS-Basic) with \cite{Evangelidis2014}(JRMPC) on the synthetic point sets released by \cite{Evangelidis2014}. These data contains four point sets of Stanford Bunny with different noise and outliers. From the experiment result shown in Table~\ref{tab:reg} and Figure~\ref{fig:reg}, we can see that when dealing with one object, our method have similar result with \cite{Evangelidis2014}.
@@ -165,7 +165,7 @@ We then transfer the meshes into point sets using a Poisson sampling process~\ci
 %
 Figure~\ref{fig:challenge} shows a scanned point set. We can see that, there are noised and blurred color, shape distortion, partial scanning and outliers in real data.
 %
-Figure~\ref{fig:realdata} shows the segmentation and registration results on a group of scanned point sets We uses JRCS-Bilateral in this test and Figure~\ref{fig:realdata}(d) shows the only point set that is equipped with layout in this test.
+Figure~\ref{fig:realdata} shows the segmentation and registration results on a group of scanned point sets\mdf{.} \mdf{We use} JRCS-Bilateral in this test and Figure~\ref{fig:realdata}(d) shows the only point set that is equipped with layout in this test.
 From Figure~\ref{fig:realdata}(e), we can see that all input point sets are partitioned into objects. In Figure~\ref{fig:realdata}(g), we align the point sets all together respecting to each of the objects. There are four objects in the scene, so there are four different aligned results in Figure~\ref{fig:realdata}(g). The light blue rectangle highlights the object that is used to align the point sets. We can verify that the objects from each input set are aligned together by the result transformation.
 \begin{figure}
 	\centering
