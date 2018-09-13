@@ -4,6 +4,12 @@ My own template project for research
 We have published
 [Point sets joint registration and co-segmentation](https://doi.org/10.1007/s00371-018-1578-7)
 
+Results:
+
+![realdata](./Dev_Doc/VisComp/images/realdata/realdata.png)
+
+![realdata2](./Dev_Doc/VisComp/images/realdata/realdata2.png)
+
 citation info
 ```
 @Article{Hu2018,
