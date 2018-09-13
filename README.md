@@ -1,9 +1,10 @@
 # DevBundle
 My own template project for research
 
+We have published
+[Point sets joint registration and co-segmentation](https://doi.org/10.1007/s00371-018-1578-7)
 
-
-Please Cite
+citation info
 ```
 @Article{Hu2018,
 author="Hu, Siyu
